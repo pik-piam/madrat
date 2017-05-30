@@ -1,0 +1,236 @@
+#' calcOutput
+#' 
+#' Calculate a specific output for which a calculation function exists package. The function is a
+#' wrapper for specific functions designed for the different possible output types.
+#' 
+#' 
+#' @param type output type, e.g. "TauTotal". A list of all available source
+#' types can be retrieved with function \code{\link{getCalculations}}.
+#' @param aggregate Boolean indicating whether output data aggregation should be performed or not, "GLO" (or "glo") for aggregation to one global region,
+#' "REG+GLO" (or "regglo") for a combination of regional and global data.
+#' @param file A file name. If given the output is written to that file in the
+#' outputfolder as specified in the config.
+#' @param years A vector of years that should be returned. If set to NULL all
+#' available years are returned.
+#' @param round A rounding factor. If set to NULL no rounding will occur.
+#' @param destination The path relative to the main folder of the model to
+#' which the file should be copied. In the case that the file should be copied
+#' to more than one destination within the model data should be provided as a
+#' vector of destinations.
+#' @param supplementary boolean deciding whether supplementary information such as weight should be
+#' returned or not. If set to TRUE a list of elements will be returned!
+#' @param append boolean deciding whether the output data should be appended in the existing file.
+#' Works only when a file name is given in the function call. 
+#' @param na_warning boolean deciding whether NAs in the data set should create a warning or not
+#' @param ... Additional settings directly forwarded to the corresponding
+#' calculation function
+#' @return magpie object with the requested output data either on country or on
+#' regional level depending on the choice of argument "aggregate" or a list of information
+#' if supplementary is set to TRUE.
+#' @note The underlying calc-functions are required to provide a list of information back to 
+#' \code{calcOutput}. Following list entries should be provided:
+#' \itemize{
+#' \item x - the data itself as magclass object
+#' \item weight - a weight for the spatial aggregation
+#' \item unit - unit of the provided data
+#' \item description - a short description of the data
+#' \item note (optional) - additional notes related to the data
+#' \item isocountries (optional | default = TRUE) - a boolean indicating whether data is in 
+#' iso countries or not (the latter will deactivate several features such as aggregation)
+#' \item mixed_aggregation (optional | default = FALSE) - boolean which allows for mixed 
+#' aggregation (weighted mean mixed with summations). If set to TRUE weight columns 
+#' filled with 0 will lead to summation, otherwise they will trigger an error.
+#' \item min (optional) - Minimum value which can appear in the data. If provided calcOutput
+#' will check whether there are any values below the given threshold and warn in this case
+#' \item max (optional) - Maximum value which can appear in the data. If provided calcOutput
+#' will check whether there are any values above the given threshold and warn in this case
+#' }
+#' @author Jan Philipp Dietrich
+#' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
+#' \code{\link{file2destination}}, 
+#' @examples
+#' 
+#' \dontrun{ 
+#' 
+#' a <- calcOutput(type="TauTotal")
+#' 
+#' }
+#' 
+#' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report2 write.magpie
+#' getCells getYears<- is.magpie dimSums
+#' @importFrom utils packageDescription read.csv2
+#' @export
+
+calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, ...) {
+ 
+  cwd <- getwd()
+  if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
+  startinfo <- toolstartmessage("+")
+  if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
+  setwd(getConfig("outputfolder"))
+  functionname <- prepFunctionName(type=type, prefix="calc", years=years)
+  tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
+  if(tmpargs!="") tmpargs <- paste0("-",gsub('[^a-zA-Z]+', '_',tmpargs))
+    fname <- paste0("calc",type,tmpargs)
+  
+  tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
+  if(((all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) & !(type %in% getConfig("ignorecache"))) & !(fname %in% getConfig("ignorecache")) & file.exists(tmppath) ) {
+    vcat(1," - forced to use data from cache (",tmppath,")")
+    load(tmppath) 
+  } else {
+    vcat(2," - execute function",functionname)
+    x <- eval(parse(text=functionname))
+    if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
+    if(!is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
+    if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
+    if(!is.null(x$weight)) {
+      if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
+    }
+    x$package <- attr(functionname,"pkgcomment")
+    save(x,file=tmppath,compress = "xz")
+    Sys.chmod(tmppath, mode = "0777", use_umask = TRUE)
+  }
+  
+  # read and check x$isocountries value which describes whether the data is in
+  # iso country resolution or not (affects aggregation and certain checks)
+  if(is.null(x$isocountries)) x$isocountries <- TRUE
+  if(!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
+  
+  # read and check x$mixed_aggregation value which describes whether the data is in
+  # mixed aggregation (weighted mean mixed with summation) is allowed or not
+  if(is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE
+  if(!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
+  
+  
+  
+  # check for that aggregation=FALSE if x$isocountries in data is FALSE
+  if(!x$isocountries) {
+    if(aggregate!=FALSE) {
+      stop("Aggregation is not available for calculations which do not return ISO-country data (x$isocountries=FALSE).")
+    }
+  }
+  
+  #check that data is returned for ISO countries except if x$isocountries=FALSE
+  if(x$isocountries) {
+    iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+    iso_country1<-as.vector(iso_country[,"x"])
+    names(iso_country1)<-iso_country[,"X"]
+    isocountries <- sort(iso_country1)
+    if(nregions(x$x)>1){
+      datacountries <- sort(getRegions(x$x))
+      if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
+      if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
+    }
+    if(!is.null(x$weight)) {
+      if(nregions(x$weight)>1){
+        weightcountries <- sort(getRegions(x$weight))
+        if(length(isocountries)!=length(weightcountries)) stop("Wrong number of countries in weight returned by ",functionname,"!")
+        if(any(isocountries!=weightcountries)) stop("Countries in weight returned by ",functionname," do not agree with iso country list!")
+      }
+    }
+  }  
+  
+  #perform additional checks
+  if(!is.null(x$min)) {
+    if(any(x$x<x$min, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values smaller than the predefined minimum (min = ",x$min,")")
+  }
+  if(!is.null(x$max)) {
+    if(any(x$x>x$max, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values greater than the predefined maximum (max = ",x$max,")")
+  }
+  if(anyNA(x$x) & na_warning) vcat(0,"Data returned by ", functionname," contains NAs")
+  
+  if(!is.null(years)){
+    #check that years exist in provided data
+    if(!all(as.integer(sub("y","",years)) %in% getYears(x$x,as.integer=TRUE))) stop("Some years are missing in the data provided by function ",functionname,"(", paste(years[!(as.integer(sub("y","",years))%in%getYears(x$x,as.integer=TRUE))],collapse=", "),")!")
+    x$x <- x$x[,years,]
+    if(!is.null(x$weight)) if(nyears(x$weight)>1) x$weight <- x$weight[,years,]
+  }
+  
+  .prep_comment <- function(x,name,warning=NULL) {
+    if(!is.null(x)) {
+      x[1] <- paste0(" ",name,": ", x[1])
+      if(length(x)>1) {
+        x[2:length(x)] <- paste0(paste(rep(" ",3+nchar(name)),collapse=""), x[2:length(x)])
+      }
+    } else {
+      if(!is.null(warning)) {
+        vcat(0,warning)
+        x <- paste0(" ",name,": not provided")
+      }
+    }
+    return(x)
+  }
+  
+  
+  unit <- .prep_comment(x$unit,"unit",paste0('Missing unit information for data set "',type,'"!'))
+  description <- .prep_comment(x$description,"description",paste0('Missing description for data set "',type,'"! Please add a description in the corresponding calc function!'))
+  comment <- .prep_comment(getComment(x$x),"comment")
+  note <- .prep_comment(x$note,"note")
+  origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
+  date <- .prep_comment(date(),"creation date")
+  
+  mixedaggregation_check <- function(x,origin) {
+    if(!x$mixed_aggregation & !is.null(x$weight)) {
+      if(any(is.na(x$weight))) {
+        x$weight[is.na(x$weight)] <- 10^-10
+        vcat(0,"Weight contains NAs in ",origin,", replaced NAs with 10^-10 to avoid aggregation problems. If mixed aggregation was intended set mixed_aggregation to TRUE (see calcOutput help for more information).")
+      } 
+      if(any(dimSums(x$weight,dim=1)==0)) {
+        vcat(0,"Weight contains empty columns in ",origin,", added 10^-10 to avoid division by 0. If mixed aggregation was intended set mixed_aggregation to TRUE (see calcOutput help for more information).")
+        x$weight <- x$weight + 10^-10
+      }
+    }
+    return(x)
+  }
+
+  if(aggregate!=FALSE) x <- mixedaggregation_check(x,origin)
+  
+  if(aggregate==TRUE) {
+    x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight)
+  } else if (toupper(aggregate)=="GLO") {
+    m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
+    x$x <- toolAggregate(x$x,m_glo,weight=x$weight)
+  } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
+    m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
+    tmp <- toolAggregate(x$x,m_glo,weight=x$weight)
+    x$x <- mbind(tmp,toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight))
+  }
+  
+  if(!is.null(years)) {
+    if(length(years)==1) getYears(x$x) <- NULL
+  }
+  if(!is.null(round)) {
+    x$x <- round(x$x,round)
+  }
+
+  getComment(x$x) <- c(description,
+                     unit,
+                     note,
+                     comment,
+                     origin,
+                     date)  
+  
+  x$x<-clean_magpie(x$x)
+  
+  if(is.null(file) & append){
+    vcat(0,"The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
+  }
+  
+  if(!is.null(file)) {
+    if(!file.exists(getConfig("outputfolder"))) stop('Outputfolder "',getConfig("outputfolder"),'" does not exist!')
+    if(grepl(".mif",file)==TRUE){
+      write.report2(x$x,file=paste(getConfig("outputfolder"),file,sep="/"), unit=x$unit, append=append)
+    } else {
+      write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
+    }
+    if(!is.null(destination)) file2destination(file=file,destination=destination)
+  }
+  
+  setwd(cwd)
+  toolendmessage(startinfo,"-",id=fname)
+  if(supplementary) {
+    return(x)
+  } else {
+    return(x$x)
+  }
+}

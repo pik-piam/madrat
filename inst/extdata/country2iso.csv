@@ -1,0 +1,501 @@
+;x
+Afghanistan;AFG
+Aland Islands;ALA
+Albania;ALB
+Algeria;DZA
+American Samoa;ASM
+American_Samoa;ASM
+Andorra;AND
+Angola;AGO
+Anguilla;AIA
+Antarctica;ATA
+Antigua & Barbuda;ATG
+Antigua and Barbuda;ATG
+Argentina;ARG
+Argentinien;ARG
+Armenia;ARM
+Aruba;ABW
+Australia;AUS
+Australien;AUS
+Austria;AUT
+Azerbaijan;AZE
+Bahamas;BHS
+Bahamas_The;BHS
+Bahrain;BHR
+Bangladesh;BGD
+Barbados;BRB
+Belarus;BLR
+Belgium;BEL
+Belize;BLZ
+Benin;BEN
+Bermuda;BMU
+Bhutan;BTN
+Bolivia, Plurinational State of;BOL
+Bolivia;BOL
+Bolivien;BOL
+Bonaire, Sint Eustatius and Saba;BES
+Bosnia & Herzegovina;BIH
+Bosnia and Herzegovina;BIH
+Bosnia-Herzegovina;BIH
+Bosnia_and_Herzegovina;BIH
+Botswana;BWA
+Bouvet Island;BVT
+Brasilien;BRA
+Brazil;BRA
+British Indian Ocean Territory;IOT
+British Virgin Islands;VGB
+Brunei (darussalam);BRN
+Brunei Darussalam;BRN
+Brunei;BRN
+Bulgaria;BGR
+Burkina Faso;BFA
+Burkina_Faso;BFA
+Burma;MMR
+Burundi;BDI
+Byelarus;BLR
+Côte d'Ivoire;CIV
+Côte d'Ivoire;CIV
+Cambodia;KHM
+Cameroon;CMR
+Canada;CAN
+Cape Verde;CPV
+Cape_Verde;CPV
+Cayman Islands;CYM
+Cayman_Islands;CYM
+Central African Rep.;CAF
+Central African Republic;CAF
+Central_African_Republic;CAF
+Chad;TCD
+Chile;CHL
+China (mainland);CHN
+China Hong Kong SAR;HKG
+China Macao SAR;MAC
+China;CHN
+ChinaTaipe;TWN
+Chinese Taipei;TWN
+Christmas Island;CXR
+Cocos (Keeling) Islands;CCK
+Colombia;COL
+Comoros;COM
+Congo DR;COD
+Congo, the Democratic Republic of the;COD
+Congo;COG
+Congo_Brazzaville;COG
+Cook Islands;COK
+Cook_Islands;COK
+Costa Rica;CRI
+CostaRica;CRI
+Costa_Rica;CRI
+Cote d Ivoire;CIV
+Cote d'Ivoire;CIV
+Croatia;HRV
+Cuba;CUB
+Curacao;CUW
+Cyprus;CYP
+Czech Rep.;CZE
+Czech Republic;CZE
+Czech_Republic;CZE
+Czechoslovakia (former);CSK
+Côte d'Ivoire;CIV
+Dem. People's Rep. of Korea;PRK
+Dem. People's Republic of Korea;PRK
+Democratic People's Republic of Korea;PRK
+Democratic Republic of Congo;COD
+Democratic Republic of the Congo;COD
+Denmark;DNK
+Deutschland;DEU
+Djibouti;DJI
+Dominica;DMA
+Dominican Rep.;DOM
+Dominican Republic;DOM
+Dominican_Republic;DOM
+Dominika,Rep,;DOM
+East Timor;TLS
+Ecuador;ECU
+Egypt;EGY
+El Salvador;SLV
+El_Salvador;SLV
+Equatorial Guinea;GNQ
+Equatorial_Guinea;GNQ
+Eritrea;ERI
+Estonia;EST
+Ethiopia;ETH
+FYR of Macedonia;MKD
+Falkland Islands (Malvinas);FLK
+Falkland_Islands_or_Islas_Malvinas;FLK
+Faroe Islands;FRO
+Faroe_Islands;FRO
+Federated_States_of_Micronesia;FSM
+Fiji Islands;FJI
+Fiji;FJI
+Finland;FIN
+Former FSU;SUN
+Former Soviet Union (if no detail);SUN
+Former Yugoslav Republic of Macedonia;MKD
+Former Yugoslavia (if no detail);YUG
+Former Yugoslavia;YUG
+France;FRA
+Frankreich;FRA
+French Guiana;GUF
+French Polynesia;PYF
+French Southern Territories;ATF
+French_Guiana;GUF
+French_Polynesia;PYF
+French_Southern_and_Antarctica_Lands;ATF
+Gabon;GAB
+Gabun;GAB
+Gambia;GMB
+Gambia_The;GMB
+Georgia;GEO
+Georgien;GEO
+Germany;DEU
+Ghana;GHA
+Gibraltar;GIB
+Greece;GRC
+Greenland;GRL
+Grenada;GRD
+Griechenland;GRC
+Grönland;GRL
+Guadeloupe;GLP
+Guam;GUM
+Guatemala;GTM
+Guernsey;GGY
+Guinea-Bissau;GNB
+Guinea;GIN
+Guinea_Bissau;GNB
+Guyana;GUY
+Haiti;HTI
+Heard Island and McDonald Islands;HMD
+Holy See (Vatican City State);VAT
+Honduras;HND
+Hong Kong, China;HKG
+Hong Kong;HKG
+Hong-Kong;HKG
+Hungary;HUN
+Iceland;ISL
+India;IND
+Indien;IND
+Indonesia;IDN
+Indonesien;IDN
+Irak;IRQ
+Iran (Islamic Republic of);IRN
+Iran, Islamic Republic of;IRN
+Iran;IRN
+Iraq;IRQ
+Ireland;IRL
+Islamic Republic of Iran;IRN
+Island;ISL
+Isle of Man;IMN
+Israel;ISR
+Italien;ITA
+Italy;ITA
+Ivory_Coast;CIV
+Jamaica;JAM
+Japan;JPN
+Jersey;JEY
+Jordan;JOR
+Kambodscha;KHM
+Kamerun;CMR
+Kanada;CAN
+Kasachstan;KAZ
+Kazakhstan;KAZ
+Kenya;KEN
+Kirgisien;KGZ
+Kiribati;KIR
+Kolumbien;COL
+Kongo;COD
+Korea DPR;PRK
+Korea Republic;KOR
+Korea, Democratic People's Republic of;PRK
+Korea, Republic of;KOR
+Korea;KOR
+Kuwait;KWT
+Kuweit;KWT
+Kyrgyz Rep.;KGZ
+Kyrgyzstan;KGZ
+Lao People's Democratic Republic;LAO
+Lao;LAO
+Laos;LAO
+Latvia;LVA
+Lebanon;LBN
+Lesotho;LSO
+Liberia;LBR
+Libya;LBY
+Libyan Arab Jamahiriya;LBY
+Liechtenstein;LIE
+Lithuania;LTU
+Luxembourg;LUX
+Macao;MAC
+Macau;MAC
+Macedonia, the former Yugoslav Republic of;MKD
+Macedonia;MKD
+Madagascar;MDG
+Madagaskar;MDG
+Malawi;MWI
+Malaysia;MYS
+Maldives;MDV
+Mali;MLI
+Malta;MLT
+Marshall Islands;MHL
+Marshall_Islands;MHL
+Martinique;MTQ
+Mauritania;MRT
+Mauritius;MUS
+Mayotte;MYT
+Mexico;MEX
+Mexiko;MEX
+Micronesia, Federated States of;FSM
+Moldova Republic of;MDA
+Moldova, Republic of;MDA
+Moldova;MDA
+Monaco;MCO
+Mongolei;MNG
+Mongolia;MNG
+Montenegro;MNE
+Montenegro;SCG
+Montserrat;MSR
+Morocco;MAR
+Mosambik;MOZ
+Mozambique;MOZ
+Myanmar (ex Burma);MMR
+Myanmar;MMR
+Myanmar_or_Burma;MMR
+NL Antilles and Aruba;ANT
+Namibia;NAM
+Nauru;NRU
+Nepal;NPL
+Netherlands Antilles;ANT
+Netherlands;NLD
+NeuSeeland;NZL
+New Caledonia;NCL
+New Zealand;NZL
+New_Caledonia;NCL
+New_Zealand;NZL
+Nicaragua;NIC
+Niger;NER
+Nigeria;NGA
+Niue;NIU
+Norfolk Island;NFK
+North Korea;PRK
+North_Korea;PRK
+Northern Mariana Islands;MNP
+Northern_Mariana_Islands;MNP
+Norway;NOR
+Norwegen;NOR
+Occupied Palestinian Territory;PSE
+Oman;OMN
+Other Africa;IAF
+Other Asia;IAS
+Other Non-OECD Americas;ILA
+Others Africa;XOA
+Others East Asia;XEA
+Others Latin America and the Caribbean;XAC
+Others Oceania;XOO
+Others West Asia;XWA
+Pakistan;PAK
+Palau;PLW
+Palestine, State of;PSE
+Panama;PAN
+Papua New Guinea;PNG
+PapuaNeuGuinea;PNG
+Papua_New_Guinea;PNG
+Paraguay;PRY
+People's Republic of China;CHN
+Peru;PER
+Philippines;PHL
+Pitcairn;PCN
+Pitcairn_Islands;PCN
+Poland;POL
+Portugal;PRT
+Puerto Rico;PRI
+Puerto_Rico;PRI
+Qatar;QAT
+Rep,Kongo;COG
+Republic of Korea;KOR
+Republic of Moldova;MDA
+Reunion;REU
+Reunion;SJM
+Romania;ROU
+Romenien;ROU
+Russia;RUS
+Russian Federation;RUS
+Russland;RUS
+Rwanda;RWA
+Saint Barthelemy;BLM
+Saint Helena, Ascension and Tristan da Cunha;SHN
+Saint Kitts and Nevis;KNA
+Saint Lucia;LCA
+Saint Martin (French part);MAF
+Saint Pierre and Miquelon;SPM
+Saint Vincent and the Grenadines;VCT
+Sambia;ZMB
+Samoa (Western);WSM
+Samoa;WSM
+San Marino;SMR
+Sao Tome and Principe;STP
+Sao_Tome_and_Principe;STP
+Saudi Arabia;SAU
+Saudi_Arabia;SAU
+Schweden;SWE
+Schweiz;CHE
+Senegal;SEN
+Serbia;SRB
+Seychelles;SYC
+Sierra Leone;SLE
+Sierra_Leone;SLE
+Singapore;SGP
+Sint Maarten (Dutch part);SXM
+Slovak Rep.;SVK
+Slovak Republic;SVK
+Slovakia;SVK
+Slovenia;SVN
+Solomon Islands;SLB
+Solomon_Islands;SLB
+Somalia;SOM
+South Africa;ZAF
+South Georgia and the South Sandwich Islands;SGS
+South Korea;KOR
+South Sudan;SSD
+South_Africa;ZAF
+South_Georgia_and_the_South_Sandwich_Islands;SGS
+South_Korea;KOR
+Spain;ESP
+Spanien;ESP
+Sri Lanka;LKA
+Sri-lanka;LKA
+Sri_Lanka;LKA
+St Lucia;LCA
+St Vincent and Grenadines;VCT
+St_Vincent_and_the_Grenadines;VCT
+Sudan;SDN
+Suriname;SUR
+Svalbard and Jan Mayen;SJM
+Svalbard;REU
+Swaziland;SWZ
+Sweden;SWE
+Switzerland;CHE
+Syria;SYR
+Syrian Arab Republic;SYR
+Südafrika;ZAF
+TFYR Macedonia;MKD
+Tadschikistan;TJK
+Taiwan  China;TWN
+Taiwan China;TWN
+Taiwan, Province of China;TWN
+Taiwan;TWN
+Tajikistan;TJK
+Tanzania, United Republic of;TZA
+Tanzania;TZA
+Tanzania_United_Republic_of;TZA
+Thailand;THA
+Timor-Leste;TLS
+Togo;TGO
+Tokelau;TKL
+Tonga;TON
+Trinidad & Tobago;TTO
+Trinidad and Tobago;TTO
+Trinidad_and_Tobago;TTO
+Tunisia;TUN
+Turkey;TUR
+Turkmenistan;TKM
+Turks and Caicos Islands;TCA
+Tuvalu;TUV
+Türkei;TUR
+USA;USA
+Uganda;UGA
+Ukraine;UKR
+United Arab Emirates;ARE
+United Kingdom;GBR
+United Republic of Tanzania;TZA
+United States Minor Outlying Islands;UMI
+United States of America;USA
+United States;USA
+United_Arab_Emirates;ARE
+United_Kingdom;GBR
+United_States;USA
+Uruguay;URY
+Usbekistan;UZB
+Uzbekistan;UZB
+Vanuatu;VUT
+Venezuela, Bolivarian Republic of;VEN
+Venezuela;VEN
+Venzuela;VEN
+Viet Nam;VNM
+Vietnam;VNM
+Virgin Islands, British;VGB
+Virgin Islands, U.S.;VIR
+Virgin_Islands;VIR
+Volkrep,China;CHN
+Wake_Islands;WAK
+Wallis and Futuna;WLF
+West_Bank;PSE
+Western Sahara;ESH
+Western_Sahara;ESH
+Western_Samoa;WSM
+Yemen;YEM
+Yugoslavia (former);YUG
+Yugoslavia;YUG
+Zaire_DR_Congo;COD
+Zambia;ZMB
+Zimbabwe;ZWE
+bonaire, saint eustatius, and saba;BES
+democratic people s republic of korea;PRK
+democratic republic of the congo (formerly zaire);COD
+faeroe islands;FRO
+federated states of micronesia;FSM
+guinea bissau;GNB
+hong kong special adminstrative region of china;HKG
+lao people s democratic republic;LAO
+libyan arab jamahiriyah;LBY
+macau special adminstrative region of china;MAC
+myanmar (formerly burma);MMR
+plurinational state of bolivia;BOL
+republic of cameroon;CMR
+republic of south sudan;SSD
+saint helena;SHN
+saint martin (dutch portion);SXM
+sao tome & principe;STP
+st kitts-nevis;KNA
+st pierre & miquelon;SPM
+st vincent & the grenadines;VCT
+timor-leste (formerly east timor);TLS
+wallis and futuna islands;WLF
+Ägypten;EGY
+Äthiopien;ETH
+Österreich;AUT
+italy (including san marino);XIT
+france (including monaco);XFR
+netherland antilles;XAN
+netherland antilles and aruba;ANT
+yugoslavia (former socialist federal republic);YUG
+czechoslovakia;CSK
+ussr;SUN
+yugoslavia (montenegro & serbia);SCG
+antarctic fisheries;XXX
+democratic republic of vietnam;XXX
+east & west pakistan;XXX
+federal republic of germany;BRG
+federation of malaya-singapore;XXX
+former democratic yemen;XXX
+former german democratic republic;GDR
+former panama canal zone;XXX
+former yemen;XXX
+french equatorial africa;XXX
+french indo-china;XXX
+french west africa;XXX
+japan (excluding the ruyuku islands);XXX
+kuwaiti oil fires;XXX
+leeward islands;XXX
+pacific islands (palau);XXX
+peninsular malaysia;XXX
+republic of south vietnam;XXX
+republic of sudan;XXX
+rhodesia-nyasaland;XXX
+rwanda-urundi;XXX
+ryukyu islands;XXX
+sabah;XXX
+sarawak;XXX
+st kitts-nevis-anguilla;XXX
+tanganyika;XXX
+united korea;XXX
+zanzibar;XXX
