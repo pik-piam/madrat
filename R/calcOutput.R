@@ -70,7 +70,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   setwd(getConfig("outputfolder"))
   functionname <- prepFunctionName(type=type, prefix="calc", years=years)
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
-  if(tmpargs!="") tmpargs <- paste0("-",gsub('[^a-zA-Z]+', '_',tmpargs))
+  if(tmpargs!="") tmpargs <- paste0("-",make.names(tmpargs))
     fname <- paste0("calc",type,tmpargs)
   
   tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
