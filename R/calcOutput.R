@@ -71,8 +71,8 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   functionname <- prepFunctionName(type=type, prefix="calc", years=years)
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
   if(tmpargs!="") tmpargs <- paste0("-",make.names(tmpargs))
-    fname <- paste0("calc",type,tmpargs)
-  
+  fname <- paste0("calc",type,tmpargs)
+  on.exit(toolendmessage(startinfo,"-",id=fname))
   tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
   if(((all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) & !(type %in% getConfig("ignorecache"))) & !(fname %in% getConfig("ignorecache")) & file.exists(tmppath) ) {
     vcat(1," - forced to use data from cache (",tmppath,")")
@@ -227,7 +227,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   }
   
   setwd(cwd)
-  toolendmessage(startinfo,"-",id=fname)
   if(supplementary) {
     return(x)
   } else {

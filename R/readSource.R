@@ -32,6 +32,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   cwd <- getwd()
   setwd(getConfig("mainfolder"))
   startinfo <- toolstartmessage("+")
+  on.exit(toolendmessage(startinfo,"-"))
   
   # Does the cache folder exists? (only to be checked if cache is enabled) 
   if(!file.exists(getConfig("cachefolder")) & getConfig("enablecache")) dir.create(getConfig("cachefolder"),recursive = TRUE)
@@ -157,6 +158,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     x <- .getData(type,subtype,"read")
   }
   id <- attr(x,"id")
+  on.exit(toolendmessage(startinfo,"-",id=id))
   
   if(type %in% getSources("global")) {
     if(nregions(x)>1) stop("Data has more than one region, but is supposed to be global data!")
@@ -166,8 +168,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   x<-clean_magpie(x)
   
   setwd(cwd)
+ 
   
-  toolendmessage(startinfo,"-",id=id)
   return(x)
 }    
     

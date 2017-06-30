@@ -19,11 +19,12 @@
 #' @export 
 downloadSource <- function(type,overwrite=FALSE) {
   startinfo <- toolstartmessage("+")
-
+  on.exit(toolendmessage(startinfo,"-"))
+  
   functionname <- prepFunctionName(type=type, prefix="download")
 
   cwd <- getwd()
-  on.exit(setwd(cwd))
+  on.exit(setwd(cwd), add = TRUE)
   setwd(getConfig("sourcefolder"))
   if(file.exists(type)) {
     if(overwrite) {
@@ -40,6 +41,4 @@ downloadSource <- function(type,overwrite=FALSE) {
   date <- paste0("download date: ", date())
   
   writeLines(c(origin,date),"download_info.txt")
-    
-  toolendmessage(startinfo,"-")
 }
