@@ -70,7 +70,6 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
    # run full* functions
    
    startinfo <- toolstartmessage(0)
-   on.exit(toolendmessage(startinfo))
    
    functionname <- prepFunctionName(type=toupper(model), prefix="full")
    
@@ -113,6 +112,8 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
  setConfig(cachefolder=cachefolder_setting)
  setConfig(forcecache=forcecache_setting)
 
+ toolendmessage(startinfo)
+ 
  cwd <- getwd()
  setwd(sourcefolder)
  trash <- system(paste0("tar -czf ../",collectionname,".tgz"," *"), intern = TRUE)
