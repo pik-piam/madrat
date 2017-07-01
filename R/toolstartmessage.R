@@ -36,7 +36,7 @@ toolstartmessage <- function(level=NULL) {
       x <- read.table(filename,stringsAsFactors = FALSE, sep = ";", header = TRUE, quote = "")
       x <- rbind(x,c(functioncall,TRUE,startdata$time1["elapsed"],-1,"none"))
     }
-    write.table(x,filename,row.names = FALSE, quote = FALSE, sep=";")
+    try(write.table(x,filename,row.names = FALSE, quote = FALSE, sep=";"))
   }
   return(startdata)
 }
