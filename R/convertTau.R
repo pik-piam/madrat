@@ -24,7 +24,7 @@ convertTau <- function(x) {
   if(ncells(x)==59199) {
 
     # read mapping cells -> iso countries
-    iso_cell <- read.csv2(system.file("extdata", "iso_cell.csv", package = "madrat"))
+    iso_cell <- sysdata$iso_cell
     iso_cell[,2] <- getCells(x)
 
     # aggregate data        

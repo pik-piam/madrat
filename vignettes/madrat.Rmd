@@ -16,22 +16,24 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 MADRaT is a framework that can help structuring data preparation in R. It splits the data preparation into separate steps with each having distinctive requirements about the returned data. The following tutorial will describe the first steps with the package together with the specific requirements for each calculation step. 
 
 
-# Setup
+## Setup
 
 MADRaT requires a local directory to store data such as downloaded source data, cache files, and output. Running `getConfig` in the package for the first time you will be asked for a folder to use and store that setting permanently (if allowed by the user).
 
-```{r, echo = TRUE}
+```{r, echo = TRUE, eval=FALSE}
 library(madrat)
 cfg <- getConfig()
+#> Initialize madrat config with default settings..
+#> madrat mainfolder for data storage not set! Do you want to set it now? (y/n)
 ```
 
-After setting that directory, the package is ready to use. If not stated otherwise in the config, all downloaded source data and created output files can be found in the subdirectories "sources" or "output" of the main directory, respectectively.
+After setting that directory, the package is ready to use. If not stated otherwise in the config, all downloaded source data and created output files can be found in the subdirectories `sources/` or `output/` of the main directory, respectectively.
 
-# MADRaT framework components
+## MADRaT framework components
 
 MADRaT splits the process of data preparation into the following components. Note for developers: The source code of each component comes with a MADRaT wrapper function managing the data preparation process and performing some sanity checks on the calculations. The wrapper functions will run user defined functions which are specific to a certain source or calculation.
 
-## downloadSource
+### downloadSource
 
 The first step in data preparation is downloading the source data. `downloadSource` will create a folder for the given source and set all local file paths correctly. The user defined download function must contain the code required to download the source data in to the local folder the script is run from. An example for such a function is `madrat:::downloadTau`.
 
@@ -47,11 +49,11 @@ downloadSource("Tau", overwrite = TRUE)
 
 Here we set `overwrite=TRUE` to make sure that the data is downloaded in any case. In the default case `overwrite=FALSE` data will only be downloaded if there is not already an existing source folder containing the data.
 
-## readSource
+### readSource
 
 As soon as the data is available in the source folder it can be read in. Reading is performed by `readSource` and is split into 1  to 3 steps (depending on the data): read, correct and convert.
 
-### read
+#### read
 
 In the first step the data is read into R and converted to a magclass object. Except of the conversion no other modifications are performed and the content of the magclass object should be completely identical to the downloaded data.
 
@@ -67,11 +69,11 @@ x <- readSource("Tau", "paper", convert=FALSE)
 
 If a data source comes with several files it is sometimes necessary to specify a subtype. In the given example the source data comes with two datasets ("paper" and "historical"). In the example above the subtype "paper" is chosen.
 
-### correct
+#### correct
 
 The correction step is optional and can be used to fix issues in the data such as removing duplicates, replacing NAs or other corrections. This step is purely about fixing quality problems in the input data. If this step is required one can create a correct-function such as `correctTau` for the data source "Tau". As the example data "Tau" does not require any of these corrections there is no correct function in the given example data.
 
-### convert
+#### convert
 
 To allow for flexible aggregation of data to world regions and for compatibility between different data sources MADRaT imposes a standard spatial resolution on all data sources. The used standard is the ISO 3166-1 3-digit country code standard. The function `getISOlist()` returns a vector of these countries. 
 
@@ -91,7 +93,7 @@ Same as `correct`, also the `convert` function is optional, but not providing it
 
 As the corrections performed in a `correct` function are usually similar to the interpolations performed in a `convert` function it is also possible to have these corrections just included in the `convert` functions. For this reason most sources usually have a `read` and a `convert` but not a `correct` function.
 
-## calcOutput
+### calcOutput
 
 Besides reading in a data source and preparing it for further usage, data preparation often requires to extract certain information out of the given data sources. In contrast to the steps before this can also mean blending two or more datasets into one output dataset. For this reason MADRaT distinguishes between the source type, which is always linked to a specific source, and a calculation type, which is always linked to a specific data output. 
 
@@ -112,7 +114,7 @@ x <- calcOutput("TauTotal")
 
 By default it will return the data aggregated to the world regions set in the MADRaT configuration. Adding the argument `aggregate=FALSE` will return the data in its original resolution and is useful if a calc function is used as source for another calc function.
 
-## retrieveData
+### retrieveData
 
 When preparing data for a certain purpose it is often the case that not only one but several datasets have to be prepared as a collection of data. This is where `retrieveData` steps in. It allows to create a collection of datasets and manages their calculation and packaging. The user defined functions matching to the wrapper `retrieveData` start with `full` in the name:
 
@@ -172,7 +174,8 @@ In addition the following lines of code should be added as `madrat.R` to the R f
 #' @importFrom madrat vcat
 
 .onLoad <- function(libname, pkgname){
-  madrat::setConfig(packages=c(madrat::getConfig("packages"),pkgname), .cfgchecks=FALSE, .verbose=FALSE)
+  madrat::setConfig(packages=c(madrat::getConfig("packages"),pkgname), 
+                    .cfgchecks=FALSE, .verbose=FALSE)
 }
 
 #create an own warning function which redirects calls to vcat (package internal)
