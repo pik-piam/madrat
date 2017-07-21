@@ -11,8 +11,9 @@ clusterExportHelper <- function(export, cl, envirFUN ){
 }
 
 clusterEvalQHelper <- function(expr, cl){
-  exptoeval <- paste0("clusterEvalQ(cl=cl, expr=library(", expr, ")")#, character.only=TRUE))")
-  return(eval(as.expression(exptoeval)))
+  exptoeval <- paste0("clusterEvalQ(cl=cl, expr=library(", expr, "))")#, character.only=TRUE))")
+  #return(as.expression(exptoeval))
+  return(eval(as.expression(exptoeval) ))
   #return(clusterEvalQ(cl=cl, expr=library(expr, character.only = TRUE)))
 }
 
@@ -30,9 +31,15 @@ clusterEvalQHelper <- function(expr, cl){
 #' @param exports A list containing a list for each environment which contains imports. Each list contains a character vector and a character or an expression.
 #' The first listing all Objects and Functions to be Exported. The second lists the associated environment. The environment in which the expression is evaluated is
 #' the environment of FUN.
-#' @param evals List of expressions to evaluate.
+#' @param evals List of expressions to evaluate. See details for more information
 #' @param ... additional arguments to pass to FUN: beware of partial matching to earlier arguments.
 #'
+#' @details {
+#' The function madlapply can currently only be called inside calcFunctions as shown in the example.
+#' Since madrat is designed to call Functions using the wrapper-function calcOutput this is usually not an issue.
+#' If you want to parallelise a functoin call from the global environment or another function not called by \code{\link{calcOutput}} you have to set up your cluster manually (see also \code{\link[parallel]{parallel}}).
+#' We are currently working on that issue and will release a fixed version soon.
+#' }
 #' @return A list with one entry for each element in X
 #' @author Stephen Wirth, Jan Philipp Dietrich
 #' @importFrom parallel makeCluster clusterExport clusterEvalQ stopCluster parLapply
@@ -40,14 +47,23 @@ clusterEvalQHelper <- function(expr, cl){
 #'
 #' @examples
 #' 
-#' exampleFun <- function(input, exponent){
-#' 
-#' return(as.magpie(input^exponent))
+#'  # To view the source code of a 
+#'  text <- madrat:::calcPow
+#'  text
+#'  
+#'  \dontrun{
+#'  #Since devtools::check() throws an error running this code I had to add the dontrun closure,
+#'  but it actually can be run. 
+#'  #Nevetheless running this code won't give you much insight in how madlapply works.
+#' setConfig(enablecache=FALSE)
+#' calcOutput("Pow", aggregate=FALSE)
+#' setConfig(parallel=TRUE)
+#' calcOutput("PoW", aggregate=FALSE)
 #' }
 #' 
-#' result <- madlapply(X=c(2:10), FUN=exampleFun, exports=list(list(c("input", "exponent"),
-#'  expression(environment()))), evals=c("magclass"), input=array(2, c(10,5,1)))
 #' 
+#' 
+#
 #' @export
 madlapply <- function(X=NULL, FUN=NULL, exports=NULL, evals=NULL, ...){
   #@TODO: maybe parse function code for variable names left and right hand of an assignment 
@@ -65,8 +81,10 @@ madlapply <- function(X=NULL, FUN=NULL, exports=NULL, evals=NULL, ...){
     on.exit(stopCluster(cl))
     envirFUN = environment(FUN)
     invisible(sapply(X = exports, FUN = clusterExportHelper, cl=cl, envirFUN=envirFUN ))
+    #exprs <- lapply(X=evals, FUN = clusterEvalQHelper, cl=cl)
+    #do.call(eval, exprs)
    
-   invisible(sapply(X=evals, FUN = clusterEvalQHelper, cl=cl))
+  invisible(sapply(X=evals, FUN = clusterEvalQHelper, cl=cl))
     return(parLapply(cl=cl, X=X, fun=FUN, ... ))
     }
 }
