@@ -11,10 +11,9 @@ clusterExportHelper <- function(export, cl, envirFUN ){
 }
 
 clusterEvalQHelper <- function(expr, cl){
-  exptoeval <- paste0("clusterEvalQ(cl=cl, expr=library(", expr, "))")#, character.only=TRUE))")
-  #return(as.expression(exptoeval))
-  return(eval(as.expression(exptoeval) ))
-  #return(clusterEvalQ(cl=cl, expr=library(expr, character.only = TRUE)))
+  exptoeval <- paste0("clusterEvalQ(cl=cl, expr=library(", expr, "))")
+
+ return(eval(parse(text=as.expression(exptoeval))))
 }
 
 
@@ -35,10 +34,7 @@ clusterEvalQHelper <- function(expr, cl){
 #' @param ... additional arguments to pass to FUN: beware of partial matching to earlier arguments.
 #'
 #' @details {
-#' The function madlapply can currently only be called inside calcFunctions as shown in the example.
-#' Since madrat is designed to call Functions using the wrapper-function calcOutput this is usually not an issue.
-#' If you want to parallelise a functoin call from the global environment or another function not called by \code{\link{calcOutput}} you have to set up your cluster manually (see also \code{\link[parallel]{parallel}}).
-#' We are currently working on that issue and will release a fixed version soon.
+#' If your are using madlapply insice a calcFunction you don't have to export or evaluate any objects and functions or packages. 
 #' }
 #' @return A list with one entry for each element in X
 #' @author Stephen Wirth, Jan Philipp Dietrich
@@ -47,19 +43,34 @@ clusterEvalQHelper <- function(expr, cl){
 #'
 #' @examples
 #' 
-#'  # To view the source code of a 
-#'  text <- madrat:::calcPow
-#'  text
+#'library(madrat)
+#'library(magclass)
+#'
+#'input <- #input
+#'array(2, c(10,5,1))
+#'powwrap <- function(#input=array(2, c(10,5,1))
+#'){
+#'# create a variable which has to be exported to the workers
+#'pow <- function(exponent){
+#'  # as magclass is not part of base, therefore the library
+#'  #(magclass has to be evaluated on all the workers)
+#'  return(as.magpie(
+#'  input^exponent))
+#'  }
 #'  
-#'  \dontrun{
-#'  #Since devtools::check() throws an error running this code I had to add the dontrun closure,
-#'  but it actually can be run. 
-#'  #Nevetheless running this code won't give you much insight in how madlapply works.
-#' setConfig(enablecache=FALSE)
-#' calcOutput("Pow", aggregate=FALSE)
-#' setConfig(parallel=TRUE)
-#' calcOutput("PoW", aggregate=FALSE)
-#' }
+#'  #actuall madlapply call 
+#'  resultnopar <- madlapply(X=c(2:10), FUN=pow, #stating X and FUN
+#'                exports=list(list(c("input"),expression(environment()))),
+#'                 # listing the objects or function 
+#'                 #to be exported and their origin environments
+#'               evals=c("magclass" )) # libraries to be evaluated 
+#'                                                
+#'                                                
+#'                 return(resultnopar)
+#'  }
+#'  
+#'  
+#'  res <- powwrap()
 #' 
 #' 
 #' 
@@ -75,16 +86,16 @@ madlapply <- function(X=NULL, FUN=NULL, exports=NULL, evals=NULL, ...){
     return(lapply(X = X, FUN = FUN, ...))
   } 
   else{
-   # if(any(!is.expression(evals))){stop("At least one elemnt of evals is not an expression!")}
-  
+ 
     cl <- makeCluster(getConfig("nocores"))
     on.exit(stopCluster(cl))
     envirFUN = environment(FUN)
-    invisible(sapply(X = exports, FUN = clusterExportHelper, cl=cl, envirFUN=envirFUN ))
-    #exprs <- lapply(X=evals, FUN = clusterEvalQHelper, cl=cl)
-    #do.call(eval, exprs)
+ 
+    #invisible(
+    sapply(X = exports, FUN = clusterExportHelper, cl=cl, envirFUN=envirFUN )#)
    
-  invisible(sapply(X=evals, FUN = clusterEvalQHelper, cl=cl))
+  #invisible(
+ sapply(X=evals, FUN = clusterEvalQHelper, cl=cl)#)
     return(parLapply(cl=cl, X=X, fun=FUN, ... ))
     }
 }
