@@ -22,6 +22,9 @@
 #' @param append boolean deciding whether the output data should be appended in the existing file.
 #' Works only when a file name is given in the function call. 
 #' @param na_warning boolean deciding whether NAs in the data set should create a warning or not
+#' @param try if set to TRUE the calculation will only be tried and the script will continue even if
+#' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a 
+#' case.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -61,25 +64,34 @@
 #' @importFrom utils packageDescription read.csv2
 #' @export
 
-calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, ...) {
+calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
  
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
+  on.exit(setwd(cwd))
   functionname <- prepFunctionName(type=type, prefix="calc", years=years)
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
   if(tmpargs!="") tmpargs <- paste0("-",make.names(tmpargs))
   fname <- paste0("calc",type,tmpargs)
-  on.exit(toolendmessage(startinfo,"-",id=fname))
+  on.exit(toolendmessage(startinfo,"-",id=fname), add = TRUE)
   tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
   if(((all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) & !(type %in% getConfig("ignorecache"))) & !(fname %in% getConfig("ignorecache")) & file.exists(tmppath) ) {
     vcat(1," - forced to use data from cache (",tmppath,")")
     load(tmppath) 
   } else {
     vcat(2," - execute function",functionname)
-    x <- eval(parse(text=functionname))
+    if(try) {
+      x <- try(eval(parse(text=functionname)))
+      if(is(x,"try-error")) {
+        vcat(0,as.character(attr(x,"condition")))
+        return(x)
+      } 
+    } else {
+      x <- eval(parse(text=functionname))
+    }
     if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
     if(!is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
     if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
@@ -226,7 +238,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     if(!is.null(destination)) file2destination(file=file,destination=destination)
   }
   
-  setwd(cwd)
   if(supplementary) {
     return(x)
   } else {
