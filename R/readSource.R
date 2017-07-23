@@ -139,7 +139,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   
   # Check whether source folder exists and try do download source data if it is missing
   sourcefolder <- paste0(getConfig("sourcefolder"),"/",type)
-  if(!file.exists(getConfig("sourcefolder"))) stop("Given sourcefolder does not exist. Please check and update your settings with getConfig and setConfig!")
+  if(!file.exists(getConfig("sourcefolder"))) dir.create(getConfig("sourcefolder"), recursive = TRUE)
   if(!file.exists(sourcefolder)) {
     # does a routine exist to download the source data?
     if(type %in% getSources("download")) {

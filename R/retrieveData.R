@@ -50,6 +50,8 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
    #copy mapping to mapping folder and set config accordingly
    mappath <- toolMappingFile("regional",paste0(regionscode,".csv"),error.missing = FALSE)
    if(!file.exists(mappath)) file.copy(regionmapping,mappath)
+   #copy mapping to output folder
+   try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
    setConfig(regionmapping=paste0(regionscode,".csv"),
              outputfolder=sourcefolder,
              diagnostics="diagnostics")

@@ -27,8 +27,7 @@ spatial_header <- function(mapping) {
   regionscode <- regionscode(map)
   reg <- as.character(map$RegionCode)
   names(reg) <- as.character(map$CountryCode)
-  iso_cell <- read.csv2(system.file("extdata", "iso_cell.csv", 
-                                    package = "madrat"))
+  iso_cell <- sysdata$iso_cell
   cell <- iso_cell
   cell$country <- reg[as.character(cell$country)]
   spatial_header <- paste(cell$country, cell$magpiecell, 

@@ -111,8 +111,11 @@ setConfig <- function(regionmapping=NULL,
       if(grepl("folder",x,fixed = TRUE)) {
         if(!is.na(value)) {
           #normalize path value
-          value <-  sub("/$","",normalizePath(value,winslash = "/",mustWork = FALSE))
-          if(!file.exists(value) & x!="outputfolder") stop("Cannot set ", x, " as the directory does not exist!")
+          if(!file.exists(value)) {
+            dir.create(value,recursive = TRUE)
+            if(.verbose) vcat(1,paste("created folder",sub("/$","",normalizePath(value,winslash = "/")),"..."))
+          }
+          value <-  sub("/$","",normalizePath(value,winslash = "/"))
         }
       }
       if(firstsetting)   info <- "Configuration update:"

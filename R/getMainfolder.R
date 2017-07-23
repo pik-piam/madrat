@@ -27,7 +27,11 @@ getMainfolder <- function(verbose=TRUE) {
     }
     if(s=="y") {
       repeat {
-        folder <- gsub('"',"",readline("Please enter main folder path (must exist!): "), fixed = TRUE)
+        folder <- gsub('"',"",readline("Please enter main folder path: "), fixed = TRUE)
+        if(!dir.exists(folder)) {
+          s <- tolower(readline("Directory does not exist. Should it be created? (y/n) "))
+          if(s=="y") dir.create(folder, recursive = TRUE)
+        }
         if(dir.exists(folder)) {
           mainfolder <- normalizePath(folder, winslash = "/")
           repeat {
@@ -39,7 +43,7 @@ getMainfolder <- function(verbose=TRUE) {
                            , file="~/.Rprofile", append=TRUE)
           return(mainfolder)
         } else {
-          base::cat("Folder does not exist! Please specify existing folder!\n")
+          base::cat("Please specify either an existing folder or a folder you would like to create!\n")
         }
       }
     } 

@@ -25,6 +25,7 @@ downloadSource <- function(type,overwrite=FALSE) {
 
   cwd <- getwd()
   on.exit(setwd(cwd), add = TRUE)
+  if(!file.exists(getConfig("sourcefolder"))) dir.create(getConfig("sourcefolder"), recursive = TRUE)
   setwd(getConfig("sourcefolder"))
   if(file.exists(type)) {
     if(overwrite) {
