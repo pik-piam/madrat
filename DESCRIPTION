@@ -1,0 +1,31 @@
+Package: madrat
+Type: Package
+Title: May All Data be Reproducible and Transparent (MADRaT) *
+Version: 1.15.1
+Date: 2017-07-23
+Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
+             person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
+             person("Anastasis", "Giannousakis", email = "giannou@pik-potsdam.de", role = "aut"),
+		         person("Benjamin Leon", "Bodirsky", email = "bodirsky@pik-potsdam.de", role = "ctb"),
+		         person("Ulrich", "Kreidenweis", email = "bodirsky@pik-potsdam.de", role = "ctb"))
+Description: Provides a framework which should improve reproducibility and transparency in data processing. It provides functionality such as automatic meta data creation and management, rudimentary quality management, data caching, work-flow management and data aggregation.
+    * The title is a wish not a promise. By no means we expect this package to deliver everything what is needed to achieve full reproducibility and transparency, but we believe that it supports efforts in this direction.
+Depends:
+    R(>= 2.10.0),
+    magclass(>= 4.30)
+Imports:
+    spam,
+    tools,
+    utils,
+    digest,
+    methods,
+    parallel,
+    stringr
+Suggests:
+    igraph(>= 1.0.1),
+    knitr,
+    rmarkdown
+License: BSD_2_clause + file LICENSE
+LazyData: no
+RoxygenNote: 6.0.1
+VignetteBuilder: knitr
