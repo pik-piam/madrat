@@ -39,16 +39,15 @@
 #' @param partrel If set to TRUE allows that the relation matrix does contain
 #' less entries than x and vice versa. These values without relation are lost
 #' in the output.
+#' @param rev function revision. rev=1 is the original version, rev=2 contains a
+#' more efficient algorithm for calculations with weights
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
-#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- is.magpie getComment getComment<- dimCode getYears getRegionList as.magpie 
+#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- is.magpie getComment getComment<- dimCode getYears getRegionList as.magpie getItems 
 #' @importFrom spam diag.spam as.matrix
 #' @seealso \code{\link{calcOutput}}
 #' @examples
-#' 
-#' # load example data
-#' data(population_magpie)
 #' 
 #' # create example mapping
 #' mapping <- data.frame(from=getRegions(population_magpie),to=rep(c("REG1","REG2"),5))
@@ -59,7 +58,21 @@
 #' # weighted aggregation
 #' toolAggregate(population_magpie,mapping, weight=population_magpie)
 
-toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE) {
+toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, rev=2) {
+
+  if(!is.null(weight) & rev>=2) {
+    weight2 <- 1/toolAggregate(weight,rel)
+    comment <- getComment(x)
+    if(setequal(getItems(weight, dim=dim), getItems(x, dim=dim))) {
+      out <- toolAggregate(x*weight,rel)*weight2
+    } else if(setequal(getItems(weight2, dim=dim), getItems(x, dim=dim))) {
+      out <- toolAggregate(x*weight2,rel)*weight
+    } else {
+      stop("Weight does not match data")
+    }
+    getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
+    return(out)
+  }  
   
   .getAggregationMatrix <- function(rel,from=NULL,to=NULL) {
     
@@ -85,7 +98,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     return(m)
   }  
   
-.toolScale <- function(x,rel,weight,dim=1,comment=NULL) {
+  .toolScale <- function(x,rel,weight,dim=1,comment=NULL) {
   .calcweightmatrix <- function(weight,rel) {
     .tmp <- function(w,rel) {
       #return matrix if weights are all 0 or all NA (meaning that data should be summed up)
@@ -192,7 +205,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
   return(setComment(mbind(out),c(comment,paste0("Data aggregated (toolAggregate): ",date()))))
 }
 
-.expand_rel_weight <- function(rel,names,weight,dim){
+  .expand_rel_weight <- function(rel,names,weight,dim){
   #Expand rel matrix to full dimension if rel is only provided for a subdimension
   
   if(round(dim)==dim | suppressWarnings(all(colnames(rel)==names))) {
