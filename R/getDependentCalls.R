@@ -47,8 +47,8 @@ getType <- function(callstring,type="calcOutput" ){
 dependentcalls <- function(type,prefix, years, ...){
   
   x <-  calccalls <- readcalls <-   types <- typesr <-  arguments <- argumentsr <- NULL
-  functionname <- prepFunctionName(type=type, prefix=prefix, years=years)
-    functionname[1] <- sub("\\(.*\\)", "", functionname[1], perl=TRUE)
+  functionname <- prepFunctionName(type=type, prefix=prefix)
+  functionname[1] <- sub("\\(.*\\)", "", functionname[1], perl=TRUE)
   x <- deparse(eval(parse(text=functionname)))
   
   calccalls <- grep(pattern="calcOutput", x=x, value=TRUE, perl=TRUE)

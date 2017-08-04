@@ -72,7 +72,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
   on.exit(setwd(cwd))
-  functionname <- prepFunctionName(type=type, prefix="calc", years=years)
+  functionname <- prepFunctionName(type=type, prefix="calc", ignore=ifelse(is.null(years),"years",NA))
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
   if(tmpargs!="") tmpargs <- paste0("-",make.names(tmpargs))
   fname <- paste0("calc",type,tmpargs)
