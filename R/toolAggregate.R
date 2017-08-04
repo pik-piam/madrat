@@ -61,7 +61,7 @@
 toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, rev=2) {
 
   if(!is.null(weight) & rev>=2) {
-    weight2 <- 1/toolAggregate(weight,rel)
+    weight2 <- 1/(toolAggregate(weight,rel) + 10^-100)
     comment <- getComment(x)
     if(setequal(getItems(weight, dim=dim), getItems(x, dim=dim))) {
       out <- toolAggregate(x*weight,rel)*weight2
