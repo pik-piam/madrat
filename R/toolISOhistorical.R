@@ -25,7 +25,7 @@
 #' deleted
 #' @author Lavinia Baumstark
 #' 
-#' @importFrom magclass getRegions getYears
+#' @importFrom magclass getRegions getYears setYears
 #' 
 #' @export
 toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=FALSE){
@@ -115,7 +115,7 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
     sub_time <- getYears(m[,c(1:which(getYears(m)==a$fromY)),])
     # disaggregation of countries
     if(length(a$fromISO)==1){  
-      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=m[a$toISO,a$toY,])
+      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=setYears(m[a$toISO,a$toY,],NULL))
     ## aggregation of countries
     } else{ 
       m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=NULL)

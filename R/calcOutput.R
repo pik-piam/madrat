@@ -97,6 +97,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
     if(!is.null(x$weight)) {
       if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
+      if(nyears(x$weight)==1) getYears(x$weight) <- NULL
     }
     x$package <- attr(functionname,"pkgcomment")
     save(x,file=tmppath,compress = "xz")
