@@ -25,7 +25,7 @@
 #' A mapping object should contain 2 columns in which each element of x
 #' is mapped to the category it should belong to after (dis-)aggregation
 #' @param weight magclass object containing weights which should be considered
-#' for a weighted aggregation. The provided weight must only contain positive
+#' for a weighted aggregation. The provided weight should only contain positive
 #' values, but does not need to be normalized (any positive number>=0 is allowed). 
 #' Please see the "details" section below for more information.
 #' @param from Name of the first column to be used in rel if it is a
@@ -40,6 +40,9 @@
 #' @param partrel If set to TRUE allows that the relation matrix does contain
 #' less entries than x and vice versa. These values without relation are lost
 #' in the output.
+#' @param negative_weight Describes how a negative weight should be treated. "allow"
+#' means that it just should be accepted (dangerous), "warn" returns a warning and
+#' "stop" will throw an error in case of negative values
 #' @param rev function revision. rev=1 is the original version, rev=2 contains a
 #' more efficient algorithm for calculations with weights
 #' @return the aggregated data in magclass format
@@ -59,10 +62,16 @@
 #' # weighted aggregation
 #' toolAggregate(population_magpie,mapping, weight=population_magpie)
 
-toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, rev=2) {
+toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn", rev=2) {
   
   if(!is.null(weight) & rev>=2) {
-    if(any(weight<0)) stop("Negative numbers in weight. Weight must be positive!")
+    if(negative_weight!="allow" & any(weight<0)) {
+      if(negative_weight=="warn") {
+        warning("Negative numbers in weight. Dangerous, was it really intended?")
+      } else {
+        stop("Negative numbers in weight. Weight should be positive!")
+      }
+    }
     weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=dim, partrel=partrel) + 10^-100)
     comment <- getComment(x)
     if(setequal(getItems(weight, dim=dim), getItems(x, dim=dim))) {
