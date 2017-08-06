@@ -53,7 +53,7 @@ prepFunctionName <- function(type, prefix="calc", ignore=NULL, error_on_missing=
                   convert  = "readSource",
                   full     = "retrieveData")
   
-  if(prefix %in% c("read", "convert")) {
+  if(prefix %in% c("convert", "correct")) {
     add <- "x"
   } else{
     add <- NULL
