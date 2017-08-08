@@ -46,7 +46,7 @@
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
-#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- is.magpie getComment getComment<- dimCode getYears getRegionList as.magpie getItems 
+#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems 
 #' @importFrom spam diag.spam as.matrix
 #' @seealso \code{\link{calcOutput}}
 #' @examples
@@ -116,6 +116,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
 
   if(!is.null(weight)) {
     if(!is.magpie(weight)) stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
+    if(nyears(weight)==1) getYears(weight) <- NULL
     if(negative_weight!="allow" & any(weight<0)) {
       if(negative_weight=="warn") {
         warning("Negative numbers in weight. Dangerous, was it really intended?")
