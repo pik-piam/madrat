@@ -119,7 +119,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     if(!is.magpie(weight)) stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
     if(nyears(weight)==1) getYears(weight) <- NULL
     weight <- collapseNames(weight)
-    if(negative_weight!="allow" & any(weight<0)) {
+    if(negative_weight!="allow" & any(weight<0, na.rm=TRUE)) {
       if(negative_weight=="warn") {
         warning("Negative numbers in weight. Dangerous, was it really intended?")
       } else {
@@ -127,6 +127,9 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
       }
     }
     weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=dim, partrel=partrel) + 10^-100)
+    weight2[is.na(weight2)] <- 1
+    weight[is.na(weight)] <- 1
+    
     if(setequal(getItems(weight, dim=dim), getItems(x, dim=dim))) {
       out <- toolAggregate(x*weight,rel, from=from, to=to, dim=dim, partrel=partrel)*weight2
     } else if(setequal(getItems(weight2, dim=dim), getItems(x, dim=dim))) {
