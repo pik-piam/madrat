@@ -37,3 +37,10 @@ test_that("Random NAs in weight and mixed_aggregation=TRUE throw an error", {
   expect_error(toolAggregate(pm,map, weight=w, mixed_aggregation=TRUE))
 })
 
+test_that("partrel=TRUE works in combination with weights",{
+  w[,,] <- NA
+  map3 <- map[1:5,]
+  expect_equivalent(toolAggregate(pm,map3,partrel=TRUE, verbose=FALSE),
+                    toolAggregate(pm, map3, partrel = TRUE, weight=w[1:5,,], mixed_aggregation = TRUE, verbose=FALSE))
+})
+
