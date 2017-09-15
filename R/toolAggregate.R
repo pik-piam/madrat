@@ -18,7 +18,7 @@
 #' and/or all data columns. In the case that a column should be just summed up
 #' instead of being calculated as a weighted average you either do not provide
 #' any weight (than all columns are just summed up) or your set this specific
-#' weighting column to NA.
+#' weighting column to NA and mixed_aggregation to TRUE.
 #' 
 #' @param x magclass object that should be (dis-)aggregated
 #' @param rel relation matrix, mapping or csv file containing a mapping.
@@ -43,6 +43,9 @@
 #' @param negative_weight Describes how a negative weight should be treated. "allow"
 #' means that it just should be accepted (dangerous), "warn" returns a warning and
 #' "stop" will throw an error in case of negative values
+#' @param mixed_aggregation boolean which allows for mixed aggregation (weighted 
+#' mean mixed with summations). If set to TRUE weight columns filled with NA
+#' will lead to summation.
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
@@ -61,7 +64,7 @@
 #' # weighted aggregation
 #' toolAggregate(population_magpie,mapping, weight=population_magpie)
 
-toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn") {
+toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE) {
 
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
@@ -117,6 +120,15 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
 
   if(!is.null(weight)) {
     if(!is.magpie(weight)) stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
+    if(anyNA(weight)) {
+      if(!mixed_aggregation) {
+        stop("Weight contains NAs which is only allowed if mixed_aggregation=TRUE!")
+      } else {
+        n <- length(getItems(weight,dim=dim))
+        r <- dimSums(is.na(weight), dim=dim)
+        if(!all(r %in% c(0,n))) stop("Weight contains columns with a mix of NAs and numbers which is not allowed!")
+      }
+    }
     if(nyears(weight)==1) getYears(weight) <- NULL
     weight <- collapseNames(weight)
     if(negative_weight!="allow" & any(weight<0, na.rm=TRUE)) {

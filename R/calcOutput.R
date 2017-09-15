@@ -42,7 +42,7 @@
 #' iso countries or not (the latter will deactivate several features such as aggregation)
 #' \item mixed_aggregation (optional | default = FALSE) - boolean which allows for mixed 
 #' aggregation (weighted mean mixed with summations). If set to TRUE weight columns 
-#' filled with 0 will lead to summation, otherwise they will trigger an error.
+#' filled with NA will lead to summation, otherwise they will trigger an error.
 #' \item min (optional) - Minimum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values below the given threshold and warn in this case
 #' \item max (optional) - Maximum value which can appear in the data. If provided calcOutput
@@ -182,31 +182,15 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
   
-  mixedaggregation_check <- function(x,origin) {
-    if(!x$mixed_aggregation & !is.null(x$weight)) {
-      if(any(is.na(x$weight))) {
-        x$weight[is.na(x$weight)] <- 10^-10
-        vcat(0,"Weight contains NAs in ",origin,", replaced NAs with 10^-10 to avoid aggregation problems. If mixed aggregation was intended set mixed_aggregation to TRUE (see calcOutput help for more information).")
-      } 
-      if(any(dimSums(x$weight,dim=1)==0)) {
-        vcat(0,"Weight contains empty columns in ",origin,", added 10^-10 to avoid division by 0. If mixed aggregation was intended set mixed_aggregation to TRUE (see calcOutput help for more information).")
-        x$weight <- x$weight + 10^-10
-      }
-    }
-    return(x)
-  }
-
-  if(aggregate!=FALSE) x <- mixedaggregation_check(x,origin)
-  
   if(aggregate==TRUE) {
-    x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight)
+    x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation)
   } else if (toupper(aggregate)=="GLO") {
     m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    x$x <- toolAggregate(x$x,m_glo,weight=x$weight)
+    x$x <- toolAggregate(x$x,m_glo,weight=x$weight , mixed_aggregation=x$mixed_aggregation)
   } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
     m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    tmp <- toolAggregate(x$x,m_glo,weight=x$weight)
-    x$x <- mbind(tmp,toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight))
+    tmp <- toolAggregate(x$x,m_glo,weight=x$weight, mixed_aggregation=x$mixed_aggregation)
+    x$x <- mbind(tmp,toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation))
   }
   
   if(!is.null(years)) {
