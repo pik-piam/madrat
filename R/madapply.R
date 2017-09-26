@@ -12,20 +12,21 @@ clusterExportHelper <- function(export, cl, envirFUN ){
 
 clusterEvalQHelper <- function(expr, cl){
   exptoeval <- paste0("clusterEvalQ(cl=cl, expr=library(", expr, "))")
-
- return(eval(parse(text=as.expression(exptoeval))))
+  
+  return(eval(parse(text=as.expression(exptoeval))))
 }
 
 
-#' @title madlapply
+#' @title madapply
 #'
 #' @description { Wrapper Function that executes multiple function calls on one core using 
-#' lapply or on the supplied number of cores using parLapply if the parallel option is set to TRUE.
+#' apply or on the supplied number of cores using parLapply if the parallel option is set to TRUE.
 #' Make sure the package \code{\link[parallel]{parallel}} is installed and runs on your machine before 
 #' setting parallel to TRUE.
 #' }
 #' @param X a vector (atomic or list) or an \code{\link{expression}} object. Other objects
 #'  (including classed objects) will be coerced by base::\code{\link{as.list}}
+#' @param MARGIN vector specifying the dimensions to use.
 #' @param FUN the function to be applied to each element of X
 #' @param exports A list containing a list for each environment which contains imports. Each list contains a character vector and a character or an expression.
 #' The first listing all Objects and Functions to be Exported. The second lists the associated environment. The environment in which the expression is evaluated is
@@ -38,7 +39,7 @@ clusterEvalQHelper <- function(expr, cl){
 #' }
 #' @return A list with one entry for each element in X
 #' @author Stephen Wirth, Jan Philipp Dietrich
-#' @importFrom parallel makeCluster clusterExport clusterEvalQ stopCluster parLapply
+#' @importFrom parallel makeCluster clusterExport clusterEvalQ stopCluster parApply
 #' @export
 #'
 #' @examples
@@ -47,51 +48,43 @@ clusterEvalQHelper <- function(expr, cl){
 #'library(magclass)
 #'
 #'input <- array(2, c(10,5,1))
-#'powwrap <- function(){
+#'wraper <- function(){
 #'# create a variable which has to be exported to the workers
-#'pow <- function(exponent){
-#'  # as magclass is not part of base, therefore the library
-#'  #(magclass has to be evaluated on all the workers)
-#'  return(as.magpie(
-#'  input^exponent))
-#'  }
-#'  
-#'  #actuall madlapply call 
-#'  resultnopar <- madlapply(X=c(2:10), FUN=pow, #stating X and FUN
+#'# madlapply call 
+#'  resultnopar <- madapply(X=input,MARGIN=c(1,2), FUN=mean, #stating X and FUN
 #'                exports=list(list(c("input"),expression(environment()))),
 #'                 # listing the objects or function 
 #'                 #to be exported and their origin environments
 #'               evals=c("magclass" )) # libraries to be evaluated 
-#'               
 #'                 return(resultnopar)
 #'  }
 #'  
-#'  res <- powwrap()
+#'  res <- wraper()
 #' 
 #' 
 #' 
 #
 #' @export
-madlapply <- function(X=NULL, FUN=NULL, exports=NULL, evals=NULL, ...){
+madapply <- function(X=NULL,MARGIN=NULL, FUN=NULL, exports=NULL, evals=NULL, ...){
   #@TODO: maybe parse function code for variable names left and right hand of an assignment 
   #and check which left hand variable aren't created inside the function, then import those.
   #Problem: How to know the environment they were created.
   #@TODO: evaluate namespace of moinput package rather then evaluate whole libraries?
   
   if(!getConfig("parallel")){
-    return(lapply(X = X, FUN = FUN, ...))
+    return(apply(X = X,MARGIN=MARGIN, FUN = FUN, ...))
   } 
   else{
- 
+    
     cl <- makeCluster(getConfig("nocores"))
     on.exit(stopCluster(cl))
     envirFUN = environment(FUN)
- 
+    
     #invisible(
     sapply(X = exports, FUN = clusterExportHelper, cl=cl, envirFUN=envirFUN )#)
-   
-  #invisible(
- sapply(X=evals, FUN = clusterEvalQHelper, cl=cl)#)
-    return(parLapply(cl=cl, X=X, fun=FUN, ... ))
-    }
+    
+    #invisible(
+    sapply(X=evals, FUN = clusterEvalQHelper, cl=cl)#)
+    return(parApply(cl=cl, X=X,MARGIN=MARGIN, FUN=FUN, ... ))
+  }
 }
