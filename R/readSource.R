@@ -118,7 +118,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     
     cwd <- getwd()
     setwd(sourcefolder)
-    functionname <- prepFunctionName(type=type, prefix=prefix)
+    functionname <- prepFunctionName(type=type, prefix=prefix, ignore=ifelse(is.null(subtype),"subtype",NA))
     x <- eval(parse(text=functionname))
     setwd(cwd)
     if(!is.magpie(x)) stop("Output of function \"",functionname,"\" is not a MAgPIE object!")

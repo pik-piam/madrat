@@ -22,6 +22,9 @@
 #' @param append boolean deciding whether the output data should be appended in the existing file.
 #' Works only when a file name is given in the function call. 
 #' @param na_warning boolean deciding whether NAs in the data set should create a warning or not
+#' @param try if set to TRUE the calculation will only be tried and the script will continue even if
+#' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a 
+#' case.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -39,7 +42,7 @@
 #' iso countries or not (the latter will deactivate several features such as aggregation)
 #' \item mixed_aggregation (optional | default = FALSE) - boolean which allows for mixed 
 #' aggregation (weighted mean mixed with summations). If set to TRUE weight columns 
-#' filled with 0 will lead to summation, otherwise they will trigger an error.
+#' filled with NA will lead to summation, otherwise they will trigger an error.
 #' \item min (optional) - Minimum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values below the given threshold and warn in this case
 #' \item max (optional) - Maximum value which can appear in the data. If provided calcOutput
@@ -61,30 +64,40 @@
 #' @importFrom utils packageDescription read.csv2
 #' @export
 
-calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, ...) {
+calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
  
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
-  functionname <- prepFunctionName(type=type, prefix="calc", years=years)
+  on.exit(setwd(cwd))
+  functionname <- prepFunctionName(type=type, prefix="calc", ignore=ifelse(is.null(years),"years",NA))
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
   if(tmpargs!="") tmpargs <- paste0("-",make.names(tmpargs))
   fname <- paste0("calc",type,tmpargs)
-  on.exit(toolendmessage(startinfo,"-",id=fname))
+  on.exit(toolendmessage(startinfo,"-",id=fname), add = TRUE)
   tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
   if(((all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) & !(type %in% getConfig("ignorecache"))) & !(fname %in% getConfig("ignorecache")) & file.exists(tmppath) ) {
     vcat(1," - forced to use data from cache (",tmppath,")")
     load(tmppath) 
   } else {
     vcat(2," - execute function",functionname)
-    x <- eval(parse(text=functionname))
+    if(try) {
+      x <- try(eval(parse(text=functionname)))
+      if(is(x,"try-error")) {
+        vcat(0,as.character(attr(x,"condition")))
+        return(x)
+      } 
+    } else {
+      x <- eval(parse(text=functionname))
+    }
     if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
     if(!is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
     if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
     if(!is.null(x$weight)) {
       if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
+      if(nyears(x$weight)==1) getYears(x$weight) <- NULL
     }
     x$package <- attr(functionname,"pkgcomment")
     save(x,file=tmppath,compress = "xz")
@@ -169,31 +182,15 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
   
-  mixedaggregation_check <- function(x,origin) {
-    if(!x$mixed_aggregation & !is.null(x$weight)) {
-      if(any(is.na(x$weight))) {
-        x$weight[is.na(x$weight)] <- 10^-10
-        vcat(0,"Weight contains NAs in ",origin,", replaced NAs with 10^-10 to avoid aggregation problems. If mixed aggregation was intended set mixed_aggregation to TRUE (see calcOutput help for more information).")
-      } 
-      if(any(dimSums(x$weight,dim=1)==0)) {
-        vcat(0,"Weight contains empty columns in ",origin,", added 10^-10 to avoid division by 0. If mixed aggregation was intended set mixed_aggregation to TRUE (see calcOutput help for more information).")
-        x$weight <- x$weight + 10^-10
-      }
-    }
-    return(x)
-  }
-
-  if(aggregate!=FALSE) x <- mixedaggregation_check(x,origin)
-  
   if(aggregate==TRUE) {
-    x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight)
+    x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation)
   } else if (toupper(aggregate)=="GLO") {
     m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    x$x <- toolAggregate(x$x,m_glo,weight=x$weight)
+    x$x <- toolAggregate(x$x,m_glo,weight=x$weight , mixed_aggregation=x$mixed_aggregation)
   } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
     m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    tmp <- toolAggregate(x$x,m_glo,weight=x$weight)
-    x$x <- mbind(tmp,toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight))
+    tmp <- toolAggregate(x$x,m_glo,weight=x$weight, mixed_aggregation=x$mixed_aggregation)
+    x$x <- mbind(tmp,toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation))
   }
   
   if(!is.null(years)) {
@@ -226,7 +223,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     if(!is.null(destination)) file2destination(file=file,destination=destination)
   }
   
-  setwd(cwd)
   if(supplementary) {
     return(x)
   } else {

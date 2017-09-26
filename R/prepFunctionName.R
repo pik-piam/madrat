@@ -8,7 +8,7 @@
 #' @param prefix Type of calculations. Available options are "download" (source download), 
 #' "read" (source read), "correct" (source corrections), "convert" (source conversion to ISO countries),
 #' "calc" (further calculations), and "full" (collections of calculations)
-#' @param years which should be provided to the function (if any)
+#' @param ignore vector of arguments which should be ignored (not be part of the function call)
 #' @param error_on_missing boolean deciding whether a missing type should throw an error or return NULL
 #' @return A function call as character to the specified function with corresponding package as attribute
 #' @author Jan Philipp Dietrich
@@ -20,7 +20,7 @@
 #' print(madrat:::prepFunctionName("EXAMPLE","full"))
 #' @importFrom utils tail
 
-prepFunctionName <- function(type, prefix="calc", years=NULL, error_on_missing=TRUE) {
+prepFunctionName <- function(type, prefix="calc", ignore=NULL, error_on_missing=TRUE) {
   getCalc <- getCalculations(prefix = prefix)
   if(!(type %in% getCalc$type)) {
     if(error_on_missing) {
@@ -53,18 +53,24 @@ prepFunctionName <- function(type, prefix="calc", years=NULL, error_on_missing=T
                   convert  = "readSource",
                   full     = "retrieveData")
   
-  fformals <- names(formals(eval(parse(text = name))))
-  wformals <- names(formals(as.character(wrapper[prefix])))
-
-  if("..." %in% wformals) {
-    formals <- intersect(wformals,fformals)
-    fcomplete <- all(fformals %in% formals)
-  } else {
-    formals <- fformals
-    fcomplete <- TRUE
+  if(prefix %in% c("convert", "correct")) {
+    add <- "x"
+  } else{
+    add <- NULL
   }
+  
+  fformals <- names(formals(eval(parse(text = name))))
+  wformals <- c(add,names(formals(as.character(wrapper[prefix]))))
+  formals <- intersect(wformals, fformals)
+  fcomplete <- all(fformals %in% formals)
   formals <- setdiff(formals,"...")
-  if(is.null(years)) formals <- setdiff(formals,"years")
+  
+  if(!fcomplete & !("..." %in% wformals)) {
+    warning("Some arguments of function \"", name, "\" cannot be adressed by the wrapper (\"",
+            paste0(fformals[!(fformals %in% formals)], collapse = "\", \""),"\")!")
+  }
+  
+  formals <- setdiff(formals,ignore)
   args <- paste(formals,formals,sep="=")
   if("..." %in% wformals & !fcomplete) args <- c(args,"...")
   out <- paste0(name,'(',paste(args,collapse=", "),')')

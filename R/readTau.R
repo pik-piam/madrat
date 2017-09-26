@@ -24,7 +24,7 @@
 #' \dontrun{ a <- readSource("Tau")
 #' }
 #' @importFrom magclass read.magpie
-readTau <- function(subtype) {
+readTau <- function(subtype="paper") {
   files <- c(paper="tau_data_1995-2000.mz",
              historical="tau_xref_history_country.mz")
   file <- toolSubtypeSelect(subtype,files)

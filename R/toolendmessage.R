@@ -38,6 +38,6 @@ toolendmessage <- function(startdata, level=NULL, id="none") {
       x <- read.table(filename,stringsAsFactors = FALSE, sep=";", header=TRUE, quote = "")
       x <- rbind(x,c(functioncall,FALSE,startdata$time2["elapsed"],runtime,id))
     }
-    try(write.table(x,filename,row.names = FALSE,quote = FALSE, sep=";"))
+    suppressWarnings(try(write.table(x,filename,row.names = FALSE,quote = FALSE, sep=";"), silent=TRUE))
   }
 }
