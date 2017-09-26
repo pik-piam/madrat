@@ -115,7 +115,12 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
     sub_time <- getYears(m[,c(1:which(getYears(m)==a$fromY)),])
     # disaggregation of countries
     if(length(a$fromISO)==1){  
-      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=setYears(m[a$toISO,a$toY,],NULL), negative_weight="allow")
+      weight <- setYears(m[a$toISO,a$toY,],NULL)
+      if(anyNA(weight)) {
+        weight[is.na(weight)] <- 0
+        vcat(0,"Weight in toolISOhistorical contained NAs. Set NAs to 0!")
+      }
+      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=weight, negative_weight="allow")
     ## aggregation of countries
     } else{ 
       m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=NULL)
