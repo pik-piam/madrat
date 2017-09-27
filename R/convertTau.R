@@ -34,8 +34,8 @@ convertTau <- function(x) {
   
   #check whether the country list agrees with the list of countries in the madrat package
   #remove unrequired data, add missing data  
-  tau  <- toolCountryFill(tau,fill=1,TLS="IDN",HKG="CHN",SGP="CHN")
-  xref <- toolCountryFill(xref,fill=0)
+  tau  <- toolCountryFill(tau,fill=1,TLS="IDN",HKG="CHN",SGP="CHN",BHR="QAT")
+  xref <- toolCountryFill(xref, fill=0, verbosity=2)
   
   return(mbind(tau,xref))
 }  

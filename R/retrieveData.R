@@ -75,9 +75,9 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
    
    functionname <- prepFunctionName(type=toupper(model), prefix="full")
    
-   vcat(2," - execute function",functionname)
+   vcat(2," - execute function",functionname, fill=300)
    x <- eval(parse(text=functionname))
-   vcat(2," - function",functionname,"finished")
+   vcat(2," - function",functionname,"finished", fill=300)
    
    #remove duplicates in mapping
    map <- readLines(paste0(sourcefolder,"/file2destination.csv"))
@@ -90,7 +90,7 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
   trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern=TRUE)
   setwd(cwd) 
   startinfo <- toolstartmessage(0)
-  vcat(1," - data is already available and not calculated again.") 
+  vcat(1," - data is already available and not calculated again.", fill=300) 
  } 
  
  

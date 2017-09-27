@@ -14,6 +14,11 @@
 #' Currently this setting can have 4 states: NULL (nothing will be changed), 0
 #' (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
 #' hierarchy level by 1).
+#' @param fill a logical or (positive) numeric controlling how the output is 
+#' broken into successive lines. If FALSE (default), only newlines created 
+#' explicitly by "\\n" are printed. Otherwise, the output is broken into lines 
+#' with print width equal to the option width if fill is TRUE, or the value of 
+#' fill if this is numeric. Non-positive fill values are ignored, with a warning.
 #' @export
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}
@@ -23,7 +28,7 @@
 #' vcat(2,"Hello world!")
 #' }
 #' 
-vcat <- function(verbosity,...,level=NULL) {
+vcat <- function(verbosity,...,level=NULL, fill=TRUE) {
   #write output based on set verbosity level
   
   if(!is.null(level)) {
@@ -46,29 +51,29 @@ vcat <- function(verbosity,...,level=NULL) {
   }
   
   if(verbosity<0) {
-    if(writelog) if(dir.exists(dirname(logfile))) base::cat("ERROR:",...,fill=TRUE,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE) 
+    if(writelog) if(dir.exists(dirname(logfile))) base::cat("ERROR:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE) 
     if(getConfig("verbosity") >= verbosity) {
-      if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat("ERROR:",...,fill=TRUE,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
+      if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat("ERROR:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
       base::stop(..., call. = FALSE)      
     }
   } else if(verbosity==0) {
     if(getConfig("verbosity") >= verbosity) {
       base::warning(..., call. = FALSE)      
-      if(writelog) if(dir.exists(dirname(logfile))) base::cat("WARNING:",...,fill=TRUE,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
+      if(writelog) if(dir.exists(dirname(logfile))) base::cat("WARNING:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
     }
-    if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat("WARNING:",...,fill=TRUE,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE)
+    if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat("WARNING:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE)
   } else {
     if(getConfig("verbosity") >= verbosity) {
-      base::cat(...,fill=TRUE,labels = getOption("gdt_nestinglevel"))  
-      if(writelog) if(dir.exists(dirname(logfile))) base::cat(...,fill=TRUE,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
+      base::cat(...,fill=fill,labels = getOption("gdt_nestinglevel"))  
+      if(writelog) if(dir.exists(dirname(logfile))) base::cat(...,fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
     }
-    if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat(...,fill=TRUE,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE)
+    if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat(...,fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE)
   }
   
   if(!is.null(level)){
     if(level=="+") {
       # add empty space
-      options(gdt_nestinglevel=paste0(" ",getOption("gdt_nestinglevel")))
+      options(gdt_nestinglevel=paste0(">",getOption("gdt_nestinglevel")))
     }
   }
   

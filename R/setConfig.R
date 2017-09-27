@@ -113,7 +113,7 @@ setConfig <- function(regionmapping=NULL,
           #normalize path value
           if(!file.exists(value)) {
             dir.create(value,recursive = TRUE)
-            if(.verbose) vcat(1,paste("created folder",sub("/$","",normalizePath(value,winslash = "/")),"..."))
+            if(.verbose) vcat(1,paste("created folder",sub("/$","",normalizePath(value,winslash = "/")),"..."), fill=300)
           }
           value <-  sub("/$","",normalizePath(value,winslash = "/"))
         }

@@ -18,6 +18,11 @@
 #' data.
 #' @param overwrite logical deciding whether existing data should be overwritten,
 #' if there is a specific mapping provided for that country, or not
+#' @param verbosity verbosity for information about filling important countries.
+#' 0 = warning will show up (recommended if filling of important countries is not expected), 
+#' 1 = note will show up in reduced log file (default),
+#' 2 = info will show up in extended log file (recommended if filling of important countries
+#' is not critical and desired).
 #' @param ... Mappings between countries for which the data is missing and 
 #' countries from which the data should be used instead for these countries 
 #' (e.g. "HKG"="CHN" if HongKong should receive the value of China). This 
@@ -33,7 +38,7 @@
 #' 
 #' @importFrom magclass getRegions new.magpie getYears getNames mbind setCells
 #' @export 
-toolCountryFill <- function(x,fill=NA,no_remove_warning=NULL, overwrite=FALSE,...) {
+toolCountryFill <- function(x,fill=NA, no_remove_warning=NULL, overwrite=FALSE, verbosity=1, ...) {
   iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
   iso_country1<-as.vector(iso_country[,"x"])
   names(iso_country1)<-iso_country[,"X"]
@@ -72,8 +77,8 @@ toolCountryFill <- function(x,fill=NA,no_remove_warning=NULL, overwrite=FALSE,..
     missing_important_countries <- setdiff(intersect(missing_countries,getISOlist("important")),names(map))
     if(length(missing_important_countries)>0) {
       names_countries <- names(iso_country1)[iso_country1 %in% missing_important_countries]
-      vcat(1," - toolCountryFill set missing values for IMPORTANT countries to ",fill,":")
-      vcat(1,paste(" --- ",names_countries,paste0("(",iso_country1[names_countries],")"),sep=""),sep="")
+      vcat(verbosity," - toolCountryFill set missing values for IMPORTANT countries to ",fill,":")
+      vcat(verbosity,paste(" --- ",names_countries,paste0("(",iso_country1[names_countries],")"),sep=""),sep="")
     }
     
     missing_dispensable_countries <- setdiff(intersect(missing_countries,getISOlist("dispensable")),names(map))
