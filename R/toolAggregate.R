@@ -46,7 +46,8 @@
 #' @param mixed_aggregation boolean which allows for mixed aggregation (weighted 
 #' mean mixed with summations). If set to TRUE weight columns filled with NA
 #' will lead to summation.
-#' @param verbose Defines whether the function should be verbose or not
+#' @param verbosity Verbosity level of messages coming from the function: -1 = error, 
+#' 0 = warning, 1 = note, 2 = additional information, >2 = no message
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
@@ -65,7 +66,7 @@
 #' # weighted aggregation
 #' toolAggregate(population_magpie,mapping, weight=population_magpie)
 
-toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE, verbose=TRUE) {
+toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE, verbosity=1) {
 
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
@@ -113,7 +114,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
-    if(length(noagg)>1 & verbose) cat("The following entries were not aggregated because there was no respective entry in the relation matrix", noagg, "\n")
+    if(length(noagg)>1) vcat(verbosity, "The following entries were not aggregated because there was no respective entry in the relation matrix", noagg, "\n")
     
     rel <- rel[,common]
     rel <- subset(rel, subset=rowSums(rel)>0)
@@ -139,7 +140,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
         stop("Negative numbers in weight. Weight should be positive!")
       }
     }
-    weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=dim, partrel=partrel, verbose=FALSE) + 10^-100)
+    weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=dim, partrel=partrel, verbosity=10) + 10^-100)
     if(mixed_aggregation) {
       weight2[is.na(weight2)] <- 1
       weight[is.na(weight)] <- 1
