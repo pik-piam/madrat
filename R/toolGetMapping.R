@@ -59,8 +59,4 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
   } else {
     stop("Unsupported filetype \"", filetype,"\"")
   }
-<<<<<<< HEAD
-=======
-  return(out)
->>>>>>> 6217c87946b1da14146fff6098be330736fb9483
 }
