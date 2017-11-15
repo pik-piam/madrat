@@ -40,6 +40,7 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     }
   } else {
     fname <- system.file("extdata", paste0(type,"/",name), package=where)
+    if(fname=="") fname <- system.file("inst/extdata", paste0(type,"/",name), package=where)
     if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
   }
   fname <- gsub("/+","/",fname)
