@@ -29,7 +29,7 @@ toolConvertMapping <- function(name, format="rda", type=NULL, where="mappingfold
   if(format=="rda") {
     save(data,file=fname,compress="xz")  
   } else if(format=="csv") {
-    write.csv(data,fname,sep=",")
+    write.table(data,fname,sep=";",row.names=FALSE)
   } else {
     stop("Unsupported format ",format)
   }
