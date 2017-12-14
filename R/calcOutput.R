@@ -150,7 +150,8 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   if(!is.null(x$max)) {
     if(any(x$x>x$max, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values greater than the predefined maximum (max = ",x$max,")")
   }
-  if(anyNA(x$x) & na_warning) vcat(0,"Data returned by ", functionname," contains NAs")
+  if(na_warning) if(anyNA(x$x)) vcat(0,"Data returned by ", functionname," contains NAs")
+  if(any(is.infinite(x$x))) vcat(0,"Data returned by ", functionname," contains infinite values")
   
   if(!is.null(years)){
     #check that years exist in provided data

@@ -222,6 +222,16 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     
     #Aggregate data
     matrix_multiplication <- function(y,x) {
+      if(any(is.infinite(y))) {
+        #Special Inf treatment to prevent that a single Inf in x
+        #is setting the full output to NaN (because 0*Inf is NaN)
+        #Infs are now treated in a way that anything except 0 times Inf
+        #leads to NaN, but 0 times Inf leads to NaN
+        for(i in c(-Inf,Inf)) {
+          x[,y==i][x[,y==i]!=0] <- i
+          y[y==i] <- 1
+        }
+      }
       if(any(is.na(y))) {
         #Special NA treatment to prevent that a single NA in x
         #is setting the full output to NA (because 0*NA is NA)
