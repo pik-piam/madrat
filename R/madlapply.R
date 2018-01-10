@@ -78,10 +78,10 @@ madlapply <- function(X=NULL, FUN=NULL, exports=NULL, evals=NULL, ...){
   #Problem: How to know the environment they were created.
   #@TODO: evaluate namespace of moinput package rather then evaluate whole libraries?
   
-  if(!getConfig("parallel")){
-    return(lapply(X = X, FUN = FUN, ...))
-  } 
-  else{
+  # if(!getConfig("parallel")){
+  #   return(lapply(X = X, FUN = FUN, ...))
+  # } 
+  # else{
  
     cl <- makeCluster(getConfig("nocores"))
     on.exit(stopCluster(cl))
@@ -93,5 +93,5 @@ madlapply <- function(X=NULL, FUN=NULL, exports=NULL, evals=NULL, ...){
   #invisible(
  sapply(X=evals, FUN = clusterEvalQHelper, cl=cl)#)
     return(parLapply(cl=cl, X=X, fun=FUN, ... ))
-    }
+  # }
 }

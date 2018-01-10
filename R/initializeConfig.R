@@ -28,8 +28,7 @@ initializeConfig <- function(verbose=TRUE) {
                 ignorecache = NULL,
                 delete_cache  = TRUE,
                 diagnostics   = FALSE,
-                parallel=FALSE,
-                nocores=2)
+                nocores=1)
      options(madrat_cfg = cfg)
      if(verbose) {
       base::cat(paste(paste0("    ",names(cfg)),cfg,sep=" = ",collapse="\n"))
