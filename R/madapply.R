@@ -71,7 +71,7 @@ madapply <- function(X=NULL,MARGIN=NULL, FUN=NULL, exports=NULL, evals=NULL, ...
   #Problem: How to know the environment they were created.
   #@TODO: evaluate namespace of moinput package rather then evaluate whole libraries?
   
-  if(!getConfig("parallel")){
+  if(getConfig("nocores")<=1){
     return(apply(X = X,MARGIN=MARGIN, FUN = FUN, ...))
   } 
   else{

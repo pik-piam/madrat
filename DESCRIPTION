@@ -1,13 +1,13 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 1.34.0
-Date: 2017-12-14
+Version: 1.35.0
+Date: 2018-01-26
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
              person("Anastasis", "Giannousakis", email = "giannou@pik-potsdam.de", role = "aut"),
 		         person("Benjamin Leon", "Bodirsky", email = "bodirsky@pik-potsdam.de", role = "ctb"),
-		         person("Ulrich", "Kreidenweis", email = "bodirsky@pik-potsdam.de", role = "ctb"))
+		         person("Ulrich", "Kreidenweis", email = "kreidenweis@pik-potsdam.de", role = "ctb"))
 Description: Provides a framework which should improve reproducibility and transparency in data processing. It provides functionality such as automatic meta data creation and management, rudimentary quality management, data caching, work-flow management and data aggregation.
     * The title is a wish not a promise. By no means we expect this package to deliver everything what is needed to achieve full reproducibility and transparency, but we believe that it supports efforts in this direction.
 Depends:
@@ -26,6 +26,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+URL: https://github.com/pik-piam/madrat, https://doi.org/10.5281/zenodo.1115490
+BugReports: https://github.com/pik-piam/madrat/issues
 License: BSD_2_clause + file LICENSE
 LazyData: no
 RoxygenNote: 6.0.1
