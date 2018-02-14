@@ -26,10 +26,11 @@ calcTauTotal <- function() {
               weight=weight,
               min=0,
               max=10,
-              unit="-",
+              unit="1",
               description="Agricultural Land Use Intensity Tau",
-              note=c('data based on Dietrich J.P., Schmitz C., M\uFCller C., Fader M., Lotze-Campen H., Popp A.,',
-                     'Measuring agricultural land-use intensity - A global analysis using a model-assisted approach',
-                     'Ecological Modelling, Volume 232, 10 May 2012, Pages 109-118, ISSN 0304-3800, 10.1016/j.ecolmodel.2012.03.002.',
-                     'preprint available \u40 http://edoc.gfz-potsdam.de/pik/display.epl?mode=doc&id=5281')))
+              source=list(author='Dietrich J.P., Schmitz C., M\uFCller C., Fader M., Lotze-Campen H., Popp A.,',
+                     title='Measuring agricultural land-use intensity - A global analysis using a model-assisted approach', 
+                     date='10 May 2012',
+                     publication='Ecological Modelling, Volume 232, Pages 109-118, ISSN 0304-3800, 10.1016/j.ecolmodel.2012.03.002.',
+                     URL='preprint available \u40 http://edoc.gfz-potsdam.de/pik/display.epl?mode=doc&id=5281')))
 }
