@@ -39,7 +39,7 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
  cfg_backup <- getOption("madrat_cfg")
  on.exit(options("madrat_cfg" = cfg_backup))
 
- collectionname <- paste0(tolower(model), "_", regionscode, "_rev", rev)
+ collectionname <- paste0("rev", rev, "_", regionscode, "_", tolower(model))
  sourcefolder <- paste0(getConfig("mainfolder"), "/output/", collectionname)
  if(!file.exists(paste0(sourcefolder,".tgz"))) {
    # data not yet ready and has to be prepared first

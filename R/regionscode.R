@@ -15,9 +15,8 @@
 #' @seealso \code{\link{fingerprint}}, \code{\link[digest]{digest}}
 #' @examples
 #' 
-#' \dontrun{
-#' regionscode("regionmappingMAgPIE.csv")
-#' }
+#' file <- system.file("extdata","regionmappingH12.csv",package="madrat")
+#' regionscode(file)
 #' 
 #' @importFrom digest digest
 #' @export
