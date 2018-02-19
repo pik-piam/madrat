@@ -25,7 +25,7 @@
 #' a <- readSource("Tau","paper")
 #' }
 #' 
-#' @importFrom magclass read.magpie is.magpie
+#' @importFrom magclass read.magpie is.magpie updateMetadata
 #' @importFrom methods existsFunction
 #' @export
 readSource <- function(type,subtype=NULL,convert=TRUE) {
@@ -165,7 +165,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(getRegions(x)!="GLO") stop("Data is supposed to be global data but does have a region name different from GLO!")
   }
   
-  x<-updateMetadata(clean_magpie(x),calcHistory="update")
+  x<-updateMetadata(clean_magpie(x),calcHistory=data.tree::Node$new(deparse(sys.call(),width.cutoff = 500)))
   setwd(cwd)
  
   

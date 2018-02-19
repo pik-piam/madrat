@@ -60,7 +60,7 @@
 #' }
 #' 
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report2 write.magpie
-#' getCells getYears<- is.magpie dimSums
+#' getCells getYears<- is.magpie dimSums getMetadata updateMetadata
 #' @importFrom utils packageDescription read.csv2
 #' @export
 
