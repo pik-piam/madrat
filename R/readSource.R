@@ -164,8 +164,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(nregions(x)>1) stop("Data has more than one region, but is supposed to be global data!")
     if(getRegions(x)!="GLO") stop("Data is supposed to be global data but does have a region name different from GLO!")
   }
-  
-  x<-updateMetadata(clean_magpie(x),calcHistory=data.tree::Node$new(deparse(sys.call(),width.cutoff = 500)))
+  x<-updateMetadata(clean_magpie(x),calcHistory="update")
   setwd(cwd)
  
   
