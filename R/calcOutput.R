@@ -66,6 +66,14 @@
 
 calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
  
+  # check settings for aggregate
+  if(!is.logical(aggregate)) {
+    if(!(toupper(gsub("+","",aggregate,fixed = TRUE)) %in% c("GLO","REGGLO"))) {
+      stop("Illegal setting aggregate = ",aggregate,"! Make sure that all arguments 
+            which should be passed to the specific calc function are given with its name (e.g. arg=BLA)")
+    }
+  }
+  
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
   options(reducedHistory=TRUE)
