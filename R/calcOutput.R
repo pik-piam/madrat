@@ -68,6 +68,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
  
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
+  options(reducedHistory=TRUE)
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
@@ -178,7 +179,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
   
-  Mx <- getMetadata(x$x)
+  #Mx <- getMetadata(x$x)
   if(aggregate==TRUE) {
     x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation)
   } else if (toupper(aggregate)=="GLO") {
@@ -199,8 +200,8 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
 
   getComment(x$x) <- c(comment,origin,date)  
   
-  x$x<-updateMetadata(updateMetadata(clean_magpie(x$x),unit=x$unit,source=x$source,calcHistory=Mx$calcHistory,description=x$description),calcHistory="update")
-  
+  x$x<-updateMetadata(clean_magpie(x$x),unit=x$unit,source=x$source,calcHistory="update",description=x$description)
+
   if(is.null(file) & append){
     vcat(0,"The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
   }
@@ -214,6 +215,8 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     }
     if(!is.null(destination)) file2destination(file=file,destination=destination)
   }
+  
+  if (length(sys.calls())==1)  options(reducedHistory = FALSE)
   
   if(supplementary) {
     return(x)

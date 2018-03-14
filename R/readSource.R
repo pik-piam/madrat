@@ -25,12 +25,13 @@
 #' a <- readSource("Tau","paper")
 #' }
 #' 
-#' @importFrom magclass read.magpie is.magpie updateMetadata
+#' @importFrom magclass read.magpie is.magpie updateMetadata withMetadata
 #' @importFrom methods existsFunction
 #' @export
 readSource <- function(type,subtype=NULL,convert=TRUE) {
   cwd <- getwd()
   setwd(getConfig("mainfolder"))
+  options(reducedHistory=TRUE)
   startinfo <- toolstartmessage("+")
   on.exit(toolendmessage(startinfo,"-"))
   
@@ -59,7 +60,6 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       if(is.null(out)) return(NULL)
       return(eval(parse(text=sub("\\(.*$","",out))))
     }
-    
     .fp <- function(sourcefolder, type) {
       if(prefix=="read") {
         fp <- fingerprint(sourcefolder, readSource, .f(type,"read"))  
@@ -164,7 +164,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(nregions(x)>1) stop("Data has more than one region, but is supposed to be global data!")
     if(getRegions(x)!="GLO") stop("Data is supposed to be global data but does have a region name different from GLO!")
   }
-  x<-updateMetadata(clean_magpie(x),calcHistory="update")
+  x <- clean_magpie(x)
+  x <- updateMetadata(x,calcHistory="update")
   setwd(cwd)
  
   
