@@ -89,6 +89,7 @@ CostaRica;CRI
 Costa_Rica;CRI
 Cote d Ivoire;CIV
 Cote d'Ivoire;CIV
+Cote dIvoire;CIV
 Croatia;HRV
 Cuba;CUB
 Curacao;CUW
@@ -173,6 +174,7 @@ Honduras;HND
 Hong Kong, China;HKG
 Hong Kong;HKG
 Hong-Kong;HKG
+Hong Kong SAR;HKG
 Hungary;HUN
 Iceland;ISL
 India;IND
@@ -218,6 +220,7 @@ Kuwait;KWT
 Kuweit;KWT
 Kyrgyz Rep.;KGZ
 Kyrgyzstan;KGZ
+Kyrgyz Republic;KGZ
 Lao People's Democratic Republic;LAO
 Lao;LAO
 Laos;LAO
@@ -394,6 +397,7 @@ Tanzania;TZA
 Tanzania_United_Republic_of;TZA
 Thailand;THA
 Timor-Leste;TLS
+Democratic Republic of Timor-Leste;TLS
 Togo;TGO
 Tokelau;TKL
 Tonga;TON
@@ -640,3 +644,4 @@ weissrussland;BLR
 curaçao;CUW
 Hong Kong (China);HKG
 Other non-OECD Asia;IAS
+Republic of Congo;COG
