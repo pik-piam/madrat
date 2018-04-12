@@ -91,9 +91,29 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
       names(coeffList) <- names(weight)
       
       if (length(weight[weight != 0]) == 1){ # no need to disaggregate a single function
+        # preparing results
+        result <- list()
         singleWeight <- names(weight[weight != 0])
         coeffList[[singleWeight]][] <- data
-        return(coeffList)
+        if (returnChart == TRUE){
+          thirdDegreeFunction <-  function(x) {
+            return( as.numeric(coeffList[[singleWeight]][1]) + as.numeric(coeffList[[singleWeight]][2])*x + as.numeric(coeffList[[singleWeight]][3])*x^2 + as.numeric(coeffList[[singleWeight]][4])*x^3 )
+          }
+          p <- ggplot2::ggplot(data = NULL)
+          p <- p + ggplot2::xlim(xLowerBound, xUpperBound)
+          p <- p + ggplot2::stat_function(fun = thirdDegreeFunction, size=1, ggplot2::aes(colour = "_aggregated function", linetype = "_aggregated function"), na.rm=TRUE)
+          p <- p + ggplot2::scale_linetype_manual(values = c("solid"), guide = FALSE)
+          p <- p + ggplot2::labs(colour = label$legend, x = label$x, y = label$y)
+          result$chart <- p # return chart
+        }
+        if (returnCoeff == TRUE){ # return coeff of estimated function
+          if(length(result) == 0) {
+            result <- coeffList 
+          } else {
+            result$coeff <- coeffList 
+          }
+        }
+        return(result)  
       } 
       
       #function to be disaggregated
@@ -126,27 +146,22 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
       maxY <- fTotal(xUpperBound)
       minY <- fTotal(xLowerBound)
       minY <- max(c(0,minY)) # negative y do not make sense (avoid negative prices)
-      
+
       # Sampling
+      # sampling x
+      samples <- data.frame(x = seq(from=minX, to=maxX, length.out = numberOfSamples))
       # sampling y
-      samples <- data.frame(y = seq(from=minY, to=maxY, length.out = numberOfSamples))
-      samples$x <- fTotalInverse(samples$y,minX,maxX)
-      #samples <- data.table::data.table(y = seq(from=minY, to=maxY, length.out = numberOfSamples))
-      #samples[,x := fTotalInverse(y,minX,maxX)]
+      samples$y <- fTotal(samples$x)
       
-      # calculated samples
+      # sampling y
       totalWeight <- sum(weight)
       for (rowName in names(weight)){
-        samples[,(paste0(rowName,".x"))] <- samples$x*(weight[rowName]/totalWeight)
-        #samples[,(paste0(rowName,".x")) := x*(weight[rowName]/totalWeight)]
+          samples[,(paste0(rowName,".x"))] <- samples$x*(weight[rowName]/totalWeight)
       }
       
       # estimating functions to each row from the new samples created from weights
       for (rowName in names(weight)){
         if (weight[rowName]!=0){
-          #current <- samples[,"y"]
-          #current$x <- samples[,eval(as.symbol(paste0(rowName,".x")))]
-          #closestToZero <- sapply(current, function(x) x[which.min(abs(x))])
           current <- data.frame(x = samples[paste0(rowName,".x")], y = samples[,"y"])
           names(current) <- c("x","y")
           closestToZero <- sapply(current, function(x) x[which.min(abs(x))])
@@ -175,7 +190,7 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
         fY <- lapply(coeffList, function(coef){ function(x){ as.numeric(coef[1]) + as.numeric(coef[2])*x + as.numeric(coef[3])*x^2 + as.numeric(coef[4])*x^3 } })
         
         p <- ggplot2::ggplot(samples, ggplot2::aes(samples$x, samples$y, group = 1)) +
-          ggplot2::geom_point(size=1) +
+          #ggplot2::geom_point(size=1) +
           ggplot2::ylim(0, max(samples$y)) +
           ggplot2::xlim(0, max(samples$x))
         p <- p + ggplot2::stat_function(fun=fTotal, size=1, ggplot2::aes(colour = "_aggregated function", linetype = "_aggregated function"), na.rm=TRUE)
@@ -226,7 +241,7 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
                        rownames(currentWeight) <- getRegions(weight[[names(groupsList[i])]])
                        # estimating aggregated function
                        if (is.null(rel)){ # single aggregated function
-                         out <- cubicFitDisaggregate(currentDf, currentWeight, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+                         out <- cubicFitDisaggregate(currentDf, currentWeight, xLowerBound=xLowerBound, xUpperBound=xUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound=unirootLowerBound,unirootUpperBound=unirootUpperBound, colourPallete=colourPallete, label=label)
                        } else { # looping through new regions and estimating the aggregated function
                          if (returnMagpie==TRUE){
                            returnCoeff=TRUE
@@ -239,7 +254,7 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
                            currentFilteredDf <- currentDf[region,]
                            currentWeight <- currentWeight[rel[from][rel[to]==as.character(region)],]
                            names(currentWeight) <- rel[from][rel[to]==as.character(region)]
-                           outRegion <- cubicFitDisaggregate(currentFilteredDf, currentWeight, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+                           outRegion <- cubicFitDisaggregate(currentFilteredDf, currentWeight, xLowerBound=xLowerBound, xUpperBound=as.numeric(xUpperBound[region,,names(groupsList[i])]), returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound=unirootLowerBound,unirootUpperBound=unirootUpperBound, colourPallete=colourPallete, label=label)
                            return(outRegion)
                          }) 
                          names(out) <- unique(rel[[to]])
@@ -258,7 +273,7 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
     names(output) <- names(groupsList)
   } else {
     if (is.null(rel)){ # single aggregated function
-      output <- cubicFitDisaggregate(data, weight, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+      output <- cubicFitDisaggregate(data, weight, xLowerBound=xLowerBound, xUpperBound=xUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound=unirootLowerBound,unirootUpperBound=unirootUpperBound, colourPallete=colourPallete, label=label)
     } else { # looping through new regions and estimating the aggregated function
       if (returnMagpie==TRUE){
         returnCoeff=TRUE
@@ -270,7 +285,7 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
       output <- sapply(unique(rel[[to]]), function(region) {
         currentFilteredDf <- data[region,]
         currentWeight <- weight[rel[from][rel[to]==as.character(region)],]
-        outRegion <- cubicFitDisaggregate(currentFilteredDf, currentWeight, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+        outRegion <- cubicFitDisaggregate(currentFilteredDf, currentWeight, xLowerBound=xLowerBound, xUpperBound=xUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound=unirootLowerBound,unirootUpperBound=unirootUpperBound, colourPallete=colourPallete, label=label)
         return(outRegion)
       })
       names(output) <- unique(rel[[to]])

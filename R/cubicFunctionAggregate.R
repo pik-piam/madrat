@@ -80,8 +80,28 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
   cubicFitAggregate <- function(data, xLowerBound=0, xUpperBound=100, returnCoeff=TRUE, returnChart=FALSE, returnSample=FALSE, numberOfSamples=1e3, unirootLowerBound = -10,unirootUpperBound = 1e100, colourPallete=FALSE, label = list(x = "x", y = "y", legend = "legend")){
     
     if (nrow(data) == 1 || is.null(nrow(data))){ # no need to aggregate a single function
-      return(c(data[1],data[2],data[3],data[4]))
-    }
+      # preparing results
+      result <- list()
+      if (returnChart == TRUE){
+        thirdDegreeFunction <-  function(x) {
+          return( data[1] + data[2]*x + data[3]*x^2 + data[4]*x^3 )
+        }
+        p <- ggplot2::ggplot(data = NULL)
+        p <- p + ggplot2::xlim(xLowerBound, xUpperBound)
+        p <- p + ggplot2::stat_function(fun = thirdDegreeFunction, size=1, ggplot2::aes(colour = "_aggregated function", linetype = "_aggregated function"), na.rm=TRUE)
+        p <- p + ggplot2::scale_linetype_manual(values = c("solid"), guide = FALSE)
+        p <- p + ggplot2::labs(colour = label$legend, x = label$x, y = label$y)
+        result$chart <- p # return chart
+      }
+      if (returnCoeff == TRUE){ # return coeff of estimated function
+        if(length(result) == 0) {
+          result <- c(data[1],data[2],data[3],data[4])
+        } else {
+          result$coeff <- c(data[1],data[2],data[3],data[4])
+        }
+      }
+      return(result)  
+    } 
     
     #cubic function of each row to be aggregated (ex: fY[[rowName]](20))
     fY <- apply(data, 1, function(coef){ function(x){ as.numeric(coef[1]) + as.numeric(coef[2])*x + as.numeric(coef[3])*x^2 + as.numeric(coef[4])*x^3 } })
@@ -108,33 +128,34 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
     })
     names(fYInverse) <- rownames(data)
     
-    #Boundaries for which all functions are defined
-    #X (= sum X of each function)
-    maxX <- nrow(data)*xUpperBound
+    
+    # Boundaries for which all functions should be defined
+    if (length(xUpperBound) > 1){ # one bound for each row
+      maxX <- sum(xUpperBound)
+      maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound[rowName])))
+    } else {
+      maxX <- xUpperBound
+      maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound)))
+    }
     minX <- xLowerBound
-    #Y
-    maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound)))
     minY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xLowerBound)))
-    minY <- max(c(0,minY)) # negative y do not make sense (avoid negative prices)
+    minY <- max(c(0,minY))
     
     # Sampling
     # sampling y
     samples <- data.frame(y = seq(from=minY, to=maxY, length.out = numberOfSamples))
-    #samples <- data.table::data.table(y = seq(from=minY, to=maxY, length.out = numberOfSamples))
     # sampling x per function
     for (rowName in rownames(data)){
       samples[,(paste0(rowName,".x"))] <- fYInverse[[rowName]](samples$y,minX,maxX)
-      #samples[,(paste0(rowName,".x")) := fYInverse[[rowName]](y,minX,maxX)]
     }
     
     # total x
     samples$x <-rowSums(samples[grep("x", names(samples))])
-    #samples[, x := rowSums(.SD), .SDcols = grep("x", names(samples))] 
     
     # estimating the new function
     closestToZero <- sapply(samples, function(x) x[which.min(abs(x))])
     tol <- 1e-4
-    if ((closestToZero["x"] > -tol) & (closestToZero["x"] < tol)){ # if there is a x value close to zero, estimate the function with a fixed intercept (to approximate the intercept of the original functions) 
+    if ((closestToZero["x"] > -tol) & (closestToZero["x"] < tol)){ # if there is a x value close to zero, estimate the function with a fixed intercept (to approximate the intercept of the original functions)
       intercept <- rep.int(closestToZero["y"], length(samples$x))
       newFunction <- lm(samples$y~-1+samples$x+I(samples$x^2)+I(samples$x^3)+offset(intercept))
       newFunctionCoeff <- c(closestToZero["y"], as.vector(summary(newFunction)$coefficients[,1]))
@@ -195,15 +216,16 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
     factorGroups <- interaction(df[,dataNames]) # all combinations of Data values
     groupsList <- split(df, with(df, factorGroups), drop = TRUE)
     #looping through all data sets and estimating the respective aggregated functions 
-    output <- lapply(groupsList,
-                     function(currentDf) {
+    output <- lapply(seq_along(groupsList),
+                     function(i) {
                        # preparing data (row names equal to regions, one column for each coefficient)
+                       currentDf <- groupsList[[i]]
                        currentDf <- currentDf[c(2,length(currentDf)-1,length(currentDf))] #region, coeff, value 
                        names(currentDf) <- c("Region","coeff","value")  
                        currentDf <- reshape2::acast(currentDf, Region ~ coeff, value.var = 'value')
                        # estimating aggregated function
                        if (is.null(rel)){ # single aggregated function
-                         out <- cubicFitAggregate(currentDf, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+                         out <- cubicFitAggregate(currentDf, xLowerBound=xLowerBound, xUpperBound=xUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound =unirootLowerBound,unirootUpperBound =unirootUpperBound, colourPallete=colourPallete, label = label)
                        } else { # looping through new regions and estimating the aggregated function
                          if (returnMagpie==TRUE){
                            returnCoeff=TRUE
@@ -214,7 +236,10 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
                          to <- ifelse(dim(rel)[2]==3,3,2) # region
                          out <- sapply(unique(rel[[to]]), function(region) {
                            currentFilteredDf <- currentDf[rel[from][rel[to]==as.character(region)],]
-                           outRegion <- cubicFitAggregate(currentFilteredDf, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+                           # upper bound
+                           currentxUpperBound <- as.numeric(xUpperBound[rel[from][rel[to]==as.character(region)],,names(groupsList[i])])
+                           names(currentxUpperBound) <- getRegions(xUpperBound[rel[from][rel[to]==as.character(region)],,names(groupsList[i])])
+                           outRegion <- cubicFitAggregate(currentFilteredDf, xLowerBound=xLowerBound, xUpperBound=currentxUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound =unirootLowerBound,unirootUpperBound =unirootUpperBound, colourPallete=colourPallete, label = label)
                            return(outRegion)
                          })
                          if (returnMagpie==TRUE){
@@ -230,7 +255,7 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
     names(output) <- names(groupsList)
   } else {
     if (is.null(rel)){ # single aggregated function
-      output <- cubicFitAggregate(data, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+      output <- cubicFitAggregate(data, xLowerBound=xLowerBound, xUpperBound=xUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound =unirootLowerBound,unirootUpperBound =unirootUpperBound, colourPallete=colourPallete, label = label)
     } else { # looping through new regions and estimating the aggregated function
       if (returnMagpie==TRUE){
         returnCoeff=TRUE
@@ -241,7 +266,7 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
       to <- ifelse(dim(rel)[2]==3,3,2) # region
       output <- sapply(unique(rel[[to]]), function(region) {
         currentFilteredDf <- data[rel[from][rel[to]==as.character(region)],]
-        outRegion <- cubicFitAggregate(currentFilteredDf, xLowerBound, xUpperBound, returnCoeff, returnChart, returnSample, numberOfSamples, unirootLowerBound, unirootUpperBound, colourPallete, label)
+        outRegion <- cubicFitAggregate(currentFilteredDf, xLowerBound=xLowerBound, xUpperBound=xUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound =unirootLowerBound,unirootUpperBound =unirootUpperBound, colourPallete=colourPallete, label = label)
         return(outRegion)
       }) 
       if (returnMagpie==TRUE){
