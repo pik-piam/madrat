@@ -158,11 +158,18 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
     if ((closestToZero["x"] > -tol) & (closestToZero["x"] < tol)){ # if there is a x value close to zero, estimate the function with a fixed intercept (to approximate the intercept of the original functions)
       intercept <- rep.int(closestToZero["y"], length(samples$x))
       newFunction <- lm(samples$y~-1+samples$x+I(samples$x^2)+I(samples$x^3)+offset(intercept))
-      newFunctionCoeff <- c(closestToZero["y"], as.vector(summary(newFunction)$coefficients[,1]))
+      newFunctionCoeff <- c()
+      newFunctionCoeff[1] <- closestToZero["y"]
+      for (i in 2:4){
+        newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+      }
     } else { # estimate the function including the intercept
       newFunction <- lm(samples$y ~ poly(samples$x, 3, raw=TRUE))
-      newFunctionCoeff <- as.vector(summary(newFunction)$coefficients[,1])
       #newFunction <- lm(samples$y ~ poly(samples$x, 3)) # orthogonal estimation
+      newFunctionCoeff <- c()
+      for (i in 1:4){
+        newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+      }
     }
     
     # preparing results

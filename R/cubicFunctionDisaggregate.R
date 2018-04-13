@@ -169,10 +169,17 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
           if ((closestToZero["x"] > -tol) & (closestToZero["x"] < tol)){ # if there is a x value close to zero, estimate the function with a fixed intercept (to approximate the intercept of the original functions) 
             intercept <- rep.int(closestToZero["y"], length(current$x))
             newFunction <- lm(current$y~-1+current$x+I(current$x^2)+I(current$x^3)+offset(intercept))
-            newFunctionCoeff <- c(closestToZero["y"], as.vector(summary(newFunction)$coefficients[,1]))
+            newFunctionCoeff <- c()
+            newFunctionCoeff[1] <- closestToZero["y"]
+            for (i in 2:4){
+              newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+            }
           } else {
             newFunction <- lm(current$y ~ poly(current$x, 3, raw=TRUE))
-            newFunctionCoeff <- as.vector(summary(newFunction)$coefficients[,1])
+            newFunctionCoeff <- c()
+            for (i in 1:4){
+              newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+            }
           }
           names(newFunctionCoeff) <- names(data)
           coeffList[[rowName]][] <- newFunctionCoeff
