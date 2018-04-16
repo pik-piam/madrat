@@ -130,17 +130,27 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
     
     
     # Boundaries for which all functions should be defined
+    maxXtolerance <- 1e-10
+    minX <- xLowerBound
     if (length(xUpperBound) > 1){ # one bound for each row
       maxX <- sum(xUpperBound)
-      maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound[rowName])))
+      if (maxX < maxXtolerance){ # all rows have corner solution values for bounds
+        maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound[rowName]) ))
+      } else { # consider only rows with non corner solutions
+        maxY <- max(sapply(rownames(data),function(rowName) ifelse(xUpperBound[rowName] > maxXtolerance, fY[[as.character(rowName)]](xUpperBound[rowName]),0) ))
+      }
+      minY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xLowerBound)))
     } else {
       maxX <- xUpperBound
-      maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound)))
+      if (maxX < maxXtolerance){ # all rows have corner solution values for bounds
+        maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound) ))
+      } else { # consider only rows with non corner solutions
+        maxY <- max(sapply(rownames(data),function(rowName) { ifelse(xUpperBound > maxXtolerance, fY[[as.character(rowName)]](xUpperBound),0) } ))
+      }
+      minY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xLowerBound)))
     }
-    minX <- xLowerBound
-    minY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xLowerBound)))
     minY <- max(c(0,minY))
-    
+   
     # Sampling
     # sampling y
     samples <- data.frame(y = seq(from=minY, to=maxY, length.out = numberOfSamples))
@@ -160,15 +170,15 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
       newFunction <- lm(samples$y~-1+samples$x+I(samples$x^2)+I(samples$x^3)+offset(intercept))
       newFunctionCoeff <- c()
       newFunctionCoeff[1] <- closestToZero["y"]
-      for (i in 2:4){
-        newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+      for (i in 1:3){
+        newFunctionCoeff[i+1] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
       }
     } else { # estimate the function including the intercept
       newFunction <- lm(samples$y ~ poly(samples$x, 3, raw=TRUE))
       #newFunction <- lm(samples$y ~ poly(samples$x, 3)) # orthogonal estimation
       newFunctionCoeff <- c()
       for (i in 1:4){
-        newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+        newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
       }
     }
     
@@ -273,7 +283,8 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
       to <- ifelse(dim(rel)[2]==3,3,2) # region
       output <- sapply(unique(rel[[to]]), function(region) {
         currentFilteredDf <- data[rel[from][rel[to]==as.character(region)],]
-        outRegion <- cubicFitAggregate(currentFilteredDf, xLowerBound=xLowerBound, xUpperBound=xUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound =unirootLowerBound,unirootUpperBound =unirootUpperBound, colourPallete=colourPallete, label = label)
+        currentxUpperBound <- as.numeric(xUpperBound[rel[from][rel[to]==as.character(region)],,])
+        outRegion <- cubicFitAggregate(currentFilteredDf, xLowerBound=xLowerBound, xUpperBound=currentxUpperBound, returnCoeff=returnCoeff, returnChart=returnChart, returnSample=returnSample, numberOfSamples=numberOfSamples, unirootLowerBound =unirootLowerBound,unirootUpperBound =unirootUpperBound, colourPallete=colourPallete, label = label)
         return(outRegion)
       }) 
       if (returnMagpie==TRUE){
@@ -287,4 +298,5 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
   }
   return(output)
 }
+
 

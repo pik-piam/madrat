@@ -171,14 +171,14 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
             newFunction <- lm(current$y~-1+current$x+I(current$x^2)+I(current$x^3)+offset(intercept))
             newFunctionCoeff <- c()
             newFunctionCoeff[1] <- closestToZero["y"]
-            for (i in 2:4){
-              newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+            for (i in 1:3){
+              newFunctionCoeff[i+1] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
             }
           } else {
             newFunction <- lm(current$y ~ poly(current$x, 3, raw=TRUE))
             newFunctionCoeff <- c()
             for (i in 1:4){
-              newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[i-1])),0,as.numeric(stats::coefficients(newFunction)[i-1]))
+              newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
             }
           }
           names(newFunctionCoeff) <- names(data)
