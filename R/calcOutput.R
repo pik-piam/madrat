@@ -211,16 +211,19 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
   
+  glo_rel <- reg_rel <- read.csv(toolMappingFile("regional",getConfig("regionmapping")), as.is = TRUE, sep = ";")     
+  glo_rel$RegionCode <- "GLO"
+  
   if(aggregate==TRUE) {
-    x$aggregationArguments$rel <- toolMappingFile("regional",getConfig("regionmapping")) 
+    x$aggregationArguments$rel <- reg_rel
     x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if (toupper(aggregate)=="GLO") {
-    x$aggregationArguments$rel <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
+    x$aggregationArguments$rel <- glo_rel
     x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
-    x$aggregationArguments$rel <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
+    x$aggregationArguments$rel <- glo_rel
     tmp <- do.call(x$aggregationFunction,x$aggregationArguments)
-    x$aggregationArguments$rel <- toolMappingFile("regional",getConfig("regionmapping"))
+    x$aggregationArguments$rel <- reg_rel
     x$x <- mbind(tmp,do.call(x$aggregationFunction,x$aggregationArguments))
   }
   
