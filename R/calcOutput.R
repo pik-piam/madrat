@@ -47,6 +47,14 @@
 #' will check whether there are any values below the given threshold and warn in this case
 #' \item max (optional) - Maximum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values above the given threshold and warn in this case
+#' \item aggregationFunction (optional | default = toolAggregate) - Function to be used to 
+#' aggregate data from country to regions. The function must have the argument \code{x} for 
+#' the data itself and \code{rel} for the relation mapping between countries and regions and 
+#' must return the data as magpie object in the spatial resolution as defined in rel.
+#' \item aggregationArguments (optional) - List of additional, named arguments to be supplied 
+#' to the aggregation function. In addition to the arguments set here, the function will be 
+#' supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
+#' also \code{weight} and \code{mixed_aggregation}.
 #' }
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
@@ -123,8 +131,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   if(is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE
   if(!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
   
-  
-  
   # check for that aggregation=FALSE if x$isocountries in data is FALSE
   if(!x$isocountries) {
     if(aggregate!=FALSE) {
@@ -151,6 +157,20 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
       }
     }
   }  
+  
+  # read and check x$aggregationFunction value which provides the aggregation function
+  # to be used.
+  if(is.null(x$aggregationFunction)) x$aggregationFunction <- toolAggregate
+  if(!is.function(x$aggregationFunction)) stop("x$aggregationFunction must be a function!")
+
+  # read and check x$aggregationArguments value which provides additional arguments
+  # to be used in the aggregation function.
+  if(is.null(x$aggregationArguments)) x$aggregationArguments <- list()
+  if(!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
+  # Add base arguments to the argument list (except of rel, which is added later)
+  x$aggregationArguments$x <- x$x
+  if(!is.null(x$weight))  x$aggregationArguments$weight <- x$weight
+  if(x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE
   
   #perform additional checks
   if(!is.null(x$min)) {
@@ -192,14 +212,16 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   date <- .prep_comment(date(),"creation date")
   
   if(aggregate==TRUE) {
-    x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation)
+    x$aggregationArguments$rel <- toolMappingFile("regional",getConfig("regionmapping")) 
+    x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if (toupper(aggregate)=="GLO") {
-    m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    x$x <- toolAggregate(x$x,m_glo,weight=x$weight , mixed_aggregation=x$mixed_aggregation)
+    x$aggregationArguments$rel <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
+    x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
-    m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    tmp <- toolAggregate(x$x,m_glo,weight=x$weight, mixed_aggregation=x$mixed_aggregation)
-    x$x <- mbind(tmp,toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation))
+    x$aggregationArguments$rel <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
+    tmp <- do.call(x$aggregationFunction,x$aggregationArguments)
+    x$aggregationArguments$rel <- toolMappingFile("regional",getConfig("regionmapping"))
+    x$x <- mbind(tmp,do.call(x$aggregationFunction,x$aggregationArguments))
   }
   
   if(!is.null(years)) {
