@@ -55,7 +55,8 @@
 #' @export
 #' @importFrom magclass is.magpie as.data.frame
 #' @importFrom reshape2 acast
-#' @importFrom stats reshape uniroot lm
+#' @importFrom stats reshape uniroot
+#' @importFrom nnls nnls
 #' @seealso \code{\link{cubicFunctionAggregate}}
 #' @examples
 #' 
@@ -119,25 +120,6 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
       #function to be disaggregated
       fTotal <- function(x){ as.numeric(data[1]) + as.numeric(data[2])*x + as.numeric(data[3])*x^2 + as.numeric(data[4])*x^3 }  
       
-      inverse = function (f, lower = unirootLowerBound, upper = unirootUpperBound) {
-        function (y) { 
-          result <- uniroot((function (x) f(x) - y), lower = lower, upper = upper, extendInt = "yes")$root 
-          #tryCatch(
-          #  result <- uniroot((function (x) f(x) - y), lower = lower, upper = upper, extendInt = "yes",maxiter = 10000, trace =2)$root, 
-          #  error = return(NA)
-          #)
-          return(result)
-        }
-      }
-      
-      fTotalInverse <- function(x,lower = unirootLowerBound, upper = unirootUpperBound){
-        lis<-vector()
-        for(i in x){
-          lis<-append(lis,inverse(fTotal,lower,upper)(i))
-        }
-        return(lis)
-      } 
-      
       #Boundaries for which all functions are defined
       #X (= sum X of each function)
       maxX <- xUpperBound
@@ -158,32 +140,19 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
       for (rowName in names(weight)){
           samples[,(paste0(rowName,".x"))] <- samples$x*(weight[rowName]/totalWeight)
       }
+      samples[samples<0] <- 0 #make sure all samples are greater or equal to zero
       
       # estimating functions to each row from the new samples created from weights
       for (rowName in names(weight)){
-        if (weight[rowName]!=0){
-          current <- data.frame(x = samples[paste0(rowName,".x")], y = samples[,"y"])
-          names(current) <- c("x","y")
-          closestToZero <- sapply(current, function(x) x[which.min(abs(x))])
-          tol <- 1e-4
-          if ((closestToZero["x"] > -tol) & (closestToZero["x"] < tol)){ # if there is a x value close to zero, estimate the function with a fixed intercept (to approximate the intercept of the original functions) 
-            intercept <- rep.int(closestToZero["y"], length(current$x))
-            newFunction <- lm(current$y~-1+current$x+I(current$x^2)+I(current$x^3)+offset(intercept))
-            newFunctionCoeff <- c()
-            newFunctionCoeff[1] <- closestToZero["y"]
-            for (i in 1:3){
-              newFunctionCoeff[i+1] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
-            }
-          } else {
-            newFunction <- lm(current$y ~ poly(current$x, 3, raw=TRUE))
-            newFunctionCoeff <- c()
-            for (i in 1:4){
-              newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
-            }
-          }
-          names(newFunctionCoeff) <- names(data)
-          coeffList[[rowName]][] <- newFunctionCoeff
-        }
+        #use nls to force positive coefficients 
+        current <- data.frame(x = samples[paste0(rowName,".x")], y = samples[,"y"])
+        names(current) <- c("x","y")
+        df <- data.frame(1, current$x, current$x^2, current$x^3)
+        df <- as.matrix(df)
+        newFunction <- nnls::nnls(df,current$y)
+        newFunctionCoeff <- newFunction$x
+        names(newFunctionCoeff) <- names(data)
+        coeffList[[rowName]][] <- newFunctionCoeff
       }
       
       # preparing results
@@ -197,10 +166,8 @@ cubicFunctionDisaggregate <- function(data, weight, rel=NULL, xLowerBound=0, xUp
         fY <- lapply(coeffList, function(coef){ function(x){ as.numeric(coef[1]) + as.numeric(coef[2])*x + as.numeric(coef[3])*x^2 + as.numeric(coef[4])*x^3 } })
         
         p <- ggplot2::ggplot(samples, ggplot2::aes(samples$x, samples$y, group = 1)) +
-          #ggplot2::geom_point(size=1) +
-          ggplot2::ylim(0, max(samples$y)) +
-          ggplot2::xlim(0, max(samples$x))
-        p <- p + ggplot2::stat_function(fun=fTotal, size=1, ggplot2::aes(colour = "_aggregated function", linetype = "_aggregated function"), na.rm=TRUE)
+          ggplot2::coord_cartesian(ylim = c(0, max(samples$y)))
+         p <- p + ggplot2::stat_function(fun=fTotal, size=1, ggplot2::aes(colour = "_aggregated function", linetype = "_aggregated function"), na.rm=TRUE)
         for (i in 1:(length(weight))){
           p <- p + eval(parse(text = paste0("ggplot2::stat_function(fun=fY[[\"", as.character(names(weight)[i]) , "\"]], ggplot2::aes(colour = \"", as.character(names(weight)[i]) , "\" , linetype = \"" , as.character(names(weight)[i]), "\"), na.rm=TRUE)"))) #hack to allow legend
         }

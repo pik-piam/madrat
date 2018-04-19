@@ -51,7 +51,8 @@
 #' @export
 #' @importFrom magclass is.magpie as.data.frame
 #' @importFrom reshape2 acast
-#' @importFrom stats reshape uniroot lm
+#' @importFrom stats reshape uniroot
+#' @importFrom nnls nnls
 #' @seealso \code{\link{cubicFunctionDisaggregate}}
 #' @examples
 #'
@@ -128,22 +129,23 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
     })
     names(fYInverse) <- rownames(data)
     
-    
     # Boundaries for which all functions should be defined
     maxXtolerance <- 1e-10
     minX <- xLowerBound
     if (length(xUpperBound) > 1){ # one bound for each row
       maxX <- sum(xUpperBound)
       if (maxX < maxXtolerance){ # all rows have corner solution values for bounds
-        maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound[rowName]) ))
+        maxX <- 1
+        maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](maxX) ) )
       } else { # consider only rows with non corner solutions
         maxY <- max(sapply(rownames(data),function(rowName) ifelse(xUpperBound[rowName] > maxXtolerance, fY[[as.character(rowName)]](xUpperBound[rowName]),0) ))
       }
       minY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xLowerBound)))
-    } else {
+    } else { # single bound for all rows
       maxX <- xUpperBound
       if (maxX < maxXtolerance){ # all rows have corner solution values for bounds
-        maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](xUpperBound) ))
+        maxX <- 1
+        maxY <- max(sapply(rownames(data),function(rowName) fY[[as.character(rowName)]](maxX) ) )
       } else { # consider only rows with non corner solutions
         maxY <- max(sapply(rownames(data),function(rowName) { ifelse(xUpperBound > maxXtolerance, fY[[as.character(rowName)]](xUpperBound),0) } ))
       }
@@ -156,31 +158,19 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
     samples <- data.frame(y = seq(from=minY, to=maxY, length.out = numberOfSamples))
     # sampling x per function
     for (rowName in rownames(data)){
-      samples[,(paste0(rowName,".x"))] <- fYInverse[[rowName]](samples$y,minX,maxX)
+        samples[,(paste0(rowName,".x"))] <- fYInverse[[rowName]](samples$y,minX,maxX)
     }
     
     # total x
     samples$x <-rowSums(samples[grep("x", names(samples))])
+    samples[samples<0] <- 0 #make sure all samples are greater or equal to zero
     
     # estimating the new function
-    closestToZero <- sapply(samples, function(x) x[which.min(abs(x))])
-    tol <- 1e-4
-    if ((closestToZero["x"] > -tol) & (closestToZero["x"] < tol)){ # if there is a x value close to zero, estimate the function with a fixed intercept (to approximate the intercept of the original functions)
-      intercept <- rep.int(closestToZero["y"], length(samples$x))
-      newFunction <- lm(samples$y~-1+samples$x+I(samples$x^2)+I(samples$x^3)+offset(intercept))
-      newFunctionCoeff <- c()
-      newFunctionCoeff[1] <- closestToZero["y"]
-      for (i in 1:3){
-        newFunctionCoeff[i+1] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
-      }
-    } else { # estimate the function including the intercept
-      newFunction <- lm(samples$y ~ poly(samples$x, 3, raw=TRUE))
-      #newFunction <- lm(samples$y ~ poly(samples$x, 3)) # orthogonal estimation
-      newFunctionCoeff <- c()
-      for (i in 1:4){
-        newFunctionCoeff[i] <- ifelse(is.na(as.numeric(stats::coefficients(newFunction)[[i]])),0,as.numeric(stats::coefficients(newFunction)[[i]]))
-      }
-    }
+    #use nnls to force positive coefficients 
+    df <- data.frame(1, samples$x, samples$x^2, samples$x^3)
+    df <- as.matrix(df)
+    newFunction <- nnls::nnls(df,samples$y)
+    newFunctionCoeff <- newFunction$x
     
     # preparing results
     result <- list()
@@ -192,9 +182,7 @@ cubicFunctionAggregate <- function(data, rel=NULL, xLowerBound=0, xUpperBound=10
         return( newFunctionCoeff[1] + newFunctionCoeff[2]*x + newFunctionCoeff[3]*x^2 + newFunctionCoeff[4]*x^3 )
       }
       p <- ggplot2::ggplot(samples, ggplot2::aes(samples$x, samples$y, group = 1)) +
-        ggplot2::geom_point(size=1) +
-        ggplot2::ylim(0, max(samples$y)) +
-        ggplot2::xlim(0, max(samples$x))
+        ggplot2::coord_cartesian(ylim = c(0, max(samples$y)))
       p <- p + ggplot2::stat_function(fun=thirdDegreeFunction, size=1, ggplot2::aes(colour = "_aggregated function", linetype = "_aggregated function"), na.rm=TRUE)
       for (i in 1:(nrow(data))){
         p <- p + eval(parse(text = paste0("ggplot2::stat_function(fun=fY[[\"", as.character(rownames(data)[i]) , "\"]], ggplot2::aes(colour = \"", as.character(rownames(data)[i]) , "\" , linetype = \"" , as.character(rownames(data)[i]), "\"), na.rm=TRUE)"))) #hack to allow legend
