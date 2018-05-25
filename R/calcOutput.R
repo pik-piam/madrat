@@ -158,20 +158,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     }
   }  
   
-  # read and check x$aggregationFunction value which provides the aggregation function
-  # to be used.
-  if(is.null(x$aggregationFunction)) x$aggregationFunction <- toolAggregate
-  if(!is.function(x$aggregationFunction)) stop("x$aggregationFunction must be a function!")
-
-  # read and check x$aggregationArguments value which provides additional arguments
-  # to be used in the aggregation function.
-  if(is.null(x$aggregationArguments)) x$aggregationArguments <- list()
-  if(!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
-  # Add base arguments to the argument list (except of rel, which is added later)
-  x$aggregationArguments$x <- x$x
-  if(!is.null(x$weight))  x$aggregationArguments$weight <- x$weight
-  if(x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE
-  
   #perform additional checks
   if(!is.null(x$min)) {
     if(any(x$x<x$min, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values smaller than the predefined minimum (min = ",x$min,")")
@@ -213,6 +199,20 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   
   glo_rel <- reg_rel <- read.csv(toolMappingFile("regional",getConfig("regionmapping")), as.is = TRUE, sep = ";")     
   glo_rel$RegionCode <- "GLO"
+  
+  # read and check x$aggregationFunction value which provides the aggregation function
+  # to be used.
+  if(is.null(x$aggregationFunction)) x$aggregationFunction <- toolAggregate
+  if(!is.function(x$aggregationFunction)) stop("x$aggregationFunction must be a function!")
+  
+  # read and check x$aggregationArguments value which provides additional arguments
+  # to be used in the aggregation function.
+  if(is.null(x$aggregationArguments)) x$aggregationArguments <- list()
+  if(!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
+  # Add base arguments to the argument list (except of rel, which is added later)
+  x$aggregationArguments$x <- x$x
+  if(!is.null(x$weight))  x$aggregationArguments$weight <- x$weight
+  if(x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE
   
   if(aggregate==TRUE) {
     x$aggregationArguments$rel <- reg_rel
