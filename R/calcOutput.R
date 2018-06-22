@@ -38,8 +38,9 @@
 #' \item unit - unit of the provided data
 #' \item description - a short description of the data
 #' \item note (optional) - additional notes related to the data
-#' \item isocountries (optional | default = TRUE) - a boolean indicating whether data is in 
-#' iso countries or not (the latter will deactivate several features such as aggregation)
+#' \item isocountries (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
+#' indicating whether data is in iso countries or not (the latter will deactivate several 
+#' features such as aggregation)
 #' \item mixed_aggregation (optional | default = FALSE) - boolean which allows for mixed 
 #' aggregation (weighted mean mixed with summations). If set to TRUE weight columns 
 #' filled with NA will lead to summation, otherwise they will trigger an error.
@@ -123,7 +124,13 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   
   # read and check x$isocountries value which describes whether the data is in
   # iso country resolution or not (affects aggregation and certain checks)
-  if(is.null(x$isocountries)) x$isocountries <- TRUE
+  if(is.null(x$isocountries)) {
+    if(nregions(x$x)==1 && getRegions(x$x)=="GLO") {
+      x$isocountries <- FALSE 
+    } else {
+      x$isocountries <- TRUE
+    }
+  }
   if(!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
   
   # read and check x$mixed_aggregation value which describes whether the data is in
@@ -144,11 +151,9 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     iso_country1<-as.vector(iso_country[,"x"])
     names(iso_country1)<-iso_country[,"X"]
     isocountries <- sort(iso_country1)
-    if(nregions(x$x)>1){
-      datacountries <- sort(getRegions(x$x))
-      if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
-      if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
-    }
+    datacountries <- sort(getRegions(x$x))
+    if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
+    if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
     if(!is.null(x$weight)) {
       if(nregions(x$weight)>1){
         weightcountries <- sort(getRegions(x$weight))
