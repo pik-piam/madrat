@@ -35,6 +35,10 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   startinfo <- toolstartmessage("+")
   on.exit(toolendmessage(startinfo,"-"))
   
+  # check type input
+  if(!is.character(type)) stop("Invalid type (must be a character)!")
+  if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
+  
   # Does the cache folder exists? (only to be checked if cache is enabled) 
   if(!file.exists(getConfig("cachefolder")) & getConfig("enablecache")) dir.create(getConfig("cachefolder"),recursive = TRUE)
   

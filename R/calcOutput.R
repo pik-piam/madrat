@@ -83,6 +83,10 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     }
   }
   
+  # check type input
+  if(!is.character(type)) stop("Invalid type (must be a character)!")
+  if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
+  
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
   options(reducedHistory=TRUE)
