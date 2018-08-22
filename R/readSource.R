@@ -110,7 +110,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       x <- .getData(type,subtype,"read")
       id <-  paste(attr(x,"id"),fname,sep="|")
     } else if(prefix=="convert") {
-      if(existsFunction(paste0('correct',type))) {    
+      if(type %in% getSources("correct")) {    
         x <- .getData(type,subtype,"correct")
       } else {
         x <- .getData(type,subtype,"read")
@@ -158,8 +158,10 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     x <- .getData(type,subtype,"convert")
   } else if (convert=="onlycorrect" & (type %in% getSources("correct"))) {
     x <- .getData(type,subtype,"correct")
-  } else {
+  } else if(convert==FALSE) {
     x <- .getData(type,subtype,"read")
+  } else {
+    stop("Unknown convert setting \"",convert,"\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
   }
   id <- attr(x,"id")
   on.exit(toolendmessage(startinfo,"-",id=id))
