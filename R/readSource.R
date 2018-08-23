@@ -152,17 +152,18 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       stop("Sourcefolder does not contain data for the requested source \"",type,"\" and there is no download script which could provide the missing data. Please check your settings!")
     }
   }
+
   
+  if(!is.logical(convert) && convert!="onlycorrect") stop("Unknown convert setting \"",convert,"\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
         
   if(convert==TRUE & (type %in% getSources("regional"))) {
     x <- .getData(type,subtype,"convert")
   } else if (convert=="onlycorrect" & (type %in% getSources("correct"))) {
     x <- .getData(type,subtype,"correct")
-  } else if(convert==FALSE) {
-    x <- .getData(type,subtype,"read")
   } else {
-    stop("Unknown convert setting \"",convert,"\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
+    x <- .getData(type,subtype,"read")
   }
+  
   id <- attr(x,"id")
   on.exit(toolendmessage(startinfo,"-",id=id))
   
