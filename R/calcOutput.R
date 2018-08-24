@@ -259,7 +259,11 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   if(!is.null(file)) {
     if(!file.exists(getConfig("outputfolder"))) stop('Outputfolder "',getConfig("outputfolder"),'" does not exist!')
     if(grepl(".mif",file)==TRUE){
-      write.report2(x$x,file=paste(getConfig("outputfolder"),file,sep="/"), unit=x$unit, append=append)
+      if(!is.null(getYears(x$x))) { 
+        write.report2(x$x,file=paste(getConfig("outputfolder"),file,sep="/"), unit=x$unit, append=append)
+      } else {
+        vcat(0,"Time dimension missing and data cannot be written to a mif-file. Skip data set!")
+      }
     } else {
       write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
     }
