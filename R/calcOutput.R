@@ -13,10 +13,6 @@
 #' @param years A vector of years that should be returned. If set to NULL all
 #' available years are returned.
 #' @param round A rounding factor. If set to NULL no rounding will occur.
-#' @param destination The path relative to the main folder of the model to
-#' which the file should be copied. In the case that the file should be copied
-#' to more than one destination within the model data should be provided as a
-#' vector of destinations.
 #' @param supplementary boolean deciding whether supplementary information such as weight should be
 #' returned or not. If set to TRUE a list of elements will be returned!
 #' @param append boolean deciding whether the output data should be appended in the existing file.
@@ -59,7 +55,6 @@
 #' }
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
-#' \code{\link{file2destination}}, 
 #' @examples
 #' 
 #' \dontrun{ 
@@ -73,7 +68,7 @@
 #' @importFrom utils packageDescription read.csv2
 #' @export
 
-calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
+calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
  
   # check settings for aggregate
   if(!is.logical(aggregate)) {
@@ -267,7 +262,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     } else {
       write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
     }
-    if(!is.null(destination)) file2destination(file=file,destination=destination)
   }
   
   if (length(sys.calls())==1)  options(reducedHistory = FALSE)
