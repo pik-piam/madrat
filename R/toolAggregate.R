@@ -74,6 +74,9 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
   if(!is.numeric(rel) & !("spam" %in% class(rel))) {
     .getAggregationMatrix <- function(rel,from=NULL,to=NULL) {
       
+      if("tbl" %in% class(rel)){
+        rel <- data.frame(rel)
+      }
       if(!(is.matrix(rel) | is.data.frame(rel))) {
         if(!file.exists(rel)) stop("Cannot find given region mapping file!")
         rel <- read.csv(rel, as.is = TRUE, sep = ";")     
