@@ -70,9 +70,9 @@ retrieveData <- function(model, rev=0, cachetype="rev", ...) {
    
    functionname <- prepFunctionName(type=toupper(model), prefix="full")
    
-   vcat(2," - execute function",functionname, fill=300)
+   vcat(2," - execute function",functionname, fill=300, show_prefix=FALSE)
    x <- eval(parse(text=functionname))
-   vcat(2," - function",functionname,"finished", fill=300)   
+   vcat(2," - function",functionname,"finished", fill=300, show_prefix=FALSE)   
    
  } else {
   if(!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
@@ -81,7 +81,7 @@ retrieveData <- function(model, rev=0, cachetype="rev", ...) {
   trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern=TRUE)
   setwd(cwd) 
   startinfo <- toolstartmessage(0)
-  vcat(1," - data is already available and not calculated again.", fill=300) 
+  vcat(-2," - data is already available and not calculated again.", fill=300) 
  } 
  
  # delete new temporary cache folder and set back configutations 

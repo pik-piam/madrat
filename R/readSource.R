@@ -80,14 +80,14 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     }
     
     if(getConfig("enablecache") & file.exists(cachefile) &  !(fname %in% getConfig("ignorecache")) & !(type %in% getConfig("ignorecache")) ) { 
-      vcat(2," - loading data", cachefile, fill=300)
+      vcat(2," - loading data", cachefile, fill=300, show_prefix=FALSE)
       x <- read.magpie(cachefile) 
       fp <- .fp(sourcefolder, type)
       if(attr(x,"comment")[1] == fp | all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) {
         if(attr(x,"comment")[1] == fp) {
-          vcat(1," - use cache",cachefile, fill=300)
+          vcat(-2," - use cache",cachefile, fill=300)
         } else {
-          vcat(1," - force cache",cachefile, fill=300)
+          vcat(-2," - force cache",cachefile, fill=300)
         }
         
         if(prefix=="convert") {
@@ -102,7 +102,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
         attr(x,"id") <- fname
         return(x)
       } else {
-        vcat(2," - outdated data in cache (", cachefile,"), reload source data", fill=300)
+        vcat(2," - outdated data in cache (", cachefile,"), reload source data", fill=300, show_prefix=FALSE)
       }
     }
     
@@ -135,7 +135,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
       if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
     }
-    vcat(2," - saving data to", cachefile, fill=300)
+    vcat(2," - saving data to", cachefile, fill=300, show_prefix=FALSE)
     write.magpie(x,cachefile,comment = .fp(sourcefolder, type), mode="777") # save data in the cache folder
     attr(x,"id") <- id
     return(x)

@@ -83,7 +83,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
   
   cwd <- getwd()
-  if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
+  if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
   options(reducedHistory=TRUE)
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
@@ -96,10 +96,10 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   on.exit(toolendmessage(startinfo,"-",id=fname), add = TRUE)
   tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
   if(((all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) & !(type %in% getConfig("ignorecache"))) & !(fname %in% getConfig("ignorecache")) & file.exists(tmppath) ) {
-    vcat(1," - force cache",tmppath)
+    vcat(-2," - force cache",tmppath)
     load(tmppath) 
   } else {
-    vcat(2," - execute function",functionname)
+    vcat(2," - execute function",functionname, show_prefix=FALSE)
     if(try) {
       x <- try(eval(parse(text=functionname)))
       if(is(x,"try-error")) {

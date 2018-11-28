@@ -19,6 +19,9 @@
 #' explicitly by "\\n" are printed. Otherwise, the output is broken into lines 
 #' with print width equal to the option width if fill is TRUE, or the value of 
 #' fill if this is numeric. Non-positive fill values are ignored, with a warning.
+#' @param show_prefix a logical defining whether a content specific prefix (e.g. "NOTE")
+#' should be shown in front of the message or not. If prefix is not shown it will also
+#' not show up in official statistics.
 #' @export
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}
@@ -28,7 +31,7 @@
 #' vcat(2,"Hello world!")
 #' }
 #' 
-vcat <- function(verbosity,...,level=NULL, fill=TRUE) {
+vcat <- function(verbosity,...,level=NULL, fill=TRUE, show_prefix=TRUE) {
   #write output based on set verbosity level
   
   if(!is.null(level)) {
@@ -49,25 +52,20 @@ vcat <- function(verbosity,...,level=NULL, fill=TRUE) {
   } else {
     writelog <- FALSE
   }
-  
-  if(verbosity<0) {
-    if(writelog) if(dir.exists(dirname(logfile))) base::cat("ERROR:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE) 
-    if(getConfig("verbosity") >= verbosity) {
-      if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat("ERROR:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
+  if(verbosity > 2) verbosity <- 2
+  prefix <- c("","ERROR:","WARNING:","NOTE:","MINOR NOTE:")[verbosity+3]
+  if(prefix=="" | !show_prefix) prefix <- NULL
+  if(writelog && dir.exists(dirname(fulllogfile))) base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE) 
+  if(getConfig("verbosity") >= verbosity) {
+    if(writelog && dir.exists(dirname(logfile))) base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
+    if(verbosity == -1) {
       base::stop(..., call. = FALSE)      
+    } else if(verbosity == 0) {
+      base::warning(..., call. = FALSE) 
+      base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))  
+    } else {
+      base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))  
     }
-  } else if(verbosity==0) {
-    if(getConfig("verbosity") >= verbosity) {
-      base::warning(..., call. = FALSE)      
-      if(writelog) if(dir.exists(dirname(logfile))) base::cat("WARNING:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
-    }
-    if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat("WARNING:",...,fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE)
-  } else {
-    if(getConfig("verbosity") >= verbosity) {
-      base::cat(...,fill=fill,labels = getOption("gdt_nestinglevel"))  
-      if(writelog) if(dir.exists(dirname(logfile))) base::cat(...,fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
-    }
-    if(writelog) if(dir.exists(dirname(fulllogfile))) base::cat(...,fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE)
   }
   
   if(!is.null(level)){
