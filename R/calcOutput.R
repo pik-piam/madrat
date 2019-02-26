@@ -199,6 +199,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   comment <- .prep_comment(getComment(x$x),"comment")
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
+  note <- .prep_comment(x$note,"note")
   
   glo_rel <- reg_rel <- read.csv(toolMappingFile("regional",getConfig("regionmapping")), as.is = TRUE, sep = ";")     
   glo_rel$RegionCode <- "GLO"
