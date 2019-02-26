@@ -1,26 +1,21 @@
 #' retrieveData
 #' 
 #' Function to retrieve a predefined collection of calculations for a specific
-#' regionmapping. If the data is already processed and a modelfolder is
-#' provided it will just be copied, otherwise it will be created first 
-#' and eventually copied.
+#' regionmapping. 
 #' 
 #' 
 #' @param model The names of the model for which the data should be provided
 #' (e.g. "magpie").
 #' @param rev data revision which should be used/produced (positive numeric).
-#' @param modelfolder main directory of the model which should receive the
-#' source data. If set to NULL data will only be produced but not copied to
-#' any model.
 #' @param cachetype defines what cache should be used. "rev" points to a cache
 #' shared by all calculations for the given revision, "def" points to the cache
 #' as defined in the current settings and "tmp" temporarily creates a cache
 #' folder for the calculations and deletes it afterwards again
 #' @param ... (Optional) Settings that should be changed using
 #' \code{\link{setConfig}} (e.g. regionmapping).
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Lavinia Baumstark
 #' @seealso
-#' \code{\link{calcOutput}},\code{\link{setConfig}},\code{\link{file2destination}}
+#' \code{\link{calcOutput}},\code{\link{setConfig}}
 #' @examples
 #' 
 #' \dontrun{ 
@@ -28,7 +23,7 @@
 #' }
 #' 
 #' @export
-retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
+retrieveData <- function(model, rev=0, cachetype="rev", ...) {
  setConfig(...)
   
  regionmapping <- getConfig("regionmapping")  
@@ -75,13 +70,9 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
    
    functionname <- prepFunctionName(type=toupper(model), prefix="full")
    
-   vcat(2," - execute function",functionname, fill=300)
+   vcat(2," - execute function",functionname, fill=300, show_prefix=FALSE)
    x <- eval(parse(text=functionname))
-   vcat(2," - function",functionname,"finished", fill=300)
-   
-   #remove duplicates in mapping
-   map <- readLines(paste0(sourcefolder,"/file2destination.csv"))
-   writeLines(unique(map),paste0(sourcefolder,"/file2destination.csv"))
+   vcat(2," - function",functionname,"finished", fill=300, show_prefix=FALSE)   
    
  } else {
   if(!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
@@ -90,23 +81,8 @@ retrieveData <- function(model, rev=0, modelfolder=NULL, cachetype="rev", ...) {
   trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern=TRUE)
   setwd(cwd) 
   startinfo <- toolstartmessage(0)
-  vcat(1," - data is already available and not calculated again.", fill=300) 
+  vcat(-2," - data is already available and not calculated again.", fill=300) 
  } 
- 
- 
- #copy data to model
- if(!is.null(modelfolder)) {
-   cat("\nStart copying source data for model",model,"from", sourcefolder, "to", modelfolder)
-   #read mapping
-   map <- read.csv(paste0(sourcefolder,"/file2destination.csv"), sep=";", stringsAsFactors = FALSE)
-   for(i in 1:nrow(map)) {
-     from <- paste0(sourcefolder,"/",map[i,1])
-     to <- paste0(modelfolder,"/",map[i,2],"/",map[i,1])
-     file.copy(from,to,overwrite=TRUE)
-     cat("  Copied",map[i,1],"to",map[i,2])
-   }
- }
-
  
  # delete new temporary cache folder and set back configutations 
  if(exists("cache_tmp") & getConfig()$delete_cache & cachetype=="tmp") unlink(cache_tmp, recursive=TRUE)

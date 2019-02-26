@@ -21,6 +21,10 @@ downloadSource <- function(type,overwrite=FALSE) {
   startinfo <- toolstartmessage("+")
   on.exit(toolendmessage(startinfo,"-"))
   
+  # check type input
+  if(!is.character(type)) stop("Invalid type (must be a character)!")
+  if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
+  
   functionname <- prepFunctionName(type=type, prefix="download")
 
   cwd <- getwd()

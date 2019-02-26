@@ -26,9 +26,9 @@
 
 toolendmessage <- function(startdata, level=NULL, id="none") {
   startdata$time2 <- proc.time()
-  runtime <- (startdata$time2-startdata$time1)["elapsed"]
+  runtime <- round((startdata$time2-startdata$time1)["elapsed"],2)
   functioncall <-  paste(deparse(sys.call(-1)),collapse="")
-  vcat(1,"Exit",functioncall,"in",runtime,"seconds",level=level, fill=300)
+  vcat(1,"Exit",functioncall,"in",runtime,"seconds",level=level, fill=300, show_prefix=FALSE)
   d <- getConfig("diagnostics")
   if(is.character(d)) {
     filename <- paste0(getConfig("outputfolder"),"/",d,".csv")

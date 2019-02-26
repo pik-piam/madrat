@@ -1,8 +1,8 @@
 #' @title toolXlargest
 #' @description Selects the largest countries of a country-level magpie object
 #'
-#' @param range the position of the countries in the top X which should be returned.
 #' @param type calcOutput function that shall be used for ranking
+#' @param range the position of the countries in the top X which should be returned.
 #' @param years range of years that shall be summed for ranking.  If NULL, the sum of all years is used.
 #' @param elements range of elements that shall be summed for ranking. If NULL, all elements are used.
 #' @param ... further parameters will be handed on to calcOutput function type.
@@ -13,10 +13,10 @@
 #' @examples
 #' 
 #' \dontrun{ 
-#' top10 <- toolXlargest(1:10, "TauTotal")
+#' top10 <- toolXlargest(type="TauTotal",range=1:10)
 #' }
 #' 
-toolXlargest<-function(range=1:20,type="TauTotal",years=NULL , elements=NULL, ...){
+toolXlargest<-function(type, range=1:20, years=NULL , elements=NULL, ...){
   if (is.vector(type)){
     a<-calcOutput(type,aggregate = FALSE,years = years,...)  
   } else if(is.magpie(type)){

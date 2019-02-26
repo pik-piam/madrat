@@ -13,10 +13,6 @@
 #' @param years A vector of years that should be returned. If set to NULL all
 #' available years are returned.
 #' @param round A rounding factor. If set to NULL no rounding will occur.
-#' @param destination The path relative to the main folder of the model to
-#' which the file should be copied. In the case that the file should be copied
-#' to more than one destination within the model data should be provided as a
-#' vector of destinations.
 #' @param supplementary boolean deciding whether supplementary information such as weight should be
 #' returned or not. If set to TRUE a list of elements will be returned!
 #' @param append boolean deciding whether the output data should be appended in the existing file.
@@ -38,8 +34,9 @@
 #' \item unit - unit of the provided data
 #' \item description - a short description of the data
 #' \item note (optional) - additional notes related to the data
-#' \item isocountries (optional | default = TRUE) - a boolean indicating whether data is in 
-#' iso countries or not (the latter will deactivate several features such as aggregation)
+#' \item isocountries (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
+#' indicating whether data is in iso countries or not (the latter will deactivate several 
+#' features such as aggregation)
 #' \item mixed_aggregation (optional | default = FALSE) - boolean which allows for mixed 
 #' aggregation (weighted mean mixed with summations). If set to TRUE weight columns 
 #' filled with NA will lead to summation, otherwise they will trigger an error.
@@ -47,10 +44,17 @@
 #' will check whether there are any values below the given threshold and warn in this case
 #' \item max (optional) - Maximum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values above the given threshold and warn in this case
+#' \item aggregationFunction (optional | default = toolAggregate) - Function to be used to 
+#' aggregate data from country to regions. The function must have the argument \code{x} for 
+#' the data itself and \code{rel} for the relation mapping between countries and regions and 
+#' must return the data as magpie object in the spatial resolution as defined in rel.
+#' \item aggregationArguments (optional) - List of additional, named arguments to be supplied 
+#' to the aggregation function. In addition to the arguments set here, the function will be 
+#' supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
+#' also \code{weight} and \code{mixed_aggregation}.
 #' }
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
-#' \code{\link{file2destination}}, 
 #' @examples
 #' 
 #' \dontrun{ 
@@ -64,7 +68,7 @@
 #' @importFrom utils packageDescription read.csv2
 #' @export
 
-calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, destination=NULL, supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
+calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
  
   # check settings for aggregate
   if(!is.logical(aggregate)) {
@@ -74,8 +78,12 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     }
   }
   
+  # check type input
+  if(!is.character(type)) stop("Invalid type (must be a character)!")
+  if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
+  
   cwd <- getwd()
-  if(is.null(getOption("gdt_nestinglevel"))) vcat(1,"")
+  if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
   options(reducedHistory=TRUE)
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
@@ -88,10 +96,10 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   on.exit(toolendmessage(startinfo,"-",id=fname), add = TRUE)
   tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
   if(((all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) & !(type %in% getConfig("ignorecache"))) & !(fname %in% getConfig("ignorecache")) & file.exists(tmppath) ) {
-    vcat(1," - force cache",tmppath)
+    vcat(-2," - force cache",tmppath)
     load(tmppath) 
   } else {
-    vcat(2," - execute function",functionname)
+    vcat(2," - execute function",functionname, show_prefix=FALSE)
     if(try) {
       x <- try(eval(parse(text=functionname)))
       if(is(x,"try-error")) {
@@ -115,15 +123,19 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   
   # read and check x$isocountries value which describes whether the data is in
   # iso country resolution or not (affects aggregation and certain checks)
-  if(is.null(x$isocountries)) x$isocountries <- TRUE
+  if(is.null(x$isocountries)) {
+    if(nregions(x$x)==1 && getRegions(x$x)=="GLO") {
+      x$isocountries <- FALSE 
+    } else {
+      x$isocountries <- TRUE
+    }
+  }
   if(!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
   
   # read and check x$mixed_aggregation value which describes whether the data is in
   # mixed aggregation (weighted mean mixed with summation) is allowed or not
   if(is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE
   if(!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
-  
-  
   
   # check for that aggregation=FALSE if x$isocountries in data is FALSE
   if(!x$isocountries) {
@@ -138,11 +150,9 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
     iso_country1<-as.vector(iso_country[,"x"])
     names(iso_country1)<-iso_country[,"X"]
     isocountries <- sort(iso_country1)
-    if(nregions(x$x)>1){
-      datacountries <- sort(getRegions(x$x))
-      if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
-      if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
-    }
+    datacountries <- sort(getRegions(x$x))
+    if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
+    if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
     if(!is.null(x$weight)) {
       if(nregions(x$weight)>1){
         weightcountries <- sort(getRegions(x$weight))
@@ -190,16 +200,34 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
   
-  #Mx <- getMetadata(x$x)
+  glo_rel <- reg_rel <- read.csv(toolMappingFile("regional",getConfig("regionmapping")), as.is = TRUE, sep = ";")     
+  glo_rel$RegionCode <- "GLO"
+  
+  # read and check x$aggregationFunction value which provides the aggregation function
+  # to be used.
+  if(is.null(x$aggregationFunction)) x$aggregationFunction <- toolAggregate
+  if(!is.function(x$aggregationFunction)) stop("x$aggregationFunction must be a function!")
+  
+  # read and check x$aggregationArguments value which provides additional arguments
+  # to be used in the aggregation function.
+  if(is.null(x$aggregationArguments)) x$aggregationArguments <- list()
+  if(!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
+  # Add base arguments to the argument list (except of rel, which is added later)
+  x$aggregationArguments$x <- x$x
+  if(!is.null(x$weight))  x$aggregationArguments$weight <- x$weight
+  if(x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE
+  
   if(aggregate==TRUE) {
-    x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation)
+    x$aggregationArguments$rel <- reg_rel
+    x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if (toupper(aggregate)=="GLO") {
-    m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    x$x <- toolAggregate(x$x,m_glo,weight=x$weight , mixed_aggregation=x$mixed_aggregation)
+    x$aggregationArguments$rel <- glo_rel
+    x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
-    m_glo <- matrix(c(getCells(x$x),c(rep("GLO",ncells(x$x)))),nrow=ncells(x$x))
-    tmp <- toolAggregate(x$x,m_glo,weight=x$weight, mixed_aggregation=x$mixed_aggregation)
-    x$x <- mbind(tmp,toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation))
+    x$aggregationArguments$rel <- glo_rel
+    tmp <- do.call(x$aggregationFunction,x$aggregationArguments)
+    x$aggregationArguments$rel <- reg_rel
+    x$x <- mbind(tmp,do.call(x$aggregationFunction,x$aggregationArguments))
   }
   
   if(!is.null(years)) {
@@ -225,11 +253,14 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   if(!is.null(file)) {
     if(!file.exists(getConfig("outputfolder"))) stop('Outputfolder "',getConfig("outputfolder"),'" does not exist!')
     if(grepl(".mif",file)==TRUE){
-      write.report2(x$x,file=paste(getConfig("outputfolder"),file,sep="/"), unit=x$unit, append=append)
+      if(!is.null(getYears(x$x))) { 
+        write.report2(x$x,file=paste(getConfig("outputfolder"),file,sep="/"), unit=x$unit, append=append)
+      } else {
+        vcat(0,"Time dimension missing and data cannot be written to a mif-file. Skip data set!")
+      }
     } else {
       write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
     }
-    if(!is.null(destination)) file2destination(file=file,destination=destination)
   }
   
   if (length(sys.calls())==1)  options(reducedHistory = FALSE)

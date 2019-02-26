@@ -35,6 +35,10 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   startinfo <- toolstartmessage("+")
   on.exit(toolendmessage(startinfo,"-"))
   
+  # check type input
+  if(!is.character(type)) stop("Invalid type (must be a character)!")
+  if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
+  
   # Does the cache folder exists? (only to be checked if cache is enabled) 
   if(!file.exists(getConfig("cachefolder")) & getConfig("enablecache")) dir.create(getConfig("cachefolder"),recursive = TRUE)
   
@@ -76,14 +80,14 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     }
     
     if(getConfig("enablecache") & file.exists(cachefile) &  !(fname %in% getConfig("ignorecache")) & !(type %in% getConfig("ignorecache")) ) { 
-      vcat(2," - loading data", cachefile, fill=300)
+      vcat(2," - loading data", cachefile, fill=300, show_prefix=FALSE)
       x <- read.magpie(cachefile) 
       fp <- .fp(sourcefolder, type)
       if(attr(x,"comment")[1] == fp | all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) {
         if(attr(x,"comment")[1] == fp) {
-          vcat(1," - use cache",cachefile, fill=300)
+          vcat(-2," - use cache",cachefile, fill=300)
         } else {
-          vcat(1," - force cache",cachefile, fill=300)
+          vcat(-2," - force cache",cachefile, fill=300)
         }
         
         if(prefix=="convert") {
@@ -98,7 +102,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
         attr(x,"id") <- fname
         return(x)
       } else {
-        vcat(2," - outdated data in cache (", cachefile,"), reload source data", fill=300)
+        vcat(2," - outdated data in cache (", cachefile,"), reload source data", fill=300, show_prefix=FALSE)
       }
     }
     
@@ -106,7 +110,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       x <- .getData(type,subtype,"read")
       id <-  paste(attr(x,"id"),fname,sep="|")
     } else if(prefix=="convert") {
-      if(existsFunction(paste0('correct',type))) {    
+      if(type %in% getSources("correct")) {    
         x <- .getData(type,subtype,"correct")
       } else {
         x <- .getData(type,subtype,"read")
@@ -131,7 +135,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
       if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
     }
-    vcat(2," - saving data to", cachefile, fill=300)
+    vcat(2," - saving data to", cachefile, fill=300, show_prefix=FALSE)
     write.magpie(x,cachefile,comment = .fp(sourcefolder, type), mode="777") # save data in the cache folder
     attr(x,"id") <- id
     return(x)
@@ -148,7 +152,9 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       stop("Sourcefolder does not contain data for the requested source \"",type,"\" and there is no download script which could provide the missing data. Please check your settings!")
     }
   }
+
   
+  if(!is.logical(convert) && convert!="onlycorrect") stop("Unknown convert setting \"",convert,"\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
         
   if(convert==TRUE & (type %in% getSources("regional"))) {
     x <- .getData(type,subtype,"convert")
@@ -157,6 +163,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   } else {
     x <- .getData(type,subtype,"read")
   }
+  
   id <- attr(x,"id")
   on.exit(toolendmessage(startinfo,"-",id=id))
   
