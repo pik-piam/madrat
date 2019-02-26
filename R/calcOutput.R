@@ -187,10 +187,10 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL, dest
   unit <- .prep_comment(x$unit,"unit",paste0('Missing unit information for data set "',type,'"!'))
   description <- .prep_comment(x$description,"description",paste0('Missing description for data set "',type,'"! Please add a description in the corresponding calc function!'))
   comment <- .prep_comment(getComment(x$x),"comment")
-  note <- .prep_comment(x$note,"note")
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
   
+  #Mx <- getMetadata(x$x)
   if(aggregate==TRUE) {
     x$x <- toolAggregate(x$x,toolMappingFile("regional",getConfig("regionmapping")),weight=x$weight, mixed_aggregation=x$mixed_aggregation)
   } else if (toupper(aggregate)=="GLO") {

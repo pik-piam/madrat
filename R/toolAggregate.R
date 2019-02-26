@@ -52,7 +52,7 @@
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
 #' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- 
-#' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems collapseNames 
+#' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems collapseNames updateMetadata
 #' @importFrom spam diag.spam as.matrix
 #' @seealso \code{\link{calcOutput}}
 #' @examples
@@ -158,7 +158,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
       }
     }
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
-    return(out)
+    return(updateMetadata(out,x,unit="copy",source="copy",calcHistory="copy",description="copy"))
   }  else {
   
     #make sure that rel and weight cover a whole dimension (not only a subdimension)
