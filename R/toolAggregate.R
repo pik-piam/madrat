@@ -161,8 +161,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
       }
     }
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
-    #!!!!Inspect bug with calcHistory="update"!!!!!
-    return(updateMetadata(out,x,unit="copy",calcHistory="update"))
+    return(updateMetadata(out,x,unit="copy",calcHistory="copy"))
   }  else {
   
     #make sure that rel and weight cover a whole dimension (not only a subdimension)
@@ -281,8 +280,6 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
     out <- as.magpie(out,spatial=1,temporal=2)
-    #getSets(out) <- getSets(x)
-    #!!!!Inspect bug with calcHistory="update"!!!!!
-    return(updateMetadata(out,x,unit="copy",calcHistory="update"))
+    return(updateMetadata(out,x,unit="copy",calcHistory="copy"))
   }
 }

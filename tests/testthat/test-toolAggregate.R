@@ -6,6 +6,10 @@ w <- pm
 w[,,] <- NA
 map <- data.frame(from=getRegions(pm),to=rep(c("REG1","REG2"),5))
 map2 <- data.frame(from=getRegions(pm),to=getRegions(pm))
+#Spatial subdimension (trade data) objects
+td <- new.magpie(paste(rep(getRegions(pm),nregions(pm)),rep(getRegions(pm),each=nregions(pm)),sep="."),getYears(pm),getNames(pm),pm)
+tdeach <- new.magpie(paste(rep(getRegions(pm),each=nregions(pm)),rep(getRegions(pm),nregions(pm)),sep="."),getYears(pm),getNames(pm),pm)
+rel <- data.frame(from=getRegions(pm),to=rep(c("REG1","REG2"),each=5))
 
 cfg <- getConfig(verbose = FALSE)
 
@@ -44,3 +48,22 @@ test_that("partrel=TRUE works in combination with weights",{
                     toolAggregate(pm, map3, partrel = TRUE, weight=w[1:5,,], mixed_aggregation = TRUE, verbosity=10))
 })
 
+test_that("aggregation in dim=1.2 with regions-only mapping is the same as in dim=1 with region.cell mapping",{
+  reltest <- data.frame(from=getCells(td),to=paste(rep(getRegions(td),10),rep(c("REG1","REG2"),each=50),sep="."))
+  expect_equivalent(magpiesort(toolAggregate(td,rel,dim=1.2)),magpiesort(toolAggregate(td,reltest,dim=1)))
+})
+
+test_that("aggregation in dim=1.1 with regions-only mapping is the same as in dim=1 with region.cell mapping",{
+  reltest <- data.frame(from=getCells(tdeach),to=paste(rep(c("REG1","REG2"),each=50),rep(getRegions(td),10),sep="."))
+  expect_equivalent(magpiesort(toolAggregate(tdeach,rel,dim=1.1)),magpiesort(toolAggregate(tdeach,reltest,dim=1)))
+})
+
+test_that("disaggregation in dim=1.1 works appropriately",{
+  agg_tdeach <- toolAggregate(tdeach,rel,dim=1.1)
+  expect_equivalent(magpiesort(toolAggregate(agg_tdeach,rel,weight=tdeach,dim=1.1)),magpiesort(tdeach))
+})
+
+test_that("disaggregation in dim=1.2 works appropriately",{
+  agg_td <- toolAggregate(td,map,dim=1.2)
+  expect_equivalent(magpiesort(toolAggregate(agg_td,map,weight=td,dim=1.2)),magpiesort(td))
+})
