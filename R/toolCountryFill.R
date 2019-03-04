@@ -105,5 +105,5 @@ toolCountryFill <- function(x,fill=NA, no_remove_warning=NULL, overwrite=FALSE, 
   #order regions by region name
   x <- x[sort(getRegions(x)),,]
   
-  return(x)  
+  return(updateMetadata(x))  
 }

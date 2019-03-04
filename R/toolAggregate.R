@@ -71,6 +71,22 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
   comment <- getComment(x)
+  #Special handling for when calcOutput calls do.call(x$aggregationFunction,x$aggregationArguments). More general solution maybe necessary.
+  if (getOption("metadata_verbosity")==2) {
+    if (as.character(sys.call())[1]=="toolAggregate")  calcHistory <- "update"
+    else if (length(sys.calls())>1 && as.character(sys.call(-1))[1]=="toolAggregate")  calcHistory <- "copy"
+    else {
+      for (i in 1:length(sys.calls())) {
+        if (as.character(sys.call(-i))[1]=="calcOutput") {
+          if (all(get("reg_rel",envir=sys.frame(-i))==rel))  rel_calc <- "reg_rel"
+          else  rel_calc <- "glo_rel"
+          break
+        }
+      }
+      calcHistory <- paste0("toolAggregate(x$x, ",rel_calc,", x$weight, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
+    }
+  }else  calcHistory <- "copy"
+  
   if(!is.numeric(rel) & !("spam" %in% class(rel))) {
     .getAggregationMatrix <- function(rel,from=NULL,to=NULL) {
       
@@ -161,7 +177,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
       }
     }
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
-    return(updateMetadata(out,x,unit="copy",calcHistory="copy"))
+    return(updateMetadata(out,x,unit="copy",calcHistory=calcHistory))
   }  else {
   
     #make sure that rel and weight cover a whole dimension (not only a subdimension)
@@ -280,6 +296,6 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
     out <- as.magpie(out,spatial=1,temporal=2)
-    return(updateMetadata(out,x,unit="copy",calcHistory="copy"))
+    return(updateMetadata(out,x,unit="copy",calcHistory=calcHistory))
   }
 }

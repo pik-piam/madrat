@@ -67,3 +67,9 @@ test_that("disaggregation in dim=1.2 works appropriately",{
   agg_td <- toolAggregate(td,map,dim=1.2)
   expect_equivalent(magpiesort(toolAggregate(agg_td,map,weight=td,dim=1.2)),magpiesort(td))
 })
+
+test_that("aggregating across dim=1.1 and then dim=1.2 produces the same result as vice versa",{
+  agg_td1 <- toolAggregate(td,map,dim=1.1)
+  agg_td2 <- toolAggregate(td,map,dim=1.2)
+  expect_equivalent(magpiesort(toolAggregate(agg_td1,map,dim=1.2)),magpiesort(toolAggregate(agg_td2,map,dim=1.1)))
+})

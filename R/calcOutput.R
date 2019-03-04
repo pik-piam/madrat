@@ -84,7 +84,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
-  options(reducedHistory=TRUE)
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
@@ -263,9 +262,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
       write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
     }
   }
-  
-  if (length(sys.calls())==1)  options(reducedHistory = FALSE)
-  
   if(supplementary) {
     return(x)
   } else {

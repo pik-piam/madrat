@@ -25,5 +25,5 @@ toolXlargest<-function(type, range=1:20, years=NULL , elements=NULL, ...){
   }
   if (!is.null(elements)){a<-a[,,elements]}
   out <- getRegions(sort(dimSums(a,dim=c(2,3)),decreasing = TRUE)[range])
-  return(out)
+  return(updateMetadata(out))
 }
