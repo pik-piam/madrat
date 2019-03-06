@@ -142,7 +142,7 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
   }
   # print(m)
   
-  return(updateMetadata(m))
+  return(updateMetadata(m,calcHistory="update"))
   
 }
 
