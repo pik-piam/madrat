@@ -40,6 +40,9 @@ The package comes with a vignette describing the basic functionality of the pack
 vignette("madrat")
 ```
 
+## Travis CI Integration
+[![Travis build status](https://travis-ci.org/pik-piam/madrat.svg?branch=master)](https://travis-ci.org/pik-piam/madrat)
+
 ## Questions / Problems
 
 In case of questions / problems please contact Jan Dietrich <dietrich@pik-potsdam.de>.
