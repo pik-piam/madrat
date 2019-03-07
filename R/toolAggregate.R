@@ -71,20 +71,10 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
   comment <- getComment(x)
-  #Special handling for when calcOutput calls do.call(x$aggregationFunction,x$aggregationArguments). More general solution maybe necessary.
-  if (!is.null(getOption("metadata_verbosity")) && getOption("metadata_verbosity")==2) {
+  if (!is.null(getOption("metadata_verbosity")) && getOption("metadata_verbosity")>1) {
     if (as.character(sys.call())[1]=="toolAggregate")  calcHistory <- "update"
-    else if (length(sys.calls())>1 && as.character(sys.call(-1))[1]=="toolAggregate")  calcHistory <- "copy"
-    else {
-      for (i in 1:length(sys.calls())) {
-        if (as.character(sys.call(-i))[1]=="calcOutput") {
-          if (all(get("reg_rel",envir=sys.frame(-i))==rel))  rel_calc <- "reg_rel"
-          else  rel_calc <- "glo_rel"
-          break
-        }
-      }
-      calcHistory <- paste0("toolAggregate(x$x, ",rel_calc,", x$weight, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
-    }
+    #Special calcHistory handling necessary for do.call(x$aggregationFunction,x$aggregationArguments) from calcOutput
+    else  calcHistory <- paste0("toolAggregate(x=unknown, rel=unknown, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
   }else  calcHistory <- "copy"
   
   if(!is.numeric(rel) & !("spam" %in% class(rel))) {
@@ -195,7 +185,6 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
         if (2<dim & dim<3)  stop("Subdimensions of temporal dimension are currently not supported!")
         else if (1.2<dim & dim<2)  stop("Only 2 subdimensions are currently supported for the spatial dimension!")
         else if (1<dim & dim<4) {
-          if (dim < 2)  names <- getCells(x)
           subdim <- round((dim-floor(dim))*10)
           maxdim <- nchar(gsub("[^\\.]","",names[1])) + 1
           
@@ -230,7 +219,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
           return(new_rel[,names])
         }
       }
-      rel <- .expand_rel(rel,getNames(x),dim)
+      rel <- .expand_rel(rel,getItems(x,round(floor(dim))),dim)
       dim <- round(floor(dim))
     }
     
