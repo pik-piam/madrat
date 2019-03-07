@@ -109,5 +109,5 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
     }
   }
   
-  return(updateMetadata(x_new,x))
+  return(updateMetadata(x_new,x,cH_priority=3))
 }

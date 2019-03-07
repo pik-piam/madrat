@@ -244,7 +244,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
                        origin,
                        date)
   x$x<-clean_magpie(x$x)
-  x$x<-updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note)
+  x$x<-updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note,cH_priority=1)
 
   if(is.null(file) & append){
     vcat(0,"The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")

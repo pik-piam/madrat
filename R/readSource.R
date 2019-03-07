@@ -172,7 +172,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(getRegions(x)!="GLO") stop("Data is supposed to be global data but does have a region name different from GLO!")
   }
   x <- clean_magpie(x)
-  x <- updateMetadata(x,calcHistory="update")
+  x <- updateMetadata(x,calcHistory="update",cH_priority=1)
   setwd(cwd)
  
   
