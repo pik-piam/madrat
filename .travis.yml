@@ -1,0 +1,17 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+repos:
+  CRAN: https://cloud.r-project.org
+  PIK:  https://rse.pik-potsdam.de/r/packages/
+cache: packages
+latex: false
+pandoc: false
+sudo: false
+r_packages: 
+ - lucode
+ - testthat
+install:
+  - echo "Dummy entry to ignore DESCRIPTION file"
+script:
+  - Rscript ./tests/testthat/test-travisCI.R
