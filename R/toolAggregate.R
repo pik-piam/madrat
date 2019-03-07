@@ -71,7 +71,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
   comment <- getComment(x)
-  if (!is.null(getOption("metadata_verbosity")) && getOption("metadata_verbosity")>1) {
+  if (!is.null(getOption("calcHistory_verbosity")) && getOption("calcHistory_verbosity")>1) {
     if (as.character(sys.call())[1]=="toolAggregate")  calcHistory <- "update"
     #Special calcHistory handling necessary for do.call(x$aggregationFunction,x$aggregationArguments) from calcOutput
     else  calcHistory <- paste0("toolAggregate(x=unknown, rel=unknown, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
