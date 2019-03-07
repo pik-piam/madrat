@@ -25,7 +25,9 @@ Imports:
     stringr,
 	reshape2,
 	stats,
-	nnls
+	nnls,
+	rlang,
+	assertthat
 Suggests:
     igraph(>= 1.0.1),
     knitr,
