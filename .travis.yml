@@ -8,10 +8,8 @@ cache: packages
 latex: false
 pandoc: false
 sudo: false
-r_packages: 
- - lucode
- - testthat
 install:
-  - echo "Dummy entry to ignore DESCRIPTION file"
+  - Rscript -e "install.packages(c('devtools','testthat'))"
+  - Rscript -e "devtools::install_github('pik-piam/lucode')"
 script:
   - Rscript ./tests/testthat/test-travisCI.R

@@ -84,7 +84,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
-  options(reducedHistory=TRUE)
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
@@ -197,9 +196,9 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   unit <- .prep_comment(x$unit,"unit",paste0('Missing unit information for data set "',type,'"!'))
   description <- .prep_comment(x$description,"description",paste0('Missing description for data set "',type,'"! Please add a description in the corresponding calc function!'))
   comment <- .prep_comment(getComment(x$x),"comment")
-  note <- .prep_comment(x$note,"note")
   origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date <- .prep_comment(date(),"creation date")
+  note <- .prep_comment(x$note,"note")
   
   glo_rel <- reg_rel <- read.csv(toolMappingFile("regional",getConfig("regionmapping")), as.is = TRUE, sep = ";")     
   glo_rel$RegionCode <- "GLO"
@@ -245,7 +244,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
                        origin,
                        date)
   x$x<-clean_magpie(x$x)
-  x$x<-updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note)
+  x$x<-updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note,cH_priority=1)
 
   if(is.null(file) & append){
     vcat(0,"The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
@@ -263,9 +262,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
       write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
     }
   }
-  
-  if (length(sys.calls())==1)  options(reducedHistory = FALSE)
-  
   if(supplementary) {
     return(x)
   } else {

@@ -36,6 +36,6 @@ convertTau <- function(x) {
   #remove unrequired data, add missing data  
   tau  <- toolCountryFill(tau,fill=1,TLS="IDN",HKG="CHN",SGP="CHN",BHR="QAT")
   xref <- toolCountryFill(xref, fill=0, verbosity=2)
-  
+
   return(mbind(tau,xref))
 }  
