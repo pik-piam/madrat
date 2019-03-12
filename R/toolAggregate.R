@@ -182,42 +182,38 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
           return(rel)
         } 
         
-        if (2<dim & dim<3)  stop("Subdimensions of temporal dimension are currently not supported!")
-        else if (1.2<dim & dim<2)  stop("Only 2 subdimensions are currently supported for the spatial dimension!")
-        else if (1<dim & dim<4) {
-          subdim <- round((dim-floor(dim))*10)
-          maxdim <- nchar(gsub("[^\\.]","",names[1])) + 1
+        subdim <- round((dim-floor(dim))*10)
+        maxdim <- nchar(gsub("[^\\.]","",names[1])) + 1
+        
+        search <- paste0("^(",paste(rep("[^\\.]*\\.",subdim-1),collapse=""),")([^\\.]*)(",paste(rep("\\.[^\\.]*",maxdim-subdim),collapse=""),")$")
+        onlynames <- unique(sub(search,"\\2",names))
           
-          search <- paste0("^(",paste(rep("[^\\.]*\\.",subdim-1),collapse=""),")([^\\.]*)(",paste(rep("\\.[^\\.]*",maxdim-subdim),collapse=""),")$")
-          onlynames <- unique(sub(search,"\\2",names))
-          
-          if(length(setdiff(colnames(rel),onlynames))>0) {
-            if (length(setdiff(rownames(rel),onlynames))>0) {
-              stop("The provided mapping contains entries which could not be found in the data: ",paste(setdiff(colnames(rel),onlynames),collapse=", "))
-            }else  rel <- t(rel)
-          }else if(length(setdiff(onlynames,colnames(rel)))>0) {
-            if (length(setdiff(onlynames,rownames(rel)))>0) {
-              stop("The provided data set contains entries not covered by the given mapping: ",paste(setdiff(onlynames,colnames(rel)),collapse=", "))
-            }else  rel <- t(rel)
-          }
-          
-          tmp <- unique(sub(search,"\\1#|TBR|#\\3",names)) 
-          additions <- strsplit(tmp,split="#|TBR|#",fixed=TRUE)
-          cnames <- NULL
-          rnames <- NULL
-          for(i in 1:length(additions)) {
-            if(is.na(additions[[i]][2])) additions[[i]][2] <- ""
-            cnames <- c(cnames,paste0(additions[[i]][1],colnames(rel),additions[[i]][2]))
-            rnames <- c(rnames,paste0(additions[[i]][1],rownames(rel),additions[[i]][2]))
-          }
-          
-          new_rel <- matrix(0,nrow=length(rnames),ncol=length(cnames),dimnames=list(rnames,cnames))
-          
-          for(i in 1:length(additions)) {
-            new_rel[1:nrow(rel)+(i-1)*nrow(rel),1:ncol(rel)+(i-1)*ncol(rel)] <- rel
-          }
-          return(new_rel[,names])
+        if(length(setdiff(colnames(rel),onlynames))>0) {
+          if (length(setdiff(rownames(rel),onlynames))>0) {
+            stop("The provided mapping contains entries which could not be found in the data: ",paste(setdiff(colnames(rel),onlynames),collapse=", "))
+          }else  rel <- t(rel)
+        }else if(length(setdiff(onlynames,colnames(rel)))>0) {
+          if (length(setdiff(onlynames,rownames(rel)))>0) {
+            stop("The provided data set contains entries not covered by the given mapping: ",paste(setdiff(onlynames,colnames(rel)),collapse=", "))
+          }else  rel <- t(rel)
         }
+          
+        tmp <- unique(sub(search,"\\1#|TBR|#\\3",names)) 
+        additions <- strsplit(tmp,split="#|TBR|#",fixed=TRUE)
+        cnames <- NULL
+        rnames <- NULL
+        for(i in 1:length(additions)) {
+          if(is.na(additions[[i]][2])) additions[[i]][2] <- ""
+          cnames <- c(cnames,paste0(additions[[i]][1],colnames(rel),additions[[i]][2]))
+          rnames <- c(rnames,paste0(additions[[i]][1],rownames(rel),additions[[i]][2]))
+        }
+        
+        new_rel <- matrix(0,nrow=length(rnames),ncol=length(cnames),dimnames=list(rnames,cnames))
+        
+        for(i in 1:length(additions)) {
+          new_rel[1:nrow(rel)+(i-1)*nrow(rel),1:ncol(rel)+(i-1)*ncol(rel)] <- rel
+        }
+        return(new_rel[,names])
       }
       rel <- .expand_rel(rel,getItems(x,round(floor(dim))),dim)
       dim <- round(floor(dim))
