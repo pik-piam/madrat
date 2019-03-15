@@ -52,7 +52,9 @@
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
 #' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- 
-#' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems collapseNames updateMetadata
+#' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems collapseNames 
+#' @importFrom magclass updateMetadata withMetadata
+#' @importFrom utils object.size
 #' @importFrom spam diag.spam as.matrix
 #' @seealso \code{\link{calcOutput}}
 #' @examples
@@ -71,11 +73,11 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
   comment <- getComment(x)
-  if (!is.null(getOption("calcHistory_verbosity")) && getOption("calcHistory_verbosity")>1) {
-    if (as.character(sys.call())[1]=="toolAggregate")  calcHistory <- "update"
+  if (withMetadata() && !is.null(getOption("calcHistory_verbosity")) && getOption("calcHistory_verbosity")>1) {
+    if (object.size(sys.call()) < 5000 && as.character(sys.call())[1]=="toolAggregate")  calcHistory <- "update"
     #Special calcHistory handling necessary for do.call(x$aggregationFunction,x$aggregationArguments) from calcOutput
     else  calcHistory <- paste0("toolAggregate(x=unknown, rel=unknown, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
-  }else  calcHistory <- "copy"
+  } else  calcHistory <- "copy"
   
   if(!is.numeric(rel) & !("spam" %in% class(rel))) {
     .getAggregationMatrix <- function(rel,from=NULL,to=NULL) {
