@@ -205,28 +205,28 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   
   # read and check x$aggregationFunction value which provides the aggregation function
   # to be used.
-  if(is.null(x$aggregationFunction)) x$aggregationFunction <- toolAggregate
-  if(!is.function(x$aggregationFunction)) stop("x$aggregationFunction must be a function!")
+  if(is.null(x$aggregationFunction)) x$aggregationFunction <- "toolAggregate"
+  if(!is.function(x$aggregationFunction) && !is.character(x$aggregationFunction)) stop("x$aggregationFunction must be a function!")
   
   # read and check x$aggregationArguments value which provides additional arguments
   # to be used in the aggregation function.
   if(is.null(x$aggregationArguments)) x$aggregationArguments <- list()
   if(!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
   # Add base arguments to the argument list (except of rel, which is added later)
-  x$aggregationArguments$x <- x$x
-  if(!is.null(x$weight))  x$aggregationArguments$weight <- x$weight
+  x$aggregationArguments$x <- quote(x$x)
+  if(!is.null(x$weight))  x$aggregationArguments$weight <- quote(x$weight)
   if(x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE
   
   if(aggregate==TRUE) {
-    x$aggregationArguments$rel <- reg_rel
+    x$aggregationArguments$rel <- quote(reg_rel)
     x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if (toupper(aggregate)=="GLO") {
-    x$aggregationArguments$rel <- glo_rel
+    x$aggregationArguments$rel <- quote(glo_rel)
     x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
   } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
-    x$aggregationArguments$rel <- glo_rel
+    x$aggregationArguments$rel <- quote(glo_rel)
     tmp <- do.call(x$aggregationFunction,x$aggregationArguments)
-    x$aggregationArguments$rel <- reg_rel
+    x$aggregationArguments$rel <- quote(reg_rel)
     x$x <- mbind(tmp,do.call(x$aggregationFunction,x$aggregationArguments))
   }
   
