@@ -244,8 +244,9 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
         #Infs are now treated in a way that anything except 0 times Inf
         #leads to NaN, but 0 times Inf leads to NaN
         for(i in c(-Inf,Inf)) {
-          x[,y==i][x[,y==i]!=0] <- i
-          y[y==i] <- 1
+          j <- (is.infinite(y) & (y == i))
+          x[,j][x[,j]!=0] <- i
+          y[j] <- 1
         }
       }
       if(any(is.na(y))) {
