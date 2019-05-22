@@ -23,5 +23,5 @@ diagnosticSources <- function(file) {
       print(grep(paste0("\"",e,"\""),b,value = TRUE))
     }
   }
-  return(sort(sources))
+  return(sort(setdiff(sources,errors)))
 }
