@@ -1,7 +1,7 @@
 
 
-citation_doi <- function(package) {
-  cit <- citation(package, auto=TRUE)
+citation_doi <- function(meta) {
+  cit <- citation(auto = meta)
   class(cit) <- "list"
   attr(cit[[1]],"textVersion") <- NULL
   class(cit) <- "bibentry"
@@ -12,11 +12,11 @@ citation_doi <- function(package) {
     cit$note <- paste0(grep("http",tmp,value=TRUE, invert=TRUE), collapse=", ")
     cit$doi <- gsub("\n","",gsub("https://doi.org/","",grep("doi.org",urls,fixed=TRUE, value=TRUE), fixed=TRUE))
     cit$url <- grep("doi.org",urls,fixed=TRUE, value=TRUE, invert=TRUE)
-    if(cit$note=="") cit$note <- paste("R package version",packageDescription(package)$Version)
+    if(cit$note=="") cit$note <- paste("R package version",meta$Version)
     if(!length(cit$url)) cit$url <- NULL
     if(!length(cit$doi)) cit$doi <- NULL
   }
   return(cit)
 }
 
-citation_doi("madrat")
+citation_doi(meta)
