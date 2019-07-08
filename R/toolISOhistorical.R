@@ -61,41 +61,51 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
  
 
   # function to identify transitions that are in m
-  .identifyTransitions <- function(m){
+  .identifyTransitions <- function(i_m){
     tr <- list()
-    # list of regions that are transition countries and in the data m 
-    fromISO_m  <- intersect(mapping$fromISO,getRegions(m)) 
+    # list of regions that are transition countries and in the data i_m
+    fromISO_m  <- intersect(mapping$fromISO,getRegions(i_m)) 
+    # create matrix of possible transitions
+    ptr <- NULL
+    for (i in fromISO_m){
+      # loop over number of different years of transition for one fromISO_m-country 
+      for (l in 1:length(unique(mapping$lastYear[mapping$fromISO==i]))){
+        ptr <- rbind(ptr,cbind(i,unique(mapping$lastYear[mapping$fromISO==i])[l]))
+      }
+    }  
+    # sort again based on transition year
+    ptr <- ptr[order(ptr[,2]),]
+    
     # calculate number of transitions ntr 
     ntr <- 0
     h <- NULL
-    fromISO_h <- list()
-    for (i in 1:length(fromISO_m)){
-      if (!length(mapping$toISO[mapping$fromISO==fromISO_m[i]])==1|i ==length(fromISO_m)){
+    fromISO_year <- list()
+    for (i in 1:length(ptr[,1])){
+      if (!length(mapping$toISO[mapping$fromISO==ptr[i,1]])==1|i ==length(ptr[,1])){
         ntr <- ntr+1
-        fromISO_h[[ntr]] <- c(h,fromISO_m[i])
-        #print(fromISO_h)
-      h <- NULL
-      } else if (length(mapping$toISO[mapping$fromISO==fromISO_m[i]])==1){
-        if(mapping$toISO[mapping$fromISO==fromISO_m[i]]!=mapping$toISO[mapping$fromISO==fromISO_m[i+1]]){
+        fromISO_year[[ntr]] <- cbind(h,ptr[i,])
+        h <- NULL
+      } else if (length(mapping$toISO[mapping$fromISO==ptr[i,1]])==1){
+        if(mapping$toISO[mapping$fromISO==ptr[i,1]]!=mapping$toISO[mapping$fromISO==ptr[i+1,1]]){
           ntr <- ntr+1
-          fromISO_h[[ntr]] <- c(h,fromISO_m[i])
-          #print(fromISO_h)
+          fromISO_year[[ntr]] <- cbind(h,ptr[i,])
           h <- NULL
         } else {
           ntr <- ntr
-          h <- c(h,fromISO_m[i])
-          #print(h)
+          h <- cbind(h,ptr[i,])  # evtl ptr[i,1] für Vereinigungen
         }
       }
     } 
-    # get informations for all transisitons
+    
+    print(fromISO_year)
+    # collect information for all transisitons
     for (i in 1:ntr){ 
-      fromISO <- fromISO_h[[i]]
-      toISO   <- mapping$toISO[mapping$fromISO==fromISO_h[[i]][1]]  
+      fromISO <- fromISO_year[[i]][1,]
+      toISO   <- mapping$toISO[mapping$fromISO==fromISO[1] & mapping$lastYear==fromISO_year[[i]][2]]  
       # take the maximum year of m that is lower than the transition year
-      fromY   <- max(getYears(m)[getYears(m)<=mapping$lastYear[mapping$fromISO==fromISO_h[[i]][1]][1]])
+      fromY   <- max(getYears(i_m)[getYears(i_m)<=fromISO_year[[i]][2]])
       # take the minimun of years that are later than fromY
-      toY     <- min(getYears(m)[getYears(m)>fromY]) 
+      toY     <- min(getYears(i_m)[getYears(i_m)>fromY]) 
       tr[[i]] <- list(fromISO=fromISO,toISO=toISO,fromY=fromY,toY=toY)
     } 
   return(tr)
