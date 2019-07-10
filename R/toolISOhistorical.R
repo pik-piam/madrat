@@ -66,16 +66,17 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
     # list of regions that are transition countries and in the data i_m
     fromISO_m  <- intersect(mapping$fromISO,getRegions(i_m)) 
     # create matrix of possible transitions
-    ptr <- NULL
+    ptr <- NULL 
     for (i in fromISO_m){
       # loop over number of different years of transition for one fromISO_m-country 
       for (l in 1:length(unique(mapping$lastYear[mapping$fromISO==i]))){
-        ptr <- rbind(ptr,cbind(i,unique(mapping$lastYear[mapping$fromISO==i])[l]))
+        ptr <- rbind(ptr,c(i,unique(mapping$lastYear[mapping$fromISO==i])[l]))
       }
     }  
-    # sort again based on transition year
-    ptr <- ptr[order(ptr[,2]),]
-    
+    # sort again based on transition year if more than one transition exists
+    if (length(ptr[,1]) != 1) {
+       ptr <- ptr[order(ptr[,2]),]
+    }
     # calculate number of transitions ntr 
     ntr <- 0
     h <- NULL
