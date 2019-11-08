@@ -41,7 +41,7 @@ vignette("madrat")
 ```
 
 ## Travis CI Integration
-[![Travis build status](https://travis-ci.org/pik-piam/madrat.svg?branch=master)](https://travis-ci.org/pik-piam/madrat)
+[![Travis build status](https://travis-ci.com/pik-piam/madrat.svg?branch=master)](https://travis-ci.com/pik-piam/madrat)
 
 ## Questions / Problems
 
