@@ -39,9 +39,9 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
 
  rev <- numeric_version(rev)
  
- collectionname <- paste0("rev", rev, dev, "_", regionscode, "_", tolower(model))
+ collectionname <- paste0("rev", rev, dev, "_", regionscode, "_", tolower(model), ifelse(getConfig("debug")==TRUE,"_debug",""))
  sourcefolder <- paste0(getConfig("mainfolder"), "/output/", collectionname)
- if(!file.exists(paste0(sourcefolder,".tgz"))) {
+ if(!file.exists(paste0(sourcefolder,".tgz")) || getConfig("debug")==TRUE) {
    # data not yet ready and has to be prepared first
    
    #create folder if required
