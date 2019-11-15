@@ -64,7 +64,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       if(is.null(out)) return(NULL)
       return(eval(parse(text=sub("\\(.*$","",out))))
     }
-    .fp <- function(sourcefolder, type) {
+    .fp <- function(sourcefolder, type, prefix) {
       if(prefix=="read") {
         fp <- fingerprint(sourcefolder, readSource, .f(type,"read"))  
       } else if (prefix=="correct") {
@@ -79,31 +79,38 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       return(fp)
     }
     
-    if(getConfig("enablecache") & file.exists(cachefile) &  !(fname %in% getConfig("ignorecache")) & !(type %in% getConfig("ignorecache")) ) { 
-      vcat(2," - loading data", cachefile, fill=300, show_prefix=FALSE)
-      x <- read.magpie(cachefile) 
-      fp <- .fp(sourcefolder, type)
-      if(attr(x,"comment")[1] == fp | all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) {
-        if(attr(x,"comment")[1] == fp) {
-          vcat(-2," - use cache",cachefile, fill=300)
+    fp <- .fp(sourcefolder, type, prefix)
+    
+    err <- try({
+      if(getConfig("enablecache") && file.exists(cachefile) &&  !(fname %in% getConfig("ignorecache")) && !(type %in% getConfig("ignorecache")) ) { 
+        vcat(2," - loading data", cachefile, fill=300, show_prefix=FALSE)
+        x <- try(read.magpie(cachefile)) 
+        if(attr(x,"comment")[1] == fp | all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) {
+          if(attr(x,"comment")[1] == fp) {
+            vcat(-2," - use cache",cachefile, fill=300)
+          } else {
+            vcat(-2," - force cache",cachefile, fill=300)
+          }
+          
+          if(prefix=="convert") {
+            iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+            iso_country1<-as.vector(iso_country[,"x"])
+            names(iso_country1)<-iso_country[,"X"]
+            isocountries <- sort(iso_country1)
+            datacountries <- sort(getRegions(x))
+            if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries in ",cachefile,"!")
+            if(any(isocountries!=datacountries)) stop("Countries in ",cachefile," do not agree with iso country list!")
+          }
+          attr(x,"id") <- fname
+          return(x)
         } else {
-          vcat(-2," - force cache",cachefile, fill=300)
+          vcat(2," - outdated data in cache (", cachefile,"), reload source data", fill=300, show_prefix=FALSE)
         }
-        
-        if(prefix=="convert") {
-          iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-          iso_country1<-as.vector(iso_country[,"x"])
-          names(iso_country1)<-iso_country[,"X"]
-          isocountries <- sort(iso_country1)
-          datacountries <- sort(getRegions(x))
-          if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries in ",cachefile,"!")
-          if(any(isocountries!=datacountries)) stop("Countries in ",cachefile," do not agree with iso country list!")
-        }
-        attr(x,"id") <- fname
-        return(x)
-      } else {
-        vcat(2," - outdated data in cache (", cachefile,"), reload source data", fill=300, show_prefix=FALSE)
       }
+    }, silent=TRUE)
+    if(is(err,"try-error")) {
+      vcat(0,as.character(attr(err,"condition")))
+      vcat(-2, " - reading cache failed! Rerun without cache.")
     }
     
     if(prefix=="correct") {
@@ -136,7 +143,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
     }
     vcat(2," - saving data to", cachefile, fill=300, show_prefix=FALSE)
-    write.magpie(x,cachefile,comment = .fp(sourcefolder, type), mode="777") # save data in the cache folder
+    write.magpie(x,cachefile,comment = fp, mode="777") # save data in the cache folder
     attr(x,"id") <- id
     return(x)
   }

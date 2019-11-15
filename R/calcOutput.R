@@ -20,7 +20,8 @@
 #' @param na_warning boolean deciding whether NAs in the data set should create a warning or not
 #' @param try if set to TRUE the calculation will only be tried and the script will continue even if
 #' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a 
-#' case.
+#' case. This setting will be overwritten by the global setting debug=TRUE, in which try will be 
+#' always interpreted as TRUE.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -94,31 +95,43 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   fname <- paste0("calc",type,tmpargs)
   on.exit(toolendmessage(startinfo,"-",id=fname), add = TRUE)
   tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
-  if(((all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) & !(type %in% getConfig("ignorecache"))) & !(fname %in% getConfig("ignorecache")) & file.exists(tmppath) ) {
-    vcat(-2," - force cache",tmppath)
-    load(tmppath) 
-  } else {
-    vcat(2," - execute function",functionname, show_prefix=FALSE)
-    if(try) {
-      x <- try(eval(parse(text=functionname)))
-      if(is(x,"try-error")) {
-        vcat(0,as.character(attr(x,"condition")))
-        return(x)
-      } 
+  cache_failed <- FALSE
+  repeat {
+    if(!cache_failed && ((all(getConfig("forcecache")==TRUE) || fname %in% getConfig("forcecache") || type %in% getConfig("forcecache")) && !(type %in% getConfig("ignorecache"))) && !(fname %in% getConfig("ignorecache")) && file.exists(tmppath) ) {
+      vcat(-2," - force cache",tmppath)
+      err <- try(load(tmppath),silent = TRUE)
+      if(is(err,"try-error")) {
+        vcat(0,as.character(attr(err,"condition")))
+        vcat(-2, " - force cache failed! Rerun without cache.")
+        cache_failed <- TRUE
+      } else {
+        break
+      }
     } else {
-      x <- eval(parse(text=functionname))
-    }
-    if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
-    if(!is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
-    if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
-    if(!is.null(x$weight)) {
-      if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
-      if(nyears(x$weight)==1) getYears(x$weight) <- NULL
-    }
-    x$package <- attr(functionname,"pkgcomment")
-    save(x,file=tmppath,compress = "xz")
-    Sys.chmod(tmppath, mode = "0777", use_umask = TRUE)
+      vcat(2," - execute function",functionname, show_prefix=FALSE)
+      if(try || getConfig("debug")==TRUE) {
+        x <- try(eval(parse(text=functionname)))
+        if(is(x,"try-error")) {
+          vcat(0,as.character(attr(x,"condition")))
+          return(x)
+        } 
+      } else {
+        x <- eval(parse(text=functionname))
+      }
+      if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
+      if(!is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
+      if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
+      if(!is.null(x$weight)) {
+        if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
+        if(nyears(x$weight)==1) getYears(x$weight) <- NULL
+      }
+      x$package <- attr(functionname,"pkgcomment")
+      save(x,file=tmppath,compress = "xz")
+      Sys.chmod(tmppath, mode = "0777", use_umask = TRUE)
+      break
+    }  
   }
+  
   
   # read and check x$isocountries value which describes whether the data is in
   # iso country resolution or not (affects aggregation and certain checks)

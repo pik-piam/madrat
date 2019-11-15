@@ -42,21 +42,27 @@
 #' cache if the corresponding cache files exist. It is either a boolean to
 #' fully activate or deactivate the forcing or a vector of files (e.g. readTau, calcTauTotal) 
 #' or type (e.g. Tau, TauTotal) that should be read from cache in any case.
+#' @param  ignorecache Argument that allows madrat to ignore the forcecache argument for the
+#'  given vector of files (e.g. readTau, calcTauTotal) or types 
+#'  (e.g. Tau, TauTotal) called by calcOutput or readSource.
+#'  The top level function must always be part of this list.
 #' @param delete_cache Boolean deciding whether a temporary cache folder (as
 #' created by retrieveInput) should be deleted after completion or not.
 #' @param diagnostics file name for additional diagnostics information (without file ending).
 #' 3 diagnostic files will be written if a file name is provided (a csv showing the network 
 #' of function executions, a log file showing the log and a full log showing the full amount
 #' of available information.)
+#' @param nocores  integer number of cores to use for \code{\link[parallel]{clusterApply}} calls
+#' @param debug Boolean which activates a debug mode. In debug mode all calculations will
+#' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
+#' This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
+#' debug=TRUE will add the suffix "debug" to the files created to avoid there use in productive runs.
+#' Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file 
+#' already exists.
 #' @param .cfgchecks boolean deciding whether the given inputs to setConfig should be checked for
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)
 #' @param .verbose boolean deciding whether status information/updates should be shown or not
-#' @param  ignorecache Argument that allows madrat to ignore the forcecache argument for the
-#'  given vector of files (e.g. readTau, calcTauTotal) or types 
-#'  (e.g. Tau, TauTotal) called by calcOutput or readSource.
-#'  The top level function must always be part of this list.
-#' @param nocores  integer number of cores to use for \code{\link[parallel]{clusterApply}} calls
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{getISOlist}}
 #' @examples
@@ -82,6 +88,7 @@ setConfig <- function(regionmapping=NULL,
                       delete_cache=NULL,
                       diagnostics=NULL,
                       nocores=NULL,
+                      debug=NULL,
                       .cfgchecks=TRUE,
                       .verbose=TRUE){
   cfg <- getConfig(raw=TRUE, verbose=.verbose)

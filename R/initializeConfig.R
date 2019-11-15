@@ -25,10 +25,11 @@ initializeConfig <- function(verbose=TRUE) {
                 outputfolder  = NA,
                 pop_threshold = 10^6,
                 forcecache    = FALSE,
-                ignorecache = NULL,
+                ignorecache   = NULL,
                 delete_cache  = TRUE,
                 diagnostics   = FALSE,
-                nocores=1)
+                nocores       = 1,
+                debug         = FALSE)
      options(madrat_cfg = cfg)
      if(verbose) {
       base::cat(paste(paste0("    ",names(cfg)),cfg,sep=" = ",collapse="\n"))
