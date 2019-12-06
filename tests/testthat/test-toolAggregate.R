@@ -73,3 +73,12 @@ test_that("aggregating across dim=1.1 and then dim=1.2 produces the same result 
   agg_td2 <- toolAggregate(td,map,dim=1.2)
   expect_equivalent(magpiesort(toolAggregate(agg_td1,map,dim=1.2)),magpiesort(toolAggregate(agg_td2,map,dim=1.1)))
 })
+
+test_that("weight with reduced dimensionality can be used", {
+  skip("not yet fixed")
+  unweighted <- toolAggregate(td,rel=map,dim=1.2)
+  weighted <- toolAggregate(td,rel=map,weight=pm,dim=1.2)
+  unweighted[,,] <- 1
+  weighted[,,] <- 1
+  expect_identical(unweighted,weighted)
+})
