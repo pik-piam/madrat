@@ -98,7 +98,6 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
       }
     } 
     
-    print(fromISO_year)
     # collect information for all transisitons
     for (i in 1:ntr){ 
       fromISO <- fromISO_year[[i]][1,]
