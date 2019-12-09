@@ -37,6 +37,9 @@
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
 #' specified by name of that dimension or position within the given dimension
 #' (e.g. 3.2 means the 2nd data dimension, 3.8 means the 8th data dimension).
+#' @param wdim Specifying the according weight dimension as choosen with dim
+#' for the aggregation object. If set to NULL the function will try to
+#' automatically detect the dimension.
 #' @param partrel If set to TRUE allows that the relation matrix does contain
 #' less entries than x and vice versa. These values without relation are lost
 #' in the output.
@@ -53,7 +56,7 @@
 #' @export
 #' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- 
 #' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems collapseNames 
-#' @importFrom magclass updateMetadata withMetadata
+#' @importFrom magclass updateMetadata withMetadata getDim getSets getSets<-
 #' @importFrom utils object.size
 #' @importFrom spam diag.spam as.matrix
 #' @seealso \code{\link{calcOutput}}
@@ -68,7 +71,7 @@
 #' # weighted aggregation
 #' toolAggregate(population_magpie,mapping, weight=population_magpie)
 
-toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE, verbosity=1) {
+toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=NULL, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE, verbosity=1) {
 
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
@@ -110,7 +113,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
   }
 
   #translate dim to dim code
-  dim <- dimCode(dim,x,missing=="stop")
+  dim <- dimCode(dim,x,missing="stop")
   
 
   ## allow the aggregation, even if not for every entry in the initial dataset there is a respective one in the relation matrix
@@ -133,12 +136,26 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
 
   if(!is.null(weight)) {
     if(!is.magpie(weight)) stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
+    #get proper weight dim
+    
+    if(is.null(wdim)) {
+      wdim <- union(getDim(rownames(rel),weight,fullmatch=TRUE),
+                    getDim(colnames(rel),weight,fullmatch=TRUE))
+      # wdim must be in same main dimension as dim
+      wdim <- wdim[floor(wdim)==floor(dim)]
+    }
+
+    if(length(wdim)==0) stop("Could not detect aggregation dimension in weight (no match)!")
+    if(length(wdim)>1) stop("Could not detect aggregation dimension in weight (multiple matches)!")
+        
+    if(floor(dim)==dim) wdim <- floor(wdim)
+    
     if(anyNA(weight)) {
       if(!mixed_aggregation) {
         stop("Weight contains NAs which is only allowed if mixed_aggregation=TRUE!")
       } else {
-        n <- length(getItems(weight,dim=dim))
-        r <- dimSums(is.na(weight), dim=dim)
+        n <- length(getItems(weight,dim=wdim))
+        r <- dimSums(is.na(weight), dim=wdim)
         if(!all(r %in% c(0,n))) stop("Weight contains columns with a mix of NAs and numbers which is not allowed!")
       }
     }
@@ -151,15 +168,17 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
         stop("Negative numbers in weight. Weight should be positive!")
       }
     }
-    weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=dim, partrel=partrel, verbosity=10) + 10^-100)
+    weight2 <- 1/(toolAggregate(weight, rel, from=from, to=to, dim=wdim, partrel=partrel, verbosity=10) + 10^-100)
     if(mixed_aggregation) {
       weight2[is.na(weight2)] <- 1
       weight[is.na(weight)] <- 1
     }
     
-    if(setequal(getItems(weight, dim=dim), getItems(x, dim=dim))) {
+    if(setequal(getItems(weight, dim=wdim), getItems(x, dim=dim))) {
+      if(wdim!=floor(wdim)) getSets(weight)[paste0("d",wdim)] <- getSets(x)[paste0("d",dim)]
       out <- toolAggregate(x*weight,rel, from=from, to=to, dim=dim, partrel=partrel)*weight2
-    } else if(setequal(getItems(weight2, dim=dim), getItems(x, dim=dim))) {
+    } else if(setequal(getItems(weight2, dim=wdim), getItems(x, dim=dim))) {
+      if(wdim!=floor(wdim)) getSets(weight2)[paste0("d",wdim)] <- getSets(x)[paste0("d",dim)]
       out <- toolAggregate(x*weight2,rel, from=from, to=to, dim=dim, partrel=partrel)*weight
     } else {
       if(partrel) {
@@ -281,6 +300,8 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, partre
     
     if(dim==2) out <- wrap(out,map=list(2,1,3))
     if(dim==3) out <- wrap(out,map=list(2,3,1))
+    
+    getSets(out,fulldim=FALSE) <- getSets(x,fulldim=FALSE)
     
     getComment(out) <- c(comment,paste0("Data aggregated (toolAggregate): ",date()))
     out <- as.magpie(out,spatial=1,temporal=2)

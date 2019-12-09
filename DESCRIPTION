@@ -1,8 +1,8 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 1.64.1
-Date: 2019-12-06
+Version: 1.64.2
+Date: 2019-12-09
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
              person("Stephen", "Wirth", email = "wirth@pik-potsdam.de", role = "aut"),
@@ -14,7 +14,7 @@ Description: Provides a framework which should improve reproducibility and trans
     * The title is a wish not a promise. By no means we expect this package to deliver everything what is needed to achieve full reproducibility and transparency, but we believe that it supports efforts in this direction.
 Depends:
     R(>= 2.10.0),
-    magclass(>= 4.49)
+    magclass(>= 5.7.0)
 Imports:
     spam,
     tools,
@@ -41,4 +41,4 @@ LazyData: no
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
-ValidationKey: 29925276
+ValidationKey: 29948438
