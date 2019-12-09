@@ -60,12 +60,12 @@ test_that("aggregation in dim=1.1 with regions-only mapping is the same as in di
 
 test_that("disaggregation in dim=1.1 works appropriately",{
   agg_tdeach <- toolAggregate(tdeach,rel,dim=1.1)
-  expect_equivalent(magpiesort(toolAggregate(agg_tdeach,rel,weight=tdeach,dim=1.1)),magpiesort(tdeach))
+  expect_equivalent(magpiesort(toolAggregate(agg_tdeach,rel,weight=tdeach,dim=1.1,wdim=1.1)),magpiesort(tdeach))
 })
 
 test_that("disaggregation in dim=1.2 works appropriately",{
   agg_td <- toolAggregate(td,map,dim=1.2)
-  expect_equivalent(magpiesort(toolAggregate(agg_td,map,weight=td,dim=1.2)),magpiesort(td))
+  expect_equivalent(magpiesort(toolAggregate(agg_td,map,weight=td,dim=1.2,wdim=1.2)),magpiesort(td))
 })
 
 test_that("aggregating across dim=1.1 and then dim=1.2 produces the same result as vice versa",{
@@ -75,10 +75,32 @@ test_that("aggregating across dim=1.1 and then dim=1.2 produces the same result 
 })
 
 test_that("weight with reduced dimensionality can be used", {
-  skip("not yet fixed")
+  #skip("not yet fixed")
   unweighted <- toolAggregate(td,rel=map,dim=1.2)
+  getSets(pm)[1] <- "region1"
   weighted <- toolAggregate(td,rel=map,weight=pm,dim=1.2)
   unweighted[,,] <- 1
   weighted[,,] <- 1
   expect_identical(unweighted,weighted)
 })
+
+test_that("toolAggregate does not get confused by identical sets", {
+  #skip("not yet fixed")
+  
+  x <- new.magpie(paste(rep(c("A","B"),2),rep(c("A","B"),each=2),sep="."),1900,"blub",1:4)
+  w <- new.magpie(c("A","B"),1900,"blub",c(0.1,0.9))
+  rel <- data.frame(from=c("A","B"),to="GLO")
+  
+  out1 <- new.magpie(paste(rep("GLO",2),c("A","B"),sep="."),1900,"blub",c(3,7))
+  expect_equivalent(toolAggregate(x,rel,dim=1.1),out1)
+  
+  out2 <- new.magpie(paste(rep("GLO",2),c("A","B"),sep="."),1900,"blub",c(4,6))
+  expect_equivalent(toolAggregate(x,rel,dim=1.2),out2)
+  
+  wout1 <- new.magpie(paste(rep("GLO",2),c("A","B"),sep="."),1900,"blub",c(1.9,3.9))
+  expect_equivalent(toolAggregate(x,rel,dim=1.1,weight=w),wout1) 
+  
+  wout2 <- new.magpie(paste(rep("GLO",2),c("A","B"),sep="."),1900,"blub",c(2.8,3.8))
+  expect_equivalent(toolAggregate(x,rel,dim=1.2,weight=w),wout2) 
+})
+
