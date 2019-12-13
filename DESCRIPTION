@@ -1,7 +1,7 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 1.64.3
+Version: 1.64.4
 Date: 2019-12-13
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
@@ -23,11 +23,8 @@ Imports:
     methods,
     parallel,
     stringr,
-	reshape2,
-	stats,
-	nnls,
-	rlang,
-	assertthat
+  	rlang,
+	  assertthat
 Suggests:
     igraph(>= 1.0.1),
     knitr,
@@ -41,4 +38,4 @@ LazyData: no
 Encoding: UTF-8
 RoxygenNote: 7.0.2
 VignetteBuilder: knitr
-ValidationKey: 29973249
+ValidationKey: 29991492
