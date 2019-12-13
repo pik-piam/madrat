@@ -18,7 +18,7 @@
 #' @seealso \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
 #' @examples
 #' 
-#' toolGetMapping("regionmappingH12.csv", where="madrat")
+#' head(toolGetMapping("regionmappingH12.csv", where="madrat"))
 #' 
 #' @importFrom tools file_ext
 #' @export

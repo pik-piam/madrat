@@ -16,8 +16,8 @@
 #' @seealso \code{\link{getSources}}, \code{\link{getCalculations}}
 #' @examples
 #' 
-#' getISOlist()
-#' getISOlist("dispensable")
+#' head(getISOlist())
+#' head(getISOlist("dispensable"))
 #' 
 #' @importFrom magclass ncells
 #' @export
