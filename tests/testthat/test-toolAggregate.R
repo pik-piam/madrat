@@ -81,7 +81,7 @@ test_that("weight with reduced dimensionality can be used", {
   weighted <- toolAggregate(td,rel=map,weight=pm,dim=1.2)
   unweighted[,,] <- 1
   weighted[,,] <- 1
-  expect_identical(unweighted,weighted)
+  expect_equivalent(unweighted,weighted)
 })
 
 test_that("toolAggregate does not get confused by identical sets", {
