@@ -30,26 +30,35 @@
 #' @note The underlying calc-functions are required to provide a list of information back to 
 #' \code{calcOutput}. Following list entries should be provided:
 #' \itemize{
-#' \item x - the data itself as magclass object
-#' \item weight - a weight for the spatial aggregation
-#' \item unit - unit of the provided data
-#' \item description - a short description of the data
-#' \item note (optional) - additional notes related to the data
-#' \item isocountries (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
+#' \item \bold{x} - the data itself as magclass object
+#' \item \bold{weight} - a weight for the spatial aggregation
+#' \item \bold{unit} - unit of the provided data
+#' \item \bold{description} - a short description of the data
+#' \item \bold{note} (optional) - additional notes related to the data
+#' \item \bold{isocountries} (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
 #' indicating whether data is in iso countries or not (the latter will deactivate several 
 #' features such as aggregation)
-#' \item mixed_aggregation (optional | default = FALSE) - boolean which allows for mixed 
+#' \item \bold{mixed_aggregation} (optional | default = FALSE) - boolean which allows for mixed 
 #' aggregation (weighted mean mixed with summations). If set to TRUE weight columns 
 #' filled with NA will lead to summation, otherwise they will trigger an error.
-#' \item min (optional) - Minimum value which can appear in the data. If provided calcOutput
+#' \item \bold{min} (optional) - Minimum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values below the given threshold and warn in this case
-#' \item max (optional) - Maximum value which can appear in the data. If provided calcOutput
+#' \item \bold{max} (optional) - Maximum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values above the given threshold and warn in this case
-#' \item aggregationFunction (optional | default = toolAggregate) - Function to be used to 
+#' \item \bold{structure.spatial} (optional) - regular expression describing the name structure of all
+#' names in the spatial dimension (e.g. "^[A-Z]\{3\}$"). Names will be checked against this regular expression and
+#' disagreements will be reported via a warning.
+#' \item \bold{structure.temporal} (optional) - regular expression describing the name structure of all
+#' names in the temporal dimension (e.g. "^y[0-9]\{4\}$"). Names will be checked against this regular expression and
+#' disagreements will be reported via a warning.
+#' \item \bold{structure.data} (optional) - regular expression describing the name structure of all
+#' names in the data dimension (e.g. "^[a-z]*\\\\.[a-z]*$"). Names will be checked against this regular expression and
+#' disagreements will be reported via a warning.
+#' \item \bold{aggregationFunction} (optional | default = toolAggregate) - Function to be used to 
 #' aggregate data from country to regions. The function must have the argument \code{x} for 
 #' the data itself and \code{rel} for the relation mapping between countries and regions and 
 #' must return the data as magpie object in the spatial resolution as defined in rel.
-#' \item aggregationArguments (optional) - List of additional, named arguments to be supplied 
+#' \item \bold{aggregationArguments} (optional) - List of additional, named arguments to be supplied 
 #' to the aggregation function. In addition to the arguments set here, the function will be 
 #' supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
 #' also \code{weight} and \code{mixed_aggregation}.
@@ -175,12 +184,22 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   }  
   
   #perform additional checks
-  if(!is.null(x$min)) {
-    if(any(x$x<x$min, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values smaller than the predefined minimum (min = ",x$min,")")
+  if(!is.null(x$min) && any(x$x<x$min, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values smaller than the predefined minimum (min = ",x$min,")")
+  if(!is.null(x$max) && any(x$x>x$max, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values greater than the predefined maximum (max = ",x$max,")")
+  checkNameStructure <- function(x,structure,dim) {
+    if(!is.null(structure)) {
+      if(is.null(getItems(x,dim))) {
+        vcat(0, paste('Missing names in dimension',dim,'!'))
+      } else if(!all(grepl(structure, getItems(x,dim)))) {
+        vcat(0, paste0('Invalid names (dim=',dim,', structure=\"',structure,'\"): '),
+                paste(grep(structure, getItems(x,dim), value = TRUE, invert = TRUE),collapse=", "))
+      }
+    }
   }
-  if(!is.null(x$max)) {
-    if(any(x$x>x$max, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values greater than the predefined maximum (max = ",x$max,")")
-  }
+  checkNameStructure(x$x,x$structure.spatial,1)
+  checkNameStructure(x$x,x$structure.temporal,2)
+  checkNameStructure(x$x,x$structure.data,3)
+  
   if(na_warning) if(anyNA(x$x)) vcat(0,"Data returned by ", functionname," contains NAs")
   if(any(is.infinite(x$x))) vcat(0,"Data returned by ", functionname," contains infinite values")
   

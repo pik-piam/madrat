@@ -23,10 +23,14 @@ calcTauTotal <- function() {
   tau    <- readSource("Tau","paper")
   x      <- collapseNames(tau[,,"tau.total"])
   weight <- collapseNames(tau[,,"xref.total"])
+  getNames(x) <- "tau"
   return(list(x=x,
               weight=weight,
               min=0,
               max=10,
+              structure.data     = "^tau$",
+              structure.temporal = "^y[0-9]{4}$",
+              structure.spatial  = "^[A-Z]{3}$",
               unit="1",
               description="Agricultural Land Use Intensity Tau",
               note=c('data based on Dietrich J.P., Schmitz C., M\uFCller C., Fader M., Lotze-Campen H., Popp A.,',
