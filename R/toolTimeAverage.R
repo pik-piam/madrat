@@ -3,16 +3,18 @@
 #' average over time given an averaging range
 #' 
 #' @param x magclass object that should be averaged
-#' @param averaging_range number of years to average
+#' @param averaging_range number of time steps to average (if annual=FALSE, please check consistency)
 #' @param cut if TRUE, all time steps at the start and end that can not be averaged correctly, will be removed 
 #'            if FALSE, time steps at the start and end will be averaged with high weights for start and end points
+#' @param annual if TRUE checks for completeness of annual coverage in the data set
+#'               if FALSE no checks are performed
 #'
 #' @return the averaged data in magclass format
 #' @author Kristine Karstens
 #'
 #' @export
 
-toolTimeAverage <- function(x, averaging_range=NULL, cut=TRUE){
+toolTimeAverage <- function(x, averaging_range=NULL, cut=TRUE, annual=TRUE){
   
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
@@ -33,11 +35,12 @@ toolTimeAverage <- function(x, averaging_range=NULL, cut=TRUE){
   years           <- getItems(x, dim=2)
   
   # check average_range < length(years)
-  if(averaging_range > length(years)) stop("Averaging range is greater than number of years.")
+  if(averaging_range > length(years)) stop("Averaging range is greater than number of time steps.")
   
-  # check for missing years
-  complete_years <- paste0("y",as.numeric(gsub("y","",years[1])):as.numeric(gsub("y","",years[length(years)])))
-  if(!setequal(complete_years, years)) stop("Not all time steps between start and end year are present.")
+  # check for missing years, if annual option is true
+  complete_years <- as.numeric(gsub("y","",years[1])):as.numeric(gsub("y","",years[length(years)]))
+  if(annual & !setequal(complete_years, as.numeric(gsub("y","", years)))) stop("Not all time steps between start and end year are present.")
+  if(!annual) warning("Time set completeness is not checked.")
   
   # Calculate weight matrix for using toolAggregate to average over time
   mat             <- array(0,dim=c(length(years),length(years)))
@@ -54,7 +57,7 @@ toolTimeAverage <- function(x, averaging_range=NULL, cut=TRUE){
     }
   }
     
-  out <- toolAggregate(x, rel=mat, dim=2)
+  out <- toolAggregate(x, rel=mat, dim=2)/averaging_range
   out <- out[,rowSums(mat)==averaging_range,]
   
   getComment(out) <- c(getComment(x), paste0("Data averaged (toolTimeAverage): ",date()))
