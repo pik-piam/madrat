@@ -9,7 +9,8 @@
 #' 
 #' 
 #' @param mapping Either a path to a mapping or an already read-in mapping as
-#' data.frame.
+#' data.frame. If set to NULL (default) the regionscode of the region mapping set in the 
+#' madrat config will be returned.
 #' @return A md5-based regionscode which describes the given mapping
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{fingerprint}}, \code{\link[digest]{digest}}
@@ -20,7 +21,9 @@
 #' 
 #' @importFrom digest digest
 #' @export
-regionscode <- function(mapping) {
+regionscode <- function(mapping=NULL) {
+  if(is.null(mapping)) mapping <- toolMappingFile("regional",getConfig("regionmapping"),readcsv = TRUE)
+  
   if(is.character(mapping)) mapping <- read.csv(mapping,sep=";")
   
   #remove first column if data has 3 columns
