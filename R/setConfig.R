@@ -46,6 +46,9 @@
 #'  given vector of files (e.g. readTau, calcTauTotal) or types 
 #'  (e.g. Tau, TauTotal) called by calcOutput or readSource.
 #'  The top level function must always be part of this list.
+#' @param cachecompression logical or character string specifying whether cache files
+#' use compression. TRUE corresponds to gzip compression, and character strings "gzip", 
+#' "bzip2" or "xz" specify the type of compression.
 #' @param delete_cache Boolean deciding whether a temporary cache folder (as
 #' created by retrieveInput) should be deleted after completion or not.
 #' @param diagnostics file name for additional diagnostics information (without file ending).
@@ -85,6 +88,7 @@ setConfig <- function(regionmapping=NULL,
                       pop_threshold=NULL,
                       forcecache=NULL,
                       ignorecache = NULL,
+                      cachecompression=NULL,
                       delete_cache=NULL,
                       diagnostics=NULL,
                       nocores=NULL,
