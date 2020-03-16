@@ -76,6 +76,7 @@
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report2 write.magpie
 #' getCells getYears<- is.magpie dimSums getMetadata updateMetadata
 #' @importFrom utils packageDescription read.csv2
+#' @importFrom digest digest
 #' @export
 
 calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
@@ -100,15 +101,33 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   on.exit(setwd(cwd))
   functionname <- prepFunctionName(type=type, prefix="calc", ignore=ifelse(is.null(years),"years",NA))
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
-  if(tmpargs!="") tmpargs <- paste0("-",make.names(tmpargs))
-  fname <- paste0("calc",type,tmpargs)
+  if(tmpargs!="") {
+    tmpargs     <- paste0("-", digest(tmpargs,"md5")) 
+    tmpargs_old <- paste0("-", make.names(tmpargs))
+  } else {
+    tmpargs_old <- ""
+  }
+  fname     <- paste0("calc",type,tmpargs)
+  fname_old <- paste0("calc",type,tmpargs_old)
   on.exit(toolendmessage(startinfo,"-",id=fname), add = TRUE)
-  tmppath <- paste0(getConfig("cachefolder"),"/",fname,".Rda")
+  tmppath     <- paste0(getConfig("cachefolder"),"/",fname,".rds")
+  tmppath_old <- paste0(getConfig("cachefolder"),"/",fname_old,".Rda")
+  if(!file.exists(tmppath) && file.exists(tmppath_old)) {
+    tmppath_read <- tmppath_old
+    rds <- FALSE
+  } else {
+    tmppath_read <- tmppath
+    rds <- TRUE
+  }
   cache_failed <- FALSE
   repeat {
-    if(!cache_failed && ((all(getConfig("forcecache")==TRUE) || fname %in% getConfig("forcecache") || type %in% getConfig("forcecache")) && !(type %in% getConfig("ignorecache"))) && !(fname %in% getConfig("ignorecache")) && file.exists(tmppath) ) {
-      vcat(-2," - force cache",tmppath)
-      err <- try(load(tmppath),silent = TRUE)
+    if(!cache_failed && ((all(getConfig("forcecache")==TRUE) || fname %in% getConfig("forcecache") || type %in% getConfig("forcecache")) && !(type %in% getConfig("ignorecache"))) && !(fname %in% getConfig("ignorecache")) && file.exists(tmppath_read) ) {
+      vcat(-2," - force cache",tmppath_read)
+      if(rds) {
+        err <- try(x <- readRDS(tmppath_read),silent = TRUE)
+      } else {
+        err <- try(load(tmppath_read),silent = TRUE)
+      }
       if(is(err,"try-error")) {
         vcat(0,as.character(attr(err,"condition")))
         vcat(-2, " - force cache failed! Rerun without cache.")
@@ -135,7 +154,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
         if(nyears(x$weight)==1) getYears(x$weight) <- NULL
       }
       x$package <- attr(functionname,"pkgcomment")
-      save(x,file=tmppath,compress = "xz")
+      saveRDS(x, file=tmppath, compress = getConfig("cachecompression"))
       Sys.chmod(tmppath, mode = "0777", use_umask = TRUE)
       break
     }  
