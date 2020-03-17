@@ -28,10 +28,14 @@
 #' for a weighted aggregation. The provided weight should only contain positive
 #' values, but does not need to be normalized (any positive number>=0 is allowed). 
 #' Please see the "details" section below for more information.
-#' @param from Name of the first column to be used in rel if it is a
-#' mapping (if not set the first or second column will be used). 
-#' @param to Name of the second column to be used in rel if it is a
-#' mapping (if not set the second or third column will be used). 
+#' @param from Name of source column to be used in rel if it is a
+#' mapping (if not set the first column matching the data will be used). 
+#' @param to Name of the target column to be used in rel if it is a
+#' mapping (if not set the column following column \code{from} will be used
+#' If column \code{from} is the last column, the column before \code{from is
+#' used}). If data should be aggregated based on more than one column these
+#' columns can be specified via "+", e.g. "region+global" if the data should
+#' be aggregated to column regional as well as column global. 
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
@@ -63,13 +67,17 @@
 #' @examples
 #' 
 #' # create example mapping
-#' mapping <- data.frame(from=getRegions(population_magpie),to=rep(c("REG1","REG2"),5))
+#' mapping <- data.frame(from   = getRegions(population_magpie),
+#'                       region = rep(c("REG1","REG2"),5),
+#'                       global = "GLO")
 #' mapping 
 #' 
 #' # run aggregation
 #' toolAggregate(population_magpie,mapping)
 #' # weighted aggregation
 #' toolAggregate(population_magpie,mapping, weight=population_magpie)
+#' # combined aggregation across two columns
+#' toolAggregate(population_magpie, mapping, to="region+global")
 
 toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=NULL, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE, verbosity=1) {
 
@@ -83,7 +91,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
   } else  calcHistory <- "copy"
   
   if(!is.numeric(rel) & !("spam" %in% class(rel))) {
-    .getAggregationMatrix <- function(rel,from=NULL,to=NULL) {
+    .getAggregationMatrix <- function(rel,from=NULL,to=NULL,items=NULL,partrel=FALSE) {
       
       if("tbl" %in% class(rel)){
         rel <- data.frame(rel)
@@ -94,10 +102,22 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
       }
       
       if(is.null(from)) {
-        from <- ifelse(dim(rel)[2]==3,2,1)
+        if(partrel) {
+          from <- as.integer(which(sapply(lapply(rel,setdiff,items),length)==0))
+        } else {
+          from <- as.integer(which(sapply(rel,setequal,items)))
+        }
+        if(length(from)==0) stop("Could not find matching 'from' column in mapping!")
+        if(length(from)>1) from <- from[1]
       }
       if(is.null(to)) {
-        to <- ifelse(dim(rel)[2]==3,3,2)
+        if(from < length(rel)) {
+          to <- from+1
+        } else if(from > 1) {
+          to <- from-1
+        } else {
+          to <- 1
+        }
       }
       
       regions <- unique(rel[,to])
@@ -108,8 +128,18 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
       if(is.numeric(from)) from <- dimnames(rel)[[2]][from]
       names(dimnames(m)) <- c(to,from)
       return(m)
-    }  
-    rel <- .getAggregationMatrix(rel,from=from,to=to) 
+    } 
+    if(length(to)==1 && grepl("+",to,fixed=TRUE)) {
+      tmprel <- NULL
+      to <- strsplit(to, "+", fixed=TRUE)[[1]]
+      for(t in to) {
+        tmp <- .getAggregationMatrix(rel,from=from,to=t,items=getItems(x,dim=dim),partrel=partrel) 
+        tmprel <- rbind(tmprel,tmp)
+      }
+      rel <- tmprel
+    } else {
+      rel <- .getAggregationMatrix(rel,from=from,to=to,items=getItems(x,dim=dim),partrel=partrel) 
+    }
   }
 
   #translate dim to dim code

@@ -4,7 +4,7 @@ data("population_magpie")
 pm <- population_magpie
 w <- pm
 w[,,] <- NA
-map <- data.frame(from=getRegions(pm),to=rep(c("REG1","REG2"),5))
+map <- data.frame(from=getRegions(pm),reg=rep(c("REG1","REG2"),5),glo="GLO")
 map2 <- data.frame(from=getRegions(pm),to=getRegions(pm))
 #Spatial subdimension (trade data) objects
 td <- new.magpie(paste(rep(getRegions(pm),nregions(pm)),rep(getRegions(pm),each=nregions(pm)),sep="."),getYears(pm),getNames(pm),pm)
@@ -15,6 +15,12 @@ cfg <- getConfig(verbose = FALSE)
 
 test_that("Identity mapping is not changing the data", {
   expect_equivalent(toolAggregate(pm,map2),pm)
+})
+
+test_that("Combination via '+' works", {
+  reg <- toolAggregate(pm,map,to="reg")
+  glo <- toolAggregate(pm,map,to="glo")
+  expect_equivalent(toolAggregate(pm,map,to="reg+glo"),mbind(reg,glo))
 })
 
 test_that("NA columns in weight are summed up", {
@@ -65,6 +71,7 @@ test_that("disaggregation in dim=1.1 works appropriately",{
 
 test_that("disaggregation in dim=1.2 works appropriately",{
   agg_td <- toolAggregate(td,map,dim=1.2)
+  map$glo <- NULL
   expect_equivalent(magpiesort(toolAggregate(agg_td,map,weight=td,dim=1.2,wdim=1.2)),magpiesort(td))
 })
 
