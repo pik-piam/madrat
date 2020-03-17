@@ -155,7 +155,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
       }
       x$package <- attr(functionname,"pkgcomment")
       saveRDS(x, file=tmppath, compress = getConfig("cachecompression"))
-      Sys.chmod(tmppath, mode = "0777", use_umask = TRUE)
+      Sys.chmod(tmppath, mode = "0666", use_umask = FALSE)
       break
     }  
   }
