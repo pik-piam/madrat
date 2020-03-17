@@ -25,7 +25,7 @@
 #' a <- readSource("Tau","paper")
 #' }
 #' 
-#' @importFrom magclass read.magpie is.magpie updateMetadata withMetadata
+#' @importFrom magclass read.magpie is.magpie updateMetadata withMetadata getComment<-
 #' @importFrom methods existsFunction
 #' @export
 readSource <- function(type,subtype=NULL,convert=TRUE) {
@@ -57,7 +57,15 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(!file.exists(sourcefolder)) stop('Source folder "',sourcefolder,'" for source "',type,'" cannot be found! Please set a proper path with  "setConfig"!')  
 
     fname <- paste0(prefix,type,subtype)
-    cachefile <- paste0(getConfig("cachefolder"),"/",fname,".mz")  
+    cachefile_old <- paste0(getConfig("cachefolder"),"/",fname,".mz")
+    cachefile_new <- paste0(getConfig("cachefolder"),"/",fname,".rds")
+    if(!file.exists(cachefile_new) && file.exists(cachefile_old)) {
+      cachefile <- cachefile_old
+      mz <- TRUE
+    } else {
+      cachefile <- cachefile_new
+      mz <- FALSE
+    }
     
     .f <- function(type, prefix) {
       out <- prepFunctionName(type=type, prefix=prefix, error_on_missing=FALSE)
@@ -84,7 +92,11 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     err <- try({
       if(getConfig("enablecache") && file.exists(cachefile) &&  !(fname %in% getConfig("ignorecache")) && !(type %in% getConfig("ignorecache")) ) { 
         vcat(2," - loading data", cachefile, fill=300, show_prefix=FALSE)
-        x <- try(read.magpie(cachefile)) 
+        if(mz) {
+          x <- try(read.magpie(cachefile))
+        } else {
+          x <- try(readRDS(cachefile))
+        }
         if(attr(x,"comment")[1] == fp | all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) {
           if(attr(x,"comment")[1] == fp) {
             vcat(-2," - use cache",cachefile, fill=300)
@@ -142,8 +154,10 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
       if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
     }
-    vcat(2," - saving data to", cachefile, fill=300, show_prefix=FALSE)
-    write.magpie(x,cachefile,comment = fp, mode="777") # save data in the cache folder
+    vcat(2," - saving data to", cachefile_new, fill=300, show_prefix=FALSE)
+    getComment(x) <- fp
+    saveRDS(x, cachefile_new, compress = getConfig("cachecompression"))
+    Sys.chmod(cachefile_new,"0666", use_umask=FALSE)
     attr(x,"id") <- id
     return(x)
   }
