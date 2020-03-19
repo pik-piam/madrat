@@ -81,9 +81,23 @@
 
 calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
  
-  # check settings for aggregate
+  # read region mappings check settings for aggregate
+  rel <- list()
+  rel_names <- NULL
+  for(r in c(getConfig("regionmapping"),getConfig("extramappings"))) {
+    rel[[r]] <- read.csv(toolMappingFile("regional",r), as.is = TRUE, sep = ";")
+    # rename column names from old to new convention, if necessary
+    if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
+    if(any(names(rel[[r]])=="RegionCode")) names(rel[[r]])[names(rel[[r]])=="RegionCode"] <- "region"
+    if(is.null(rel[[r]]$global)) rel[[r]]$global <- "GLO"  # add global column
+    rel_names <- union(rel_names,names(rel[[r]]))
+  }     
+  
   if(!is.logical(aggregate)) {
-    if(!(toupper(gsub("+","",aggregate,fixed = TRUE)) %in% c("GLO","REGGLO"))) {
+    # rename aggregate arguments from old to new convention, if necessary
+    if(toupper(aggregate)=="GLO") aggregate <- "global"
+    if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") aggregate <- "region+global"
+    if(!all(strsplit(aggregate,"+",fixed=TRUE)[[1]] %in% rel_names)) {
       stop("Illegal setting aggregate = ",aggregate,"! Make sure that all arguments 
             which should be passed to the specific calc function are given with its name (e.g. arg=BLA)")
     }
@@ -177,13 +191,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE
   if(!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
   
-  # check for that aggregation=FALSE if x$isocountries in data is FALSE
-  if(!x$isocountries) {
-    if(aggregate!=FALSE) {
-      stop("Aggregation is not available for calculations which do not return ISO-country data (x$isocountries=FALSE).")
-    }
-  }
-  
   #check that data is returned for ISO countries except if x$isocountries=FALSE
   if(x$isocountries) {
     iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
@@ -251,8 +258,18 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   date <- .prep_comment(date(),"creation date")
   note <- .prep_comment(x$note,"note")
   
-  glo_rel <- reg_rel <- read.csv(toolMappingFile("regional",getConfig("regionmapping")), as.is = TRUE, sep = ";")     
-  glo_rel$RegionCode <- "GLO"
+  # select fitting relation mapping
+  if(aggregate!=FALSE) {
+    items <- getItems(x$x,dim=1)
+    rel_fitting <- which(sapply(rel,nrow) == length(items))
+    if(length(rel_fitting)==0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") do not contain a mapping compatible to the provided data!")
+    if(length(rel_fitting)>1) {
+      names(rel) <- NULL
+      rel <- do.call(cbind,rel[rel_fitting])
+    } else {
+      rel <- rel[[rel_fitting]]
+    }
+  }
   
   # read and check x$aggregationFunction value which provides the aggregation function
   # to be used.
@@ -267,19 +284,12 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   x$aggregationArguments$x <- quote(x$x)
   if(!is.null(x$weight))  x$aggregationArguments$weight <- quote(x$weight)
   if(x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE
-  
-  if(aggregate==TRUE) {
-    x$aggregationArguments$rel <- quote(reg_rel)
+
+  if(aggregate!=FALSE) {
+    x$aggregationArguments$rel <- quote(rel)
+    if(aggregate!=TRUE) x$aggregationArguments$to <- aggregate
     x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
-  } else if (toupper(aggregate)=="GLO") {
-    x$aggregationArguments$rel <- quote(glo_rel)
-    x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
-  } else if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") {
-    x$aggregationArguments$rel <- quote(glo_rel)
-    tmp <- do.call(x$aggregationFunction,x$aggregationArguments)
-    x$aggregationArguments$rel <- quote(reg_rel)
-    x$x <- mbind(tmp,do.call(x$aggregationFunction,x$aggregationArguments))
-  }
+  } 
   
   if(!is.null(years)) {
     if(length(years)==1) getYears(x$x) <- NULL

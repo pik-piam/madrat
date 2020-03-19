@@ -14,6 +14,7 @@ initializeConfig <- function(verbose=TRUE) {
     if(verbose) base::cat("\nInitialize madrat config with default settings..\n")
     
     cfg <- list(regionmapping    = "regionmappingH12.csv",
+                extramappings    = NULL,
                 packages         = "madrat",
                 globalenv        = FALSE,
                 verbosity        = 1,
