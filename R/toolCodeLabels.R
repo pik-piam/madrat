@@ -18,7 +18,7 @@
 #' 
 #' @export
 toolCodeLabels <- function(get=NULL, add=NULL) {
-  labels <- getOption("madrat_codelabel")
+  labels <- getOption("madrat_codelabels")
   if(is.null(labels)) add <- c(h12="690d3718e151be1b450b394c1064b1c5", add)
   if(!is.null(add) && is.vector(add) && !is.null(names(add))) {
     labels[add] <- names(add)
