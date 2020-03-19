@@ -7,6 +7,9 @@
 #' 
 #' @param regionmapping The name of the csv file containing the region mapping
 #' that should be used for aggregation (e.g. "regionmappingREMIND.csv").
+#' @param extramappings Names of additional mappings supplementing the given
+#' region mapping. This allows for additional aggregation levels such as
+#' subnational aggregation.
 #' @param packages A character vector with packages in which corresponding 
 #' read and calc functions should be searched for
 #' @param globalenv Boolean deciding whether sources/calculations in the global 
@@ -75,7 +78,8 @@
 #'  }
 #' @importFrom utils installed.packages
 #' @export
-setConfig <- function(regionmapping=NULL, 
+setConfig <- function(regionmapping=NULL,
+                      extramappings=NULL,
                       packages=NULL,
                       globalenv=NULL,
                       enablecache=NULL, 
