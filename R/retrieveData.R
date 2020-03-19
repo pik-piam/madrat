@@ -14,7 +14,9 @@
 #' shared by all calculations for the given revision, "def" points to the cache
 #' as defined in the current settings and "tmp" temporarily creates a cache
 #' folder for the calculations and deletes it afterwards again
-#' @param ... (Optional) Settings that should be changed using
+#' @param ... (Optional) Settings that should be changed using or arguments which should
+#' be forwared to the corresponding fullXYZ function (Please make sure that argument names
+#' in full functions do not match settings in \code{setConfig}!)
 #' \code{\link{setConfig}} (e.g. regionmapping).
 #' @author Jan Philipp Dietrich, Lavinia Baumstark
 #' @seealso
@@ -47,6 +49,13 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
  
  # reduce inargs to arguments sent to full function and create hash from it
  inargs <- inargs[names(inargs) %in% formalArgs(functiononly)]
+ # insert default arguments, if not set explicitly to ensure identical args_hash
+ defargs <- formals(functiononly)
+ # remove dev and rev arguments as they are being treated separately
+ defargs$dev <- NULL
+ defargs$rev <- NULL
+ toadd <- names(defargs)[!(names(defargs)%in%names(inargs))]
+ if(length(toadd)>0) inargs[toadd] <- defargs[toadd] 
  if(length(inargs)>0) args_hash <- paste0(toolCodeLabels(digest(inargs,"md5")),"_")
  else args_hash <- NULL
 
