@@ -10,8 +10,8 @@
 #' @param subtype For some sources there are subtypes of the source, for these
 #' source the subtype can be specified with this argument. If a source does not
 #' have subtypes, subtypes should not be set.
-#' @param convert Boolean indicating whether input data conversion
-#' should be done or not. In addition it can be set to "onlycorrect" 
+#' @param convert Boolean indicating whether input data conversion to
+#' ISO countries should be done or not. In addition it can be set to "onlycorrect" 
 #' for sources with a separate correctXXX-function.
 #' @return magpie object with the temporal and data dimensionality of the
 #' source data. Spatial will either agree with the source data or will be on
@@ -49,6 +49,17 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   if(convert=="onlycorrect" & !(type %in% getSources("correct"))) {
     warning("No correct function for ",type," could be found. Set convert to FALSE.")
     convert <- FALSE
+  }
+  
+  testISO <- function(x, allowGLO=FALSE, functionname="function") {
+    if(allowGLO && length(x)==1 && x=="GLO") return()
+    iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+    iso_country1 <-as.vector(iso_country[,"x"])
+    names(iso_country1) <-iso_country[,"X"]
+    isocountries  <- sort(iso_country1)
+    datacountries <- sort(x)
+    if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
+    if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
   }
   
   .getData <- function(type,subtype,prefix="read") {
@@ -146,13 +157,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     setwd(cwd)
     if(!is.magpie(x)) stop("Output of function \"",functionname,"\" is not a MAgPIE object!")
     if(prefix=="convert") {
-      iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-      iso_country1<-as.vector(iso_country[,"x"])
-      names(iso_country1)<-iso_country[,"X"]
-      isocountries <- sort(iso_country1)
-      datacountries <- sort(getRegions(x))
-      if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
-      if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
+      testISO(getRegions(x),functionname=functionname)
     }
     vcat(2," - saving data to", cachefile_new, fill=300, show_prefix=FALSE)
     getComment(x) <- fp
@@ -178,19 +183,22 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   if(!is.logical(convert) && convert!="onlycorrect") stop("Unknown convert setting \"",convert,"\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
         
   if(convert==TRUE & (type %in% getSources("regional"))) {
-    x <- .getData(type,subtype,"convert")
-  } else if (convert=="onlycorrect" & (type %in% getSources("correct"))) {
-    x <- .getData(type,subtype,"correct")
+    prefix <- "convert"
+  } else if (convert %in% c(TRUE, "onlycorrect") & (type %in% getSources("correct"))) {
+    prefix <- "correct"
   } else {
-    x <- .getData(type,subtype,"read")
+    prefix <- "read"
   }
-  
+
+  x <- .getData(type,subtype,prefix)
+    
   id <- attr(x,"id")
   on.exit(toolendmessage(startinfo,"-",id=id))
   
-  if(type %in% getSources("global")) {
-    if(nregions(x)>1) stop("Data has more than one region, but is supposed to be global data!")
-    if(getRegions(x)!="GLO") stop("Data is supposed to be global data but does have a region name different from GLO!")
+  if(convert==TRUE) {
+    # make sure that data is either on ISO country level or global
+    functionname <- prepFunctionName(type=type, prefix=prefix, ignore=ifelse(is.null(subtype),"subtype",NA))
+    testISO(getRegions(x), allowGLO=TRUE, functionname=paste0("readSource(\"",type,"\", convert=TRUE)"))
   }
   x <- clean_magpie(x)
   x <- updateMetadata(x,calcHistory="update",cH_priority=1)
