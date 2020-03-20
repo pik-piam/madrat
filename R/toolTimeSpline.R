@@ -11,7 +11,7 @@
 #' @importFrom stats smooth.spline
 #' @export
 
-toolTimeSpline <- function(x, dof=NULL){
+toolTimeSpline <- function(x, dof=NULL, loop=TRUE){
   
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
@@ -37,13 +37,20 @@ toolTimeSpline <- function(x, dof=NULL){
   if(dof > timespan*30/100) warning("Choice of degrees of freedom will create rather interpolation than an approximation.")
   
   out      <- x
-  class(x) <- NULL
   
   # Loop over all dimension except time to fill in data with spline approximations/interpolations
-  for (d1 in 1:dim(x)[1]) {
-    for (d3 in 1:dim(x)[3]) {
-      out[d1,,d3]     <- smooth.spline(x[d1,,d3],df=dof, control.spar=list(high=2))$y 
+  if(loop) {
+    class(x) <- NULL
+    for (d1 in 1:dim(x)[1]) {
+      for (d3 in 1:dim(x)[3]) {
+        out[d1,,d3]     <- smooth.spline(x[d1,,d3],df=dof, control.spar=list(high=2))$y 
+      }
     }
+  } else {
+    tmpspline <- function(x,dof) return(smooth.spline(x,df=dof, control.spar=list(high=2))$y)
+    out <- apply(x, c(1,3) ,tmpspline , dof=dof)
+    dimnames(out)[[1]] <- getYears(x)
+    out <- as.magpie(out)
   }
 
   getComment(out) <- c(getComment(x), paste0("Data averaged (toolTimeSpline): ",date()))
