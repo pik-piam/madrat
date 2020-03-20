@@ -17,6 +17,12 @@ test_that("Identity mapping is not changing the data", {
   expect_equivalent(toolAggregate(pm,map2),pm)
 })
 
+test_that("Mappings work in matrix and data.frame format identical", {
+  expect_identical(toolAggregate(pm,as.matrix(map)),toolAggregate(pm,map))
+})
+
+toolAggregate(pm,as.matrix(map))
+
 test_that("Combination via '+' works", {
   reg <- toolAggregate(pm,map,to="reg")
   glo <- toolAggregate(pm,map,to="glo")
