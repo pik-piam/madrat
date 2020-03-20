@@ -38,9 +38,10 @@ toolTimeSpline <- function(x, dof=NULL, loop=TRUE){
   
   out      <- x
   
+  x <- as.array(x)
+  
   # Loop over all dimension except time to fill in data with spline approximations/interpolations
   if(loop) {
-    class(x) <- NULL
     for (d1 in 1:dim(x)[1]) {
       for (d3 in 1:dim(x)[3]) {
         out[d1,,d3]     <- smooth.spline(x[d1,,d3],df=dof, control.spar=list(high=2))$y 
