@@ -11,9 +11,11 @@
 #' @importFrom stats smooth.spline
 #' @export
 
-toolTimeSpline <- function(x, dof=NULL, loop=TRUE){
+toolTimeSpline <- function(x, dof=NULL){
   
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
+  
+  negative <- any(x<0)
   
   if (withMetadata() && !is.null(getOption("calcHistory_verbosity")) && getOption("calcHistory_verbosity")>1) {
     if (object.size(sys.call()) < 5000 && as.character(sys.call())[1]=="toolTimeSpline")  calcHistory <- "update"
@@ -40,19 +42,14 @@ toolTimeSpline <- function(x, dof=NULL, loop=TRUE){
   
   x <- as.array(x)
   
-  # Loop over all dimension except time to fill in data with spline approximations/interpolations
-  if(loop) {
-    for (d1 in 1:dim(x)[1]) {
-      for (d3 in 1:dim(x)[3]) {
-        out[d1,,d3]     <- smooth.spline(x[d1,,d3],df=dof, control.spar=list(high=2))$y 
-      }
-    }
-  } else {
-    tmpspline <- function(x,dof) return(smooth.spline(x,df=dof, control.spar=list(high=2))$y)
-    out <- apply(x, c(1,3) ,tmpspline , dof=dof)
-    dimnames(out)[[1]] <- getYears(x)
-    out <- as.magpie(out)
-  }
+  # fill in data with spline approximations/interpolations
+  tmpspline <- function(x,dof) return(smooth.spline(x,df=dof, control.spar=list(high=2))$y)
+  out <- apply(x, c(1,3) ,tmpspline , dof=dof)
+  dimnames(out)[[1]] <- getYears(x)
+  out <- as.magpie(out)
+  
+  # Correct for negative values if needed
+  if(negative) out[out<0] <- 0
 
   getComment(out) <- c(getComment(x), paste0("Data averaged (toolTimeSpline): ",date()))
   return(updateMetadata(out,unit="copy",calcHistory=calcHistory))
