@@ -16,8 +16,7 @@ toolTimeSpline <- function(x, dof=NULL, loop=TRUE){
   
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
-  if(any(x<0)){ negative <- TRUE
-  } else {      negative <- FALSE}
+  negative <- any(x<0)
   
   if (withMetadata() && !is.null(getOption("calcHistory_verbosity")) && getOption("calcHistory_verbosity")>1) {
     if (object.size(sys.call()) < 5000 && as.character(sys.call())[1]=="toolTimeSpline")  calcHistory <- "update"
@@ -59,7 +58,7 @@ toolTimeSpline <- function(x, dof=NULL, loop=TRUE){
   }
   
   # Correct for negative values if needed
-  if(negative==FALSE) out[out<0] <- 0
+  if(negative) out[out<0] <- 0
 
   getComment(out) <- c(getComment(x), paste0("Data averaged (toolTimeSpline): ",date()))
   return(updateMetadata(out,unit="copy",calcHistory=calcHistory))
