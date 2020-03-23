@@ -15,6 +15,9 @@ toolTimeSpline <- function(x, dof=NULL){
   
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
+  if(any(x<0)){ negative <- TRUE
+  } else {      negative <- FALSE}
+  
   if (withMetadata() && !is.null(getOption("calcHistory_verbosity")) && getOption("calcHistory_verbosity")>1) {
     if (object.size(sys.call()) < 5000 && as.character(sys.call())[1]=="toolTimeSpline")  calcHistory <- "update"
     #Special calcHistory handling necessary for do.call(x$aggregationFunction,x$aggregationArguments) from calcOutput
@@ -45,6 +48,9 @@ toolTimeSpline <- function(x, dof=NULL){
       out[d1,,d3]     <- smooth.spline(x[d1,,d3],df=dof, control.spar=list(high=2))$y 
     }
   }
+  
+  # Correct for negative values if needed
+  if(negative==FALSE) out[out<0] <- 0
 
   getComment(out) <- c(getComment(x), paste0("Data averaged (toolTimeSpline): ",date()))
   return(updateMetadata(out,unit="copy",calcHistory=calcHistory))
