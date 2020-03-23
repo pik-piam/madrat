@@ -4,6 +4,7 @@
 #' 
 #' @param x magclass object that should be interpolated/approximated with a spline
 #' @param dof degrees of freedom per 100 years (similiar to an average range), is a proxy for the smoothness of the spline
+#' @param loop switch between loop and apply
 #' 
 #' @return approximated data in magclass format
 #' @author Kristine Karstens
@@ -11,7 +12,7 @@
 #' @importFrom stats smooth.spline
 #' @export
 
-toolTimeSpline <- function(x, dof=NULL){
+toolTimeSpline <- function(x, dof=NULL, loop=TRUE){
   
   if(!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   
@@ -40,13 +41,21 @@ toolTimeSpline <- function(x, dof=NULL){
   if(dof > timespan*30/100) warning("Choice of degrees of freedom will create rather interpolation than an approximation.")
   
   out      <- x
-  class(x) <- NULL
+  
+  x <- as.array(x)
   
   # Loop over all dimension except time to fill in data with spline approximations/interpolations
-  for (d1 in 1:dim(x)[1]) {
-    for (d3 in 1:dim(x)[3]) {
-      out[d1,,d3]     <- smooth.spline(x[d1,,d3],df=dof, control.spar=list(high=2))$y 
+  if(loop) {
+    for (d1 in 1:dim(x)[1]) {
+      for (d3 in 1:dim(x)[3]) {
+        out[d1,,d3]     <- smooth.spline(x[d1,,d3],df=dof, control.spar=list(high=2))$y 
+      }
     }
+  } else {
+    tmpspline <- function(x,dof) return(smooth.spline(x,df=dof, control.spar=list(high=2))$y)
+    out <- apply(x, c(1,3) ,tmpspline , dof=dof)
+    dimnames(out)[[1]] <- getYears(x)
+    out <- as.magpie(out)
   }
   
   # Correct for negative values if needed

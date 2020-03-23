@@ -6,9 +6,8 @@
 #' 
 #' 
 #' @aliases getSources
-#' @param type Type of source, either set to "global" "regional", "download", "correct" or
-#' NULL. Global returns all global sources (non-regional), regional returns
-#' sources with regional data, "download" returns source for which a download
+#' @param type Type of source, either set to "regional", "download", "correct" or
+#' NULL. Regional returns sources with regional data, "download" returns source for which a download
 #' function is available, "correct" returns sources for which a correct function
 #' is available and NULL returns all available sources
 #' @param packages A character vector with packages for which the available Sources/Calculations should be returned
@@ -43,8 +42,6 @@ getSources <- function(type=NULL, packages=getConfig("packages"), globalenv=getC
   
   if(is.null(type)) {
     out <- read    
-  } else if(type=="global") {
-    out <- setdiff(read,convert)
   } else if(type=="regional") {
     out <- intersect(read,convert)
   } else if(type=="correct") {

@@ -100,6 +100,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
         if(!file.exists(rel)) stop("Cannot find given region mapping file!")
         rel <- read.csv(rel, as.is = TRUE, sep = ";")     
       }
+      if(is.matrix(rel)) rel <- as.data.frame(rel)
       
       if(is.null(from)) {
         if(partrel) {
