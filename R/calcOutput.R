@@ -116,8 +116,8 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   functionname <- prepFunctionName(type=type, prefix="calc", ignore=ifelse(is.null(years),"years",NA))
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
   if(tmpargs!="") {
-    tmpargs     <- paste0("-", digest(tmpargs,"md5")) 
     tmpargs_old <- paste0("-", make.names(tmpargs))
+    tmpargs     <- paste0("-", digest(tmpargs,"md5")) 
   } else {
     tmpargs_old <- ""
   }
