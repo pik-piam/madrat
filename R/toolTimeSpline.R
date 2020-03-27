@@ -49,7 +49,7 @@ toolTimeSpline <- function(x, dof=NULL){
   out <- as.magpie(out)
   
   # Correct for negative values if needed
-  if(negative) out[out<0] <- 0
+  if(!negative) out[out<0] <- 0
 
   getComment(out) <- c(getComment(x), paste0("Data averaged (toolTimeSpline): ",date()))
   return(updateMetadata(out,unit="copy",calcHistory=calcHistory))
