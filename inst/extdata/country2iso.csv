@@ -55,6 +55,7 @@ Burundi;BDI
 Byelarus;BLR
 Côte d'Ivoire;CIV
 Côte d'Ivoire;CIV
+Cote d’Ivoire;CIV
 Cambodia;KHM
 Cameroon;CMR
 Canada;CAN
@@ -80,6 +81,7 @@ Comoros;COM
 Congo DR;COD
 Dem. Republic Congo;COD
 Congo, the Democratic Republic of the;COD
+Congo (DR);COD
 Congo;COG
 Congo_Brazzaville;COG
 Cook Islands;COK
@@ -116,6 +118,7 @@ Dominika,Rep,;DOM
 East Timor;TLS
 Ecuador;ECU
 Egypt;EGY
+Egypt (Arab Republic);EGY
 El Salvador;SLV
 El_Salvador;SLV
 Equatorial Guinea;GNQ
@@ -124,6 +127,9 @@ Eritrea;ERI
 Estonia;EST
 Ethiopia;ETH
 FYR of Macedonia;MKD
+The former Yugoslav Rep. of Macedonia;MKD
+Republic of North Macedonia;MKD
+Rep. of North Macedonia;MKD
 Falkland Islands (Malvinas);FLK
 Falkland_Islands_or_Islas_Malvinas;FLK
 Faroe Islands;FRO
@@ -182,6 +188,7 @@ Indien;IND
 Indonesia;IDN
 Indonesien;IDN
 Irak;IRQ
+Iran (Islamic Republic);IRN
 Iran (Islamic Republic of);IRN
 Iran, Islamic Republic of;IRN
 Iran;IRN
@@ -206,6 +213,7 @@ Kazakhstan;KAZ
 Kenya;KEN
 Kirgisien;KGZ
 Kiribati;KIR
+Gilbert-Kiribati;KIR
 Kolumbien;COL
 Kongo;COD
 Korea DPR;PRK
@@ -224,12 +232,14 @@ Kyrgyz Republic;KGZ
 Lao People's Democratic Republic;LAO
 Lao;LAO
 Laos;LAO
+Laos (PDR);LAO
 Latvia;LVA
 Lebanon;LBN
 Lesotho;LSO
 Liberia;LBR
 Libya;LBY
 Libyan Arab Jamahiriya;LBY
+Libya/SPLAJ;LBY
 Liechtenstein;LIE
 Lithuania;LTU
 Luxembourg;LUX
@@ -292,6 +302,7 @@ Northern_Mariana_Islands;MNP
 Norway;NOR
 Norwegen;NOR
 Occupied Palestinian Territory;PSE
+Occupied Palastine Territory;PSE
 Oman;OMN
 Other Africa;IAF
 Other Asia;IAS
@@ -334,6 +345,7 @@ Saint Barthelemy;BLM
 Saint Helena, Ascension and Tristan da Cunha;SHN
 Saint Kitts and Nevis;KNA
 Saint Lucia;LCA
+Santa Lucia;LCA
 Saint Martin (French part);MAF
 Saint Pierre and Miquelon;SPM
 Saint Vincent and the Grenadines;VCT
@@ -385,12 +397,14 @@ Sweden;SWE
 Switzerland;CHE
 Syria;SYR
 Syrian Arab Republic;SYR
+Syria (Arab Republic);SYR
 Südafrika;ZAF
 TFYR Macedonia;MKD
 Tadschikistan;TJK
 Taiwan  China;TWN
 Taiwan China;TWN
 Taiwan, Province of China;TWN
+Taiwan (China);TWN
 Taiwan;TWN
 Tajikistan;TJK
 Tanzania, United Republic of;TZA
@@ -434,6 +448,7 @@ Viet Nam;VNM
 Vietnam;VNM
 Virgin Islands, British;VGB
 Virgin Islands, U.S.;VIR
+US Virgin Islands;VIR
 Virgin_Islands;VIR
 Volkrep,China;CHN
 Wake_Islands;WAK
@@ -450,6 +465,7 @@ Zambia;ZMB
 Zimbabwe;ZWE
 bonaire, saint eustatius, and saba;BES
 democratic people s republic of korea;PRK
+Korea (DPR);PRK
 democratic republic of the congo (formerly zaire);COD
 faeroe islands;FRO
 federated states of micronesia;FSM
