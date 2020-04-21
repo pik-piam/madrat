@@ -11,6 +11,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getConfig}}
 #' @importFrom stringi stri_match_all_regex
+#' @export
 
 getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
   
