@@ -23,7 +23,7 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
   fpool$fname <- sub("^.*:::","",fpool$call)
   duplicated <- duplicated(fpool$fname, fromLast=TRUE)
   if(any(duplicated)) {
-    warning("Duplicate entries found for ",paste(fpool$fname[duplicated],collapse=", "),"! Last entry will be used!")
+    base::warning("Duplicate entries found for ",paste(fpool$fname[duplicated],collapse=", "),"! Last entry will be used!")
     fpool <- fpool[!duplicated,]
   }
   
@@ -57,7 +57,7 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
   if(any(fromNA)) {
     out$from[is.na(out$from)] <- "UNKNOWN"
     out$from_package[fromNA]  <- "UNKNOWN"
-    warning("Following functions contain read or calc statements which could not be identified: \n   ",
+    base::warning("Following functions contain read or calc statements which could not be identified: \n   ",
             paste(out$to[fromNA],collapse=", "),"\n  Please adress the type explicitly in the call to allow",
             " for proper detection, e.g. readSource(\"MySource\")")
   }
@@ -65,7 +65,7 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
   from_packageNA <- is.na(out$from_package) & !fromNA
   if(any(from_packageNA)) {
     out$from_package[from_packageNA] <- "UNKNOWN"
-    warning("Following functions could not be found in the scope of packages to be checked.: \n   ",
+    base::warning("Following functions could not be found in the scope of packages to be checked.: \n   ",
             paste0(out$from[from_packageNA],"->",out$to[from_packageNA],collapse=", "),"\n  Please make sure that they exist and adjust",
             " the scope of packages accordingly!")
   }
@@ -82,7 +82,7 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
         tmp <- out[out$from_package==p$from_package[i] & out$to_package==p$to_package[i],]
         if(nrow(tmp)<5 & nrow(tmp)>0) hints <- paste0(hints,paste0(tmp$from,"->",tmp$to,collapse=", "), collapse=", ") 
       }
-      warning("Bidirectional package dependencies detected: ",paste0(p$from_package,"->",p$to_package,collapse=", "),
+      base::warning("Bidirectional package dependencies detected: ",paste0(p$from_package,"->",p$to_package,collapse=", "),
               "\n  You might want to have a look at the following connections: ",hints)
     }
   }
