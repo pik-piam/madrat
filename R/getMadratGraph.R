@@ -66,8 +66,25 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
   if(any(from_packageNA)) {
     out$from_package[from_packageNA] <- "UNKNOWN"
     warning("Following functions could not be found in the scope of packages to be checked.: \n   ",
-            paste(out$from[from_packageNA],collapse=", "),"\n  Please make sure that they exist and adjust",
+            paste0(out$from[from_packageNA],"->",out$to[from_packageNA],collapse=", "),"\n  Please make sure that they exist and adjust",
             " the scope of packages accordingly!")
+  }
+  # check for bidirectional package connections
+  pkgdeps <- unique(out[c("from_package","to_package")])
+  pkgdeps <- pkgdeps[pkgdeps$from_package!=pkgdeps$to_package & pkgdeps$from_package!="UNKNOWN",]
+  if(nrow(pkgdeps)>2) {
+    din <- paste0(pkgdeps$from_package,"-",pkgdeps$to_package)
+    dout <- paste0(pkgdeps$to_package,"-",pkgdeps$from_package)  
+    if(any(din %in% dout)) {
+      p <- pkgdeps[din %in% dout,]
+      hints <- NULL
+      for(i in 1:nrow(p)) {
+        tmp <- out[out$from_package==p$from_package[i] & out$to_package==p$to_package[i],]
+        if(nrow(tmp)<5 & nrow(tmp)>0) hints <- paste0(hints,paste0(tmp$from,"->",tmp$to,collapse=", "), collapse=", ") 
+      }
+      warning("Bidirectional package dependencies detected: ",paste0(p$from_package,"->",p$to_package,collapse=", "),
+              "\n  You might want to have a look at the following connections: ",hints)
+    }
   }
   return(out)
 }
