@@ -83,9 +83,8 @@ getMadratInfo <- function(graph=suppressWarnings(getMadratGraph()), cutoff=5) {
   }
   
   #### Further Info is based on graph structure ###
-  if (requireNamespace("igraph", quietly = TRUE)) {
-    message("Package \"igraph\" needed for additional information.",
-         call. = FALSE)
+  if (!requireNamespace("igraph", quietly = TRUE)) {
+    message("\n[INFO] Package \"igraph\" needed for additional information.")
   } else {
   
     ggraph <- igraph::graph_from_data_frame(graph)
