@@ -69,7 +69,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
 
     fname <- paste0(prefix,type,subtype)
     cachefile_old <- paste0(getConfig("cachefolder"),"/",fname,".mz")
-    cachefile_new <- paste0(getConfig("cachefolder"),"/",fname,".rds")
+    cachefile_new <- paste0(getConfig("cachefolder"),"/",make.names(fname),".rds")
     if(!file.exists(cachefile_new) && file.exists(cachefile_old)) {
       cachefile <- cachefile_old
       mz <- TRUE
