@@ -4,14 +4,23 @@
 #' network of madrat functions.
 #' 
 #' 
-#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}
+#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}. 
+#' Will be created with \code{\link{getMadratGraph}} if not provided. 
 #' @param cutoff Integer introducing a cutoff of items to be returned for
-#' outputs which can become quite verbose. 
+#' outputs which can become quite verbose.
+#' @param extended Will add additional outputs which has been removed 
+#' from standard output due to limited usefulness. 
+#' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
+#' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
 #' @export
 
-getMadratInfo <- function(graph=suppressWarnings(getMadratGraph()), cutoff=5) {
+getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
+  
+  if(is.null(graph)) graph <- getMadratGraph(...)
+  
+  if(cutoff<0) cutoff <- 10^6
   
   message("\n.:: Check network size ::.")
   tmp <- graph[graph$from_package!="UNKNOWN",]
@@ -89,19 +98,37 @@ getMadratInfo <- function(graph=suppressWarnings(getMadratGraph()), cutoff=5) {
   
     ggraph <- igraph::graph_from_data_frame(graph)
     
-    message("\n.:: Check for independent networks ::.")
-    comp <- igraph::components(ggraph)
-    message("[INFO] ",comp$no," independent networks detected")
-    for(i in 1:comp$no) {
-      message("[INFO]\n[INFO] .: network #",i,":.")
-      member <- names(comp$membership)[comp$membership==i]
-      if(length(member)>cutoff) member <- c(member[1:cutoff],"...")
-      message("[INFO]  -> ",paste(member,collapse="\n[INFO]  -> "))
+    writeCommunities <- function(membership, what="independent networks", elem="network", cutoff=5){
+      no <- max(membership)
+      message("[INFO] ",no," ",what," detected")
+      for(i in 1:no) {
+        member <- names(membership)[membership==i]
+        message("[INFO]\n[INFO] .: ",elem," #",i," (",length(member)," members) :.")
+        if(length(member)>cutoff) member <- c(member[1:cutoff],"...")
+        message("[INFO]  -> ",paste(member,collapse="\n[INFO]  -> "))
+      }
     }
     
-    #message("\n.:: Check for sub-structures ::.")
-    #a <- cluster_edge_betweenness(as.undirected(ggraph))
-    #fg <- cluster_fast_greedy(as.undirected(ggraph))
-    #membership(fg)
+    message("\n.:: Check for independent networks ::.")
+    comp <- igraph::components(ggraph)
+    writeCommunities(comp$membership, what="independent networks", 
+                     elem="network", cutoff=cutoff)
+      
+    
+    message("\n.:: Check for sub-structures ::.")
+    fullfunc <- grep("^full",attr(igraph::V(ggraph),"names"),value=TRUE)
+    greduced <- igraph::delete.vertices(ggraph,fullfunc)
+    comp <- igraph::components(greduced)
+    writeCommunities(comp$membership, what="independent calculations cluster", 
+                     elem="cluster", cutoff=cutoff)
+    
+    if(extended) {
+      message("\n.:: Check for community structures ::.")
+      ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraph))
+      writeCommunities(igraph::membership(ceb), what="close communities", 
+                       elem="community", cutoff=cutoff)
+    }
+    
   }
 }
+
