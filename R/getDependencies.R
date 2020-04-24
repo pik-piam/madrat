@@ -5,12 +5,14 @@
 #' 
 #' 
 #' @param name name of the function to be analyzed
-#' @param direction Character string, either “in”, “out”, "both" or “full”. If “in” 
-#' all sources feeding into the function are listed. If “out” consumer of the 
-#' function are listed. If “both” the union of "in" and "out" is returned.
+#' @param direction Character string, either “in”, “out”, "both", “full”, "din" or
+#' "dout". If “in” all sources feeding into the function are listed. If “out” 
+#' consumer of the function are listed. If “both” the union of "in" and "out" is returned.
 #' If "full" the full network this function is connected to is shown, including
 #' indirect connections to functions which neither source nor consume the given
-#' function but serve as sources to other consumer functions.
+#' function but serve as sources to other consumer functions. "din" and "dout" (short
+#' for "direct in" and "direct out") behave like "in" and "out" but only show direct
+#' calls in or from the function (ignoring the network of functions attached to it).
 #' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}. 
 #' Will be created with \code{\link{getMadratGraph}} if not provided. 
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
@@ -28,6 +30,10 @@ getDependencies <- function(name, direction="in", graph=NULL, ...) {
   if(direction=="both") {
     tmp <- unique(c(attr(igraph::subcomponent(ggraph,name,"in"),"names"),
                     attr(igraph::subcomponent(ggraph,name,"out"),"names")))
+  } else if(direction=="dout") {
+    tmp <- sort(unique(graph$to[graph$from==name]))
+  } else if(direction=="din") {
+    tmp <- sort(unique(graph$from[graph$to==name]))
   } else {
     tmp <- attr(igraph::subcomponent(ggraph,name,direction),"names")
   }
