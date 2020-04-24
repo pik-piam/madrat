@@ -25,17 +25,20 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   message("\n.:: Check network size ::.")
   tmp <- graph[graph$from_package!="UNKNOWN",]
   # check number of nodes
-  funcs <- unique(c(tmp$from,tmp$to))
+  funcs <- attr(graph,"fpool")$fname
   nread <- sum(grepl("^read",funcs))
   ncalc <- sum(grepl("^calc",funcs))
   nfull <- sum(grepl("^full",funcs))
+  ntool <- sum(grepl("^tool",funcs))
   # check number of edges
   ncallread <- sum(grepl("^read",tmp$from))
   ncallcalc <- sum(grepl("^calc",tmp$from))
   nretrievecalls <- sum(grepl("^full",tmp$to))
+  ncalltool <- sum(grepl("^tool",tmp$from)) 
   
   message("[INFO] ",nread," read functions (called ",ncallread," times, ",round(ncallread/nread,2)," calls on average)")
   message("[INFO] ",ncalc," calc functions (called ",ncallcalc," times, ",round(ncallcalc/ncalc,2)," calls on average)")
+  message("[INFO] ",ntool," tool functions (called ",ncalltool," times, ",round(ncalltool/ntool,2)," calls on average)")
   message("[INFO] ",nfull," retrieve functions (triggering ",nretrievecalls," calls, ",round(nretrievecalls/nfull,2)," calls on average)")
   
   message("\n.:: Check readSource and calcOutput call syntax ::.") 
@@ -90,6 +93,9 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   } else {
     message("[passed] no bidirectional package connections found!")
   }
+  
+  message("\n.:: Check for read/calc calls in tool functions ::.")
+  
   
   #### Further Info is based on graph structure ###
   if (!requireNamespace("igraph", quietly = TRUE)) {

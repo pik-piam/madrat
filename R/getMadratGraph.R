@@ -16,7 +16,7 @@
 getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
   
   # extract function pool
-  classes <- c("read","calc","full")
+  classes <- c("read","calc","full","tool")
   fpool <- do.call(rbind,lapply(classes,getCalculations, packages=packages, globalenv=globalenv))
   
   # check for duplicates
@@ -42,13 +42,31 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
   }
   out <- lapply(names(matches),tmpfun,matches)
   out <- do.call(rbind,out)
-  
   # clean up output
   colnames(out) <- c("to","from","raw","class","quote","type")
   out <- as.data.frame(out, stringsAsFactors=FALSE)
+    
+  # extract tool calls
+  pattern <- "tool([^( ]*)\\("
+  matches <- stri_match_all_regex(code,pattern, omit_no_match = TRUE)
+  names(matches) <- names(code)
+  tmpfun <- function(x,l) {
+    if(length(l[[x]])==0) return(NULL)
+    out <- cbind(x,l[[x]])
+    return(out)
+  }
+  out2 <- lapply(names(matches),tmpfun,matches)
+  out2 <- do.call(rbind,out2)
+  # clean up output
+  colnames(out2) <- c("to","from","type")
+  out2 <- as.data.frame(out2, stringsAsFactors=FALSE)
+  out2$from <- sub("(","",out2$from,fixed=TRUE)
+  out2$class <- "tool"
+  
+  
   # set from info to NA for cases in which call statement could not be read properly
   out$from[is.na(out$quote)] <- NA
-  out <- unique(out[,c("from","to")])
+  out <- unique(rbind(out[,c("from","to")],out2[,c("from","to")]))
   out$from_package <- as.character(fpool$package[match(out$from,fpool$fname)])
   out$to_package <- sub(":::.*$","",out$to)
   out$to <- sub("^.*:::","",out$to) 
@@ -86,5 +104,6 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
               "\n  You might want to have a look at the following connections: ",hints)
     }
   }
+  attr(out,"fpool") <- fpool
   return(out)
 }
