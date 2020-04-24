@@ -28,11 +28,28 @@ getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("
   }
   
   # read in source code
-  extractCode <- function(x) return(paste(deparse(eval(parse(text=x))),collapse=" "))
+  extractCode <- function(x) {
+    out <- deparse(eval(parse(text=x)))
+    pattern <- "(^|::)read"
+    if(grepl(pattern,x)) {
+      extras <- c("download","convert","correct")
+      for(e in extras) {
+        tmp <- try(deparse(eval(parse(text=sub(pattern,paste0("\\1",e),x)))),silent=TRUE)
+        if(!("try-error" %in% class(tmp))) out <- c(out,tmp)
+      }
+    }
+    return(paste(out,collapse=" "))
+  }
   code <- sapply(fpool$call,extractCode)
+
+  # merge download-, convert-, correct- and read-calls just as read-calls
+  
+  fpool$fname <- sub("^(correct|convert|download)","read", fpool$fname)
+  fpool$call <- sub("(^|:::)(correct|convert|download)","\\1read", fpool$call)
+  #names(code) <- sub("(^|:::)(correct|convert|download)","\\1read", names(code))
   
   # extract read/calc calls
-  pattern <- "(readSource|calcOutput)\\( *([^=\",]*=|) *(\")?([^\",]*)\"?"
+  pattern <- "(readSource|calcOutput)\\( *([^=\"',]*=|) *(\"|')?([^\"',]*)[\"']?"
   matches <- stri_match_all_regex(code,pattern, omit_no_match = TRUE)
   names(matches) <- names(code)
   tmpfun <- function(x,l) {
