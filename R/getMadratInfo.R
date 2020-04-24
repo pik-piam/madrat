@@ -95,7 +95,24 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   }
   
   message("\n.:: Check for read/calc calls in tool functions ::.")
+  tmp <- sort(unique(graph[grepl("^tool",graph$to) & !grepl("^tool",graph$from),"to"]))
+  if(length(tmp)>0) {
+    message("[warning]\n[warning] Following tool function contain either read or calc calls: \n[warning]   ",
+            paste0(tmp,collapse="\n[warning]   "),
+            "\n[warning]\n[warning] Please remove these calls from all tool functions!") 
+  } else {
+    message("[passed] no read/call calls in tool functions found!")  
+  }
   
+  message("\n.:: Check for unused functions ::.")
+  tmp  <- setdiff(attr(graph,"fpool")$fname, c(graph$to,graph$from))
+  if(length(tmp)>0){
+    message("[INFO]\n[INFO] No calls found for the following functions: \n[INFO]   ",
+            paste0(tmp,collapse="\n[INFO]   "),
+            "\n[INFO]\n[INFO] Are these functions still needed?") 
+  } else {
+    message("[INFO] no unused functions found!")    
+  }
   
   #### Further Info is based on graph structure ###
   if (!requireNamespace("igraph", quietly = TRUE)) {
