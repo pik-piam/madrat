@@ -1,7 +1,7 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 1.79.3
+Version: 1.79.4
 Date: 2020-04-27
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
@@ -38,4 +38,4 @@ LazyData: no
 Encoding: UTF-8
 RoxygenNote: 7.1.0
 VignetteBuilder: knitr
-ValidationKey: 32953547
+ValidationKey: 32971926

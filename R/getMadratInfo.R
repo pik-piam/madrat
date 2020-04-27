@@ -104,10 +104,10 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     message("[passed] no read/call calls in tool functions found!")  
   }
   
-  message("\n.:: Check for unused functions ::.")
-  tmp  <- setdiff(attr(graph,"fpool")$fname, c(graph$to,graph$from))
+  message("\n.:: Check for unused functions (tools ignored) ::.")
+  tmp  <- setdiff(grep("^(full|tool)",attr(graph,"fpool")$fname,invert=TRUE,value=TRUE), graph$from)
   if(length(tmp)>0){
-    message("[INFO]\n[INFO] No calls found for the following functions: \n[INFO]   ",
+    message("[INFO]\n[INFO] No calls found for the following ",length(tmp)," functions: \n[INFO]   ",
             paste0(tmp,collapse="\n[INFO]   "),
             "\n[INFO]\n[INFO] Are these functions still needed?") 
   } else {
@@ -118,8 +118,8 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   if (!requireNamespace("igraph", quietly = TRUE)) {
     message("\n[INFO] Package \"igraph\" needed for additional information.")
   } else {
-  
-    ggraph <- igraph::graph_from_data_frame(graph)
+    # create graph but without tool functions
+    ggraphNoTools <- igraph::graph_from_data_frame(graph[!grepl("^tool",graph$from),])
     
     writeCommunities <- function(membership, what="independent networks", elem="network", cutoff=5){
       no <- max(membership)
@@ -132,22 +132,22 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
       }
     }
     
-    message("\n.:: Check for independent networks ::.")
-    comp <- igraph::components(ggraph)
+    message("\n.:: Check for independent networks (tools ignored) ::.")
+    comp <- igraph::components(ggraphNoTools)
     writeCommunities(comp$membership, what="independent networks", 
                      elem="network", cutoff=cutoff)
       
     
-    message("\n.:: Check for sub-structures ::.")
-    fullfunc <- grep("^full",attr(igraph::V(ggraph),"names"),value=TRUE)
-    greduced <- igraph::delete.vertices(ggraph,fullfunc)
+    message("\n.:: Check for sub-structures (tools ignored) ::.")
+    fullfunc <- grep("^full",attr(igraph::V(ggraphNoTools),"names"),value=TRUE)
+    greduced <- igraph::delete.vertices(ggraphNoTools,fullfunc)
     comp <- igraph::components(greduced)
     writeCommunities(comp$membership, what="independent calculations cluster", 
                      elem="cluster", cutoff=cutoff)
     
     if(extended) {
-      message("\n.:: Check for community structures ::.")
-      ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraph))
+      message("\n.:: Check for community structures (tools ignored) ::.")
+      ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraphNoTools))
       writeCommunities(igraph::membership(ceb), what="close communities", 
                        elem="community", cutoff=cutoff)
     }

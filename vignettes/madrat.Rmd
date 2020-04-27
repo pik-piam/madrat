@@ -130,6 +130,13 @@ retrieveData("example", rev=1)
 
 `retrieveData` will perform the calculations, create log files and package the produced files together with the log files into a compressed tgz file. The file can be found in the ouput folder of the main directory specified in the MADRaT config.
 
+## Coding etiquette
+
+To have everything proper functioning there are some coding rules to follow:
+
+* always call download-/read-/calc-functions type explicitly (e.g. `calcOutput("TauTotal")` instead of `type<-"TauTotal";calcOutput(type)`). This is necessary so that the network of functions can be properly detected by the madrat framework
+* Use calcOutput, readSource and downloadSource call only from within other functions of that category or
+from within a retrieve function. Never use these calls in tool functions!
 
 ## Use own functions with MADRaT
 
