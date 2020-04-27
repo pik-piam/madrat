@@ -25,6 +25,7 @@ initializeConfig <- function(verbose=TRUE) {
                 mappingfolder    = NA,
                 outputfolder     = NA,
                 pop_threshold    = 10^6,
+                nolabels         = NULL,
                 forcecache       = FALSE,
                 ignorecache      = NULL,
                 cachecompression = "xz",

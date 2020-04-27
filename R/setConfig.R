@@ -41,6 +41,8 @@
 #' \code{\link{getISOlist}}. This distinction is used for different treatment
 #' of countries in notifications to set a focus on rather critical issues
 #' instead of flooding the user with information.
+#' @param nolabels vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE") 
+#' which should NOT apply a replacement of known hashes with given code labels
 #' @param forcecache Argument that allows to force madrat to read data from
 #' cache if the corresponding cache files exist. It is either a boolean to
 #' fully activate or deactivate the forcing or a vector of files (e.g. readTau, calcTauTotal) 
@@ -90,6 +92,7 @@ setConfig <- function(regionmapping=NULL,
                       mappingfolder=NULL,
                       outputfolder=NULL,
                       pop_threshold=NULL,
+                      nolabels=NULL,
                       forcecache=NULL,
                       ignorecache = NULL,
                       cachecompression=NULL,
