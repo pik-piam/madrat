@@ -42,8 +42,8 @@ getDependencies <- function(name, direction="in", graph=NULL, ...) {
   packages <- c(graph$from_package,graph$to_package)
   names(packages) <- c(graph$from,graph$to)
   
-  out <- data.frame(func=tmp,package=packages[tmp],row.names=NULL)
+  out <- data.frame(func=tmp,package=packages[tmp],row.names=NULL, stringsAsFactors = FALSE)
   
-  return(data.frame(out[order(out$package),],row.names=NULL))
+  return(data.frame(out[order(out$package),],row.names=NULL, stringsAsFactors = FALSE))
 }
 

@@ -145,6 +145,35 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     writeCommunities(comp$membership, what="independent calculations cluster", 
                      elem="cluster", cutoff=cutoff)
     
+    message("\n.:: Identify functions which are used exclusively by one full function (tools ignored) ::.")
+    funcs <- attr(graph,"fpool")$fname
+    fulls <- grep("^full",funcs,value=TRUE)
+    tmpfun <- function(x,graph=graph) return(data.frame(callfunc=x,getDependencies(x,graph=graph), stringsAsFactors = FALSE))
+    tmp <- do.call(rbind,lapply(fulls,tmpfun,graph=graph))
+    n <- table(tmp$func)
+    nouse <- setdiff(funcs,tmp$func)
+    nouse <- grep("^(full|tool)",nouse,value=TRUE,invert=TRUE)
+    multiuse  <- names(n)[n>1]
+    singleuse <- names(n)[n==1]
+    singleuse <- tmp[match(singleuse,tmp$func),]
+    
+    
+    for(f in fulls) {
+      tmp <- singleuse[singleuse$callfunc==f,2:3]
+      tmp <- tmp[order(tmp[2],tmp[1]),]
+      message("[INFO]\n[INFO] .: exclusive calls for ",f," (",dim(tmp)[1]," members) :.")
+      if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
+      if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$func, sep="::",collapse="\n[INFO]  -> "))
+    }
+
+    tmp <- data.frame(as.matrix(attr(graph,"fpool")[,c("fname","package")]), stringsAsFactors = FALSE)
+    tmp <- tmp[tmp$fname %in% nouse,]
+    tmp <- tmp[order(tmp[2],tmp[1]),]
+    message("[INFO]\n[INFO] .: functions with no calls in full-functions (",dim(tmp)[1]," members) :.")
+    if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
+    if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$fname, sep="::",collapse="\n[INFO]  -> "))
+    
+    
     if(extended) {
       message("\n.:: Check for community structures (tools ignored) ::.")
       ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraphNoTools))
