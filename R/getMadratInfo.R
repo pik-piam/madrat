@@ -168,9 +168,9 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
       tmp <- singleuse[singleuse$callfunc==f,2:3]
       tmp <- tmp[order(tmp[2],tmp[1]),]
       message("[INFO]\n[INFO] .: exclusive calls for ",f," (",dim(tmp)[1]," members) :.")
+      out$exclusive_use[[f]] <- tmp 
       if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
       if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$func, sep="::",collapse="\n[INFO]  -> "))
-      out$exclusive_use[[f]] <- tmp 
     }
 
     tmp <- data.frame(as.matrix(attr(graph,"fpool")[,c("fname","package")]), stringsAsFactors = FALSE)
