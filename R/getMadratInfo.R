@@ -164,6 +164,8 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     
     out$exclusive_use <- list()
     
+    out$exclusive_use$multi_use <- multiuse
+    
     for(f in fulls) {
       tmp <- singleuse[singleuse$callfunc==f,2:3]
       tmp <- tmp[order(tmp[2],tmp[1]),]
