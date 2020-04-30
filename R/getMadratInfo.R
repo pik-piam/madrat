@@ -18,6 +18,8 @@
 
 getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   
+  out <- list()
+  
   if(is.null(graph)) graph <- getMadratGraph(...)
   
   if(cutoff<0) cutoff <- 10^6
@@ -123,27 +125,30 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     
     writeCommunities <- function(membership, what="independent networks", elem="network", cutoff=5){
       no <- max(membership)
+      out <- list()
       message("[INFO] ",no," ",what," detected")
       for(i in 1:no) {
         member <- names(membership)[membership==i]
         message("[INFO]\n[INFO] .: ",elem," #",i," (",length(member)," members) :.")
+        out[[i]] <- member
         if(length(member)>cutoff) member <- c(member[1:cutoff],"...")
         message("[INFO]  -> ",paste(member,collapse="\n[INFO]  -> "))
       }
+      return(out)
     }
     
     message("\n.:: Check for independent networks (tools ignored) ::.")
     comp <- igraph::components(ggraphNoTools)
-    writeCommunities(comp$membership, what="independent networks", 
-                     elem="network", cutoff=cutoff)
+    out$independent_networks <- writeCommunities(comp$membership, what="independent networks", 
+                                                 elem="network", cutoff=cutoff)
       
     
     message("\n.:: Check for sub-structures (tools ignored) ::.")
     fullfunc <- grep("^full",attr(igraph::V(ggraphNoTools),"names"),value=TRUE)
     greduced <- igraph::delete.vertices(ggraphNoTools,fullfunc)
     comp <- igraph::components(greduced)
-    writeCommunities(comp$membership, what="independent calculations cluster", 
-                     elem="cluster", cutoff=cutoff)
+    out$sub_structures <- writeCommunities(comp$membership, what="independent calculations cluster", 
+                                           elem="cluster", cutoff=cutoff)
     
     message("\n.:: Identify functions which are used exclusively by one full function (tools ignored) ::.")
     funcs <- attr(graph,"fpool")$fname
@@ -157,6 +162,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     singleuse <- names(n)[n==1]
     singleuse <- tmp[match(singleuse,tmp$func),]
     
+    out$exclusive_use <- list()
     
     for(f in fulls) {
       tmp <- singleuse[singleuse$callfunc==f,2:3]
@@ -164,6 +170,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
       message("[INFO]\n[INFO] .: exclusive calls for ",f," (",dim(tmp)[1]," members) :.")
       if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
       if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$func, sep="::",collapse="\n[INFO]  -> "))
+      out$exclusive_use[[f]] <- tmp 
     }
 
     tmp <- data.frame(as.matrix(attr(graph,"fpool")[,c("fname","package")]), stringsAsFactors = FALSE)
@@ -172,15 +179,16 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     message("[INFO]\n[INFO] .: functions with no calls in full-functions (",dim(tmp)[1]," members) :.")
     if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
     if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$fname, sep="::",collapse="\n[INFO]  -> "))
-    
+    out$exclusive_use$no_use <- tmp
     
     if(extended) {
       message("\n.:: Check for community structures (tools ignored) ::.")
       ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraphNoTools))
-      writeCommunities(igraph::membership(ceb), what="close communities", 
-                       elem="community", cutoff=cutoff)
+      out$community_structrues <- writeCommunities(igraph::membership(ceb), what="close communities", 
+                                                   elem="community", cutoff=cutoff)
     }
     
   }
+  invisible(out)
 }
 
