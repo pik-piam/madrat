@@ -179,9 +179,9 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     tmp <- tmp[tmp$fname %in% nouse,]
     tmp <- tmp[order(tmp[2],tmp[1]),]
     message("[INFO]\n[INFO] .: functions with no calls in full-functions (",dim(tmp)[1]," members) :.")
+    out$exclusive_use$no_use <- tmp
     if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
     if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$fname, sep="::",collapse="\n[INFO]  -> "))
-    out$exclusive_use$no_use <- tmp
     
     if(extended) {
       message("\n.:: Check for community structures (tools ignored) ::.")
