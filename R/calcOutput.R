@@ -262,7 +262,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(aggregate!=FALSE) {
     items <- getItems(x$x,dim=1)
     rel_fitting <- which(sapply(rel,nrow) == length(items))
-    if(length(rel_fitting)==0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") do not contain a mapping compatible to the provided data!")
+    if(length(rel_fitting)==0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") contain a mapping compatible to the provided data!")
     if(length(rel_fitting)>1) {
       names(rel) <- NULL
       rel <- do.call(cbind,rel[rel_fitting])
