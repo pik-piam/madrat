@@ -168,6 +168,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
         if(nyears(x$weight)==1) getYears(x$weight) <- NULL
       }
       x$package <- attr(functionname,"pkgcomment")
+      if(!dir.exists(dirname(tmppath))) dir.create(dirname(tmppath), recursive = TRUE)
       saveRDS(x, file=tmppath, compress = getConfig("cachecompression"))
       Sys.chmod(tmppath, mode = "0666", use_umask = FALSE)
       break
