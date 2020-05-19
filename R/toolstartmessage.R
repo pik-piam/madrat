@@ -11,6 +11,7 @@
 #' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
+#' @importFrom utils read.table
 #' @examples
 #' 
 #' \dontrun{

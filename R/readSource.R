@@ -26,7 +26,7 @@
 #' }
 #' 
 #' @importFrom magclass read.magpie is.magpie updateMetadata withMetadata getComment<-
-#' @importFrom methods existsFunction
+#' @importFrom methods existsFunction is
 #' @export
 readSource <- function(type,subtype=NULL,convert=TRUE) {
   cwd <- getwd()
