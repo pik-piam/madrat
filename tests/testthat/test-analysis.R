@@ -7,12 +7,12 @@ globalassign <- function(...) {
 }
 
 test_that("getMadratInfo works without error", {
-  setConfig(packages="madrat", .verbose = FALSE)
+  setConfig(.verbose = FALSE)
   expect_message(a <- getMadratInfo(),"passed")
 })
 
 test_that("getMadratInfo properly detects problems", {
-  setConfig(packages="madrat", globalenv = TRUE, .verbose = FALSE)
+  setConfig(globalenv = TRUE, .verbose = FALSE)
   calcBla <- function() {type<-"TauTotal";calcOutput(type)}
   globalassign("calcBla")
   expect_warning(a <- getMadratInfo(),"Following functions contain read or calc statements which could not be identified: .* calcBla")
