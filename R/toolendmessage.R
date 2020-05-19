@@ -29,15 +29,4 @@ toolendmessage <- function(startdata, level=NULL, id="none") {
   runtime <- round((startdata$time2-startdata$time1)["elapsed"],2)
   functioncall <-  paste(deparse(sys.call(-1)),collapse="")
   vcat(1,"Exit",functioncall,"in",runtime,"seconds",level=level, fill=300, show_prefix=FALSE)
-  d <- getConfig("diagnostics")
-  if(is.character(d)) {
-    filename <- paste0(getConfig("outputfolder"),"/",d,".csv")
-    if(!file.exists(filename)) {
-      x <- data.frame(functioncall=functioncall,start=FALSE,time=as.numeric(startdata$time2["elapsed"]),runtime=runtime,id=id)
-    } else {
-      x <- read.table(filename,stringsAsFactors = FALSE, sep=";", header=TRUE, quote = "")
-      x <- rbind(x,c(functioncall,FALSE,startdata$time2["elapsed"],runtime,id))
-    }
-    suppressWarnings(try(write.table(x,filename,row.names = FALSE,quote = FALSE, sep=";"), silent=TRUE))
-  }
 }

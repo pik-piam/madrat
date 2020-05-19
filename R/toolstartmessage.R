@@ -28,16 +28,5 @@ toolstartmessage <- function(level=NULL) {
   functioncall <- paste(deparse(sys.call(-1)),collapse="")
   vcat(-2,"Run",functioncall, level=level, fill=300)
   startdata <- list(time1=proc.time())
-  d <- getConfig("diagnostics")
-  if(is.character(d)) {
-    filename <- paste0(getConfig("outputfolder"),"/",d,".csv")
-    if(!file.exists(filename)) {
-      x <- data.frame(functioncall=functioncall,start=TRUE,time=as.numeric(startdata$time1["elapsed"]),runtime=-1,id="none")
-    } else {
-      x <- read.table(filename,stringsAsFactors = FALSE, sep = ";", header = TRUE, quote = "")
-      x <- rbind(x,c(functioncall,TRUE,startdata$time1["elapsed"],-1,"none"))
-    }
-    suppressWarnings(try(write.table(x,filename,row.names = FALSE, quote = FALSE, sep=";"), silent = TRUE))
-  }
   return(startdata)
 }

@@ -57,9 +57,8 @@
 #' @param delete_cache Boolean deciding whether a temporary cache folder (as
 #' created by retrieveInput) should be deleted after completion or not.
 #' @param diagnostics file name for additional diagnostics information (without file ending).
-#' 3 diagnostic files will be written if a file name is provided (a csv showing the network 
-#' of function executions, a log file showing the log and a full log showing the full amount
-#' of available information.)
+#' 2 log files be written if a file name is provided (a compact version with the most
+#' relevant information and a full version with all available details).
 #' @param nocores  integer number of cores to use for \code{\link[parallel]{clusterApply}} calls
 #' @param debug Boolean which activates a debug mode. In debug mode all calculations will
 #' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.

@@ -36,8 +36,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   on.exit(toolendmessage(startinfo,"-"))
   
   # check type input
-  if(!is.character(type)) stop("Invalid type (must be a character)!")
-  if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
+  if(!is.character(type) || length(type)!=1) stop("Invalid type (must be a single character string)!")
   
   # Does the cache folder exists? (only to be checked if cache is enabled) 
   if(!file.exists(getConfig("cachefolder")) & getConfig("enablecache")) dir.create(getConfig("cachefolder"),recursive = TRUE)
@@ -65,7 +64,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   .getData <- function(type,subtype,prefix="read") {
     # get data either from cache or by calculating it from source
     sourcefolder <- paste0(getConfig("sourcefolder"),"/",type)
-    if(!file.exists(sourcefolder)) stop('Source folder "',sourcefolder,'" for source "',type,'" cannot be found! Please set a proper path with  "setConfig"!')  
+    if(!is.null(subtype) && file.exists(paste0(sourcefolder,"/",subtype,"/DOWNLOAD.yml"))) sourcefolder <- paste0(sourcefolder,"/",subtype)
+    if(!file.exists(sourcefolder)) stop('Source folder "',sourcefolder,'" for source "',type,'" cannot be found! Please set a proper path with "setConfig"!')  
 
     fname <- paste0(prefix,type,subtype)
     cachefile_old <- paste0(getConfig("cachefolder"),"/",fname,".mz")
@@ -168,17 +168,18 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   }
   
   # Check whether source folder exists and try do download source data if it is missing
-  sourcefolder <- paste0(getConfig("sourcefolder"),"/",type)
-  if(!file.exists(getConfig("sourcefolder"))) dir.create(getConfig("sourcefolder"), recursive = TRUE)
-  if(!file.exists(sourcefolder)) {
+  sourcefile <- paste0(getConfig("sourcefolder"),"/",type,"/DOWNLOAD.yml")
+  sourcesubfile <- paste0(getConfig("sourcefolder"),"/",type,"/",subtype,"/DOWNLOAD.yml")
+  source_missing <- (!file.exists(sourcefile) && !file.exists(sourcesubfile))
+  typesubtype <- paste(c(type,subtype),collapse="/")
+  if(source_missing) {
     # does a routine exist to download the source data?
     if(type %in% getSources("download")) {
-      downloadSource(type)
+      downloadSource(type, subtype=subtype)
     } else {
-      stop("Sourcefolder does not contain data for the requested source \"",type,"\" and there is no download script which could provide the missing data. Please check your settings!")
+      stop("Sourcefolder does not contain data for the requested source \"",typesubtype,"\" and there is no download script which could provide the missing data. Please check your settings!")
     }
   }
-
   
   if(!is.logical(convert) && convert!="onlycorrect") stop("Unknown convert setting \"",convert,"\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
         

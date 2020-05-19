@@ -81,6 +81,20 @@ test_that("Malformed calc outputs are properly detected", {
   sink()
 })
 
+test_that("Calculation for tau example data set works", {
+  sink(tempfile())
+  expected_result <- new("magpie", 
+                         .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
+                                           .Dim = c(12L, 1L, 1L), 
+                                           .Dimnames = list(region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA", 
+                                                                       "REF", "CAZ", "CHA", "IND", "JPN", "USA"), 
+                                                            year = NULL, data = NULL)))
+  x <- calcOutput("TauTotal",source="historical",years = 1995, round=2, supplementary = TRUE) 
+  expect_true(is.list(x))
+  expect_equivalent(x$x,expected_result)
+  sink()
+})
+
 
 test_that("Standard workflow works", {
   
