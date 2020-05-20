@@ -25,5 +25,12 @@ test_that("readSource detects common problems", {
   globalassign("readTest","convertTest")
   expect_error(readSource("Test"),"Wrong number of countries")
   expect_warning(readSource("Test",convert = "onlycorrect"), "No correct function .* could be found")
+  correctTest <- function(x)return(as.magpie(1))
+  globalassign("correctTest")
+  expect_identical(as.vector(readSource("Test",convert = "onlycorrect")), 1)
+  expect_message(readSource("Test",convert = "onlycorrect"), "use cache")
+  
+  expect_error(readSource(TRUE),"Invalid type")
+  expect_error(readSource("NonAvailable"), "not a valid source")
 })
 

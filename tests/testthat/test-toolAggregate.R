@@ -15,6 +15,9 @@ cfg <- getConfig(verbose = FALSE)
 
 test_that("Identity mapping is not changing the data", {
   expect_equivalent(toolAggregate(pm,map2),pm)
+  pimpf <- pm
+  pimpf[2,2005,] <- Inf
+  expect_equivalent(toolAggregate(pimpf,map2),pimpf)
 })
 
 test_that("Mappings work in matrix and data.frame format identical", {
@@ -98,8 +101,6 @@ test_that("weight with reduced dimensionality can be used", {
 })
 
 test_that("toolAggregate does not get confused by identical sets", {
-  #skip("not yet fixed")
-  
   x <- new.magpie(paste(rep(c("A","B"),2),rep(c("A","B"),each=2),sep="."),1900,"blub",1:4)
   w <- new.magpie(c("A","B"),1900,"blub",c(0.1,0.9))
   rel <- data.frame(from=c("A","B"),to="GLO")
@@ -117,3 +118,7 @@ test_that("toolAggregate does not get confused by identical sets", {
   expect_equivalent(toolAggregate(x,rel,dim=1.2,weight=w),wout2) 
 })
 
+test_that("toolAggregate detects inconsistencies in inputs", {
+  expect_error(toolAggregate(pm[1:3,,],map2),"Could not find matching 'from' column")
+  expect_error(toolAggregate(pm[1:3,,],map2, from="from", to="to"),"different number of entries")
+})

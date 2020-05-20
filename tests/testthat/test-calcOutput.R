@@ -78,6 +78,11 @@ test_that("Malformed calc outputs are properly detected", {
   expect_warning(b <- calcOutput("Bla5", aggregate=FALSE),"readRDS")
   expect_identical(a,b)
   expect_identical(b,calcOutput("Bla5", aggregate=FALSE))
+  
+  calcError <- function()stop("I am an error!")
+  globalassign("calcError")
+  expect_warning(a <- calcOutput("Error", try=TRUE), "I am an error")
+  expect_identical(class(a),"try-error")
   sink()
 })
 

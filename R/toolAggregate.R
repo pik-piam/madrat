@@ -319,10 +319,8 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     if(!is.null(rownames(rel))) {
       reg_out <- rownames(rel)
     } else if(dim==1) {
-      reg_in <- getRegionList(x)
-      reg_out <- factor(round(rel %*% as.numeric(reg_in)/(rel %*% 
-                                                            rep(1, dim(rel)[2]))))
-      levels(reg_out) <- levels(reg_in)
+      reg_out <- factor(round(rel %*% as.numeric(getRegionList(x))/(rel %*% rep(1, dim(rel)[2]))))
+      levels(reg_out) <- levels(getRegionList(x))
     } else {
       stop("Missing dimnames for aggregated dimension")
     }

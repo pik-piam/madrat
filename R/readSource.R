@@ -70,13 +70,9 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     fname <- paste0(prefix,type,subtype)
     cachefile_old <- paste0(getConfig("cachefolder"),"/",fname,".mz")
     cachefile_new <- paste0(getConfig("cachefolder"),"/",make.names(fname),".rds")
-    if(!file.exists(cachefile_new) && file.exists(cachefile_old)) {
-      cachefile <- cachefile_old
-      mz <- TRUE
-    } else {
-      cachefile <- cachefile_new
-      mz <- FALSE
-    }
+    is_old <- (!file.exists(cachefile_new) && file.exists(cachefile_old))
+    cachefile <- ifelse(is_old, cachefile_old, cachefile_new)
+    mz <- is_old
     
     .f <- function(type, prefix) {
       out <- prepFunctionName(type=type, prefix=prefix, error_on_missing=FALSE)
