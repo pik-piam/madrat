@@ -2,7 +2,6 @@
 
 export(calcOutput)
 export(downloadSource)
-export(file2destination)
 export(getCalculations)
 export(getConfig)
 export(getDependencies)

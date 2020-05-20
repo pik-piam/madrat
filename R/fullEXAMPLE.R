@@ -12,7 +12,6 @@
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{readSource}},\code{\link{getCalculations}},\code{\link{calcOutput}},\code{\link{setConfig}}
-#' ,\code{\link{file2destination}}
 #' @examples
 #' 
 #' \dontrun{ 
@@ -23,9 +22,7 @@ fullEXAMPLE <- function(rev=0, dev="") {
   #ATTENTION: name of the model in function name must be in capital letters!
   
   writeLines("This is a test",paste0(getConfig("outputfolder"),"/test.txt"))
-  file2destination("test.txt","testfolder")
-  
+
   if(rev>=1) calcOutput("TauTotal", years=1995, round=2, file="fm_tau1995.cs4", destination="testfolder/input")
-  
   if(dev=="test") writeLines("Here you could execute code for a hypothetical development version called \"test\"")
 }

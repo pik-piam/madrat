@@ -14,12 +14,8 @@
 #' @return the mapping as a data frame
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
-#' @examples
-#' 
-#' head(toolGetMapping("regionmappingH12.csv", where="madrat"))
-#' 
 #' @importFrom tools file_ext
-#' @importFrom utils write.csv
+#' @importFrom utils write.csv write.table
 #' @export
 #' 
 toolConvertMapping <- function(name, format="rda", type=NULL, where="mappingfolder") {
