@@ -83,6 +83,7 @@ test_that("Malformed calc outputs are properly detected", {
 
 test_that("Calculation for tau example data set works", {
   sink(tempfile())
+  setConfig(enablecache = TRUE, forcecache=FALSE, verbosity = 2, mainfolder = tempdir())
   expected_result <- new("magpie", 
                          .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
                                            .Dim = c(12L, 1L, 1L), 
@@ -92,6 +93,7 @@ test_that("Calculation for tau example data set works", {
   x <- calcOutput("TauTotal",source="historical",years = 1995, round=2, supplementary = TRUE) 
   expect_true(is.list(x))
   expect_equivalent(x$x,expected_result)
+  expect_error(x <- readSource("Tau","wtf"),"Unknown subtype")
   sink()
 })
 

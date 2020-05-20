@@ -30,7 +30,7 @@
 #' \dontrun{
 #' vcat(2,"Hello world!")
 #' }
-#' 
+#' @importFrom utils capture.output
 vcat <- function(verbosity,...,level=NULL, fill=TRUE, show_prefix=TRUE) {
   #write output based on set verbosity level
   
@@ -62,9 +62,9 @@ vcat <- function(verbosity,...,level=NULL, fill=TRUE, show_prefix=TRUE) {
       base::stop(..., call. = FALSE)      
     } else if(verbosity == 0) {
       base::warning(..., call. = FALSE) 
-      base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))  
+      message(capture.output(base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))))
     } else {
-      base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))  
+      message(capture.output(base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))))  
     }
   }
   

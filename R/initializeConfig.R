@@ -11,7 +11,7 @@ initializeConfig <- function(verbose=TRUE) {
   # check whether config has not been initialized yet
   # and initialize it (otherwise do nothing)
   if(is.null(getOption("madrat_cfg"))) {
-    if(verbose) base::cat("\nInitialize madrat config with default settings..\n")
+    if(verbose) message("\nInitialize madrat config with default settings..")
     
     cfg <- list(regionmapping    = "regionmappingH12.csv",
                 extramappings    = NULL,
@@ -35,8 +35,8 @@ initializeConfig <- function(verbose=TRUE) {
                 debug            = FALSE)
      options(madrat_cfg = cfg)
      if(verbose) {
-      base::cat(paste(paste0("    ",names(cfg)),cfg,sep=" = ",collapse="\n"))
-      base::cat("\n..done!\n\n")
+      message(paste(paste0("    ",names(cfg)),cfg,sep=" = ",collapse="\n"))
+      message("..done!\n")
      }
   }   
 }

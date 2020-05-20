@@ -48,6 +48,7 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   }
   dir.create(typesubtype, recursive = TRUE)
   setwd(typesubtype)
+  on.exit(if(length(dir())==0) unlink(getwd(), recursive = TRUE), add=TRUE, after = FALSE)
   eval(parse(text=functionname))
   
   type <- paste0("type: ",type)
