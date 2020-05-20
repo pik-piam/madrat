@@ -168,15 +168,24 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   }
   
   # Check whether source folder exists and try do download source data if it is missing
-  sourcefile <- paste0(getConfig("sourcefolder"),"/",type,"/DOWNLOAD.yml")
-  sourcesubfile <- paste0(getConfig("sourcefolder"),"/",type,"/",subtype,"/DOWNLOAD.yml")
-  source_missing <- (!file.exists(sourcefile) && !file.exists(sourcesubfile))
-  typesubtype <- paste(c(type,subtype),collapse="/")
+  sourcefolder <- paste0(getConfig("sourcefolder"),"/",type)
+  # if any DOWNLOAD.yml exists use these files as reference,
+  # otherwise just check whether the sourcefolder exists
+  df <- dir(sourcefolder, recursive=TRUE, pattern="DOWNLOAD.yml")
+  if(length(df)==0) {
+    source_missing <- !file.exists(sourcefolder)
+  } else {
+    sourcefile <- paste0(getConfig("sourcefolder"),"/",type,"/DOWNLOAD.yml")
+    sourcesubfile <- paste0(getConfig("sourcefolder"),"/",type,"/",subtype,"/DOWNLOAD.yml")
+    source_missing <- (!file.exists(sourcefile) && !file.exists(sourcesubfile))
+  }
+  
   if(source_missing) {
     # does a routine exist to download the source data?
     if(type %in% getSources("download")) {
       downloadSource(type, subtype=subtype)
     } else {
+      typesubtype <- paste(c(type,subtype),collapse="/")
       stop("Sourcefolder does not contain data for the requested source \"",typesubtype,"\" and there is no download script which could provide the missing data. Please check your settings!")
     }
   }
