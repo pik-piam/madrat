@@ -4,5 +4,5 @@ context("Travis CI integration")
 
 test_that("Validation Key is correct (for Travis CI)", {
   folder <- ifelse(file.exists("DESCRIPTION"),".","../../")
-  expect_true(lucode:::validkey(folder)$valid)
+  expect_true(lucode2:::validkey(folder)$valid)
 })
