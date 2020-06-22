@@ -123,6 +123,9 @@ setConfig <- function(regionmapping=NULL,
       #additional checks/modifications if input is a folder
       if(grepl("folder",x,fixed = TRUE)) {
         if(!is.na(value)) {
+          if(x=="cachefolder" && !grepl("[\\\\/]",value,fixed=TRUE)) {
+            value <- file.path(cfg$mainfolder,"cache",value)
+          }
           #normalize path value
           if(!file.exists(value)) {
             dir.create(value,recursive = TRUE)
