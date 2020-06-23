@@ -123,7 +123,7 @@ setConfig <- function(regionmapping=NULL,
       #additional checks/modifications if input is a folder
       if(grepl("folder",x,fixed = TRUE)) {
         if(!is.na(value)) {
-          if(x=="cachefolder" && !grepl("[\\\\/]",value,fixed=TRUE)) {
+          if(x=="cachefolder" && !grepl("[\\\\/]",value)) {
             value <- file.path(cfg$mainfolder,"cache",value)
           }
           #normalize path value
