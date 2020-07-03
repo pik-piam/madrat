@@ -7,7 +7,7 @@
 #' @param type output type, e.g. "TauTotal". A list of all available source
 #' types can be retrieved with function \code{\link{getCalculations}}.
 #' @param aggregate Boolean indicating whether output data aggregation should be performed or not, "GLO" (or "glo") for aggregation to one global region,
-#' "REG+GLO" (or "regglo") for a combination of regional and global data.
+#' "REG+GLO" (or "regglo") for a combination of regional and global data, "REG+GLO+EXTRA" (or "reggloextra") same as "REG+GLO", but with an additional regional aggregation.
 #' @param file A file name. If given the output is written to that file in the
 #' outputfolder as specified in the config.
 #' @param years A vector of years that should be returned. If set to NULL all
@@ -89,6 +89,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     # rename column names from old to new convention, if necessary
     if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
     if(any(names(rel[[r]])=="RegionCode")) names(rel[[r]])[names(rel[[r]])=="RegionCode"] <- "region"
+    if(any(names(rel[[r]])=="ExtraRegions")) names(rel[[r]])[names(rel[[r]])=="ExtraRegions"] <- "extra"
     if(is.null(rel[[r]]$global)) rel[[r]]$global <- "GLO"  # add global column
     rel_names <- union(rel_names,names(rel[[r]]))
   }     
@@ -97,6 +98,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     # rename aggregate arguments from old to new convention, if necessary
     if(toupper(aggregate)=="GLO") aggregate <- "global"
     if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") aggregate <- "region+global"
+    if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLOEXTRA") aggregate <- "region+global+extra"
     if(!all(strsplit(aggregate,"+",fixed=TRUE)[[1]] %in% rel_names)) {
       stop("Illegal setting aggregate = ",aggregate,"! Make sure that all arguments 
             which should be passed to the specific calc function are given with its name (e.g. arg=BLA)")
