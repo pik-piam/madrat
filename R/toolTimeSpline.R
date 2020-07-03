@@ -47,12 +47,8 @@ toolTimeSpline <- function(x, dof=NULL){
   out <- apply(x, c(1,3) ,tmpspline , dof=dof)
   dimnames(out)[[1]] <- getYears(x)
   
-  if (length(out[1,,1])==67420){
-    out <- as.magpie(out,spatial=2,temporal=1)
-  } else {
-    out <- as.magpie(out)
-  }
-  
+  out <- as.magpie(out,spatial=2,temporal=1)
+
   # Correct for negative values if needed
   if(!negative) out[out<0] <- 0
 
