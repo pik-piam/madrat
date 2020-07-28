@@ -23,7 +23,7 @@ test_that("calcOutput will stop if unused arguments are provided", {
 
 test_that("Malformed inputs are properly detected", {
   expect_error(setConfig(packages="nonexistentpackage"),'Setting "packages" can only be set to installed packages')
-  expect_error(calcOutput("TauTotal",aggregate = "wtf"), "Illegal setting aggregate = wtf")
+  expect_error(calcOutput("TauTotal",aggregate = "wtf"), "None of the columns given in aggregate = wtf could be found in the mappings!")
   expect_error(calcOutput(TRUE), "Invalid type \\(must be a character\\)")
   expect_error(calcOutput(c("a","b")), "Invalid type \\(must be a single character string\\)")
 })
