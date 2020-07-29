@@ -97,9 +97,17 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     # rename aggregate arguments from old to new convention, if necessary
     if(toupper(aggregate)=="GLO") aggregate <- "global"
     if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") aggregate <- "region+global"
-    if(!all(strsplit(aggregate,"+",fixed=TRUE)[[1]] %in% rel_names)) {
-      stop("Illegal setting aggregate = ",aggregate,"! Make sure that all arguments 
-            which should be passed to the specific calc function are given with its name (e.g. arg=BLA)")
+    
+    # Ignore columns in 'aggregate' that are not defined in one of the mappings. 
+    # Stop if 'aggregate' contains none of the columns defined in one of the mappings.
+    aggregate_splitted <- strsplit(aggregate,"+",fixed=TRUE)[[1]]
+    common_columns <- aggregate_splitted %in% rel_names
+    if(all(!common_columns)) {
+      stop("None of the columns given in aggregate = ",aggregate," could be found in the mappings!")
+    } else {
+      if(any(!common_columns)) vcat(verbosity = 0,'Omitting ',aggregate_splitted[!common_columns],' from aggregate = ',aggregate,' because it does not exists in the mappings.')
+      # Use those columns only for aggregation that exist in either of the mappings
+      aggregate <- paste0(aggregate_splitted[common_columns],collapse = "+")
     }
   }
   
