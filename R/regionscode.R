@@ -45,14 +45,13 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
   }
   
   if(strict) {
-    #remove first column if data has 3 columns
-    if(ncol(mapping)==3) mapping[[1]] <- NULL
+    #remove first column 
+    mapping[[1]] <- NULL
   
-    if(ncol(mapping)!=2) stop("Regionmapping has wrong number of columns. Data must have 2 columns (1 with ISO countries and 1 with the target regional setup) + an optional first columns with names of the countries!")
-  
-    iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-    iso_country1<-as.vector(iso_country[,"x"])
-    names(iso_country1)<-iso_country[,"X"]
+    # read list of ISO-countries   
+    iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+    iso_country1 <- as.vector(iso_country[,"x"])
+    names(iso_country1) <- iso_country[,"X"]
     isocountries <- sort(iso_country1)
   
     if(nrow(mapping)>length(isocountries)) stop("Provided regionmapping has more rows than there are ISO countries in the ISO reference list. Please check the mapping!")
@@ -67,8 +66,11 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
   
     # Reorder if only second column contains ISO countries
     if(!lists_agree[1]) mapping <- mapping[2:1]
-  
-    tmp <- sort(paste(as.vector(mapping[[1]]),as.vector(mapping[[2]]),sep="."))
+    
+    tmp <- as.vector(mapping[[1]])
+    for ( i in 2:ncol(mapping)) {
+      tmp <- sort(paste(tmp, as.vector(mapping[[i]]),sep="."))
+    }
   } else {
     tmp <- mapping
   }
