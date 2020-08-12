@@ -13,7 +13,8 @@
 #' madrat config will be returned.
 #' @param label logical deciding whether the corresponding label of a regionscode 
 #' should be returned instead of the regionscode.
-#' @param strict If set to TRUE only 2 or 3 column region mappings with mapping to ISO countries
+#' @param strict If set to TRUE region mappings with mapping to ISO countries with exactly 2 columns 
+#' or more than 2 colums (if the first colum contains irrelevant information which will be deleted automatically) 
 #' will be accepted. In this case data will be transformed and even cases with different ordering
 #' will yield the same regionscode. If set to FALSE all these checks will be ignored and the
 #' regionscode will be just computed on the object as it is. Please be aware the regionscode will
@@ -45,8 +46,8 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
   }
   
   if(strict) {
-    #remove first column 
-    mapping[[1]] <- NULL
+    #remove first column if data has 3 or more columns
+    if(ncol(mapping)>=3) mapping[[1]] <- NULL
   
     # read list of ISO-countries   
     iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
