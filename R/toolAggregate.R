@@ -21,7 +21,8 @@
 #' weighting column to NA and mixed_aggregation to TRUE.
 #' 
 #' @param x magclass object that should be (dis-)aggregated
-#' @param rel relation matrix, mapping or csv file containing a mapping.
+#' @param rel relation matrix, mapping or file containing a mapping in a format
+#' supported by \code{\link{toolGetMapping}} (currently csv, rds or rda).
 #' A mapping object should contain 2 columns in which each element of x
 #' is mapped to the category it should belong to after (dis-)aggregation
 #' @param weight magclass object containing weights which should be considered
@@ -98,7 +99,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
       }
       if(!(is.matrix(rel) | is.data.frame(rel))) {
         if(!file.exists(rel)) stop("Cannot find given region mapping file!")
-        rel <- read.csv(rel, as.is = TRUE, sep = ";")     
+        rel <- toolGetMapping(rel, where="local")
       }
       if(is.matrix(rel)) rel <- as.data.frame(rel)
       
