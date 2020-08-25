@@ -85,7 +85,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   rel <- list()
   rel_names <- NULL
   for(r in c(getConfig("regionmapping"),getConfig("extramappings"))) {
-    rel[[r]] <- read.csv(toolMappingFile("regional",r), as.is = TRUE, sep = ";")
+    rel[[r]] <- toolGetMapping(r, type="regional")
     # rename column names from old to new convention, if necessary
     if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
     if(any(names(rel[[r]])=="RegionCode")) names(rel[[r]])[names(rel[[r]])=="RegionCode"] <- "region"
