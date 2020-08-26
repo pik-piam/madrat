@@ -24,6 +24,7 @@
 #' @export
 #' 
 toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing=TRUE, returnPathOnly=FALSE) {
+  if(is.null(type)) type <- "."
   if(where=="mappingfolder") {
     mf <- getConfig("mappingfolder")
     if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')
