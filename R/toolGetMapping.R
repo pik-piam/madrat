@@ -24,7 +24,6 @@
 #' @export
 #' 
 toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing=TRUE, returnPathOnly=FALSE) {
-  if(is.null(type)) type <- "."
   if(where=="mappingfolder") {
     mf <- getConfig("mappingfolder")
     if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')
@@ -40,10 +39,19 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
       stop('Mapping "',name,'" not found!')
     }
   } else if(where=="local") {
-    fname <- paste0(type,"/",name)
+    if(is.null(type)) {
+      fname <- name
+    } else {
+      fname <- paste0(type,"/",name)  
+    }
   } else {
-    fname <- system.file("extdata", paste0(type,"/",name), package=where)
-    if(fname=="") fname <- system.file("inst/extdata", paste0(type,"/",name), package=where)
+    if(is.null(type)) {
+      tmpfname <- name
+    } else {
+      tmpfname <- paste0(type,"/",name)  
+    }
+    fname <-  system.file("extdata", tmpfname, package=where)
+    if(fname=="") fname <- system.file("inst/extdata", tmpfname, package=where)
     if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
   }
   fname <- gsub("/+","/",fname)

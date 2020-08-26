@@ -7,4 +7,7 @@ test_that("toolGetMapping works", {
                              RegionCode = c("LAM", "OAS", "SSA", "LAM","EUR", "NEU")), 
                         row.names = c(NA, 6L), class = "data.frame")
   expect_identical(head(toolGetMapping("regionmappingH12.csv", where="madrat")), expected)
+  expect_identical(toolGetMapping("bla",where="local", returnPathOnly = TRUE), "bla")
+  expect_identical(toolGetMapping("/bla",where="local", returnPathOnly = TRUE), "/bla")
+  expect_identical(toolGetMapping("/bla",type=".",where="local", returnPathOnly = TRUE), "./bla")
 })
