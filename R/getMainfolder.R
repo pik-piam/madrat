@@ -38,19 +38,17 @@ getMainfolder <- function(verbose=TRUE) {
             s <- tolower(readline("Should this path be added to your global .Rprofile to be used permanently? (y/n) "))
             if(s %in% c("y","n")) break
           }
-          if(s=="y") write(c("","# Set mainfolder for madrat package",
-                             paste0('options(MADRAT_MAINFOLDER="',mainfolder,'")'),"")
-                           , file="~/.Rprofile", append=TRUE)
+          if(s=="y") write(c("","# Set mainfolder for madrat package", paste0('options(MADRAT_MAINFOLDER="',mainfolder,'")'),"") , file="~/.Rprofile", append=TRUE)
           return(mainfolder)
         } else {
-          base::cat("Please specify either an existing folder or a folder you would like to create!\n")
+          message("Please specify either an existing folder or a folder you would like to create!")
         }
       }
     } 
   } 
   
   # use temporary directory
-  if(verbose) base::cat("Temporary main folder will be used..\n")
+  if(verbose) message("Temporary main folder will be used..")
   mainfolder <- paste0(tempdir(),"/madrat")
   if(!dir.exists(mainfolder)) dir.create(mainfolder)
   return(mainfolder)

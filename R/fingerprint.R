@@ -26,7 +26,8 @@ fingerprint <- function(folder,...) {
   setwd(cwd)
   
   for(i in list(...)) {
-    fp <- c(fp,digest(i,"md5"))
+    fp <- c(fp,digest(deparse(i),"md5"))
   }
+
   return(digest(fp,"md5"))
 }

@@ -29,8 +29,11 @@ getCalculations <- function(prefix="calc", packages=getConfig("packages"), globa
     x <- rbind(x,tmp)
   }
   if(globalenv) {
-    tmp <- data.frame(type=ls(as.environment(".GlobalEnv")),package=".GlobalEnv")
-    x <- rbind(x,tmp)
+    tmp <- ls(as.environment(".GlobalEnv"))
+    if(length(tmp)>0) {
+      tmp <- data.frame(type=tmp,package=".GlobalEnv")
+      x <- rbind(x,tmp)
+    }
   }
   .filter <- function(x,pattern) {
     x <- x[grep(pattern,x$type),]

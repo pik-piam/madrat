@@ -6,7 +6,7 @@
 #' @param dof degrees of freedom per 100 years (similiar to an average range), is a proxy for the smoothness of the spline
 #' 
 #' @return approximated data in magclass format
-#' @author Kristine Karstens
+#' @author Kristine Karstens, Felicitas Beier
 #'
 #' @importFrom stats smooth.spline
 #' @export
@@ -41,13 +41,14 @@ toolTimeSpline <- function(x, dof=NULL){
   out      <- x
   
   x <- as.array(x)
-  
+
   # fill in data with spline approximations/interpolations
   tmpspline <- function(x,dof) return(smooth.spline(x,df=dof, control.spar=list(high=2))$y)
   out <- apply(x, c(1,3) ,tmpspline , dof=dof)
   dimnames(out)[[1]] <- getYears(x)
-  out <- as.magpie(out)
   
+  out <- as.magpie(out,spatial=2,temporal=1)
+
   # Correct for negative values if needed
   if(!negative) out[out<0] <- 0
 

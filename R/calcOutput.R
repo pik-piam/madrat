@@ -75,7 +75,7 @@
 #' 
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report2 write.magpie
 #' getCells getYears<- is.magpie dimSums getMetadata updateMetadata
-#' @importFrom utils packageDescription read.csv2
+#' @importFrom utils packageDescription read.csv2 read.csv
 #' @importFrom digest digest
 #' @export
 
@@ -85,7 +85,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   rel <- list()
   rel_names <- NULL
   for(r in c(getConfig("regionmapping"),getConfig("extramappings"))) {
-    rel[[r]] <- read.csv(toolMappingFile("regional",r), as.is = TRUE, sep = ";")
+    rel[[r]] <- toolGetMapping(r, type="regional")
     # rename column names from old to new convention, if necessary
     if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
     if(any(names(rel[[r]])=="RegionCode")) names(rel[[r]])[names(rel[[r]])=="RegionCode"] <- "region"
@@ -97,9 +97,17 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     # rename aggregate arguments from old to new convention, if necessary
     if(toupper(aggregate)=="GLO") aggregate <- "global"
     if(toupper(gsub("+","",aggregate,fixed = TRUE))=="REGGLO") aggregate <- "region+global"
-    if(!all(strsplit(aggregate,"+",fixed=TRUE)[[1]] %in% rel_names)) {
-      stop("Illegal setting aggregate = ",aggregate,"! Make sure that all arguments 
-            which should be passed to the specific calc function are given with its name (e.g. arg=BLA)")
+    
+    # Ignore columns in 'aggregate' that are not defined in one of the mappings. 
+    # Stop if 'aggregate' contains none of the columns defined in one of the mappings.
+    aggregate_splitted <- strsplit(aggregate,"+",fixed=TRUE)[[1]]
+    common_columns <- aggregate_splitted %in% rel_names
+    if(all(!common_columns)) {
+      stop("None of the columns given in aggregate = ",aggregate," could be found in the mappings!")
+    } else {
+      if(any(!common_columns)) vcat(verbosity = 0,'Omitting ',aggregate_splitted[!common_columns],' from aggregate = ',aggregate,' because it does not exists in the mappings.')
+      # Use those columns only for aggregation that exist in either of the mappings
+      aggregate <- paste0(aggregate_splitted[common_columns],collapse = "+")
     }
   }
   
@@ -168,6 +176,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
         if(nyears(x$weight)==1) getYears(x$weight) <- NULL
       }
       x$package <- attr(functionname,"pkgcomment")
+      if(!dir.exists(dirname(tmppath))) dir.create(dirname(tmppath), recursive = TRUE)
       saveRDS(x, file=tmppath, compress = getConfig("cachecompression"))
       Sys.chmod(tmppath, mode = "0666", use_umask = FALSE)
       break
@@ -262,7 +271,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(aggregate!=FALSE) {
     items <- getItems(x$x,dim=1)
     rel_fitting <- which(sapply(rel,nrow) == length(items))
-    if(length(rel_fitting)==0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") do not contain a mapping compatible to the provided data!")
+    if(length(rel_fitting)==0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") contain a mapping compatible to the provided data!")
     if(length(rel_fitting)>1) {
       names(rel) <- NULL
       rel <- do.call(cbind,rel[rel_fitting])

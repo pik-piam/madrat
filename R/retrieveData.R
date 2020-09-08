@@ -47,6 +47,8 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
  tmp <- intersect(formalArgs(setConfig), formalArgs(functiononly))
  if(length(tmp)>0) warning("Overlapping arguments between setConfig and retrieve function (\"",paste(tmp, collapse="\", \""),"\")")
  
+ uselabels <- !(isTRUE(getConfig("nolabels")) || model %in% getConfig("nolabels"))
+ 
  # reduce inargs to arguments sent to full function and create hash from it
  inargs <- inargs[names(inargs) %in% formalArgs(functiononly)]
  # insert default arguments, if not set explicitly to ensure identical args_hash
@@ -56,12 +58,13 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
  defargs$rev <- NULL
  toadd <- names(defargs)[!(names(defargs)%in%names(inargs))]
  if(length(toadd)>0) inargs[toadd] <- defargs[toadd] 
- if(length(inargs)>0) args_hash <- paste0(toolCodeLabels(digest(inargs,"md5")),"_")
+ if(length(inargs)>0 && uselabels) args_hash <- paste0(toolCodeLabels(digest(inargs,"md5")),"_")
+ else if(length(inargs)>0 && !uselabels) args_hash <- paste0(digest(inargs,"md5"),"_")
  else args_hash <- NULL
 
  regionmapping <- getConfig("regionmapping")  
  if(!file.exists(regionmapping)) regionmapping <- toolMappingFile("regional",getConfig("regionmapping"))
- regionscode <- regionscode(regionmapping, label = TRUE) 
+ regionscode <- regionscode(regionmapping, label = uselabels) 
  
  # save current settings to set back if needed
  cfg_backup <- getOption("madrat_cfg")

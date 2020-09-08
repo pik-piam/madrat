@@ -3,13 +3,13 @@
 #' Function which retrieves a mapping file
 #' 
 #' 
-#' @param name File name of the mapping file. Supported file types are currently csv (, or ; separated) 
+#' @param name File name of the mapping file. Supported file types are currently csv (, or ; separated), rds 
 #' and rda (which needs to have the data stored with the object name "data"!). Use code{\link{toolConvertMapping}}
 #' to convert between both formats
 #' @param type Mapping type (e.g. "regional", "cell", or "sectoral"). Can be set to NULL if file
 #' is not stored in a type specific subfolder
-#' @param where location to look for the mapping, either "mappingfolder" or
-#' the name of a package which contains the mapping
+#' @param where location to look for the mapping, either "mappingfolder", "local" (if the pathe is relative to your current
+#' directory) or the name of a package which contains the mapping
 #' @param error.missing Boolean which decides whether an error is returned if
 #' the mapping file does not exist or not.
 #' @param returnPathOnly If set to TRUE only the file path is returned
@@ -38,9 +38,20 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
       if(!file.exists(paste0(mf,"/",type))) stop('Unknown mappings type "',type,'"!')
       stop('Mapping "',name,'" not found!')
     }
+  } else if(where=="local") {
+    if(is.null(type)) {
+      fname <- name
+    } else {
+      fname <- paste0(type,"/",name)  
+    }
   } else {
-    fname <- system.file("extdata", paste0(type,"/",name), package=where)
-    if(fname=="") fname <- system.file("inst/extdata", paste0(type,"/",name), package=where)
+    if(is.null(type)) {
+      tmpfname <- name
+    } else {
+      tmpfname <- paste0(type,"/",name)  
+    }
+    fname <-  system.file("extdata", tmpfname, package=where)
+    if(fname=="") fname <- system.file("inst/extdata", tmpfname, package=where)
     if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
   }
   fname <- gsub("/+","/",fname)
@@ -57,6 +68,8 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     load(fname)
     if(is.null(data)) stop(fname," did not contain a object named \"data\"!")
     return(data)
+  } else if(filetype=="rds") {
+    return(readRDS(fname))
   } else {
     stop("Unsupported filetype \"", filetype,"\"")
   }
