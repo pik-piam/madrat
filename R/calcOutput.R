@@ -298,6 +298,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     x$aggregationArguments$rel <- quote(rel)
     if(aggregate!=TRUE) x$aggregationArguments$to <- aggregate
     x$x <- do.call(x$aggregationFunction,x$aggregationArguments)
+    x$x <- toolOrderCells(x$x)
   } 
   
   if(!is.null(years)) {
