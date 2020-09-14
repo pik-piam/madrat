@@ -173,8 +173,9 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
       }
       if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
       if(is.null(x$class)) x$class <- "magpie"
+      if(!is.character(x$class) || length(x$class)!=1) stop("x$class must be a single element of class character or NULL!")
       if(x$class=="magpie" && !is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
-      if(x$class %in% class(x$x)) stop("Output x of function \"",functionname,"\" is not of promised class \"",x$class,"\"!")
+      if(!(x$class %in% class(x$x))) stop("Output x of function \"",functionname,"\" is not of promised class \"",x$class,"\"!")
       if(x$class!="magpie" && !is.null(x$weight)) stop("Weights are currently not supported for objects of class \"",x$class,"\"!")
       if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
       if(!is.null(x$weight)) {
@@ -243,9 +244,9 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
       }
     }
   }
-  checkNameStructure(x$x,x$structure.spatial,1,x$class)
-  checkNameStructure(x$x,x$structure.temporal,2,x$class)
-  checkNameStructure(x$x,x$structure.data,3,x$class)
+  checkNameStructure(x$x, x$structure.spatial , 1, x$class)
+  checkNameStructure(x$x, x$structure.temporal, 2, x$class)
+  checkNameStructure(x$x, x$structure.data    , 3, x$class)
   
   if(x$class=="magpie") {
     if(na_warning) if(anyNA(x$x)) vcat(0,"Data returned by ", functionname," contains NAs")
@@ -253,6 +254,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   }
   
   if(!is.null(years)){
+    if(x$class!="magpie") stop("years argument can only be used in combination with x$class=\"magpie\"!")
     #check that years exist in provided data
     if(!all(as.integer(sub("y","",years)) %in% getYears(x$x,as.integer=TRUE))) stop("Some years are missing in the data provided by function ",functionname,"(", paste(years[!(as.integer(sub("y","",years))%in%getYears(x$x,as.integer=TRUE))],collapse=", "),")!")
     x$x <- x$x[,years,]
@@ -274,15 +276,16 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     return(x)
   }
   
-  unit <- .prep_comment(x$unit,"unit",paste0('Missing unit information for data set "',type,'"!'))
+  unit        <- .prep_comment(x$unit,"unit",paste0('Missing unit information for data set "',type,'"!'))
   description <- .prep_comment(x$description,"description",paste0('Missing description for data set "',type,'"! Please add a description in the corresponding calc function!'))
-  comment <- .prep_comment(getComment(x$x),"comment")
-  origin <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
-  date <- .prep_comment(date(),"creation date")
-  note <- .prep_comment(x$note,"note")
+  comment     <- .prep_comment(getComment(x$x),"comment")
+  origin      <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
+  date        <- .prep_comment(date(),"creation date")
+  note        <- .prep_comment(x$note,"note")
   
   # select fitting relation mapping
   if(aggregate!=FALSE) {
+    if(x$class!="magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
     items <- getItems(x$x,dim=1)
     rel_fitting <- which(sapply(rel,nrow) == length(items))
     if(length(rel_fitting)==0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") contain a mapping compatible to the provided data!")
@@ -319,32 +322,40 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     if(length(years)==1) getYears(x$x) <- NULL
   }
   if(!is.null(round)) {
+    if(x$class!="magpie") stop("rounding can only be used in combination with x$class=\"magpie\"!")
     x$x <- round(x$x,round)
   }
-
-  getComment(x$x) <- c(description,
-                       unit,
-                       note,
-                       comment,
-                       origin,
-                       date)
-  x$x<-clean_magpie(x$x)
-  x$x<-updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note,cH_priority=1)
-
+  
+  if(x$class=="magpie") {
+    getComment(x$x) <- c(description,
+                         unit,
+                         note,
+                         comment,
+                         origin,
+                         date)
+    x$x <- clean_magpie(x$x)
+    x$x <- updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note,cH_priority=1)
+  }
+    
   if(is.null(file) & append){
     vcat(0,"The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
   }
   
   if(!is.null(file)) {
     if(!file.exists(getConfig("outputfolder"))) stop('Outputfolder "',getConfig("outputfolder"),'" does not exist!')
-    if(grepl(".mif",file)==TRUE){
-      if(!is.null(getYears(x$x))) { 
-        write.report2(x$x,file=paste(getConfig("outputfolder"),file,sep="/"), unit=x$unit, append=append)
+    if(x$class=="magpie") {
+      if(grepl(".mif",file)==TRUE){
+        if(!is.null(getYears(x$x))) { 
+          write.report2(x$x,file=paste(getConfig("outputfolder"),file,sep="/"), unit=x$unit, append=append)
+        } else {
+          vcat(0,"Time dimension missing and data cannot be written to a mif-file. Skip data set!")
+        }
       } else {
-        vcat(0,"Time dimension missing and data cannot be written to a mif-file. Skip data set!")
+        write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
       }
     } else {
-      write.magpie(x$x,file_folder=getConfig("outputfolder"),file_name=file, mode="777")
+      if((grepl(".rds$",file)==TRUE)) saveRDS(x$x,paste(getConfig("outputfolder"),file,sep="/"))
+      else stop("Unsupported file format (\"",file,"\") for x$class!=\"magpie\"")
     }
   }
   if(supplementary) {

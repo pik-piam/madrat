@@ -60,7 +60,17 @@ test_that("Malformed calc outputs are properly detected", {
                                     unit="1",
                                     description="test",
                                     min=10))
-  globalassign(paste0("calcBla",1:10))
+  calcBla11 <- function()return(list(x=1,
+                                     class=list))
+  calcBla12 <- function()return(list(x=1,
+                                     class=c("classA","classB")))
+  calcBla13 <- function()return(list(x=1,
+                                     class="list"))
+  calcBla14 <- function()return(list(x=list(1),
+                                     class="list",
+                                     unit="1",
+                                     description="test"))
+  globalassign(paste0("calcBla",1:14))
   
   expect_error(calcOutput("Bla1"),"not list of two MAgPIE objects")
   expect_error(calcOutput("Bla2"),"Output x of function .* is not a MAgPIE object")
@@ -72,7 +82,11 @@ test_that("Malformed calc outputs are properly detected", {
   expect_warning(calcOutput("Bla8", aggregate=FALSE),"contains NAs")
   expect_warning(calcOutput("Bla9", aggregate=FALSE),"values greater than the predefined maximum")
   expect_warning(calcOutput("Bla10", aggregate=FALSE),"values smaller than the predefined minimum")
-
+  expect_error(calcOutput("Bla11"),"class must be a single element of class character or NULL!")
+  expect_error(calcOutput("Bla12"),"class must be a single element of class character or NULL!")
+  expect_error(calcOutput("Bla13"),"Output x of function .* is not of promised class")
+  expect_error(calcOutput("Bla14"),"Aggregation can only be used in combination with x\\$class=\"magpie\"")
+  
   a <- calcOutput("Bla5", aggregate=FALSE)
   setConfig(forcecache = TRUE)
   writeLines("CorruptCache", paste0(getConfig("cachefolder"),"/calcBla5.rds"))
@@ -137,4 +151,17 @@ test_that("Standard workflow works", {
   }
   globalassign("downloadTest2", "readTest2", "convertTest2", "calcTest2", "fullTEST2")
   co <- capture.output(retrieveData("test2"))
+})
+
+test_that("Custom class support works", {
+  sink(tempfile())
+  setConfig(globalenv = TRUE, outputfolder = tempdir(), .verbose = FALSE)
+  calcBla1 <- function()return(list(x          = list(1),
+                                    class      = "list",
+                                    unit       = "1",
+                                    description = "test"))
+  globalassign(paste0("calcBla",1))
+  expect_identical(calcOutput("Bla1", aggregate=FALSE, file = "test.rds"), list(1))
+  expect_identical(readRDS(paste0(getConfig("outputfolder"),"/test.rds")),list(1))
+  sink()
 })
