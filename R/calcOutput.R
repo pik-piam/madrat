@@ -35,6 +35,9 @@
 #' \item \bold{unit} - unit of the provided data
 #' \item \bold{description} - a short description of the data
 #' \item \bold{note} (optional) - additional notes related to the data
+#' \item \bold{class} (optional | default = "magpie") - Class of the returned object. If set to
+#' something other than "magpie" most functionality, such as aggregation or unit tests will not
+#' be able and switched off!
 #' \item \bold{isocountries} (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
 #' indicating whether data is in iso countries or not (the latter will deactivate several 
 #' features such as aggregation)
@@ -169,7 +172,10 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
         x <- eval(parse(text=functionname))
       }
       if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
-      if(!is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
+      if(is.null(x$class)) x$class <- "magpie"
+      if(x$class=="magpie" && !is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
+      if(x$class %in% class(x$x)) stop("Output x of function \"",functionname,"\" is not of promised class \"",x$class,"\"!")
+      if(x$class!="magpie" && !is.null(x$weight)) stop("Weights are currently not supported for objects of class \"",x$class,"\"!")
       if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
       if(!is.null(x$weight)) {
         if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
@@ -186,6 +192,10 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   
   # read and check x$isocountries value which describes whether the data is in
   # iso country resolution or not (affects aggregation and certain checks)
+  if(x$class!="magpie") {
+    if(!is.null(x$isocountries) && x$isocountries!=FALSE) stop("x$isocountries can only be set if x$class==\"magpie\"")
+    x$isocountries <- FALSE
+  }
   if(is.null(x$isocountries)) {
     if(nregions(x$x)==1 && getRegions(x$x)=="GLO") {
       x$isocountries <- FALSE 
@@ -219,9 +229,11 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   }  
   
   #perform additional checks
+  if(x$class!="magpie" && (!is.null(x$min) | !is.null(x$max))) stop("Min/Max checks cannot be used in combination with x$class!=\"magpie\"")
   if(!is.null(x$min) && any(x$x<x$min, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values smaller than the predefined minimum (min = ",x$min,")")
   if(!is.null(x$max) && any(x$x>x$max, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values greater than the predefined maximum (max = ",x$max,")")
-  checkNameStructure <- function(x,structure,dim) {
+  checkNameStructure <- function(x,structure,dim,class) {
+    if(class!="magpie" && !is.null(structure)) stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
     if(!is.null(structure)) {
       if(is.null(getItems(x,dim))) {
         vcat(0, paste('Missing names in dimension',dim,'!'))
@@ -231,12 +243,14 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
       }
     }
   }
-  checkNameStructure(x$x,x$structure.spatial,1)
-  checkNameStructure(x$x,x$structure.temporal,2)
-  checkNameStructure(x$x,x$structure.data,3)
+  checkNameStructure(x$x,x$structure.spatial,1,x$class)
+  checkNameStructure(x$x,x$structure.temporal,2,x$class)
+  checkNameStructure(x$x,x$structure.data,3,x$class)
   
-  if(na_warning) if(anyNA(x$x)) vcat(0,"Data returned by ", functionname," contains NAs")
-  if(any(is.infinite(x$x))) vcat(0,"Data returned by ", functionname," contains infinite values")
+  if(x$class=="magpie") {
+    if(na_warning) if(anyNA(x$x)) vcat(0,"Data returned by ", functionname," contains NAs")
+    if(any(is.infinite(x$x))) vcat(0,"Data returned by ", functionname," contains infinite values")
+  }
   
   if(!is.null(years)){
     #check that years exist in provided data
