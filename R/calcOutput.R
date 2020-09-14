@@ -190,6 +190,8 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     }  
   }
   
+  #make sure that x$class is defined
+  if(is.null(x$class)) x$class <- "magpie"
   
   # read and check x$isocountries value which describes whether the data is in
   # iso country resolution or not (affects aggregation and certain checks)
