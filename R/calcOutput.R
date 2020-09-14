@@ -37,7 +37,7 @@
 #' \item \bold{note} (optional) - additional notes related to the data
 #' \item \bold{class} (optional | default = "magpie") - Class of the returned object. If set to
 #' something other than "magpie" most functionality, such as aggregation or unit tests will not
-#' be able and switched off!
+#' be available and is switched off!
 #' \item \bold{isocountries} (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
 #' indicating whether data is in iso countries or not (the latter will deactivate several 
 #' features such as aggregation)
