@@ -161,7 +161,8 @@ test_that("Custom class support works", {
                                     unit       = "1",
                                     description = "test"))
   globalassign(paste0("calcBla",1))
-  expect_identical(calcOutput("Bla1", aggregate=FALSE, file = "test.rds"), list(1))
-  expect_identical(readRDS(paste0(getConfig("outputfolder"),"/test.rds")),list(1))
+  data <- calcOutput("Bla1", aggregate=FALSE, file = "test.rds")
+  expect_equivalent(data, list(1))
+  expect_identical(readRDS(paste0(getConfig("outputfolder"),"/test.rds")),data)
   sink()
 })

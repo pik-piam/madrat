@@ -328,15 +328,18 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     x$x <- round(x$x,round)
   }
   
+  extended_comment <- c(description,
+                        unit,
+                        note,
+                        comment,
+                        origin,
+                        date) 
   if(x$class=="magpie") {
-    getComment(x$x) <- c(description,
-                         unit,
-                         note,
-                         comment,
-                         origin,
-                         date)
+    getComment(x$x) <- extended_comment
     x$x <- clean_magpie(x$x)
     x$x <- updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note,cH_priority=1)
+  } else {
+    attr(x$x,"comment") <- extended_comment
   }
     
   if(is.null(file) & append){
