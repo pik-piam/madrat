@@ -28,31 +28,17 @@ toolCountry2isocode <- function(country,warn=TRUE,type="IEA",mapping=NULL) {
     mapping <- c(country2iso1,mapping)
   }
   names(mapping) <- tolower(names(mapping))
-  country <- tolower(country)
-  
-  if (length(country) > 100) { # transformation into factor for better performance. Applied only to large objects.
-    country<-as.factor(country)
-    tmp<-as.character(mapping[levels(country)])
-    if(any(is.na(tmp)) & warn==TRUE) {
-      warning("Following country names could not be found in the country list and returned as NA: ", paste(levels(country)[is.na(tmp)],collapse=", "))
-    } else if(any(is.na(tmp)) & warn==FALSE) {
-      b<-getOption("madrat_cfg")
-      note<-paste0("Note: In the toolCountry2isocode call, following country names could not be found in the country list and returned as NA: ", paste(levels(country)[is.na(tmp)],collapse=", "))
-      b$sources[[type]]<-c(b$sources[[type]],notes=note)
-      options(madrat_cfg = b)
-    }
-    levels(country)<-tmp
-    return(as.character(country))
-    } else {
-    tmp <- as.character(mapping[country])
-    if(any(is.na(tmp)) & warn==TRUE) {
-      warning("Following country names could not be found in the country list and returned as NA: ", paste(levels(country)[is.na(tmp)],collapse=", "))
-    } else if(any(is.na(tmp)) & warn==FALSE) {
-      b<-getOption("madrat_cfg")
-      note<-paste0("Note: In the toolCountry2isocode call, following country names could not be found in the country list and returned as NA: ", paste(levels(country)[is.na(tmp)],collapse=", "))
-      b$sources[[type]]<-c(b$sources[[type]],notes=note)
-      options(madrat_cfg = b)
-    }    
-    return(tmp)
+  country <- as.factor(country)
+
+  tmp<-as.character(mapping[tolower(levels(country))])
+  if(any(is.na(tmp)) & warn==TRUE) {
+    warning("Following country names could not be found in the country list and returned as NA: ", paste(levels(country)[is.na(tmp)],collapse=", "))
+  } else if(any(is.na(tmp)) & warn==FALSE) {
+    b<-getOption("madrat_cfg")
+    note<-paste0("Note: In the toolCountry2isocode call, following country names could not be found in the country list and returned as NA: ", paste(levels(country)[is.na(tmp)],collapse=", "))
+    b$sources[[type]]<-c(b$sources[[type]],notes=note)
+    options(madrat_cfg = b)
   }
+  levels(country)<-tmp
+  return(as.character(country))
 }
