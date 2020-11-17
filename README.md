@@ -1,6 +1,6 @@
 # May All Data be Reproducible and Transparent (MADRaT) *
 
-R package **madrat**, version **1.83.4**
+R package **madrat**, version **1.83.5**
 
 [![Travis build status](https://travis-ci.com/pik-piam/madrat.svg?branch=master)](https://travis-ci.com/pik-piam/madrat) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1115490.svg)](https://doi.org/10.5281/zenodo.1115490) [![codecov](https://codecov.io/gh/pik-piam/madrat/branch/master/graph/badge.svg)](https://codecov.io/gh/pik-piam/madrat)
 
@@ -47,9 +47,9 @@ In case of questions / problems please contact Jan Philipp Dietrich <dietrich@pi
 
 To cite package **madrat** in publications use:
 
-Dietrich J, Baumstark L, Wirth S, Giannousakis A, Rodrigues R, Bodirsky B, Kreidenweis U (2020). _madrat: May All Data be
-Reproducible and Transparent (MADRaT)_. doi: 10.5281/zenodo.1115490 (URL: https://doi.org/10.5281/zenodo.1115490), R
-package version 1.83.4, <URL: https://github.com/pik-piam/madrat>.
+Dietrich J, Baumstark L, Wirth S, Giannousakis A, Rodrigues R, Bodirsky B, Kreidenweis U (2020). _madrat: May All
+Data be Reproducible and Transparent (MADRaT)_. doi: 10.5281/zenodo.1115490 (URL:
+https://doi.org/10.5281/zenodo.1115490), R package version 1.83.5, <URL: https://github.com/pik-piam/madrat>.
 
 A BibTeX entry for LaTeX users is
 
@@ -58,7 +58,7 @@ A BibTeX entry for LaTeX users is
   title = {madrat: May All Data be Reproducible and Transparent (MADRaT)},
   author = {Jan Philipp Dietrich and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Ulrich Kreidenweis},
   year = {2020},
-  note = {R package version 1.83.4},
+  note = {R package version 1.83.5},
   doi = {10.5281/zenodo.1115490},
   url = {https://github.com/pik-piam/madrat},
 }

@@ -156,7 +156,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       testISO(getRegions(x),functionname=functionname)
     }
     vcat(2," - saving data to", cachefile_new, fill=300, show_prefix=FALSE)
-    getComment(x) <- fp
+    getComment(x) <- .fp(sourcefolder, type, prefix)
     saveRDS(x, cachefile_new, compress = getConfig("cachecompression"))
     Sys.chmod(cachefile_new,"0666", use_umask=FALSE)
     attr(x,"id") <- id
