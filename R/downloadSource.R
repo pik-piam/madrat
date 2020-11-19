@@ -11,6 +11,7 @@
 #' have subtypes, subtypes should not be set.
 #' @param overwrite Boolean deciding whether existing data should be
 #' overwritten or not.
+#' @importFrom yaml write_yaml
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
 #' @examples
@@ -49,12 +50,12 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   dir.create(typesubtype, recursive = TRUE)
   setwd(typesubtype)
   on.exit(if(length(dir())==0) unlink(getwd(), recursive = TRUE), add=TRUE, after = FALSE)
-  eval(parse(text=functionname))
+  meta <- eval(parse(text=functionname))
   
-  type <- paste0("type: ",type)
-  subtype <- paste0("subtype: ",ifelse(is.null(subtype), "none",subtype))
-  origin <- paste0("origin: ", gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," -> ",functionname," (madrat ",packageDescription("madrat")$Version," | ",attr(functionname,"pkgcomment"),")")
-  date <- paste0("download-date: ", date())
+  meta$type    <- type
+  meta$subtype <- ifelse(is.null(subtype), "none",subtype)
+  meta$origin  <- paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," -> ",functionname," (madrat ",packageDescription("madrat")$Version," | ",attr(functionname,"pkgcomment"),")")
+  meta$date    <- date()
   
-  writeLines(c(type,subtype,origin,date),"DOWNLOAD.yml")
+  write_yaml(meta,"DOWNLOAD.yml")
 }
