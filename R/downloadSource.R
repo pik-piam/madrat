@@ -12,7 +12,7 @@
 #' @param overwrite Boolean deciding whether existing data should be
 #' overwritten or not.
 #' @importFrom yaml write_yaml
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, David Klein
 #' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
 #' @examples
 #' 
@@ -52,10 +52,20 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   on.exit(if(length(dir())==0) unlink(getwd(), recursive = TRUE), add=TRUE, after = FALSE)
   meta <- eval(parse(text=functionname))
   
+  # define mandatory elements of meta data and check if they exist
+  mandatory <- c("url","authors","title","license")
+  if(!all(mandatory %in% names(meta))) {vcat(0, paste0("Please provide the following meta data entries: ",mandatory[!mandatory %in% names(meta)]))}
+  
+  # define reserved elements of meta data and check if they already exist
+  reserved <- c("type","subtype","origin","date")
+  if(any(reserved %in% names(meta))) {vcat(0, paste0("The following entries in your meta data are reserved and will be overwritten: ",reserved[reserved %in% names(meta)]))}
+  
+  # set reserved meta data elements
   meta$type    <- type
   meta$subtype <- ifelse(is.null(subtype), "none",subtype)
   meta$origin  <- paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," -> ",functionname," (madrat ",packageDescription("madrat")$Version," | ",attr(functionname,"pkgcomment"),")")
   meta$date    <- date()
+  #meta$quality <- quality()
   
   write_yaml(meta,"DOWNLOAD.yml")
 }
