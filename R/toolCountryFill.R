@@ -23,28 +23,33 @@
 #' 1 = note will show up in reduced log file (default),
 #' 2 = info will show up in extended log file (recommended if filling of important countries
 #' is not critical and desired).
-#' @param ... Mappings between countries for which the data is missing and 
-#' countries from which the data should be used instead for these countries 
-#' (e.g. "HKG"="CHN" if HongKong should receive the value of China). This 
+#' @param countrylist character vector of official country names (if other than ISO)
+#' @param ... Mappings between countries for which the data is missing and
+#' countries from which the data should be used instead for these countries
+#' (e.g. "HKG"="CHN" if Hong Kong should receive the value of China). This
 #' replacement usually only makes sense for intensive values.
 #' @return A MAgPIE object with spatial entries for each country of the
 #' official ISO code country list.
 #' @author Jan Philipp Dietrich
 #' @examples
-#' 
+#'
 #' library(magclass)
 #' x <- new.magpie("DEU",1994,"bla",0)
 #' y <- toolCountryFill(x,99)
-#' 
+#'
 #' @importFrom magclass getRegions new.magpie getYears getNames mbind setCells
-#' @export 
-toolCountryFill <- function(x,fill=NA, no_remove_warning=NULL, overwrite=FALSE, verbosity=1, ...) {
-  iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-  iso_country1<-as.vector(iso_country[,"x"])
-  names(iso_country1)<-iso_country[,"X"]
+#' @export
+toolCountryFill <- function(x,fill=NA, no_remove_warning=NULL, overwrite=FALSE, verbosity=1, countrylist=NULL,...) {
+  if (is.null(countrylist)) {
+    iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+    iso_country1<-as.vector(iso_country[,"x"])
+    names(iso_country1)<-iso_country[,"X"]
+  } else {
+    iso_country1<-countrylist
+  }
   missing_countries <- setdiff(iso_country1,getRegions(x))
   additional_countries <- setdiff(getRegions(x),iso_country1)
-  
+
   #remove unrequired data
   if(length(additional_countries)>0) {
     x <- x[setdiff(getRegions(x),additional_countries),,]
