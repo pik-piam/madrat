@@ -5,7 +5,7 @@ downloadTau <- function(subtype="paper") {
   meta <- list(url      = "http://www.pik-potsdam.de/members/dietrich/",
                title    = "Agricultural Land Use Intensity Tau",
                authors  = "Jan Philipp Dietrich",
-               subtype  = "Creative Commons Attribution-ShareAlike 4.0 International License"
+               license  = "Creative Commons Attribution-ShareAlike 4.0 International License"
                #version <- 
                #date_released <- 
                #doi <- 
