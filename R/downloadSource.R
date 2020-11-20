@@ -11,7 +11,8 @@
 #' have subtypes, subtypes should not be set.
 #' @param overwrite Boolean deciding whether existing data should be
 #' overwritten or not.
-#' @author Jan Philipp Dietrich
+#' @importFrom yaml write_yaml
+#' @author Jan Philipp Dietrich, David Klein
 #' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
 #' @examples
 #' 
@@ -49,12 +50,22 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   dir.create(typesubtype, recursive = TRUE)
   setwd(typesubtype)
   on.exit(if(length(dir())==0) unlink(getwd(), recursive = TRUE), add=TRUE, after = FALSE)
-  eval(parse(text=functionname))
+  meta <- eval(parse(text=functionname))
   
-  type <- paste0("type: ",type)
-  subtype <- paste0("subtype: ",ifelse(is.null(subtype), "none",subtype))
-  origin <- paste0("origin: ", gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," -> ",functionname," (madrat ",packageDescription("madrat")$Version," | ",attr(functionname,"pkgcomment"),")")
-  date <- paste0("download-date: ", date())
+  # define mandatory elements of meta data and check if they exist
+  mandatory <- c("url","authors","title","license")
+  if(!all(mandatory %in% names(meta))) {vcat(0, paste0("Missing entries in the meta data of function '",functionname[1],"': ",mandatory[!mandatory %in% names(meta)]))}
   
-  writeLines(c(type,subtype,origin,date),"DOWNLOAD.yml")
+  # define reserved elements of meta data and check if they already exist
+  reserved <- c("type","subtype","origin","date")
+  if(any(reserved %in% names(meta))) {vcat(0, paste0("The following entries in the meta data of the function '",functionname[1],"' are reserved and will be overwritten: ",reserved[reserved %in% names(meta)]))}
+  
+  # set reserved meta data elements
+  meta$type    <- type
+  meta$subtype <- ifelse(is.null(subtype), "none",subtype)
+  meta$origin  <- paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," -> ",functionname," (madrat ",packageDescription("madrat")$Version," | ",attr(functionname,"pkgcomment"),")")
+  meta$date    <- date()
+  #meta$quality <- quality()
+  
+  write_yaml(meta,"DOWNLOAD.yml")
 }
