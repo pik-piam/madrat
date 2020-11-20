@@ -57,15 +57,20 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   if(!all(mandatory %in% names(meta))) {vcat(0, paste0("Missing entries in the meta data of function '",functionname[1],"': ",mandatory[!mandatory %in% names(meta)]))}
   
   # define reserved elements of meta data and check if they already exist
-  reserved <- c("type","subtype","origin","date")
+  reserved <- c("type","subtype","origin","date_downloaded","source_quality")
   if(any(reserved %in% names(meta))) {vcat(0, paste0("The following entries in the meta data of the function '",functionname[1],"' are reserved and will be overwritten: ",reserved[reserved %in% names(meta)]))}
   
   # set reserved meta data elements
   meta$type    <- type
   meta$subtype <- ifelse(is.null(subtype), "none",subtype)
   meta$origin  <- paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," -> ",functionname," (madrat ",packageDescription("madrat")$Version," | ",attr(functionname,"pkgcomment"),")")
-  meta$date    <- date()
-  #meta$quality <- quality()
+  meta$date_downloaded <- date()
+  meta$source_quality <- ifelse(!is.null(meta$doi),"gold","silver")
   
-  write_yaml(meta,"DOWNLOAD.yml")
+  # reorder meta entries
+  preferred_order <- c("title","authors","doi","url","license","version","date_released","date_downloaded","origin",
+                       "type","subtype", "source_quality","source")
+  order <- c(intersect(preferred_order,names(meta)),setdiff(names(meta),preferred_order))
+  
+  write_yaml(meta[order],"DOWNLOAD.yml")
 }

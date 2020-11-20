@@ -1,19 +1,38 @@
 #' @importFrom utils download.file unzip
 downloadTau <- function(subtype="paper") {
+
+  settings <- list(     paper = list(title = "Cellular (0.5deg), crop-specific land use intensity (tau) for 1995 and 2000",
+                                       url = "https://zenodo.org/record/4282581/files/tau-paper.zip",
+                                       doi = "10.5281/zenodo.4282581"),
+                   historical = list(title = "Historic land use intensity (tau) development",
+                                       url = "https://zenodo.org/record/4282548/files/tau-historical.zip",
+                                       doi = "10.5281/zenodo.4282548"))
+  meta <- toolSubtypeSelect(subtype,settings)
   
-  # Meta data to be provided by the user
-  meta <- list(url      = "http://www.pik-potsdam.de/members/dietrich/",
-               title    = "Agricultural Land Use Intensity Tau",
-               authors  = "Jan Philipp Dietrich",
-               license  = "Creative Commons Attribution-ShareAlike 4.0 International License"
-               #version <- 
-               #date_released <- 
-               #doi <- 
-  )
-  
-  file <- toolSubtypeSelect(subtype,c(paper="tau-paper.zip",historical="tau-historical.zip"))
-  download.file(paste0(meta$url,file), destfile = "tau.zip")
+  download.file(meta$url, destfile = "tau.zip")
   unzip("tau.zip")
   unlink("tau.zip")
-  return(meta)
+  
+  return(list(url           = meta$url,
+              doi           = meta$doi,
+              title         = meta$title,
+              authors       = person("Jan Philipp","Dietrich", email="dietrich@pik-potsdam.de", comment=c(ORCID="0000-0002-4309-6431")),
+              version       = "1.0",
+              date_released = "2012-05-10",
+              license  = "Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)",
+              source   = bibentry("Article",
+                                  title="Measuring agricultural land-use intensity - A global analysis using a model-assisted approach",
+                                  author=c(person("Jan Philipp","Dietrich", email="dietrich@pik-potsdam.de", comment=c(ORCID="0000-0002-4309-6431")),
+                                           person("Christoph","Schmitz"),
+                                           person("Christoph","Mueller"),
+                                           person("Marianela","Fader"),
+                                           person("Hermann","Lotze-Campen"),
+                                           person("Alexander","Popp")),
+                                  year="2012",
+                                  journal="Ecological Modelling",
+                                  volume="232",
+                                  pages="109-118",
+                                  url="https://doi.org/10.1016/j.ecolmodel.2012.03.002",
+                                  doi="10.1016/j.ecolmodel.2012.03.002"))
+  )
 }
