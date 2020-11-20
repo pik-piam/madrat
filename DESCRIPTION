@@ -24,8 +24,8 @@ Imports:
     methods,
     parallel,
     stringi,
-  	rlang,
-  	assertthat,
+    rlang,
+    assertthat,
     yaml
 Suggests:
     igraph(>= 1.0.1),
