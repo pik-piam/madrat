@@ -54,11 +54,11 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   
   # define mandatory elements of meta data and check if they exist
   mandatory <- c("url","authors","title","license")
-  if(!all(mandatory %in% names(meta))) {vcat(0, paste0("Please provide the following meta data entries: ",mandatory[!mandatory %in% names(meta)]))}
+  if(!all(mandatory %in% names(meta))) {vcat(0, paste0("Missing entries in the meta data of function '",functionname[1],"': ",mandatory[!mandatory %in% names(meta)]))}
   
   # define reserved elements of meta data and check if they already exist
   reserved <- c("type","subtype","origin","date")
-  if(any(reserved %in% names(meta))) {vcat(0, paste0("The following entries in your meta data are reserved and will be overwritten: ",reserved[reserved %in% names(meta)]))}
+  if(any(reserved %in% names(meta))) {vcat(0, paste0("The following entries in the meta data of the function '",functionname[1],"' are reserved and will be overwritten: ",reserved[reserved %in% names(meta)]))}
   
   # set reserved meta data elements
   meta$type    <- type
