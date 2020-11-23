@@ -1,6 +1,7 @@
 #' @importFrom utils download.file unzip
 downloadTau <- function(subtype="paper") {
 
+  # Define subtype-specific elements of the meta data. Elements that are common to all subtypes are added further down.
   settings <- list(     paper = list(title = "Cellular (0.5deg), crop-specific land use intensity (tau) for 1995 and 2000",
                                        url = "https://zenodo.org/record/4282581/files/tau-paper.zip",
                                        doi = "10.5281/zenodo.4282581"),
@@ -13,6 +14,7 @@ downloadTau <- function(subtype="paper") {
   unzip("tau.zip")
   unlink("tau.zip")
   
+  # Compose meta data by adding elements that are the same for all subtypes.
   return(list(url           = meta$url,
               doi           = meta$doi,
               title         = meta$title,
