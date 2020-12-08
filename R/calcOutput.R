@@ -87,14 +87,9 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   # read region mappings check settings for aggregate
   rel <- list()
   rel_names <- NULL
-  i <- 0
   for(r in c(getConfig("regionmapping"),getConfig("extramappings"))) {
-    i <- i +1
-    if (i > 1) {
-      rel[[r]] <- toolGetMapping(r, type="regional", where = getCalculations()[grep(type, getCalculations()[,1]),"package"])
-    } else {
-      rel[[r]] <- toolGetMapping(r, type="regional")
-    }
+#    rel[[r]] <- toolGetMapping(r, type="regional", where = getCalculations()[grep(type, getCalculations()[,1]),"package"])
+    rel[[r]] <- toolGetMapping(r, type="regional", activecalc=type)
     # rename column names from old to new convention, if necessary
     if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
     if(any(names(rel[[r]])=="RegionCode")) names(rel[[r]])[names(rel[[r]])=="RegionCode"] <- "region"

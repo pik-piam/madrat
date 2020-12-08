@@ -8,7 +8,7 @@
 #' to convert between both formats
 #' @param type Mapping type (e.g. "regional", "cell", or "sectoral"). Can be set to NULL if file
 #' is not stored in a type specific subfolder
-#' @param where location to look for the mapping, either "mappingfolder", "local" (if the pathe is relative to your current
+#' @param where location to look for the mapping, either "mappingfolder", "local" (if the path is relative to your current
 #' directory) or the name of a package which contains the mapping
 #' @param error.missing Boolean which decides whether an error is returned if
 #' the mapping file does not exist or not.
@@ -23,7 +23,7 @@
 #' @importFrom tools file_ext
 #' @export
 #' 
-toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing=TRUE, returnPathOnly=FALSE) {
+toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing=TRUE, returnPathOnly=FALSE, activecalc=NULL) {
   if(where=="mappingfolder") {
     mf <- getConfig("mappingfolder")
     if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')
@@ -53,6 +53,14 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     fname <-  system.file("extdata", tmpfname, package=where)
     if(fname=="") fname <- system.file("inst/extdata", tmpfname, package=where)
     if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
+  } else {
+    for (where in c("local","mappingfolder",)) {
+      return(toolGetMapping(name=name,
+                            type=type,
+                            where=where,
+                            error.missing=error.missing,
+                            returnPathOnly=returnPathOnly))
+    }
   }
   fname <- gsub("/+","/",fname)
   if(returnPathOnly) return(fname)
@@ -70,6 +78,8 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     return(data)
   } else if(filetype=="rds") {
     return(readRDS(fname))
+  } else if(filetype=="") {
+    if (error.missing) stop("Unsupported filetype \"", filetype,"\"")
   } else {
     stop("Unsupported filetype \"", filetype,"\"")
   }
