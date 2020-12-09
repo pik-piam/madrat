@@ -13,6 +13,9 @@
 #' @param error.missing Boolean which decides whether an error is returned if
 #' the mapping file does not exist or not.
 #' @param returnPathOnly If set to TRUE only the file path is returned
+#' @param activecalc If set, this argument helps to define the first package within
+#' which the mapping has to be sought for. This happens via finding in which
+#' package the active calc function is located. 
 #' @return the mapping as a data frame
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
@@ -38,7 +41,7 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     } else if (!file.exists(fname)) {
       packages <- getConfig("packages")
       if (!is.null(activecalc)) {
-        fp <- as.character(attr(madrat:::prepFunctionName(activecalc,"calc"),"package"))
+        fp <- as.character(attr(prepFunctionName(activecalc,"calc"),"package"))
         packages <- c(fp,grep(fp,packages,invert = TRUE,value=TRUE))
       }
       for (i in packages) {

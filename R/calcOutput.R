@@ -88,7 +88,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   rel <- list()
   rel_names <- NULL
   for(r in c(getConfig("regionmapping"),getConfig("extramappings"))) {
-#    rel[[r]] <- toolGetMapping(r, type="regional", where = getCalculations()[grep(type, getCalculations()[,1]),"package"])
     rel[[r]] <- toolGetMapping(r, type="regional", activecalc=type)
     # rename column names from old to new convention, if necessary
     if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
