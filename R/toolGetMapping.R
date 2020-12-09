@@ -36,14 +36,17 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     if (file.exists(name)) {
       fname <- name
     } else if (!file.exists(fname)) {
-      packages <- as.character(getCalculations()[,"package"])
+      packages <- getConfig("packages")
       if (!is.null(activecalc)) {
-        fp <- as.character(attr(madrat:::prepFunctionName("TauTotal","calc"),"package"))
+        fp <- as.character(attr(madrat:::prepFunctionName(activecalc,"calc"),"package"))
         packages <- c(fp,grep(fp,packages,invert = TRUE,value=TRUE))
       }
       for (i in packages) {
-        out <- toolGetMapping(name, where = i, error.missing = FALSE, returnPathOnly = TRUE)
-        if (!is.null(out)) fname <- out
+        out <- toolGetMapping(name, type = type, where = i, error.missing = FALSE, returnPathOnly = TRUE)
+        if (out!="") {
+          fname <- out
+          break
+          }
       }
     }
     if(error.missing & !file.exists(fname)) {
@@ -67,15 +70,6 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     if(fname=="") fname <- system.file("inst/extdata", tmpfname, package=where)
     if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
   } 
-  #  else {
-  #   for (where in c("local","mappingfolder",)) {
-  #     return(toolGetMapping(name=name,
-  #                           type=type,
-  #                           where=where,
-  #                           error.missing=error.missing,
-  #                           returnPathOnly=returnPathOnly))
-  #   }
-  # }
   fname <- gsub("/+","/",fname)
   if(returnPathOnly) return(fname)
   filetype <- tolower(file_ext(fname))
