@@ -33,6 +33,19 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
       if(!file.exists(paste0(mf,"/",type))) dir.create(paste0(mf,"/",type), recursive = TRUE)
       file.copy(system.file("extdata", name, package = "madrat"), fname)
     }
+    if (file.exists(name)) {
+      fname <- name
+    } else if (!file.exists(fname)) {
+      packages <- as.character(getCalculations()[,"package"])
+      if (!is.null(activecalc)) {
+        fp <- as.character(attr(madrat:::prepFunctionName("TauTotal","calc"),"package"))
+        packages <- c(fp,grep(fp,packages,invert = TRUE,value=TRUE))
+      }
+      for (i in packages) {
+        out <- toolGetMapping(name, where = i, error.missing = FALSE, returnPathOnly = TRUE)
+        if (!is.null(out)) fname <- out
+      }
+    }
     if(error.missing & !file.exists(fname)) {
       if(!file.exists(mf)) stop('The mappings folder "', mf, '" does not exist!')
       if(!file.exists(paste0(mf,"/",type))) stop('Unknown mappings type "',type,'"!')
@@ -53,15 +66,16 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     fname <-  system.file("extdata", tmpfname, package=where)
     if(fname=="") fname <- system.file("inst/extdata", tmpfname, package=where)
     if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
-  } else {
-    for (where in c("local","mappingfolder",)) {
-      return(toolGetMapping(name=name,
-                            type=type,
-                            where=where,
-                            error.missing=error.missing,
-                            returnPathOnly=returnPathOnly))
-    }
-  }
+  } 
+  #  else {
+  #   for (where in c("local","mappingfolder",)) {
+  #     return(toolGetMapping(name=name,
+  #                           type=type,
+  #                           where=where,
+  #                           error.missing=error.missing,
+  #                           returnPathOnly=returnPathOnly))
+  #   }
+  # }
   fname <- gsub("/+","/",fname)
   if(returnPathOnly) return(fname)
   filetype <- tolower(file_ext(fname))
