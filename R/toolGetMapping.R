@@ -36,7 +36,7 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
       if(!file.exists(paste0(mf,"/",type))) dir.create(paste0(mf,"/",type), recursive = TRUE)
       file.copy(system.file("extdata", name, package = "madrat"), fname)
     }
-    if (file.exists(name)) {
+    if (file.exists(as.character(name))) {
       fname <- name
     } else if (!file.exists(fname)) {
       packages <- getConfig("packages")
