@@ -31,14 +31,14 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     mf <- getConfig("mappingfolder")
     if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')
     fname <- paste0(mf,"/",type,"/",name)
-    if(!file.exists(fname) & file.exists(system.file("extdata", name, package = "madrat"))) {
+    if(!file.exists(as.character(fname)) & file.exists(system.file("extdata", name, package = "madrat"))) {
       vcat(-2,"copy mapping",name,"from madrat package into mappings folder...")
       if(!file.exists(paste0(mf,"/",type))) dir.create(paste0(mf,"/",type), recursive = TRUE)
       file.copy(system.file("extdata", name, package = "madrat"), fname)
     }
     if (file.exists(as.character(name))) {
       fname <- name
-    } else if (!file.exists(fname)) {
+    } else if (!file.exists(as.character(fname))) {
       packages <- getConfig("packages")
       if (!is.null(activecalc)) {
         fp <- as.character(attr(prepFunctionName(activecalc,"calc"),"package"))
@@ -52,7 +52,7 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
           }
       }
     }
-    if(error.missing & !file.exists(fname)) {
+    if(error.missing & !file.exists(as.character(fname))) {
       if(!file.exists(mf)) stop('The mappings folder "', mf, '" does not exist!')
       if(!file.exists(paste0(mf,"/",type))) stop('Unknown mappings type "',type,'"!')
       stop('Mapping "',name,'" not found!')
