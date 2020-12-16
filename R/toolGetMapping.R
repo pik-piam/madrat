@@ -31,17 +31,12 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     mf <- getConfig("mappingfolder")
     if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')
     fname <- paste0(mf,"/",type,"/",name)
-    if(!file.exists(as.character(fname)) & file.exists(system.file("extdata", name, package = "madrat"))) {
-      vcat(-2,"copy mapping",name,"from madrat package into mappings folder...")
-      if(!file.exists(paste0(mf,"/",type))) dir.create(paste0(mf,"/",type), recursive = TRUE)
-      file.copy(system.file("extdata", name, package = "madrat"), fname)
-    }
     if (file.exists(as.character(name))) {
       fname <- name
     } else if (!file.exists(as.character(fname))) {
       packages <- getConfig("packages")
-      if (!is.null(activecalc)) {
-        fp <- as.character(attr(prepFunctionName(activecalc,"calc"),"package"))
+      if (!is.null(activecalc[[1]]) & any(grepl(paste0("^",activecalc[[1]],"$"),getCalculations()[,"type"]))) {
+        fp <- as.character(attr(prepFunctionName(activecalc[[1]],"calc"),"package"))
         packages <- c(fp,grep(fp,packages,invert = TRUE,value=TRUE))
       }
       for (i in packages) {
@@ -71,6 +66,8 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
     }
     fname <-  system.file("extdata", tmpfname, package=where)
     if(fname=="") fname <- system.file("inst/extdata", tmpfname, package=where)
+    if(fname=="") fname <- system.file("extdata", strsplit(tmpfname,split = "/")[[1]][2], package=where)
+    if(fname=="") fname <- system.file("inst/extdata", strsplit(tmpfname,split = "/")[[1]][2], package=where)
     if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
   } 
   fname <- gsub("/+","/",fname)
