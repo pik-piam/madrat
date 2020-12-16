@@ -85,16 +85,18 @@
 calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
  
   # read region mappings check settings for aggregate
-  rel <- list()
-  rel_names <- NULL
-  for(r in c(getConfig("regionmapping"),getConfig("extramappings"))) {
-    rel[[r]] <- toolGetMapping(r, type="regional", activecalc=type)
-    # rename column names from old to new convention, if necessary
-    if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
-    if(any(names(rel[[r]])=="RegionCode")) names(rel[[r]])[names(rel[[r]])=="RegionCode"] <- "region"
-    if(is.null(rel[[r]]$global)) rel[[r]]$global <- "GLO"  # add global column
-    rel_names <- union(rel_names,names(rel[[r]]))
-  }     
+  if (aggregate!=FALSE) {
+    rel <- list()
+    rel_names <- NULL
+    for(r in c(getConfig("regionmapping"),getConfig("extramappings"))) {
+      rel[[r]] <- toolGetMapping(r, type="regional", activecalc=type)
+      # rename column names from old to new convention, if necessary
+      if(any(names(rel[[r]])=="CountryCode")) names(rel[[r]])[names(rel[[r]])=="CountryCode"] <- "country"
+      if(any(names(rel[[r]])=="RegionCode")) names(rel[[r]])[names(rel[[r]])=="RegionCode"] <- "region"
+      if(is.null(rel[[r]]$global)) rel[[r]]$global <- "GLO"  # add global column
+      rel_names <- union(rel_names,names(rel[[r]]))
+    }
+  }
   
   if(!is.logical(aggregate)) {
     # rename aggregate arguments from old to new convention, if necessary
