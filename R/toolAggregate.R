@@ -17,7 +17,7 @@
 #' is 1 this means that the same transformation matrix is applied for all years
 #' and/or all data columns. In the case that a column should be just summed up
 #' instead of being calculated as a weighted average you either do not provide
-#' any weight (than all columns are just summed up) or your set this specific
+#' any weight (then all columns are just summed up) or your set this specific
 #' weighting column to NA and mixed_aggregation to TRUE.
 #' 
 #' @param x magclass object that should be (dis-)aggregated
@@ -42,7 +42,7 @@
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
 #' specified by name of that dimension or position within the given dimension
 #' (e.g. 3.2 means the 2nd data dimension, 3.8 means the 8th data dimension).
-#' @param wdim Specifying the according weight dimension as choosen with dim
+#' @param wdim Specifying the according weight dimension as chosen with dim
 #' for the aggregation object. If set to NULL the function will try to
 #' automatically detect the dimension.
 #' @param partrel If set to TRUE allows that the relation matrix does contain
