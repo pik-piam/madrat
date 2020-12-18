@@ -15,13 +15,15 @@
 #' calls in or from the function (ignoring the network of functions attached to it).
 #' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}. 
 #' Will be created with \code{\link{getMadratGraph}} if not provided. 
+#' @param type type filter. Only dependencies of that type will be returned. Currently available
+#' types are "calc", "read" and "tool"
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}},  \code{\link{getMadratInfo}}
 #' @export
 
-getDependencies <- function(name, direction="in", graph=NULL, ...) {
+getDependencies <- function(name, direction="in", graph=NULL, type=NULL, ...) {
   if (!requireNamespace("igraph", quietly = TRUE)) stop("Package \"igraph\" needed for this function to work.")
   if(is.null(graph)) graph <- getMadratGraph(...)
   if(!(name %in% c(graph$from,graph$to))) stop("There is no function with the name \"",name,"\"")
@@ -42,8 +44,10 @@ getDependencies <- function(name, direction="in", graph=NULL, ...) {
   packages <- c(graph$from_package,graph$to_package)
   names(packages) <- c(graph$from,graph$to)
   
-  out <- data.frame(func=tmp,package=packages[tmp],row.names=NULL, stringsAsFactors = FALSE)
-  
-  return(data.frame(out[order(out$package),],row.names=NULL, stringsAsFactors = FALSE))
+  out <- data.frame(func=tmp,type=substr(tmp,1,4),package=packages[tmp],row.names=NULL, stringsAsFactors = FALSE)
+  if(!is.null(type)) out <- out[out$type %in% type,]
+  out <- out[order(out$package),]
+  out <- out[order(out$type),]
+  return(data.frame(out ,row.names=NULL, stringsAsFactors = FALSE))
 }
 
