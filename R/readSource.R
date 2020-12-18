@@ -42,10 +42,10 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   if(!file.exists(getConfig("cachefolder")) & getConfig("enablecache")) dir.create(getConfig("cachefolder"),recursive = TRUE)
   
   # Does the source that should be read exist?
-  if(!(type%in%getSources())) stop('Type "',type, '" is not a valid source type. Available sources are: "',paste(getSources(),collapse='", "'),'"')
+  if(!(type %in% getSources(type="read"))) stop('Type "',type, '" is not a valid source type. Available sources are: "',paste(getSources(type="read"),collapse='", "'),'"')
   
   # Does a correctTYPE function exist?
-  if(convert=="onlycorrect" & !(type %in% getSources("correct"))) {
+  if(convert=="onlycorrect" & !(type %in% getSources(type="correct"))) {
     warning("No correct function for ",type," could be found. Set convert to FALSE.")
     convert <- FALSE
   }
@@ -136,7 +136,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       x <- .getData(type,subtype,"read")
       id <-  paste(attr(x,"id"),fname,sep="|")
     } else if(prefix=="convert") {
-      if(type %in% getSources("correct")) {    
+      if(type %in% getSources(type="correct")) {    
         x <- .getData(type,subtype,"correct")
       } else {
         x <- .getData(type,subtype,"read")
@@ -178,7 +178,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   
   if(source_missing) {
     # does a routine exist to download the source data?
-    if(type %in% getSources("download")) {
+    if(type %in% getSources(type="download")) {
       downloadSource(type, subtype=subtype)
     } else {
       typesubtype <- paste0(paste(c(paste0("type = \"",type),subtype),collapse="\" subtype = \""),"\"")
@@ -188,9 +188,9 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   
   if(!is.logical(convert) && convert!="onlycorrect") stop("Unknown convert setting \"",convert,"\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
         
-  if(convert==TRUE & (type %in% getSources("regional"))) {
+  if(convert==TRUE && (type %in% getSources(type="convert"))) {
     prefix <- "convert"
-  } else if (convert %in% c(TRUE, "onlycorrect") & (type %in% getSources("correct"))) {
+  } else if (convert %in% c(TRUE, "onlycorrect") && (type %in% getSources(type="correct"))) {
     prefix <- "correct"
   } else {
     prefix <- "read"

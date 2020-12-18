@@ -6,16 +6,16 @@
 #' 
 #' 
 #' @aliases getSources
-#' @param type Type of source, either set to "regional", "download", "correct" or
-#' NULL. Regional returns sources with regional data, "download" returns source for which a download
-#' function is available, "correct" returns sources for which a correct function
-#' is available and NULL returns all available sources
+#' @param name name of function for which sources should get returned. If not specified, all sources in the
+#' specified environment are returned
+#' @param type Type of source, either set to "read", "convert", "correct", "download" or
+#' NULL. If specified, a vector containing the sources with the corresponding function type are returned,
+#' otherwise a data.frame with all sources and their available function types is returned.
 #' @param packages A character vector with packages for which the available Sources/Calculations should be returned
 #' @param globalenv Boolean deciding whether sources/calculations in the global environment should be included or not
-#' @return A vector containing all currently available sources or outputs of
-#' all loaded data processing packages.
-#' @note Please be aware that these functions assume that required source files
-#' do exist and are set correctly in the corresponding config file.
+#' @return A vector or data.frame containing all corresponding sources
+#' @note Please be aware that these functions only check the availability of corresponding functions of the package, not
+#' whether the functions will properly work.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}, \code{\link{setConfig}}
 #' @examples
@@ -23,7 +23,7 @@
 #' print(getSources())
 #' 
 #' @export getSources
-getSources <- function(type=NULL, packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
+getSources <- function(name=NULL, type=NULL, packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
   n <- NULL
   for(p in packages) {
     n <- c(n,ls(getNamespace(p)))
@@ -31,25 +31,28 @@ getSources <- function(type=NULL, packages=getConfig("packages"), globalenv=getC
   if(globalenv) {
     n <- c(n,ls(as.environment(".GlobalEnv")))
   }
-  .filter <- function(x,pattern) {
+  .filter <- function(pattern,x) {
     tmp <- sub(pattern,"",grep(pattern,n,value=TRUE))
     return(tmp[tmp!="Source"])
   }
-  read     <- .filter(n,"read")
-  correct  <- .filter(n,"correct")
-  convert  <- .filter(n,"convert")
-  download <- .filter(n,"download")
+  
+  types <- c("read","correct","convert","download")
+  
+  if(!is.null(name)) {
+    filter <- substring(getDependencies(name, type="read", packages=packages, globalenv=globalenv)$func,5)
+    pattern <- paste0("^(",paste(types,collapse="|"),")")
+    n <- n[sub(pattern,"",n) %in% filter]
+  }
   
   if(is.null(type)) {
-    out <- read    
-  } else if(type=="regional") {
-    out <- intersect(read,convert)
-  } else if(type=="correct") {
-    out <- correct
-  } else if(type=="download") {
-    out <- download
+    tmp <- sapply(types,.filter,n)
+    out <- data.frame(source=unique(unlist(tmp)))
+    for(i in names(tmp)) out[i] <- (out$source %in% tmp[[i]])
+    return(out)
+    return(.filter("read",n))
+  } else if(type %in% types) {
+    return(.filter(type,n))
   } else {
     stop("Unknown type")
   }
-  return(out)
 }
