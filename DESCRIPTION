@@ -1,8 +1,8 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 1.88.0
-Date: 2020-12-18
+Version: 1.88.1
+Date: 2021-01-18
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
              person("Stephen", "Wirth", email = "wirth@pik-potsdam.de", role = "aut"),
@@ -28,11 +28,12 @@ Imports:
     assertthat,
     yaml
 Suggests:
-    igraph(>= 1.0.1),
+    igraph (>= 1.0.1),
     knitr,
     rmarkdown,
     testthat,
-	ggplot2
+    ggplot2,
+    covr
 URL: https://github.com/pik-piam/madrat, https://doi.org/10.5281/zenodo.1115490
 BugReports: https://github.com/pik-piam/madrat/issues
 License: BSD_2_clause + file LICENSE
