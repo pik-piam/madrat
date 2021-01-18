@@ -14,7 +14,7 @@
 #' @importFrom stringi stri_match_all_regex
 #' @export
 
-getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
+getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConfig("globalenv")) {
   
   # extract function pool
   classes <- c("read","calc","full","tool")
