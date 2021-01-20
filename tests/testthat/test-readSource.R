@@ -12,7 +12,9 @@ test_that("readSource detects common problems", {
   globalassign("readNoDownload")
   expect_error(readSource("NoDownload"), "no download script")
   
-  downloadTest <- function()return(1)
+  downloadTest <- function(){
+    return(list(url="dummy", author="dummy", title="dummy", license="dummy"))
+  }
   readTest <- function()return(1)
   globalassign("downloadTest", "readTest")
   expect_error(readSource("Test"), "not a MAgPIE object")
