@@ -25,8 +25,8 @@
 getCalculations <- function(prefix="calc", packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
   x <- NULL
   for(p in packages) {
-    tmp <- data.frame(type=ls(getNamespace(p)),package=p)
-    x <- rbind(x,tmp)
+    tmp <- try(data.frame(type=ls(getNamespace(p)),package=p), silent = TRUE)
+    if(class(tmp)!="tryError") x <- rbind(x,tmp)
   }
   if(globalenv) {
     tmp <- ls(as.environment(".GlobalEnv"))

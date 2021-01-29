@@ -25,7 +25,7 @@
 
 getDependencies <- function(name, direction="in", graph=NULL, type=NULL, ...) {
   if (!requireNamespace("igraph", quietly = TRUE)) stop("Package \"igraph\" needed for this function to work.")
-  if(is.null(graph)) graph <- getMadratGraph(...)
+  if(is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
   if(!(name %in% c(graph$from,graph$to))) stop("There is no function with the name \"",name,"\"")
   ggraph <- igraph::graph_from_data_frame(graph)
   if(direction=="full") direction <- "all"

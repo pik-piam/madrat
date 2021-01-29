@@ -1,7 +1,8 @@
 #' getMadratGraph
 #' 
-#' Function returns the madrat graph of all linkages of full, calc and read functions of the given madrat 
-#' based packages
+#' Function returns the madrat graph of all linkages of full, calc, and read functions of the given madrat 
+#' based packages. Linkages to subfunctions of read functions (i.e. download, correct or convert functions)
+#' are not listed separately, but collectively referred to through the corresponding read function.
 #' 
 #' 
 #' @param packages A character vector with packages for which the available Sources/Calculations should be returned
@@ -13,7 +14,7 @@
 #' @importFrom stringi stri_match_all_regex
 #' @export
 
-getMadratGraph <- function(packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
+getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConfig("globalenv")) {
   
   # extract function pool
   classes <- c("read","calc","full","tool")

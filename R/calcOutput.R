@@ -146,6 +146,8 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     tmppath_read <- tmppath
     rds <- TRUE
   }
+  if(!file.exists(tmppath_read)) vcat(2, paste0(" - Cache file ",fname,".rds does not exist"), show_prefix=FALSE)
+  
   cache_failed <- FALSE
   repeat {
     if(!cache_failed && ((all(getConfig("forcecache")==TRUE) || fname %in% getConfig("forcecache") || type %in% getConfig("forcecache")) && !(type %in% getConfig("ignorecache"))) && !(fname %in% getConfig("ignorecache")) && file.exists(tmppath_read) ) {
