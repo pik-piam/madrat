@@ -2,6 +2,7 @@
 
 export(calcOutput)
 export(downloadSource)
+export(findBottlenecks)
 export(getCalculations)
 export(getConfig)
 export(getDependencies)

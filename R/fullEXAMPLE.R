@@ -23,6 +23,6 @@ fullEXAMPLE <- function(rev=0, dev="") {
   
   writeLines("This is a test",paste0(getConfig("outputfolder"),"/test.txt"))
 
-  if(rev>=1) calcOutput("TauTotal", years=1995, round=2, file="fm_tau1995.cs4", destination="testfolder/input")
+  if(rev>=1) calcOutput("TauTotal", years=1995, round=2, file="fm_tau1995.cs4")
   if(dev=="test") writeLines("Here you could execute code for a hypothetical development version called \"test\"")
 }
