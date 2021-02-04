@@ -10,7 +10,7 @@
 #' total runtime "time" (including the execution of all sub-functions) and net runtime "net" (excluding
 #' the runtime of sub-functions) and their share of total runtime.
 #' @author Jan Philipp Dietrich
-#' 
+#' @export
 findBottlenecks <- function(file, unit="min", cumulative=TRUE) {
   if(length(file)>1 || any(grepl("\n",file))) {
     f <- unlist(strsplit(file,"\n"))
