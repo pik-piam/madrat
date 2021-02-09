@@ -313,8 +313,13 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
       }
       return(x%*%y)   
     }
-    out <- apply(x, which(1:3!=dim),matrix_multiplication,rel)
-    if(length(dim(out))==2) out <- array(out,dim=c(1,dim(out)),dimnames=c("",dimnames(out)))
+    #out <- apply(x, which(1:3!=dim),matrix_multiplication,rel)
+    #if(length(dim(out))==2) out <- array(out,dim=c(1,dim(out)),dimnames=c("",dimnames(out)))
+    
+    notdim <- setdiff(1:3,dim)
+    out <- matrix_multiplication(wrap(x,list(dim,notdim)),rel)
+    out <- array(out,dim=c(dim(rel)[1],dim(x)[notdim]))
+    dimnames(out)[2:3] <- dimnames(x)[notdim]
     
     #Write dimnames of aggregated dimension
     if(!is.null(rownames(rel))) {
