@@ -256,13 +256,14 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
           
         tmp <- unique(sub(search,"\\1#|TBR|#\\3",names)) 
         additions <- strsplit(tmp,split="#|TBR|#",fixed=TRUE)
-        cnames <- NULL
-        rnames <- NULL
-        for(i in 1:length(additions)) {
-          if(is.na(additions[[i]][2])) additions[[i]][2] <- ""
-          cnames <- c(cnames,paste0(additions[[i]][1],colnames(rel),additions[[i]][2]))
-          rnames <- c(rnames,paste0(additions[[i]][1],rownames(rel),additions[[i]][2]))
-        }
+        add <- sapply(additions, function(x) return(x[1:2]))
+        add[is.na(add)] <- ""
+        .tmp <- function(add,fill) return(paste0(rep(add[1,],each=length(fill)),
+                                                 rep(fill,dim(add)[1]),
+                                                 rep(add[2,],each=length(fill))))
+        
+        cnames <- .tmp(add,colnames(rel))
+        rnames <- .tmp(add,rownames(rel))
         
         new_rel <- matrix(0,nrow=length(rnames),ncol=length(cnames),dimnames=list(rnames,cnames))
         
