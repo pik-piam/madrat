@@ -292,35 +292,40 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     }
     
     #Aggregate data
-    matrix_multiplication <- function(y,x) {
-      if(any(is.infinite(y))) {
-        #Special Inf treatment to prevent that a single Inf in x
-        #is setting the full output to NaN (because 0*Inf is NaN)
-        #Infs are now treated in a way that anything except 0 times Inf
-        #leads to NaN, but 0 times Inf leads to NaN
-        for(i in c(-Inf,Inf)) {
-          j <- (is.infinite(y) & (y == i))
-          x[,j][x[,j]!=0] <- i
-          y[j] <- 1
+    if(anyNA(x) || any(is.infinite(x))) { 
+      matrix_multiplication <- function(y,x) {
+        if(any(is.infinite(y))) {
+          #Special Inf treatment to prevent that a single Inf in x
+          #is setting the full output to NaN (because 0*Inf is NaN)
+          #Infs are now treated in a way that anything except 0 times Inf
+          #leads to NaN, but 0 times Inf leads to NaN
+          for(i in c(-Inf,Inf)) {
+            j <- (is.infinite(y) & (y == i))
+            x[,j][x[,j]!=0] <- i
+            y[j] <- 1
+          }
         }
+        if(any(is.na(y))) {
+          #Special NA treatment to prevent that a single NA in x
+          #is setting the full output to NA (because 0*NA is NA)
+          #NAs are now treated in a way that anything except 0 times NA
+          #leads to NA, but 0 times NA leads to 0
+          x[,is.na(y)][x[,is.na(y)]!=0] <- NA
+          y[is.na(y)] <- 0
+        }
+        return(x%*%y)   
       }
-      if(any(is.na(y))) {
-        #Special NA treatment to prevent that a single NA in x
-        #is setting the full output to NA (because 0*NA is NA)
-        #NAs are now treated in a way that anything except 0 times NA
-        #leads to NA, but 0 times NA leads to 0
-        x[,is.na(y)][x[,is.na(y)]!=0] <- NA
-        y[is.na(y)] <- 0
-      }
-      return(x%*%y)   
+      out <- apply(x, which(1:3!=dim),matrix_multiplication,rel)
+      if(length(dim(out))==2) out <- array(out,dim=c(1,dim(out)),dimnames=c("",dimnames(out)))
+    } else {
+      optMatprod <- getOption("matprod")
+      on.exit(options(matprod = optMatprod))
+      options(matprod = "blas")
+      notdim <- setdiff(1:3,dim)
+      out <- rel %*% wrap(x,list(dim,notdim))
+      out <- array(out,dim=c(dim(rel)[1],dim(x)[notdim]))
+      dimnames(out)[2:3] <- dimnames(x)[notdim]
     }
-    #out <- apply(x, which(1:3!=dim),matrix_multiplication,rel)
-    #if(length(dim(out))==2) out <- array(out,dim=c(1,dim(out)),dimnames=c("",dimnames(out)))
-    
-    notdim <- setdiff(1:3,dim)
-    out <- matrix_multiplication(wrap(x,list(dim,notdim)),rel)
-    out <- array(out,dim=c(dim(rel)[1],dim(x)[notdim]))
-    dimnames(out)[2:3] <- dimnames(x)[notdim]
     
     #Write dimnames of aggregated dimension
     if(!is.null(rownames(rel))) {
