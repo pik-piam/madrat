@@ -162,8 +162,8 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     noagg <- datnames[!datnames %in% colnames(rel)]
     if(length(noagg)>1) vcat(verbosity, "The following entries were not aggregated because there was no respective entry in the relation matrix", noagg, "\n")
     
-    rel <- rel[,common]
-    rel <- rel[rowSums(rel)>0,]
+    rel <- rel[,common,drop=FALSE]
+    rel <- rel[rowSums(rel)>0,,drop=FALSE]
   }
 
   if(!is.null(weight)) {
