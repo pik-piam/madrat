@@ -59,11 +59,11 @@
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
-#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- 
+#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind setComment getNames getNames<- as.array
 #' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<- getRegionList as.magpie getItems collapseNames 
 #' @importFrom magclass updateMetadata withMetadata getDim getSets getSets<-
 #' @importFrom utils object.size
-#' @importFrom spam diag.spam as.matrix
+#' @importFrom Matrix Matrix t rowSums
 #' @seealso \code{\link{calcOutput}}
 #' @examples
 #' 
@@ -91,7 +91,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     else  calcHistory <- paste0("toolAggregate(x=unknown, rel=unknown, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
   } else  calcHistory <- "copy"
   
-  if(!is.numeric(rel) & !("spam" %in% class(rel))) {
+  if(!is.numeric(rel) & !("dgCMatrix" %in% class(rel))) {
     .getAggregationMatrix <- function(rel,from=NULL,to=NULL,items=NULL,partrel=FALSE) {
       
       if("tbl" %in% class(rel)){
@@ -122,9 +122,9 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
         }
       }
       
-      regions <- unique(rel[,to])
-      countries <- unique(rel[,from])
-      m <- matrix(data=0, nrow=length(regions),ncol=length(countries),dimnames=list(regions=regions,countries=countries))
+      regions <- as.character(unique(rel[,to]))
+      countries <- as.character(unique(rel[,from]))
+      m <- Matrix(data=0, nrow=length(regions),ncol=length(countries),dimnames=list(regions=regions,countries=countries))
       m[cbind(match(rel[,to],rownames(m)),match(rel[,from],colnames(m)))] <- 1
       if(is.numeric(to)) to <- dimnames(rel)[[2]][to]
       if(is.numeric(from)) from <- dimnames(rel)[[2]][from]
@@ -163,7 +163,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     if(length(noagg)>1) vcat(verbosity, "The following entries were not aggregated because there was no respective entry in the relation matrix", noagg, "\n")
     
     rel <- rel[,common]
-    rel <- subset(rel, subset=rowSums(rel)>0)
+    rel <- rel[rowSums(rel)>0,]
   }
 
   if(!is.null(weight)) {
@@ -226,6 +226,9 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     return(updateMetadata(out,x,unit="copy",calcHistory=calcHistory))
   }  else {
     
+    #convert rel for better performance
+    rel <- Matrix(rel)
+    
     #make sure that rel and weight cover a whole dimension (not only a subdimension)
     #expand data if necessary
     #set dim to main dimension afterwards
@@ -265,7 +268,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
         cnames <- .tmp(add,colnames(rel))
         rnames <- .tmp(add,rownames(rel))
         
-        new_rel <- matrix(0,nrow=length(rnames),ncol=length(cnames),dimnames=list(rnames,cnames))
+        new_rel <- Matrix(0,nrow=length(rnames),ncol=length(cnames),dimnames=list(rnames,cnames))
         
         for(i in 1:length(additions)) {
           new_rel[1:nrow(rel)+(i-1)*nrow(rel),1:ncol(rel)+(i-1)*ncol(rel)] <- rel
@@ -313,7 +316,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
           x[,is.na(y)][x[,is.na(y)]!=0] <- NA
           y[is.na(y)] <- 0
         }
-        return(x%*%y)   
+        return(as.array(x%*%y))
       }
       out <- apply(x, which(1:3!=dim),matrix_multiplication,rel)
       if(length(dim(out))==2) out <- array(out,dim=c(1,dim(out)),dimnames=c("",dimnames(out)))
@@ -322,7 +325,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
       on.exit(options(matprod = optMatprod))
       options(matprod = "blas")
       notdim <- setdiff(1:3,dim)
-      out <- rel %*% wrap(x,list(dim,notdim))
+      out <- rel %*% as.array(wrap(x,list(dim,notdim)))
       out <- array(out,dim=c(dim(rel)[1],dim(x)[notdim]))
       dimnames(out)[2:3] <- dimnames(x)[notdim]
     }
