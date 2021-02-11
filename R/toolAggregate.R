@@ -153,7 +153,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     datnames <-  getItems(x,dim)
     
     common <- intersect(datnames, colnames(rel))
-    if(length(common)==0) stop("The relation matrix consited of no entry that could be used for aggregation")
+    if(length(common)==0) stop("The relation matrix does not contain any entries that could be used for aggregation")
     if(floor(dim)==1) x <- x[common,,]
     if(floor(dim)==2) x <- x[,common,]
     if(floor(dim)==3) x <- x[,,common]
@@ -259,7 +259,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
         add <- sapply(additions, function(x) return(x[1:2]))
         add[is.na(add)] <- ""
         .tmp <- function(add,fill) return(paste0(rep(add[1,],each=length(fill)),
-                                                 rep(fill,dim(add)[1]),
+                                                 fill,
                                                  rep(add[2,],each=length(fill))))
         
         cnames <- .tmp(add,colnames(rel))
@@ -270,7 +270,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
         for(i in 1:length(additions)) {
           new_rel[1:nrow(rel)+(i-1)*nrow(rel),1:ncol(rel)+(i-1)*ncol(rel)] <- rel
         }
-        return(new_rel[,names])
+        return(new_rel[,names,drop=FALSE])
       }
       rel <- .expand_rel(rel,getItems(x,round(floor(dim))),dim)
       dim <- round(floor(dim))
