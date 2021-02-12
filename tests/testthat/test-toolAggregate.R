@@ -1,7 +1,6 @@
 context("Data aggregation")
 
-data("population_magpie")
-pm <- population_magpie
+pm <- magclass::maxample("pop")
 w <- pm
 w[,,] <- NA
 map <- data.frame(from=getRegions(pm),reg=rep(c("REG1","REG2"),5),glo="GLO")
@@ -23,8 +22,6 @@ test_that("Identity mapping is not changing the data", {
 test_that("Mappings work in matrix and data.frame format identical", {
   expect_identical(toolAggregate(pm,as.matrix(map)),toolAggregate(pm,map))
 })
-
-toolAggregate(pm,as.matrix(map))
 
 test_that("Combination via '+' works", {
   reg <- toolAggregate(pm,map,to="reg")
@@ -121,4 +118,10 @@ test_that("toolAggregate does not get confused by identical sets", {
 test_that("toolAggregate detects inconsistencies in inputs", {
   expect_error(toolAggregate(pm[1:3,,],map2),"Could not find matching 'from' column")
   expect_error(toolAggregate(pm[1:3,,],map2, from="from", to="to"),"different number of entries")
+})
+
+test_that("aggregation for subdimensions works properly", {
+  a <- magclass::maxample("animal")[1:3,1:2,"black"]
+  rel <- data.frame(from=c("rabbit","bird"),to="sweet")
+  expect_identical(getItems(toolAggregate(a, rel, dim = "species"),dim=3, full=TRUE), "animal.sweet.black")
 })
