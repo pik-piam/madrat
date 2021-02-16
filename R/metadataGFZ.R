@@ -16,8 +16,8 @@
 #' @export
 
 metadataGFZ <- function(doi) {
-  if (!grepl("10.5880",doi, fixed = TRUE)) stop("DOI does not belong to a GFZ dataservice entry")
   if (is.null(doi)) return(NULL)
+  if (!grepl("10.5880",doi, fixed = TRUE)) stop("DOI does not belong to a GFZ dataservice entry")
   if (!grepl("http", doi)) doi <- paste0("http://doi.org/",doi)
   file <- tempfile()
   download.file(doi,file, quiet = TRUE)
