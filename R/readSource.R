@@ -63,8 +63,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   
   .getData <- function(type,subtype,prefix="read") {
     # get data either from cache or by calculating it from source
-    sourcefolder <- paste0(getConfig("sourcefolder"),"/",type)
-    if(!is.null(subtype) && file.exists(paste0(sourcefolder,"/",subtype,"/DOWNLOAD.yml"))) sourcefolder <- paste0(sourcefolder,"/",subtype)
+    sourcefolder <- paste0(getConfig("sourcefolder"),"/",make.names(type))
+    if(!is.null(subtype) && file.exists(paste0(sourcefolder,"/",make.names(subtype),"/DOWNLOAD.yml"))) sourcefolder <- paste0(sourcefolder,"/",make.names(subtype))
     if(!file.exists(sourcefolder)) stop('Source folder "',sourcefolder,'" for source "',type,'" cannot be found! Please set a proper path with "setConfig"!')  
 
     fname <- paste0(prefix,type,subtype)
@@ -171,8 +171,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   if(length(df)==0) {
     source_missing <- !file.exists(sourcefolder)
   } else {
-    sourcefile <- paste0(getConfig("sourcefolder"),"/",type,"/DOWNLOAD.yml")
-    sourcesubfile <- paste0(getConfig("sourcefolder"),"/",type,"/",subtype,"/DOWNLOAD.yml")
+    sourcefile <- paste0(getConfig("sourcefolder"),"/",make.names(type),"/DOWNLOAD.yml")
+    sourcesubfile <- paste0(getConfig("sourcefolder"),"/",make.names(type),"/",make.names(subtype),"/DOWNLOAD.yml")
     source_missing <- (!file.exists(sourcefile) && !file.exists(sourcesubfile))
   }
   
