@@ -58,7 +58,7 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   on.exit(setwd(cwd), add = TRUE)
   if(!file.exists(getConfig("sourcefolder"))) dir.create(getConfig("sourcefolder"), recursive = TRUE)
   
-  typesubtype <- paste(c(type,subtype),collapse="/")
+  typesubtype <- paste(c(make.names(type),make.names(subtype)),collapse="/")
   
   setwd(getConfig("sourcefolder"))
   if(file.exists(typesubtype)) {
