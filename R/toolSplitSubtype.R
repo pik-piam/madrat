@@ -1,7 +1,7 @@
 #' Tool: SplitSubtype
 #' 
 #' This function can split a subtype string into smaller entities based on 
-#' a given separator and check the these entities exist in a reference list
+#' a given separator and check whether these entities exist in a reference list
 #' 
 #' @param subtype A character string which can be split with the given separator into smaller entities
 #' @param components A named list with the same length as the subtype has entities. Names of the list
