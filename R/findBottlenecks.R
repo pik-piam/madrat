@@ -21,6 +21,7 @@ findBottlenecks <- function(file, unit="min", cumulative=TRUE) {
   x <- data.frame(level=nchar(gsub("^(>*).*$","\\1",f)))
   x$class <- NA
   x$class[grepl("readSource",f)] <- "read"
+  x$class[grepl("downloadSource",f)] <- "download"
   x$class[grepl("calcOutput",f)] <- "calc"
   x$class[grepl("retrieveData",f)] <- "retrieve"
   if(anyNA(x$class)) {
