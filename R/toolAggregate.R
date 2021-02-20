@@ -91,7 +91,11 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     else  calcHistory <- paste0("toolAggregate(x=unknown, rel=unknown, dim=",dim,", mixed_aggregation=",mixed_aggregation,")")
   } else  calcHistory <- "copy"
   
-  if(!is.numeric(rel) & !("dgCMatrix" %in% class(rel))) {
+  .isMatrix <- function(x) {
+    return(any(is.element(class(x),c("dgCMatrix","dsCMatrix", "dsyMatrix")) || ("Matrix" %in% attr(class(x),"package"))))
+  }
+  
+  if(!is.numeric(rel) && !.isMatrix(rel)) {
     .getAggregationMatrix <- function(rel,from=NULL,to=NULL,items=NULL,partrel=FALSE) {
       
       if("tbl" %in% class(rel)){
