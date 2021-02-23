@@ -93,7 +93,7 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   meta$accessibility <- ifelse(!is.null(meta$doi),"gold","silver")
   
   # reorder meta entries
-  preferred_order <- c("title","author","doi","url","accessibility","license","version","release_date","unit","call","reference")
+  preferred_order <- c("title","description","author","doi","url","accessibility","license","version","release_date","unit","call","reference")
   order <- c(intersect(preferred_order,names(meta)),setdiff(names(meta),preferred_order))
   
   write_yaml(meta[order],"DOWNLOAD.yml")
