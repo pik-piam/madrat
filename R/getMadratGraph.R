@@ -17,8 +17,7 @@
 getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConfig("globalenv")) {
   
   # extract function pool
-  classes <- c("read","calc","full","tool")
-  fpool <- do.call(rbind,lapply(classes,getCalculations, packages=packages, globalenv=globalenv))
+  fpool <- getCalculations("read|calc|full|tool", packages = packages, globalenv = globalenv)
   
   # check for duplicates
   fpool$fname <- sub("^.*:::","",fpool$call)
