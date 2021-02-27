@@ -1,5 +1,7 @@
 context("Data calculation wrapper")
 
+Sys.setenv("LANGUAGE" = "EN")
+
 cfg <- getConfig(verbose = FALSE)
 
 globalassign <- function(...) {
@@ -96,7 +98,7 @@ test_that("Malformed calc outputs are properly detected", {
   
   calcError <- function()stop("I am an error!")
   globalassign("calcError")
-  expect_warning(a <- calcOutput("Error", try=TRUE), "I am an error")
+  expect_warning(suppressMessages(a <- calcOutput("Error", try=TRUE)), "I am an error", )
   expect_identical(class(a),"try-error")
   sink()
 })

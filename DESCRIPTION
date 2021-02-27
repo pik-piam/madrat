@@ -17,6 +17,7 @@ Depends:
     R(>= 2.10.0),
     magclass(>= 5.7.0)
 Imports:
+    igraph (>= 1.0.1),
     Matrix,
     tools,
     utils,
@@ -28,7 +29,6 @@ Imports:
     assertthat,
     yaml
 Suggests:
-    igraph (>= 1.0.1),
     knitr,
     rmarkdown,
     testthat,

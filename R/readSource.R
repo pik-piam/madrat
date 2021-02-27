@@ -74,27 +74,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     cachefile <- ifelse(is_old, cachefile_old, cachefile_new)
     mz <- is_old
     
-    .f <- function(type, prefix) {
-      out <- prepFunctionName(type=type, prefix=prefix, error_on_missing=FALSE)
-      if(is.null(out)) return(NULL)
-      return(eval(parse(text=sub("\\(.*$","",out))))
-    }
-    .fp <- function(sourcefolder, type, prefix) {
-      if(prefix=="read") {
-        fp <- fingerprint(sourcefolder, readSource, .f(type,"read"))  
-      } else if (prefix=="correct") {
-        fp <- fingerprint(sourcefolder, readSource, .f(type,"read"), .f(type,"correct"))
-      } else if (prefix=="convert") {
-        if(!is.null(.f(type,"correct"))) {
-          fp <- fingerprint(sourcefolder, readSource, .f(type,"read"), .f(type,"correct"), .f(type,"convert"))
-        } else {
-          fp <- fingerprint(sourcefolder, readSource, .f(type,"read"), .f(type,"convert"))
-        }
-      }
-      return(fp)
-    }
-    
-    fp <- .fp(sourcefolder, type, prefix)
+    graph <- getMadratGraph(packages = getConfig("packages"))
+    fp <- fingerprint(paste0("read",type), graph = graph)
     
     err <- try({
       if(getConfig("enablecache") && file.exists(cachefile) &&  !(fname %in% getConfig("ignorecache")) && !(type %in% getConfig("ignorecache")) ) { 
@@ -156,7 +137,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       testISO(getRegions(x),functionname=functionname)
     }
     vcat(2," - saving data to", cachefile_new, fill=300, show_prefix=FALSE)
-    getComment(x) <- .fp(sourcefolder, type, prefix)
+    getComment(x) <- fingerprint(paste0("read",type), graph = graph)
     saveRDS(x, cachefile_new, compress = getConfig("cachecompression"))
     Sys.chmod(cachefile_new,"0666", use_umask=FALSE)
     attr(x,"id") <- id

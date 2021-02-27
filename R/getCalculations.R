@@ -24,19 +24,10 @@
 #' 
 getCalculations <- function(prefix="calc", packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
   if (length(prefix) > 1) prefix <- paste(prefix, collapse = "|")
-  x <- NULL
-  for (p in packages) {
-    tmp <- try(data.frame(type = ls(getNamespace(p)), package = p), silent = TRUE)
-    if (class(tmp) != "tryError") x <- rbind(x,tmp)
-  }
-  if (globalenv) {
-    tmp <- ls(as.environment(".GlobalEnv"))
-    if (length(tmp) > 0) {
-      tmp <- data.frame(type = tmp, package = ".GlobalEnv")
-      x <- rbind(x,tmp)
-    }
-  }
+  if (globalenv) packages <- c(packages, ".GlobalEnv")
 
+  x <- .getAllFunctions(packages)
+  
   pattern <- paste0("^",prefix)
   x <- x[grep(pattern,x$type),]
   if (dim(x)[1] == 0) return(NULL)
@@ -44,4 +35,20 @@ getCalculations <- function(prefix="calc", packages=getConfig("packages"), globa
   x$type <- sub(pattern,"",x$type)  
   x$call <- sub(".GlobalEnv:::","",x$call, fixed = TRUE)
   return(x[!(x$type %in% c("Source","Output")),])
+}
+
+.getAllFunctions <- function(packages) {
+  .tmp <- function(p) {
+    if(p == ".GlobalEnv") {
+      ns <- try(as.environment(p), silent=TRUE)
+    } else {
+      ns <- try(getNamespace(p), silent=TRUE)
+    }
+    if ("tryError" %in% class(ns)) return(NULL)
+    tmp <- ls(ns)
+    names(tmp) <- rep(p,length(tmp))
+    return(tmp)
+  }
+  x <- unlist(lapply(packages,.tmp))
+  return(data.frame(type=x, package=names(x), stringsAsFactors = FALSE))
 }

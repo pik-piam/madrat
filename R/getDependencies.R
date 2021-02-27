@@ -17,14 +17,16 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided. 
 #' @param type type filter. Only dependencies of that type will be returned. Currently available
 #' types are "calc", "read" and "tool"
+#' @param self boolean defining whether the function itself, which is analyzed, should be 
+#' included in the output, or not
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}},  \code{\link{getMadratInfo}}
+#' @importFrom igraph graph_from_data_frame subcomponent
 #' @export
 
-getDependencies <- function(name, direction="in", graph=NULL, type=NULL, ...) {
-  if (!requireNamespace("igraph", quietly = TRUE)) stop("Package \"igraph\" needed for this function to work.")
+getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FALSE, ...) {
   if(is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
   if(!(name %in% c(graph$from,graph$to))) stop("There is no function with the name \"",name,"\"")
   ggraph <- igraph::graph_from_data_frame(graph)
@@ -39,7 +41,7 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, ...) {
   } else {
     tmp <- attr(igraph::subcomponent(ggraph,name,direction),"names")
   }
-  tmp <- setdiff(tmp,name)
+  if(!self) tmp <- setdiff(tmp,name)
   
   packages <- c(graph$from_package,graph$to_package)
   names(packages) <- c(graph$from,graph$to)
