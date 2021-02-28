@@ -86,6 +86,7 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
   out <- unique(rbind(out[,c("from","to")],out2[,c("from","to")]))
   out$from_package <- as.character(fpool$package[match(out$from,fpool$fname)])
   out$to_package <- sub(":::.*$","",out$to)
+  out$to_package[!grepl(":::", out$to)] <- ".GlobalEnv"
   out$to <- sub("^.*:::","",out$to) 
   
   fromNA <- is.na(out$from)

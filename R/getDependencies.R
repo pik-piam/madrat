@@ -28,7 +28,17 @@
 
 getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FALSE, ...) {
   if(is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
-  if(!(name %in% c(graph$from,graph$to))) stop("There is no function with the name \"",name,"\"")
+  packages <- c(graph$from_package,graph$to_package)
+  names(packages) <- c(graph$from,graph$to)
+  
+  if(!(name %in% c(graph$from,graph$to))) {
+    fpool <- getCalculations("read|calc|full|tool", packages = setdiff(packages, c("UNKNOWN", ".GlobalEnv")), globalenv = TRUE)
+    fpool$shortcall <- sub("^.*:::","",fpool$call)
+    if(!(name %in% fpool$shortcall))stop("There is no function with the name \"",name,"\"")
+    if(!self) return(NULL) 
+    return(data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
+                      row.names=NULL, stringsAsFactors = FALSE))
+  }
   ggraph <- igraph::graph_from_data_frame(graph)
   if(direction=="full") direction <- "all"
   if(direction=="both") {
@@ -42,9 +52,6 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
     tmp <- attr(igraph::subcomponent(ggraph,name,direction),"names")
   }
   if(!self) tmp <- setdiff(tmp,name)
-  
-  packages <- c(graph$from_package,graph$to_package)
-  names(packages) <- c(graph$from,graph$to)
   
   out <- data.frame(func=tmp,type=substr(tmp,1,4),package=packages[tmp],row.names=NULL, stringsAsFactors = FALSE)
   if(!is.null(type)) out <- out[out$type %in% type,]
