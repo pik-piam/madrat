@@ -93,6 +93,7 @@ test_that("Malformed calc outputs are properly detected", {
   setConfig(forcecache = TRUE)
   writeLines("CorruptCache", paste0(getConfig("cachefolder"),"/calcBla5.rds"))
   expect_warning(b <- calcOutput("Bla5", aggregate=FALSE),"readRDS")
+  getComment(a) <- getComment(b)
   expect_identical(a,b)
   expect_identical(b,calcOutput("Bla5", aggregate=FALSE))
   
