@@ -13,7 +13,7 @@ test_that("readSource detects common problems", {
   expect_error(readSource("NoDownload"), "no download script")
   
   downloadTest <- function(){
-    return(list(url="dummy", author="dummy", title="dummy", license="dummy"))
+    return(list(url="dummy", author="dummy", title="dummy", license="dummy",description="dummy",unit="dummy"))
   }
   readTest <- function()return(1)
   globalassign("downloadTest", "readTest")

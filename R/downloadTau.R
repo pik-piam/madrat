@@ -2,12 +2,14 @@
 downloadTau <- function(subtype="paper") {
 
   # Define subtype-specific elements of the meta data. Elements that are common to all subtypes are added further down.
-  settings <- list(     paper = list(title = "Cellular (0.5deg), crop-specific land use intensity (tau) for 1995 and 2000",
-                                       url = "https://zenodo.org/record/4282581/files/tau-paper.zip",
-                                       doi = "10.5281/zenodo.4282581"),
-                   historical = list(title = "Historic land use intensity (tau) development",
-                                       url = "https://zenodo.org/record/4282548/files/tau-historical.zip",
-                                       doi = "10.5281/zenodo.4282548"))
+  settings <- list(     paper = list(      title = "Tau Factor (cellular, crop-specific)",
+                                     description = "Cellular (0.5deg), crop-specific land use intensity (tau) for 1995 and 2000",
+                                             url = "https://zenodo.org/record/4282581/files/tau-paper.zip",
+                                             doi = "10.5281/zenodo.4282581"),
+                   historical = list(      title = "Tau Factor (historic trends)",
+                                     description = "Historic land use intensity (tau) development",
+                                             url = "https://zenodo.org/record/4282548/files/tau-historical.zip",
+                                             doi = "10.5281/zenodo.4282548"))
   meta <- toolSubtypeSelect(subtype,settings)
   
   download.file(meta$url, destfile = "tau.zip")
@@ -18,7 +20,9 @@ downloadTau <- function(subtype="paper") {
   return(list(url           = meta$url,
               doi           = meta$doi,
               title         = meta$title,
+              description   = meta$description,
               author        = person("Jan Philipp","Dietrich", email="dietrich@pik-potsdam.de", comment="https://orcid.org/0000-0002-4309-6431"),
+              unit          = "1",
               version       = "1.0",
               release_date  = "2012-05-10",
               license       = "Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)",

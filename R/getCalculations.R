@@ -6,7 +6,7 @@
 #' 
 #' 
 #' @aliases getCalculations
-#' @param prefix Type of calculations. Available options are "download" (source download), 
+#' @param prefix Type of calculations, vector of types or search term (e.g. "read|calc"). Available options are "download" (source download), 
 #' "read" (source read), "correct" (source corrections), "convert" (source conversion to ISO countries),
 #' "calc" (further calculations), and "full" (collections of calculations)
 #' @param packages A character vector with packages for which the available Sources/Calculations should be returned
@@ -23,26 +23,25 @@
 #' @export
 #' 
 getCalculations <- function(prefix="calc", packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
+  if (length(prefix) > 1) prefix <- paste(prefix, collapse = "|")
   x <- NULL
-  for(p in packages) {
-    tmp <- try(data.frame(type=ls(getNamespace(p)),package=p), silent = TRUE)
-    if(class(tmp)!="tryError") x <- rbind(x,tmp)
+  for (p in packages) {
+    tmp <- try(data.frame(type = ls(getNamespace(p)), package = p), silent = TRUE)
+    if (class(tmp) != "tryError") x <- rbind(x,tmp)
   }
-  if(globalenv) {
+  if (globalenv) {
     tmp <- ls(as.environment(".GlobalEnv"))
-    if(length(tmp)>0) {
-      tmp <- data.frame(type=tmp,package=".GlobalEnv")
+    if (length(tmp) > 0) {
+      tmp <- data.frame(type = tmp, package = ".GlobalEnv")
       x <- rbind(x,tmp)
     }
   }
-  .filter <- function(x,pattern) {
-    x <- x[grep(pattern,x$type),]
-    x$type <- sub(pattern,"",x$type)
-    return(x)
-  }
-  out <- .filter(x,paste0("^",prefix))
-  if(dim(out)[1]==0) return(NULL)
-  out$call <- paste0(out$package,":::",prefix,out$type)
-  out$call <- sub(".GlobalEnv:::","",out$call, fixed=TRUE)
-  return(out[!(out$type %in% c("Source","Output")),])
+
+  pattern <- paste0("^",prefix)
+  x <- x[grep(pattern,x$type),]
+  if (dim(x)[1] == 0) return(NULL)
+  x$call <- paste0(x$package,":::",x$type)
+  x$type <- sub(pattern,"",x$type)  
+  x$call <- sub(".GlobalEnv:::","",x$call, fixed = TRUE)
+  return(x[!(x$type %in% c("Source","Output")),])
 }
