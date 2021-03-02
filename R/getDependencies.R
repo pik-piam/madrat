@@ -32,7 +32,14 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   names(packages) <- c(graph$from,graph$to)
   
   if(!(name %in% c(graph$from,graph$to))) {
-    fpool <- getCalculations("read|calc|full|tool", packages = setdiff(packages, c("UNKNOWN", ".GlobalEnv")), globalenv = TRUE)
+    .tmp <- function(name, ...) {
+      if(name %in% names(list(...))) {
+        return(list(...)[[name]])
+      } else {
+        return(getConfig(name))
+      }  
+    }
+    fpool <- getCalculations("read|calc|full|tool", packages = .tmp("packages", ...), globalenv = .tmp("globalenv", ...))
     fpool$shortcall <- sub("^.*:::","",fpool$call)
     if(!(name %in% fpool$shortcall))stop("There is no function with the name \"",name,"\"")
     if(!self) return(NULL) 
