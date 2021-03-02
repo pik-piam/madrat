@@ -1,10 +1,8 @@
 context("fingerprinting")
 
-
 globalassign <- function(...) {
-  for(x in c(...)) assign(x,eval.parent(parse(text=x)),.GlobalEnv)
+  for (x in c(...)) assign(x,eval.parent(parse(text = x)),.GlobalEnv)
 }
-
 
 test_that("fingerprinting works as expected", {
   toolTest <- function() {
@@ -15,8 +13,8 @@ test_that("fingerprinting works as expected", {
     return(paste0(this, is, a, test))
   }
   globalassign("toolTest")
-  expect_error(madrat:::fingerprint("toolTest", packages="madrat", globalenv=FALSE), "There is no function with the name")
-  expect_equal(madrat:::fingerprint("toolTest", packages="madrat", globalenv=TRUE), "27e9ba9e")
+  expect_error(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = FALSE), "There is no function with the name")
+  expect_equal(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = TRUE), "27e9ba9e")
   emptyfolder <- paste0(tempdir(),"/empty")
   dir.create(emptyfolder, recursive = TRUE)
   expect_equal(unname(madrat:::fingerprintFolder(emptyfolder)), "ca265a9c")
@@ -24,10 +22,11 @@ test_that("fingerprinting works as expected", {
 })
 
 test_that("fingerprinting works for edge cases", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder=tempdir())
+  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir())
   readTest <- function()return(1)
   globalassign("readTest")
-  expect_silent(madrat:::fingerprint("readTest", packages = getConfig("packages")))
-  
+  expect_silent({fp <- madrat:::fingerprint("readTest", packages = getConfig("packages"), details = TRUE)})
+  expect_identical(as.character(fp), "afb752c7")
+  expect_identical(as.character(attr(fp,"details")), c("55bc1aa8","ca265a9c"))
 })
 
