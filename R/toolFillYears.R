@@ -12,7 +12,7 @@
 toolFillYears<-function(x, years){
 
   if(class(years)=="character") years <- as.numeric(substring(years, 2))
-  out                        <- new.magpie(getCells(x), years, getNames(x))
+  out                        <- new.magpie(getCells(x), years, getNames(x), sets=getSets(x))
 
   # Fill in x contained years to out, if requested by argument years
   contained_years            <- getYears(x, as.integer = TRUE)
