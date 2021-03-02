@@ -1,6 +1,9 @@
 context("fingerprinting")
 
 test_that("fingerprinting works as expected", {
+  print(eval(parse(text="madrat:::toolGetMapping")))
+  print(fingerprintFunction("madrat:::toolGetMapping"))
+  print(digest(unname(fingerprintFunction("madrat:::toolGetMapping")), algo = "xxhash32"))
   expect_equal(madrat:::fingerprint("toolGetMapping", packages="madrat"), "203524aa")
   emptyfolder <- paste0(tempdir(),"/empty")
   dir.create(emptyfolder, recursive = TRUE)
