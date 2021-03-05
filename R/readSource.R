@@ -68,49 +68,18 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(!file.exists(sourcefolder)) stop('Source folder "',sourcefolder,'" for source "',type,'" cannot be found! Please set a proper path with "setConfig"!')  
 
     fname <- paste0(prefix,type,subtype)
-    cachefile_old <- paste0(getConfig("cachefolder"),"/",fname,".mz")
-    cachefile_new <- paste0(getConfig("cachefolder"),"/",make.names(fname),".rds")
-    is_old <- (!file.exists(cachefile_new) && file.exists(cachefile_old))
-    cachefile <- ifelse(is_old, cachefile_old, cachefile_new)
-    mz <- is_old
     
-    graph <- getMadratGraph(packages = getConfig("packages"))
-    fp <- fingerprint(paste0("read",type), graph = graph)
-    
-    err <- try({
-      if(getConfig("enablecache") && file.exists(cachefile) &&  !(fname %in% getConfig("ignorecache")) && !(type %in% getConfig("ignorecache")) ) { 
-        vcat(2," - loading data", cachefile, fill=300, show_prefix=FALSE)
-        if(mz) {
-          x <- try(read.magpie(cachefile))
-        } else {
-          x <- try(readRDS(cachefile))
-        }
-        if(attr(x,"comment")[1] == fp | all(getConfig("forcecache")==TRUE) | fname %in% getConfig("forcecache") | type %in% getConfig("forcecache")) {
-          if(attr(x,"comment")[1] == fp) {
-            vcat(-2," - use cache",cachefile, fill=300)
-          } else {
-            vcat(-2," - force cache",cachefile, fill=300)
-          }
-          
-          if(prefix=="convert") {
-            iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-            iso_country1<-as.vector(iso_country[,"x"])
-            names(iso_country1)<-iso_country[,"X"]
-            isocountries <- sort(iso_country1)
-            datacountries <- sort(getRegions(x))
-            if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries in ",cachefile,"!")
-            if(any(isocountries!=datacountries)) stop("Countries in ",cachefile," do not agree with iso country list!")
-          }
-          attr(x,"id") <- fname
-          return(x)
-        } else {
-          vcat(2," - outdated data in cache (", cachefile,"), reload source data", fill=300, show_prefix=FALSE)
-        }
+    x <- cacheGet(prefix = prefix, type = type, args=list(subtype=subtype))
+    if (prefix == "convert") {
+      x <- try(testISO(x, functionname = fname))
+      if("try-error" %in% class(x)) {
+        vcat(2," - cache file corrupt for", fname, show_prefix = FALSE)
+        x <- NULL
       }
-    }, silent=TRUE)
-    if(is(err,"try-error")) {
-      vcat(0,as.character(attr(err,"condition")))
-      vcat(-2, " - reading cache failed! Rerun without cache.")
+    }
+    if(!is.null(x)) {
+      attr(x,"id") <- fname
+      return(x)
     }
     
     if(prefix=="correct") {
@@ -136,10 +105,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(prefix=="convert") {
       testISO(getRegions(x),functionname=functionname)
     }
-    vcat(2," - saving data to", cachefile_new, fill=300, show_prefix=FALSE)
-    getComment(x) <- fingerprint(paste0("read",type), graph = graph)
-    saveRDS(x, cachefile_new, compress = getConfig("cachecompression"))
-    Sys.chmod(cachefile_new,"0666", use_umask=FALSE)
+    cachePut(x, prefix = prefix, type = type, args=list(subtype=subtype))
     attr(x,"id") <- id
     return(x)
   }

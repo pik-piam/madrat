@@ -75,6 +75,7 @@ prepFunctionName <- function(type, prefix="calc", ignore=NULL, error_on_missing=
   if("..." %in% wformals & !fcomplete) args <- c(args,"...")
   out <- paste0(name,'(',paste(args,collapse=", "),')')
   
+  attr(out,"formals") <- formals
   attr(out,"package") <- package
   if(package==".GlobalEnv") {
     attr(out,"pkgcomment") <- ".GlobalEnv"

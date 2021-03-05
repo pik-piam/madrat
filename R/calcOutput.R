@@ -120,145 +120,120 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(!is.character(type)) stop("Invalid type (must be a character)!")
   if(length(type)!=1)     stop("Invalid type (must be a single character string)!")
   
+  .checkData <- function(x, functionname) {
+    if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
+    if(is.null(x$class)) x$class <- "magpie"
+    if(!is.character(x$class) || length(x$class)!=1) stop("x$class must be a single element of class character or NULL!")
+    if(x$class=="magpie" && !is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
+    if(!(x$class %in% class(x$x))) stop("Output x of function \"",functionname,"\" is not of promised class \"",x$class,"\"!")
+    if(x$class!="magpie" && !is.null(x$weight)) stop("Weights are currently not supported for objects of class \"",x$class,"\"!")
+    if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
+    if(!is.null(x$weight)) {
+      if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
+      if(nyears(x$weight)==1) getYears(x$weight) <- NULL
+    }
+    x$package <- attr(functionname,"pkgcomment")
+    #make sure that x$class is defined
+    if(is.null(x$class)) x$class <- "magpie"
+    
+    # read and check x$isocountries value which describes whether the data is in
+    # iso country resolution or not (affects aggregation and certain checks)
+    if(x$class!="magpie") {
+      if(!is.null(x$isocountries) && x$isocountries!=FALSE) stop("x$isocountries can only be set if x$class==\"magpie\"")
+      x$isocountries <- FALSE
+    }
+    if(is.null(x$isocountries)) {
+      if(nregions(x$x)==1 && getRegions(x$x)=="GLO") {
+        x$isocountries <- FALSE 
+      } else {
+        x$isocountries <- TRUE
+      }
+    }
+    if(!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
+    # read and check x$mixed_aggregation value which describes whether the data is in
+    # mixed aggregation (weighted mean mixed with summation) is allowed or not
+    if(is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE
+    if(!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
+    
+    #check that data is returned for ISO countries except if x$isocountries=FALSE
+    if(x$isocountries) {
+      iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+      iso_country1<-as.vector(iso_country[,"x"])
+      names(iso_country1)<-iso_country[,"X"]
+      isocountries <- sort(iso_country1)
+      datacountries <- sort(getRegions(x$x))
+      if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
+      if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
+      if(!is.null(x$weight)) {
+        if(nregions(x$weight)>1){
+          weightcountries <- sort(getRegions(x$weight))
+          if(length(isocountries)!=length(weightcountries)) stop("Wrong number of countries in weight returned by ",functionname,"!")
+          if(any(isocountries!=weightcountries)) stop("Countries in weight returned by ",functionname," do not agree with iso country list!")
+        }
+      }
+    }  
+    #perform additional checks
+    if(x$class!="magpie" && (!is.null(x$min) | !is.null(x$max))) stop("Min/Max checks cannot be used in combination with x$class!=\"magpie\"")
+    if(!is.null(x$min) && any(x$x<x$min, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values smaller than the predefined minimum (min = ",x$min,")")
+    if(!is.null(x$max) && any(x$x>x$max, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values greater than the predefined maximum (max = ",x$max,")")
+    checkNameStructure <- function(x,structure,dim,class) {
+      if(class!="magpie" && !is.null(structure)) stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
+      if(!is.null(structure)) {
+        if(is.null(getItems(x,dim))) {
+          vcat(0, paste('Missing names in dimension',dim,'!'))
+        } else if(!all(grepl(structure, getItems(x,dim)))) {
+          vcat(0, paste0('Invalid names (dim=',dim,', structure=\"',structure,'\"): '),
+               paste(grep(structure, getItems(x,dim), value = TRUE, invert = TRUE),collapse=", "))
+        }
+      }
+    }
+    checkNameStructure(x$x, x$structure.spatial , 1, x$class)
+    checkNameStructure(x$x, x$structure.temporal, 2, x$class)
+    checkNameStructure(x$x, x$structure.data    , 3, x$class)
+    
+    if(x$class=="magpie") {
+      if(na_warning) if(anyNA(x$x)) vcat(0,"Data returned by ", functionname," contains NAs")
+      if(any(is.infinite(x$x))) vcat(0,"Data returned by ", functionname," contains infinite values")
+    }
+    return(x)
+  }
+  
   cwd <- getwd()
   if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
   startinfo <- toolstartmessage("+")
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
   on.exit(setwd(cwd))
+  
   functionname <- prepFunctionName(type=type, prefix="calc", ignore=ifelse(is.null(years),"years",NA))
-  tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
-  if(tmpargs!="") {
-    tmpargs_old <- paste0("-", make.names(tmpargs))
-    tmpargs     <- paste0("-", digest(tmpargs, algo = getConfig("hash"))) 
-  } else {
-    tmpargs_old <- ""
-  }
-  fname     <- paste0("calc",type,tmpargs)
-  fname_old <- paste0("calc",type,tmpargs_old)
-  on.exit(toolendmessage(startinfo,"-",id=fname), add = TRUE)
-  tmppath     <- paste0(getConfig("cachefolder"),"/",fname,".rds")
-  tmppath_old <- paste0(getConfig("cachefolder"),"/",fname_old,".Rda")
-  if(!file.exists(tmppath) && file.exists(tmppath_old)) {
-    tmppath_read <- tmppath_old
-    rds <- FALSE
-  } else {
-    tmppath_read <- tmppath
-    rds <- TRUE
-  }
-  if(!file.exists(tmppath_read)) vcat(2, paste0(" - Cache file ",fname,".rds does not exist"), show_prefix=FALSE)
+  extra_args <- sapply(attr(functionname,"formals"), function(x)return(eval(parse(text = x))), simplify = FALSE)
+  args <- c(extra_args, list(...))
   
-  cache_failed <- FALSE
-  repeat {
-    if(!cache_failed && ((all(getConfig("forcecache")==TRUE) || fname %in% getConfig("forcecache") || type %in% getConfig("forcecache")) && !(type %in% getConfig("ignorecache"))) && !(fname %in% getConfig("ignorecache")) && file.exists(tmppath_read) ) {
-      vcat(-2," - force cache",tmppath_read)
-      if(rds) {
-        err <- try({x <- readRDS(tmppath_read)},silent = TRUE)
-      } else {
-        err <- try(load(tmppath_read),silent = TRUE)
-      }
-      if(is(err,"try-error")) {
-        vcat(0,as.character(attr(err,"condition")))
-        vcat(-2, " - force cache failed! Rerun without cache.")
-        cache_failed <- TRUE
-      } else {
-        break
-      }
+  x <- cacheGet(prefix = "calc", type = type, args=args)
+  
+  if(!is.null(x)) {
+    x <- try(.checkData(x, functionname))
+    if("try-error" %in% class(x)) {
+      vcat(2," - cache file corrupt for",functionname, show_prefix=FALSE)
+      x <- NULL
+    }
+  }
+  if(is.null(x)) {
+    vcat(2," - execute function",functionname, show_prefix = FALSE)
+    if(try || getConfig("debug")==TRUE) {
+      x <- try(eval(parse(text = functionname)))
+      if ("try-error" %in% class(x)) {
+        vcat(0,as.character(attr(x,"condition")))
+        return(x)
+      } 
     } else {
-      vcat(2," - execute function",functionname, show_prefix=FALSE)
-      if(try || getConfig("debug")==TRUE) {
-        x <- try(eval(parse(text=functionname)))
-        if(is(x,"try-error")) {
-          vcat(0,as.character(attr(x,"condition")))
-          return(x)
-        } 
-      } else {
-        x <- eval(parse(text=functionname))
-      }
-      if(!is.list(x)) stop("Output of function \"",functionname,"\" is not list of two MAgPIE objects containing the values and corresponding weights!")
-      if(is.null(x$class)) x$class <- "magpie"
-      if(!is.character(x$class) || length(x$class)!=1) stop("x$class must be a single element of class character or NULL!")
-      if(x$class=="magpie" && !is.magpie(x$x)) stop("Output x of function \"",functionname,"\" is not a MAgPIE object!")
-      if(!(x$class %in% class(x$x))) stop("Output x of function \"",functionname,"\" is not of promised class \"",x$class,"\"!")
-      if(x$class!="magpie" && !is.null(x$weight)) stop("Weights are currently not supported for objects of class \"",x$class,"\"!")
-      if(!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"",functionname,"\" is not a MAgPIE object!")
-      if(!is.null(x$weight)) {
-        if(nyears(x$x)!=nyears(x$weight) && nyears(x$weight)!=1) stop("Number of years disagree between data and weight of function \"",functionname,"\"!")
-        if(nyears(x$weight)==1) getYears(x$weight) <- NULL
-      }
-      x$package <- attr(functionname,"pkgcomment")
-      if(!dir.exists(dirname(tmppath))) dir.create(dirname(tmppath), recursive = TRUE)
-      saveRDS(x, file=tmppath, compress = getConfig("cachecompression"))
-      Sys.chmod(tmppath, mode = "0666", use_umask = FALSE)
-      break
-    }  
-  }
-  
-  #make sure that x$class is defined
-  if(is.null(x$class)) x$class <- "magpie"
-  
-  # read and check x$isocountries value which describes whether the data is in
-  # iso country resolution or not (affects aggregation and certain checks)
-  if(x$class!="magpie") {
-    if(!is.null(x$isocountries) && x$isocountries!=FALSE) stop("x$isocountries can only be set if x$class==\"magpie\"")
-    x$isocountries <- FALSE
-  }
-  if(is.null(x$isocountries)) {
-    if(nregions(x$x)==1 && getRegions(x$x)=="GLO") {
-      x$isocountries <- FALSE 
-    } else {
-      x$isocountries <- TRUE
+      x <- eval(parse(text = functionname))
     }
-  }
-  if(!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
-  
-  # read and check x$mixed_aggregation value which describes whether the data is in
-  # mixed aggregation (weighted mean mixed with summation) is allowed or not
-  if(is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE
-  if(!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
-  
-  #check that data is returned for ISO countries except if x$isocountries=FALSE
-  if(x$isocountries) {
-    iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-    iso_country1<-as.vector(iso_country[,"x"])
-    names(iso_country1)<-iso_country[,"X"]
-    isocountries <- sort(iso_country1)
-    datacountries <- sort(getRegions(x$x))
-    if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
-    if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
-    if(!is.null(x$weight)) {
-      if(nregions(x$weight)>1){
-        weightcountries <- sort(getRegions(x$weight))
-        if(length(isocountries)!=length(weightcountries)) stop("Wrong number of countries in weight returned by ",functionname,"!")
-        if(any(isocountries!=weightcountries)) stop("Countries in weight returned by ",functionname," do not agree with iso country list!")
-      }
-    }
-  }  
-  
-  #perform additional checks
-  if(x$class!="magpie" && (!is.null(x$min) | !is.null(x$max))) stop("Min/Max checks cannot be used in combination with x$class!=\"magpie\"")
-  if(!is.null(x$min) && any(x$x<x$min, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values smaller than the predefined minimum (min = ",x$min,")")
-  if(!is.null(x$max) && any(x$x>x$max, na.rm = TRUE)) vcat(0,"Data returned by ", functionname," contains values greater than the predefined maximum (max = ",x$max,")")
-  checkNameStructure <- function(x,structure,dim,class) {
-    if(class!="magpie" && !is.null(structure)) stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
-    if(!is.null(structure)) {
-      if(is.null(getItems(x,dim))) {
-        vcat(0, paste('Missing names in dimension',dim,'!'))
-      } else if(!all(grepl(structure, getItems(x,dim)))) {
-        vcat(0, paste0('Invalid names (dim=',dim,', structure=\"',structure,'\"): '),
-                paste(grep(structure, getItems(x,dim), value = TRUE, invert = TRUE),collapse=", "))
-      }
-    }
-  }
-  checkNameStructure(x$x, x$structure.spatial , 1, x$class)
-  checkNameStructure(x$x, x$structure.temporal, 2, x$class)
-  checkNameStructure(x$x, x$structure.data    , 3, x$class)
-  
-  if(x$class=="magpie") {
-    if(na_warning) if(anyNA(x$x)) vcat(0,"Data returned by ", functionname," contains NAs")
-    if(any(is.infinite(x$x))) vcat(0,"Data returned by ", functionname," contains infinite values")
+    x <- .checkData(x, functionname)
+    cachePut(x, prefix = "calc", type = type, args=args)
   }
   
+
   if(!is.null(years)){
     if(x$class!="magpie") stop("years argument can only be used in combination with x$class=\"magpie\"!")
     #check that years exist in provided data
