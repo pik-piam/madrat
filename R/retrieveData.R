@@ -58,8 +58,8 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
  defargs$rev <- NULL
  toadd <- names(defargs)[!(names(defargs)%in%names(inargs))]
  if(length(toadd)>0) inargs[toadd] <- defargs[toadd] 
- if(length(inargs)>0 && uselabels) args_hash <- paste0(toolCodeLabels(digest(inargs,"md5")),"_")
- else if(length(inargs)>0 && !uselabels) args_hash <- paste0(digest(inargs,"md5"),"_")
+ if(length(inargs)>0 && uselabels) args_hash <- paste0(toolCodeLabels(digest(inargs, algo = getConfig("hash"))),"_")
+ else if(length(inargs)>0 && !uselabels) args_hash <- paste0(digest(inargs, algo = getConfig("hash")),"_")
  else args_hash <- NULL
 
  regionmapping <- getConfig("regionmapping")  

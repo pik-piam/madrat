@@ -35,19 +35,19 @@
 #' @importFrom digest digest
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
-  d <- getDependencies(name, direction = "in", self=TRUE, graph = graph, ...)
+  d <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
   
-  dr <- d[d$type=="read",]
-  if(dim(dr)[1]>0) {
+  dr <- d[d$type == "read",]
+  if (dim(dr)[1] > 0) {
     sources <- substring(dr$func,5)
     prefix <- c("download", "read", "convert", "correct")
-    read_functions <- paste0(rep(dr$package, each=length(prefix)),":::",paste0(prefix, sources))
+    read_functions <- paste0(rep(dr$package, each = length(prefix)),":::",paste0(prefix, sources))
   } else {
     sources <- NULL
     read_functions <- NULL
   }
-  do <- d[d$type!="read",]
-  if(dim(do)[1]>0) {
+  do <- d[d$type != "read",]
+  if (dim(do)[1] > 0) {
     other_functions <- paste0(do$package,":::",do$func)
   } else {
     other_functions <- NULL
@@ -55,28 +55,28 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   funcs <- sort(sub("^\\.GlobalEnv:::","",c(read_functions, other_functions)))
   
   fpfu <- fingerprintFunction(sort(funcs))
-  if(length(sources)>0) {
+  if (length(sources) > 0) {
     fpfo <- fingerprintFolder(paste0(getConfig("sourcefolder"),"/",sort(sources)))
   } else {
     fpfo <- NULL
   }
   
   fp <- c(fpfu, fpfo)
-  out <- digest(unname(fp), algo = "xxhash32")
-  if(details) attr(out,"details") <- fp
+  out <- digest(unname(fp), algo = getConfig("hash"))
+  if (details) attr(out,"details") <- fp
   return(out)
 }
 
 fingerprintFunction <- function(name) {
   .tmp <- function(x) {
-    f <- try(eval(parse(text=x)), silent = TRUE)
-    if("try-error" %in% class(f)) return(NULL)
-    return(digest(deparse(f), algo = "xxhash32"))
+    f <- try(eval(parse(text = x)), silent = TRUE)
+    if ("try-error" %in% class(f)) return(NULL)
+    return(digest(deparse(f), algo = getConfig("hash")))
   }
   return(unlist(sapply(name, .tmp)))
 }
 
 fingerprintFolder <- function(folder) {
-  .tmp <- function(f) return(digest(file.mtime(sort(list.files(f,recursive=TRUE, full.names=TRUE))), algo = "xxhash32"))
+  .tmp <- function(f) return(digest(file.mtime(sort(list.files(f,recursive = TRUE, full.names = TRUE))), algo = getConfig("hash")))
   return(sapply(folder, .tmp))
 }

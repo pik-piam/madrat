@@ -130,7 +130,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   tmpargs <- paste(names(list(...)),list(...),sep="_",collapse="-")
   if(tmpargs!="") {
     tmpargs_old <- paste0("-", make.names(tmpargs))
-    tmpargs     <- paste0("-", digest(tmpargs,"md5")) 
+    tmpargs     <- paste0("-", digest(tmpargs, algo = getConfig("hash"))) 
   } else {
     tmpargs_old <- ""
   }
@@ -153,7 +153,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     if(!cache_failed && ((all(getConfig("forcecache")==TRUE) || fname %in% getConfig("forcecache") || type %in% getConfig("forcecache")) && !(type %in% getConfig("ignorecache"))) && !(fname %in% getConfig("ignorecache")) && file.exists(tmppath_read) ) {
       vcat(-2," - force cache",tmppath_read)
       if(rds) {
-        err <- try(x <- readRDS(tmppath_read),silent = TRUE)
+        err <- try({x <- readRDS(tmppath_read)},silent = TRUE)
       } else {
         err <- try(load(tmppath_read),silent = TRUE)
       }
