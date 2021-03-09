@@ -89,13 +89,13 @@ test_that("Malformed calc outputs are properly detected", {
   expect_error(calcOutput("Bla13"),"Output x of function .* is not of promised class")
   expect_error(calcOutput("Bla14"),"Aggregation can only be used in combination with x\\$class=\"magpie\"")
   
-  a <- calcOutput("Bla5", aggregate=FALSE)
+  a <- calcOutput("Bla5", aggregate = FALSE)
   setConfig(forcecache = TRUE)
-  writeLines("CorruptCache", paste0(getConfig("cachefolder"),"/calcBla5.rds"))
-  expect_warning(b <- calcOutput("Bla5", aggregate=FALSE),"readRDS")
+  writeLines("CorruptCache", madrat:::cacheName("calc","Bla5",packages = "madrat"))
+  expect_warning(b <- calcOutput("Bla5", aggregate = FALSE),"corrupt cache")
   getComment(a) <- getComment(b)
   expect_identical(a,b)
-  expect_identical(b,calcOutput("Bla5", aggregate=FALSE))
+  expect_identical(b,calcOutput("Bla5", aggregate = FALSE))
   
   calcError <- function()stop("I am an error!")
   globalassign("calcError")

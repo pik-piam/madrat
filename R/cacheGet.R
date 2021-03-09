@@ -17,6 +17,7 @@
 #' @importFrom digest digest
 cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
   .isSet <- function(prefix, type, setting) {
+    if (is.null(getConfig(setting))) return(FALSE)
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))
   }
   
@@ -29,7 +30,7 @@ cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
   vcat(2," - loading cache", basename(fname), fill = 300, show_prefix = FALSE)
   x <- try(readRDS(fname), silent = TRUE)
   if ("try-error" %in% class(x)) {
-    vcat(-2, " - corrupt cache file ", basename(fname),"! Continue without cache.")
+    vcat(0, " - corrupt cache file", basename(fname),"! Continue without cache.")
     return(NULL)
   }
   attr(x,"id") <- fname
