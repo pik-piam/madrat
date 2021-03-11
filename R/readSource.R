@@ -71,8 +71,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     
     x <- cacheGet(prefix = prefix, type = type, args=list(subtype=subtype))
     if (prefix == "convert") {
-      x <- try(testISO(x, functionname = fname))
-      if("try-error" %in% class(x)) {
+      err <- try(testISO(getRegions(x), functionname = fname))
+      if("try-error" %in% class(err)) {
         vcat(2," - cache file corrupt for", fname, show_prefix = FALSE)
         x <- NULL
       }

@@ -7,7 +7,7 @@ globalassign <- function(...) {
 }
 
 test_that("readSource detects common problems", {
-  setConfig(globalenv = TRUE, packages = "madrat", .verbose = FALSE, mainfolder=tempdir())
+  setConfig(globalenv = TRUE, packages = "madrat", verbosity = 2, .verbose = FALSE, mainfolder=tempdir())
   readNoDownload <- function(){}
   globalassign("readNoDownload")
   expect_error(readSource("NoDownload"), "no download script")
@@ -29,7 +29,7 @@ test_that("readSource detects common problems", {
   correctTest <- function(x)return(as.magpie(1))
   globalassign("correctTest")
   expect_identical(as.vector(readSource("Test",convert = "onlycorrect")), 1)
-  expect_message(readSource("Test",convert = "onlycorrect"), "use cache")
+  expect_message(readSource("Test",convert = "onlycorrect"), "loading cache")
   
   expect_error(readSource(TRUE),"Invalid type")
   expect_error(readSource("NonAvailable"), "not a valid source")

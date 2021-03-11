@@ -22,8 +22,10 @@
 #' @importFrom digest digest
 
 cacheName <- function(prefix, type, args=NULL,  graph=NULL, mustExist = FALSE, ...) {
-  fp <- fingerprint(name = paste0(prefix, type), graph = graph, ...)
-  if (length(args)==0) args <- NULL
+  fpprefix <- prefix
+  if (fpprefix %in% c("convert", "correct")) fpprefix <- "read"
+  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, ...)
+  if (length(args) == 0) args <- NULL
   if (!is.null(args)) args <- paste0("-",digest(args[order(names(args))], algo = getConfig("hash")))
   .isSet <- function(prefix, type, setting) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))

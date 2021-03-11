@@ -9,17 +9,17 @@
 #' @param get A vector of hash codes which should be replaced
 #' @param add Additional entries that should be added to the dictionary. Need to be
 #' provided in the form of a named vector with the structure c(<label>=<hash>),
-#' e.g. c(h12="690d3718e151be1b450b394c1064b1c5")
+#' e.g. c(h12="62eff8f7")
 #' @return A vector with either labels (if available) or hash codes (if no label was available).
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{regionscode}}
 #' @examples
-#' toolCodeLabels("690d3718e151be1b450b394c1064b1c5")
+#' toolCodeLabels("62eff8f7")
 #' 
 #' @export
 toolCodeLabels <- function(get=NULL, add=NULL) {
   labels <- getOption("madrat_codelabels")
-  if(is.null(labels)) add <- c(h12="690d3718e151be1b450b394c1064b1c5", add)
+  if(is.null(labels)) add <- c(h12="62eff8f7", add)
   if(!is.null(add) && is.vector(add) && !is.null(names(add))) {
     labels[add] <- names(add)
     options(madrat_codelabels = labels)
