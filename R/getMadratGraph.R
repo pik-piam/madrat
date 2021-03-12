@@ -19,7 +19,7 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
   if(is.null(getOption("MadratCache"))) options(MadratCache = new.env(size=NA))
   
   .graphHash <- function(packages, globalenv) {
-    mtimes <- file.mtime(.libPaths())
+    mtimes <- as.character(file.mtime(.libPaths()))
     if(globalenv) {
       f <- grep("^(read|download|convert|correct|calc|full|tool)",ls(envir=.GlobalEnv), 
                 perl=TRUE, value=TRUE)
