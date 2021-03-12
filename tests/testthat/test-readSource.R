@@ -7,7 +7,7 @@ globalassign <- function(...) {
 }
 
 test_that("readSource detects common problems", {
-  setConfig(globalenv = TRUE, packages = "madrat", verbosity = 2, .verbose = FALSE, mainfolder=tempdir())
+  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, mainfolder=tempdir())
   readNoDownload <- function(){}
   globalassign("readNoDownload")
   expect_error(readSource("NoDownload"), "no download script")
