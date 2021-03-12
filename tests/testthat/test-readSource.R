@@ -20,7 +20,7 @@ test_that("readSource detects common problems", {
   expect_error(readSource("Test"), "not a MAgPIE object")
   readTest <- function(x)return(as.magpie(1))
   globalassign("readTest")
-  expect_warning(readSource("Test"),"Some arguments .* cannot be adressed by the wrapper")
+  expect_warning(readSource("Test", convert = FALSE), "Some arguments .* cannot be adressed by the wrapper")
   readTest <- function()return(as.magpie(1))
   convertTest <- function(x)return(as.magpie(1))
   globalassign("readTest","convertTest")

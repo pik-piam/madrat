@@ -12,19 +12,22 @@
 #' name will only be returned if the file exists (otherwise NULL) and in combination
 #' which \code{setConfig(forcecache=TRUE)} even a cache file with deviating hash
 #' might get selected.
-#' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
-#' that no graph is provided (otherwise ignored)
+#' @param packages A character vector with packages for which the available 
+#' Sources/Calculations should be returned
+#' @param globalenv	Boolean deciding whether sources/calculations in the global 
+#' environment should be included or not
 #' @return cached data, if cache is available, otherwise NULL
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
-#' madrat:::cacheName("calc","TauTotal", packages="madrat")
+#' madrat:::cacheName("calc","TauTotal")
 #' @importFrom digest digest
 
-cacheName <- function(prefix, type, args=NULL,  graph=NULL, mustExist = FALSE, ...) {
+cacheName <- function(prefix, type, args=NULL,  graph=NULL, mustExist = FALSE, packages = getConfig("packages"), globalenv = getConfig("globalenv")) {
   fpprefix <- prefix
   if (fpprefix %in% c("convert", "correct")) fpprefix <- "read"
-  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, ...)
+  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, 
+                    packages = packages, globalenv = globalenv)
   if (length(args) == 0) args <- NULL
   if (!is.null(args)) args <- paste0("-",digest(args[order(names(args))], algo = getConfig("hash")))
   .isSet <- function(prefix, type, setting) {

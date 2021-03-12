@@ -53,7 +53,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   testISO <- function(x, allowGLO=FALSE, functionname="function") {
     if(allowGLO && length(x)==1 && x=="GLO") return()
     iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-    iso_country1 <-as.vector(iso_country[,"x"])
+    iso_country1 <- as.vector(iso_country[,"x"])
     names(iso_country1) <-iso_country[,"X"]
     isocountries  <- sort(iso_country1)
     datacountries <- sort(x)
@@ -70,7 +70,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     fname <- paste0(prefix,type,subtype)
     
     x <- cacheGet(prefix = prefix, type = type, args=list(subtype=subtype))
-    if (prefix == "convert") {
+    if (!is.null(x) && prefix == "convert") {
       err <- try(testISO(getRegions(x), functionname = fname))
       if("try-error" %in% class(err)) {
         vcat(2," - cache file corrupt for", fname, show_prefix = FALSE)

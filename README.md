@@ -47,12 +47,10 @@ In case of questions / problems please contact Jan Philipp Dietrich <dietrich@pi
 
 To cite package **madrat** in publications use:
 
-Dietrich J, Baumstark L, Wirth S, Giannousakis A, Rodrigues R,
-Bodirsky B, Kreidenweis U, Klein D (2021). _madrat: May All Data
-be Reproducible and Transparent (MADRaT)_. doi:
-10.5281/zenodo.1115490 (URL:
-https://doi.org/10.5281/zenodo.1115490), R package version 1.94.3,
-<URL: https://github.com/pik-piam/madrat>.
+Dietrich J, Baumstark L, Wirth S, Giannousakis A, Rodrigues R, Bodirsky B, Kreidenweis U,
+Klein D (2021). _madrat: May All Data be Reproducible and Transparent (MADRaT)_. doi:
+10.5281/zenodo.1115490 (URL: https://doi.org/10.5281/zenodo.1115490), R package version
+1.94.3, <URL: https://github.com/pik-piam/madrat>.
 
 A BibTeX entry for LaTeX users is
 

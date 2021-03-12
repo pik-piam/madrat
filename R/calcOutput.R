@@ -221,7 +221,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(is.null(x)) {
     vcat(2," - execute function",functionname, show_prefix = FALSE)
     if(try || getConfig("debug")==TRUE) {
-      x <- try(eval(parse(text = functionname)))
+      x <- try(eval(parse(text = functionname)), silent = TRUE)
       if ("try-error" %in% class(x)) {
         vcat(0,as.character(attr(x,"condition")))
         return(x)

@@ -18,17 +18,17 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
   
   if(is.null(getOption("MadratCache"))) options(MadratCache = new.env(size=NA))
   
-  .graphHash <- function(globalenv) {
+  .graphHash <- function(packages, globalenv) {
     mtimes <- file.mtime(.libPaths())
     if(globalenv) {
       f <- grep("^(read|download|convert|correct|calc|full|tool)",ls(envir=.GlobalEnv), 
                 perl=TRUE, value=TRUE)
       globalenv <- sapply(mget(f, envir = .GlobalEnv),deparse)
     }
-    return(digest(c(mtimes,globalenv), algo = getConfig("hash")))
+    return(digest(c(mtimes,sort(packages),globalenv), algo = getConfig("hash")))
   }
   
-  gHash <- .graphHash(globalenv)
+  gHash <- .graphHash(packages,globalenv)
   if(exists(gHash, envir = getOption("MadratCache"))) return(get(gHash, getOption("MadratCache")))
 
   .extractCode <- function(x) {
