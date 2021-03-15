@@ -34,9 +34,9 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mustExist = FALSE, p
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))
   }
   .fname <- function(prefix,type,fp,args) {
-    return(paste0(getConfig("cachefolder"),"/",prefix,type,"-",fp,args,".rds"))
+    return(paste0(getConfig("cachefolder"),"/",prefix,type,fp,args,".rds"))
   }
-  fname <- .fname(prefix,type,fp,args)
+  fname <- .fname(prefix,type,paste0("-",fp),args)
   if (file.exists(fname) || !mustExist) return(fname)
   if (!.isSet(prefix,type,"forcecache")) {
     vcat(2, paste0(" - Cache file ",basename(fname)," does not exist"), show_prefix = FALSE)
@@ -50,7 +50,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mustExist = FALSE, p
   }
   if (length(files) == 1) file <- files
   else file <- files[order(file.mtime(files), decreasing = TRUE)][1]
-  vcat(1," - force cache", basename(file),"with unmatching fingerprint (", fp,")", 
+  vcat(1," - forced cache does not match fingerprint", fp, 
        fill = 300, show_prefix = FALSE)
   return(file)
 }
