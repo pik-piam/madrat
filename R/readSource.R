@@ -78,22 +78,17 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       }
     }
     if(!is.null(x)) {
-      attr(x,"id") <- fname
       return(x)
     }
     
     if(prefix=="correct") {
       x <- .getData(type,subtype,"read")
-      id <-  paste(attr(x,"id"),fname,sep="|")
     } else if(prefix=="convert") {
       if(type %in% getSources(type="correct")) {    
         x <- .getData(type,subtype,"correct")
       } else {
         x <- .getData(type,subtype,"read")
       }
-      id <- paste(attr(x,"id"),fname,sep="|")
-    } else {
-      id <- fname
     }
     
     cwd <- getwd()
@@ -106,7 +101,6 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
       testISO(getRegions(x),functionname=functionname)
     }
     cachePut(x, prefix = prefix, type = type, args=list(subtype=subtype))
-    attr(x,"id") <- id
     return(x)
   }
   
@@ -145,8 +139,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
 
   x <- .getData(type,subtype,prefix)
     
-  id <- attr(x,"id")
-  on.exit(toolendmessage(startinfo,"-",id=id))
+  on.exit(toolendmessage(startinfo,"-"))
   
   if(convert==TRUE) {
     # make sure that data is either on ISO country level or global

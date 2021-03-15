@@ -27,7 +27,7 @@ cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
   
   if (is.null(fname)) return(NULL)
   
-  vcat(2," - loading cache", basename(fname), fill = 300, show_prefix = FALSE)
+  vcat(1," - loading cache", basename(fname), fill = 300, show_prefix = FALSE)
   x <- try(readRDS(fname), silent = TRUE)
   if ("try-error" %in% class(x)) {
     vcat(0, " - corrupt cache file", basename(fname),"! Continue without cache.")

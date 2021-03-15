@@ -199,12 +199,13 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   }
   
   cwd <- getwd()
+  on.exit(setwd(cwd))
   if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
   startinfo <- toolstartmessage("+")
+  on.exit(toolendmessage(startinfo,"-"), add = TRUE)
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))
-  on.exit(setwd(cwd))
-  
+
   functionname <- prepFunctionName(type=type, prefix="calc", ignore=ifelse(is.null(years),"years",NA))
   extra_args <- sapply(attr(functionname,"formals"), function(x)return(eval(parse(text = x))), simplify = FALSE)
   args <- c(extra_args, list(...))
