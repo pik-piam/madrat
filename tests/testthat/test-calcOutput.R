@@ -90,8 +90,7 @@ test_that("Malformed calc outputs are properly detected", {
   expect_error(calcOutput("Bla14"),"Aggregation can only be used in combination with x\\$class=\"magpie\"")
   
   a <- calcOutput("Bla5", aggregate = FALSE)
-  setConfig(forcecache = TRUE)
-  writeLines("CorruptCache", madrat:::cacheName("calc","Bla5",packages = "madrat"))
+  writeLines("CorruptCache", madrat:::cacheName("calc","Bla5",packages = "madrat", mode="get"))
   expect_warning(b <- calcOutput("Bla5", aggregate = FALSE),"corrupt cache")
   getComment(a) <- getComment(b)
   expect_identical(a,b)

@@ -23,14 +23,14 @@ cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
   
   if (.isSet(prefix,type,"ignorecache") || !getConfig("enablecache")) return(NULL)
   
-  fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mustExist = TRUE, ...) 
+  fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "get", ...) 
   
   if (is.null(fname)) return(NULL)
   
   vcat(1," - loading cache", basename(fname), fill = 300, show_prefix = FALSE)
   x <- try(readRDS(fname), silent = TRUE)
   if ("try-error" %in% class(x)) {
-    vcat(0, " - corrupt cache file", basename(fname),"! Continue without cache.")
+    vcat(0, " - corrupt cache file ", basename(fname),"! Continue without cache.")
     return(NULL)
   }
   attr(x,"id") <- fname

@@ -31,7 +31,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}
 #' @examples
-#' madrat:::fingerprint("toolGetMapping")
+#' madrat:::fingerprint("toolGetMapping", package="madrat")
 #' @importFrom digest digest
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {

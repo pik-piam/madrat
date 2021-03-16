@@ -10,14 +10,10 @@
 #' \code{\link[base]{numeric_version}}.
 #' @param dev development suffix to distinguish development versions for the same data
 #' revision. This can be useful to distinguish parallel lines of development.
-#' @param cachetype defines what cache should be used. "rev" points to a cache
-#' shared by all calculations for the given revision, "def" points to the cache
-#' as defined in the current settings and "tmp" temporarily creates a cache
-#' folder for the calculations and deletes it afterwards again
-#' @param ... (Optional) Settings that should be changed using or arguments which should
-#' be forwared to the corresponding fullXYZ function (Please make sure that argument names
-#' in full functions do not match settings in \code{setConfig}!)
-#' \code{\link{setConfig}} (e.g. regionmapping).
+#' @param ... (Optional) Settings that should be changed using \code{setConfig} 
+#' (e.g. regionmapping). or arguments which should be forwared to the corresponding 
+#' fullXYZ function (Please make sure that argument names in full functions do not 
+#' match settings in \code{setConfig}!)
 #' @author Jan Philipp Dietrich, Lavinia Baumstark
 #' @seealso
 #' \code{\link{calcOutput}},\code{\link{setConfig}}
@@ -28,7 +24,7 @@
 #' }
 #' @importFrom methods formalArgs
 #' @export
-retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
+retrieveData <- function(model, rev=0, dev="", ...) {
 
  # extract setConfig settings and apply via setConfig
  inargs <- list(...)
@@ -88,22 +84,8 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
    setConfig(regionmapping=paste0(regionscode,".csv"),
              outputfolder=sourcefolder,
              diagnostics="diagnostics")
-   # make new temporary cache folder and forche the use of it
-   if(cachetype=="tmp") {
-     cache_tmp <- paste0(getConfig("mainfolder"),"/cache/tmp",format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
-   } else if(cachetype=="rev") {
-     cache_tmp <- paste0(getConfig("mainfolder"),"/cache/rev",rev,dev)
-   } else if(cachetype=="def") {
-     cache_tmp <- getConfig("cachefolder")
-   } else {
-     stop("Unknown cachetype \"",cachetype,"\"!")
-   }
-   if(!exists(cache_tmp)) dir.create(cache_tmp, recursive = TRUE, showWarnings = FALSE)
-   # change settings
-   setConfig(cachefolder=cache_tmp)
-   setConfig(forcecache=TRUE)
+
    # run full* functions
-   
    startinfo <- toolstartmessage(0)
     
    vcat(2," - execute function",functionname, fill=300, show_prefix=FALSE)
@@ -128,9 +110,6 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
   startinfo <- toolstartmessage(0)
   vcat(-2," - data is already available and not calculated again.", fill=300) 
  } 
- 
- # delete new temporary cache folder and set back configutations 
- if(exists("cache_tmp") & getConfig()$delete_cache & cachetype=="tmp") unlink(cache_tmp, recursive=TRUE)
 
  toolendmessage(startinfo)
  

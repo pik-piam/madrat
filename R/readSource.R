@@ -38,9 +38,6 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   # check type input
   if(!is.character(type) || length(type)!=1) stop("Invalid type (must be a single character string)!")
   
-  # Does the cache folder exists? (only to be checked if cache is enabled) 
-  if(!file.exists(getConfig("cachefolder")) & getConfig("enablecache")) dir.create(getConfig("cachefolder"),recursive = TRUE)
-  
   # Does the source that should be read exist?
   if(!(type %in% getSources(type="read"))) stop('Type "',type, '" is not a valid source type. Available sources are: "',paste(getSources(type="read"),collapse='", "'),'"')
   
