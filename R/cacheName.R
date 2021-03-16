@@ -1,17 +1,23 @@
-#' Tool: cacheGet
+#' Tool: cacheName
 #' 
 #' Load fitting cache data (if available)
+#' @note \code{setConfig(forcecache=TRUE)} strongly affects the behavior
+#' of \code{cacheName}. In read model it will also return cache names
+#' with deviating hashes if no fitting cache file is found (in that case
+#' it will just return the newest one). In write mode the hash in the name
+#' will be left out since due to cache forcing it cannot be guaranteed
+#' that the cache file agrees with the state represented by the hash.
 #' 
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
 #' @param args a list of named arguments used to call the given function
 #' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}. 
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
-#' @param mustExist Boolean which decides whether the cache file must exist or not.
-#' In case of FALSE the potential file name is returned. When set to TRUE, a file
-#' name will only be returned if the file exists (otherwise NULL) and in combination
-#' which \code{setConfig(forcecache=TRUE)} even a cache file with deviating hash
-#' might get selected.
+#' @param mode Context in which the function is used. Either "get" (loading) or 
+#' "put" (writing). In case of "put" the potential file name is returned. 
+#' When set to "get", a file name will only be returned if the file exists 
+#' (otherwise NULL) and in combination which \code{setConfig(forcecache=TRUE)} 
+#' even a cache file with deviating hash might get selected.
 #' @param packages A character vector with packages for which the available 
 #' Sources/Calculations should be returned
 #' @param globalenv	Boolean deciding whether sources/calculations in the global 
@@ -23,7 +29,7 @@
 #' madrat:::cacheName("calc","TauTotal")
 #' @importFrom digest digest
 
-cacheName <- function(prefix, type, args=NULL,  graph=NULL, mustExist = FALSE, packages = getConfig("packages"), globalenv = getConfig("globalenv")) {
+cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages = getConfig("packages"), globalenv = getConfig("globalenv")) {
   fpprefix <- prefix
   if (fpprefix %in% c("convert", "correct")) fpprefix <- "read"
   fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, 
@@ -36,8 +42,13 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mustExist = FALSE, p
   .fname <- function(prefix,type,fp,args) {
     return(paste0(getConfig("cachefolder"),"/",prefix,type,fp,args,".rds"))
   }
+  if(mode == "put" && getConfig("forcecache") != FALSE) {
+    # forcecache was at least partly active -> data consistency with
+    # calculated hash is not guaranteed -> ignore hash
+    return(.fname(prefix,type,"",args))
+  }
   fname <- .fname(prefix,type,paste0("-",fp),args)
-  if (file.exists(fname) || !mustExist) return(fname)
+  if (file.exists(fname) || mode == "put") return(fname)
   if (!.isSet(prefix,type,"forcecache")) {
     vcat(2, paste0(" - Cache file ",basename(fname)," does not exist"), show_prefix = FALSE)
     return(NULL)
