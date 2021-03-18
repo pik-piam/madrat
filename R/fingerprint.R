@@ -63,7 +63,13 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   
   fp <- c(fpfu, fpfo)
   out <- digest(unname(fp), algo = getConfig("hash"))
-  if (details) attr(out,"details") <- fp
+  if (details) {
+    attr(out,"details") <- fp
+    vcat(3,"hash components (",out,"):", show_prefix = FALSE)
+    for(n in names(fp)) {
+      vcat(3,"  ",fp[n]," | ",n, show_prefix = FALSE)
+    }
+  }
   return(out)
 }
 

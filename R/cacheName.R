@@ -32,7 +32,7 @@
 cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages = getConfig("packages"), globalenv = getConfig("globalenv")) {
   fpprefix <- prefix
   if (fpprefix %in% c("convert", "correct")) fpprefix <- "read"
-  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, 
+  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode=="put"), 
                     packages = packages, globalenv = globalenv)
   if (length(args) == 0) args <- NULL
   if (!is.null(args)) args <- paste0("-",digest(args[order(names(args))], algo = getConfig("hash")))
