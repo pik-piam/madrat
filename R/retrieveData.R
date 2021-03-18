@@ -84,6 +84,8 @@ retrieveData <- function(model, rev=0, dev="", ...) {
    setConfig(regionmapping=paste0(regionscode,".csv"),
              outputfolder=sourcefolder,
              diagnostics="diagnostics")
+   
+   getConfig(print = TRUE)
 
    # run full* functions
    startinfo <- toolstartmessage(0)
@@ -102,14 +104,14 @@ retrieveData <- function(model, rev=0, dev="", ...) {
    vcat(2," - function ",functionname," finished", fill=300, show_prefix=FALSE)   
    
  } else {
-  if(!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
+  if (!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
   cwd <- getwd()
   setwd(sourcefolder)
-  trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern=TRUE)
+  trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern = TRUE)
   setwd(cwd) 
   startinfo <- toolstartmessage(0)
-  vcat(-2," - data is already available and not calculated again.", fill=300) 
- } 
+  vcat(-2," - data is already available and not calculated again.", fill = 300) 
+ }  
 
  toolendmessage(startinfo)
  

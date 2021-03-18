@@ -13,11 +13,12 @@
 #' returned. If raw is set to TRUE settings are returned as they are currently
 #' stored.
 #' @param verbose boolean deciding whether status information/updates should be shown or not
+#' @param print if TRUE and verbose is TRUE a configuration overview will also get printed
 #' @return A config list with all settings currently set for the madrat package
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{initializeConfig}}
 #' @export
-getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE) {
+getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE, print=FALSE) {
   initializeConfig(verbose=verbose)
   
   cfg <- getOption("madrat_cfg")
@@ -25,6 +26,18 @@ getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE) {
   n <- c("sourcefolder"="sources", "cachefolder"="cache/default", "mappingfolder"="mappings", "outputfolder"="output/default")
   for(p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder")){
     if(is.na(cfg[[p]]) & !raw) cfg[[p]] <- paste0(cfg$mainfolder,"/",n[p])
+  }
+  if(verbose && print) {
+    nmax <- max(nchar(names(cfg)))
+    vcat(1,"", show_prefix = FALSE)
+    vcat(1,"Current madrat configuration:", show_prefix = FALSE)
+    for(n in names(cfg)) {
+      quotes <- ifelse(is.character(cfg[[n]]), "\"", "") 
+      value <- cfg[[n]]
+      if(is.null(value)) value <- "NULL"
+      vcat(1,paste0("   ",format(n,width = nmax)," -> ",quotes,value,quotes), show_prefix = FALSE)
+    }
+    vcat(1,"", show_prefix = FALSE)
   }
 
   if(is.null(option)) return(cfg)
