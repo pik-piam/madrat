@@ -35,7 +35,7 @@ getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE, print=FALSE) {
       quotes <- ifelse(is.character(cfg[[n]]), "\"", "") 
       value <- cfg[[n]]
       if(is.null(value)) value <- "NULL"
-      vcat(1,paste0("   ",format(n,width = nmax)," -> ",quotes,value,quotes), show_prefix = FALSE)
+      vcat(1,paste0("   ",format(n,width = nmax)," -> ",paste0(quotes,value,quotes, collapse=", ")), show_prefix = FALSE)
     }
     vcat(1,"", show_prefix = FALSE)
   }
