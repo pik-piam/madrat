@@ -83,14 +83,14 @@ toolCountryFill <- function(x,fill=NA, no_remove_warning=NULL, overwrite=FALSE, 
     if(length(missing_important_countries)>0) {
       names_countries <- names(iso_country1)[iso_country1 %in% missing_important_countries]
       vcat(verbosity," - toolCountryFill set missing values for IMPORTANT countries to ",fill,":")
-      vcat(verbosity,paste(" --- ",names_countries,paste0("(",iso_country1[names_countries],")"),sep=""),sep="")
+      vcat(verbosity," --- ",names_countries,paste0("(",iso_country1[names_countries],")"), show_prefix = FALSE)
     }
     
     missing_dispensable_countries <- setdiff(intersect(missing_countries,getISOlist("dispensable")),names(map))
     if(length(missing_important_countries)>0) {
       names_countries <- names(iso_country1)[iso_country1 %in% missing_dispensable_countries]
       vcat(2," - toolCountryFill set missing values for DISPENSABLE countries to ",fill,":")
-      vcat(2,paste(" --- ",names_countries,paste0("(",iso_country1[names_countries],")"),sep=""),sep="")
+      vcat(2," --- ",names_countries,paste0("(",iso_country1[names_countries],")"),show_prefix = FALSE)
     }
     
     tmp <- new.magpie(missing_countries,getYears(x),getNames(x),fill=fill)
@@ -102,7 +102,7 @@ toolCountryFill <- function(x,fill=NA, no_remove_warning=NULL, overwrite=FALSE, 
         x[names(map)[i],,] <- setCells(x[map[i],,],names(map)[i])
       }
       vcat(2," - toolCountryFill set missing values to values of existing countries:")
-      vcat(2,paste(" --- ",paste(map,names(map),sep=" -> "),sep=""),sep="")      
+      vcat(2," --- ",paste(map,names(map),sep=" -> "),show_prefix = FALSE)      
     }
     
   }

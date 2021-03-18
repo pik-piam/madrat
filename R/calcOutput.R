@@ -215,12 +215,12 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(!is.null(x)) {
     x <- try(.checkData(x, functionname))
     if("try-error" %in% class(x)) {
-      vcat(2," - cache file corrupt for",functionname, show_prefix=FALSE)
+      vcat(2," - cache file corrupt for ",functionname, show_prefix=FALSE)
       x <- NULL
     }
   }
   if(is.null(x)) {
-    vcat(2," - execute function",functionname, show_prefix = FALSE)
+    vcat(2," - execute function ",functionname, show_prefix = FALSE)
     if(try || getConfig("debug")==TRUE) {
       x <- try(eval(parse(text = functionname)), silent = TRUE)
       if ("try-error" %in% class(x)) {

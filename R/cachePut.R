@@ -23,7 +23,7 @@ cachePut <- function(x, prefix, type, args=NULL, graph = NULL, ...) {
   fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "put", ...) 
   if (!dir.exists(dirname(fname))) dir.create(dirname(fname), recursive = TRUE)
   attr(x,"cachefile") <- basename(fname)
-  vcat(1," - saving data to", basename(fname), fill = 300, show_prefix = FALSE)
+  vcat(1," - writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
   saveRDS(x, file = fname, compress = getConfig("cachecompression"))
   Sys.chmod(fname, mode = "0666", use_umask = FALSE)
 }

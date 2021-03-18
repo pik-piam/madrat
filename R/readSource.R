@@ -70,7 +70,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if (!is.null(x) && prefix == "convert") {
       err <- try(testISO(getRegions(x), functionname = fname))
       if("try-error" %in% class(err)) {
-        vcat(2," - cache file corrupt for", fname, show_prefix = FALSE)
+        vcat(2," - cache file corrupt for ", fname, show_prefix = FALSE)
         x <- NULL
       }
     }

@@ -26,7 +26,7 @@ toolMappingFile <- function(type, name, readcsv=FALSE, error.missing=TRUE, where
     if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')
     fname <- paste0(mf,"/",type,"/",name)
     if(!file.exists(fname) & file.exists(system.file("extdata", name, package = "madrat"))) {
-      vcat(-2,"copy mapping",name,"from madrat package into mappings folder...")
+      vcat(-2,"copy mapping ",name," from madrat package into mappings folder...")
       if(!file.exists(paste0(mf,"/",type))) dir.create(paste0(mf,"/",type), recursive = TRUE)
       file.copy(system.file("extdata", name, package = "madrat"), fname)
     }

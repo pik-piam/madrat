@@ -50,7 +50,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
   fname <- .fname(prefix,type,paste0("-",fp),args)
   if (file.exists(fname) || mode == "put") return(fname)
   if (!.isSet(prefix,type,"forcecache")) {
-    vcat(2, paste0(" - Cache file ",basename(fname)," does not exist"), show_prefix = FALSE)
+    vcat(2, " - Cache file ", basename(fname), " does not exist", show_prefix = FALSE)
     return(NULL)
   }
   # no perfectly fitting file exists, try to find a similar one
@@ -61,7 +61,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
   }
   if (length(files) == 1) file <- files
   else file <- files[order(file.mtime(files), decreasing = TRUE)][1]
-  vcat(1," - forced cache does not match fingerprint", fp, 
+  vcat(1," - forced cache does not match fingerprint ", fp, 
        fill = 300, show_prefix = FALSE)
   return(file)
 }

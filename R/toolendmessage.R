@@ -27,6 +27,6 @@ toolendmessage <- function(startdata, level=NULL) {
   startdata$time2 <- proc.time()
   runtime <- round((startdata$time2 - startdata$time1)["elapsed"], 2)
   functioncall <-  paste(deparse(sys.call(-1)), collapse = "")
-  vcat(1, "Exit", functioncall, "in", runtime, "seconds", level = level, 
+  vcat(1, "Exit ", functioncall, " in ", runtime, " seconds", level = level, 
        fill = 300, show_prefix = FALSE)
 }

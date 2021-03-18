@@ -88,7 +88,7 @@ retrieveData <- function(model, rev=0, dev="", ...) {
    # run full* functions
    startinfo <- toolstartmessage(0)
     
-   vcat(2," - execute function",functionname, fill=300, show_prefix=FALSE)
+   vcat(2," - execute function ",functionname, fill=300, show_prefix=FALSE)
    
    # add rev and dev arguments
    inargs$rev <- rev
@@ -99,7 +99,7 @@ retrieveData <- function(model, rev=0, dev="", ...) {
       if(n %in% names(inargs)) args[[n]] <- inargs[[n]]
    }
    x <- do.call(functiononly,args)
-   vcat(2," - function",functionname,"finished", fill=300, show_prefix=FALSE)   
+   vcat(2," - function ",functionname," finished", fill=300, show_prefix=FALSE)   
    
  } else {
   if(!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
