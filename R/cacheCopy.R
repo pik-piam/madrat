@@ -42,6 +42,3 @@ cacheCopy <- function(file, target=NULL, filter=NULL) {
   }
   return(files)
 }
-  
-  
- 
