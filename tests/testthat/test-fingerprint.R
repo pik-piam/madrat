@@ -22,7 +22,7 @@ test_that("fingerprinting works as expected", {
 })
 
 test_that("fingerprinting works for edge cases", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir())
+  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1)
   readFingerprintTest <- function()return(1)
   globalassign("readFingerprintTest")
   expect_silent({fp <- madrat:::fingerprint("readFingerprintTest", packages = getConfig("packages"), details = TRUE)})

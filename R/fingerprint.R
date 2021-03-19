@@ -41,7 +41,8 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   if (dim(dr)[1] > 0) {
     sources <- substring(dr$func,5)
     prefix <- c("download", "read", "convert", "correct")
-    read_functions <- paste0(rep(dr$package, each = length(prefix)),":::",paste0(prefix, sources))
+    read_functions <- paste0(rep(dr$package, each = length(prefix)),":::",
+                             paste0(prefix, rep(sources, each = length(prefix))))
   } else {
     sources <- NULL
     read_functions <- NULL
