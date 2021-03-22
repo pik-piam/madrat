@@ -10,6 +10,10 @@
 #' \code{\link[base]{numeric_version}}.
 #' @param dev development suffix to distinguish development versions for the same data
 #' revision. This can be useful to distinguish parallel lines of development.
+#' @param cachetype defines what cache should be used. "rev" points to a cache
+#' shared by all calculations for the given revision and sets forcecache to TRUE, 
+#' "def" points to the cache as defined in the current settings and does not change
+#' forcecache setting.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig} 
 #' (e.g. regionmapping). or arguments which should be forwared to the corresponding 
 #' fullXYZ function (Please make sure that argument names in full functions do not 
@@ -24,12 +28,14 @@
 #' }
 #' @importFrom methods formalArgs
 #' @export
-retrieveData <- function(model, rev=0, dev="", ...) {
+retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
 
+ if (!(cachetype %in% c("rev","def"))) stop("Unknown cachetype \"",cachetype,"\"!")
+   
  # extract setConfig settings and apply via setConfig
  inargs <- list(...)
  tmp <- intersect(names(inargs),formalArgs(setConfig))
- if(length(tmp)>0) do.call(setConfig,inargs[tmp])
+ if (length(tmp) > 0) do.call(setConfig,inargs[tmp])
  
  #receive function name and function
  functionname <- prepFunctionName(type=toupper(model), prefix="full")
@@ -74,16 +80,21 @@ retrieveData <- function(model, rev=0, dev="", ...) {
    # data not yet ready and has to be prepared first
    
    #create folder if required
-   if(!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
+   if (!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
    
    #copy mapping to mapping folder and set config accordingly
    mappath <- toolMappingFile("regional",paste0(regionscode,".csv"),error.missing = FALSE)
-   if(!file.exists(mappath)) file.copy(regionmapping,mappath)
+   if (!file.exists(mappath)) file.copy(regionmapping,mappath)
    #copy mapping to output folder
    try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-   setConfig(regionmapping=paste0(regionscode,".csv"),
-             outputfolder=sourcefolder,
-             diagnostics="diagnostics")
+   setConfig(regionmapping = paste0(regionscode,".csv"),
+             outputfolder = sourcefolder,
+             diagnostics = "diagnostics")
+   
+   if (cachetype == "rev") {
+      setConfig(cachefolder = paste0(getConfig("mainfolder"),"/cache/rev",rev,dev),
+                forcecache = TRUE)
+   } 
    
    getConfig(print = TRUE)
 
