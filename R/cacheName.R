@@ -35,7 +35,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
   fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode=="put"), 
                     packages = packages, globalenv = globalenv)
   if (length(args) == 0) args <- NULL
-  if (!is.null(args)) args <- paste0("-",digest(args[order(names(args))], algo = getConfig("hash")))
+  if (!is.null(args)) args <- paste0("-A",digest(args[order(names(args))], algo = getConfig("hash")))
   .isSet <- function(prefix, type, setting) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))
   }
@@ -47,7 +47,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
     # calculated hash is not guaranteed -> ignore hash
     return(.fname(prefix,type,"",args))
   }
-  fname <- .fname(prefix,type,paste0("-",fp),args)
+  fname <- .fname(prefix,type,paste0("-F",fp),args)
   if (file.exists(fname) || mode == "put") return(fname)
   if (!.isSet(prefix,type,"forcecache")) {
     vcat(2, " - Cache file ", basename(fname), " does not exist", show_prefix = FALSE)
@@ -55,6 +55,9 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
   }
   # no perfectly fitting file exists, try to find a similar one
   files <- Sys.glob(.fname(prefix,type,"*",args))
+  # make sure that argument hash is not mistaken as fingerpint hash (filter all 
+  # cache files with provided argument hashes if reference data has empty argument hash)
+  if (is.null(args)) files <- grep("-A[^-]*$", files, value = TRUE, invert = TRUE, perl = TRUE)
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
     return(NULL)
