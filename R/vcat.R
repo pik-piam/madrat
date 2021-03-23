@@ -52,8 +52,7 @@ vcat <- function(verbosity,...,level=NULL, fill=TRUE, show_prefix=TRUE) {
   } else {
     writelog <- FALSE
   }
-  if (verbosity > 2) verbosity <- 2
-  prefix <- c("", "ERROR: ", "WARNING: ", "NOTE: ", "MINOR NOTE: ")[verbosity + 3]
+  prefix <- c("", "ERROR: ", "WARNING: ", "NOTE: ", "MINOR NOTE: ")[min(verbosity,2) + 3]
   if (prefix == "" | !show_prefix) prefix <- NULL
   if (writelog && dir.exists(dirname(fulllogfile))) {
     base::cat(c(prefix,...), fill = fill, sep = "",labels = getOption("gdt_nestinglevel"), file = fulllogfile, append = TRUE) 
