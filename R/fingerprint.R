@@ -36,26 +36,11 @@
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   d <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
+
+  fpfu <- d$hash[order(d$call)]
+  names(fpfu) <- d$call[order(d$call)]
   
-  dr <- d[d$type == "read",]
-  if (dim(dr)[1] > 0) {
-    sources <- substring(dr$func,5)
-    prefix <- c("download", "read", "convert", "correct")
-    read_functions <- paste0(rep(dr$package, each = length(prefix)),":::",
-                             paste0(prefix, rep(sources, each = length(prefix))))
-  } else {
-    sources <- NULL
-    read_functions <- NULL
-  }
-  do <- d[d$type != "read",]
-  if (dim(do)[1] > 0) {
-    other_functions <- paste0(do$package,":::",do$func)
-  } else {
-    other_functions <- NULL
-  }
-  funcs <- sort(sub("^\\.GlobalEnv:::","",c(read_functions, other_functions)))
-  
-  fpfu <- fingerprintFunction(sort(funcs))
+  sources <- substring(d$func[d$type == "read"], 5) 
   if (length(sources) > 0) {
     fpfo <- fingerprintFolder(paste0(getConfig("sourcefolder"),"/",sort(sources)))
   } else {
@@ -67,14 +52,14 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   if (details) {
     attr(out,"details") <- fp
     vcat(3,"hash components (",out,"):", show_prefix = FALSE)
-    for(n in names(fp)) {
+    for (n in names(fp)) {
       vcat(3,"  ",fp[n]," | ",n, show_prefix = FALSE)
     }
   }
   return(out)
 }
 
-fingerprintFunction <- function(name) {
+fingerprintCall <- function(name) {
   .tmp <- function(x) {
     f <- try(eval(parse(text = x)), silent = TRUE)
     if ("try-error" %in% class(f)) return(NULL)
