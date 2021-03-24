@@ -26,7 +26,7 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
       if (length(f) > 0)  globalenv <- sapply(mget(f, envir = .GlobalEnv),deparse)
       else globalenv <- FALSE
     }
-    return(digest(c(mtimes,sort(packages),globalenv), algo = getConfig("hash")))
+    return(paste0("GH",digest(c(mtimes,sort(packages),globalenv), algo = getConfig("hash"))))
   }
   
   gHash <- .graphHash(packages,globalenv)
@@ -59,7 +59,23 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
   # read in source code
   code <- sapply(fpool$call, .extractCode)
   hash <- sapply(code, digest, algo = getConfig("hash"))
-
+  
+  .getMappingCalls <- function(code) {
+    code <- code[!(names(code) %in% paste0("madrat:::",c("toolGetMapping", "toolAggregate")))]
+    getMappings <- stri_extract_all(code, regex = "toolGetMapping\\([^)]*\\)", omit_no_match = TRUE)
+    names(getMappings) <- names(code)
+    getMappings <- getMappings[sapply(getMappings, length) > 0]
+    .clean <- function(x) {
+      x <- gsub(" +"," ",x)
+      x <- sub(", ?returnPathOnly ?= ?(FALSE|TRUE)","", x)
+      x <- sub("\\)$", ", returnPathOnly = TRUE)", x)
+      return(unique(x))
+    }
+    getMappings <- lapply(getMappings,.clean)
+    .tmp <- function(x) return(try(eval(parse(text=x))))
+    return(lapply(unique(unlist(getMappings)),.tmp))
+  }
+  
   # extract read/calc calls
   pattern <- "(readSource|calcOutput)\\( *([^=\"',]*=|) *(\"|')?([^\"',]*)[\"']?"
   matches <- stri_match_all_regex(code,pattern, omit_no_match = TRUE)
