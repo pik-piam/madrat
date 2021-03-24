@@ -10,6 +10,7 @@ test_that("getDependencies works for edge cases", {
   graph <- getMadratGraph(packages = "madrat", globalenv = TRUE)
   expect_null(getDependencies("readTestX", graph = graph))
   ref <- data.frame(func = "readTestX", type = "read", package = ".GlobalEnv",
+                    call ="readTestX", hash="783a5e2f",
                     row.names=NULL, stringsAsFactors = FALSE)
   expect_identical(getDependencies("readTestX", self=TRUE, graph = graph), ref)
 })
