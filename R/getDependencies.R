@@ -44,6 +44,8 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
     if(!(name %in% fpool$shortcall))stop("There is no function with the name \"",name,"\"")
     if(!self) return(NULL) 
     return(data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
+                      call = fpool$call[fpool$shortcall == name],
+                      hash = attr(graph, "hash")[fpool$call[fpool$shortcall == name]],
                       row.names=NULL, stringsAsFactors = FALSE))
   }
   ggraph <- igraph::graph_from_data_frame(graph)
@@ -61,6 +63,9 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   if(!self) tmp <- setdiff(tmp,name)
   
   out <- data.frame(func=tmp,type=substr(tmp,1,4),package=packages[tmp],row.names=NULL, stringsAsFactors = FALSE)
+  out$call <- paste0(out$package,":::",out$func)
+  out$call[out$package == ".GlobalEnv"] <- out$func[out$package == ".GlobalEnv"]
+  out$hash <- attr(graph, "hash")[out$call]
   if(!is.null(type)) out <- out[out$type %in% type,]
   out <- out[order(out$package),]
   out <- out[order(out$type),]
