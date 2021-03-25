@@ -257,10 +257,18 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     }
     return(x)
   }
+                       
+  .cleanComment <- function(x, remove=c("unit", "description", "comment", "origin", "creation date", "note")) {
+    # remove old descriptors
+    x <- getComment(x)
+    out <- grep(paste0("^ *(", paste(remove, collapse = "|"),"):"), x, value = TRUE, invert = TRUE)
+    if (length(out) == 0) return(NULL)
+    return(out)
+  }                     
   
   unit        <- .prep_comment(x$unit,"unit",paste0('Missing unit information for data set "',type,'"!'))
   description <- .prep_comment(x$description,"description",paste0('Missing description for data set "',type,'"! Please add a description in the corresponding calc function!'))
-  comment     <- .prep_comment(getComment(x$x),"comment")
+  comment     <- .prep_comment(.cleanComment(x$x),"comment")
   origin      <- .prep_comment(paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse=""))," (madrat ",packageDescription("madrat")$Version," | ",x$package,")"),"origin")
   date        <- .prep_comment(date(),"creation date")
   note        <- .prep_comment(x$note,"note")
