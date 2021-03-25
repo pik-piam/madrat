@@ -1,5 +1,7 @@
 context("Data calculation wrapper")
 
+Sys.setenv("LANGUAGE" = "EN")
+
 cfg <- getConfig(verbose = FALSE)
 
 globalassign <- function(...) {
@@ -87,16 +89,16 @@ test_that("Malformed calc outputs are properly detected", {
   expect_error(calcOutput("Bla13"),"Output x of function .* is not of promised class")
   expect_error(calcOutput("Bla14"),"Aggregation can only be used in combination with x\\$class=\"magpie\"")
   
-  a <- calcOutput("Bla5", aggregate=FALSE)
-  setConfig(forcecache = TRUE)
-  writeLines("CorruptCache", paste0(getConfig("cachefolder"),"/calcBla5.rds"))
-  expect_warning(b <- calcOutput("Bla5", aggregate=FALSE),"readRDS")
+  a <- calcOutput("Bla5", aggregate = FALSE)
+  writeLines("CorruptCache", madrat:::cacheName("calc","Bla5",packages = "madrat", mode="get"))
+  expect_warning(b <- calcOutput("Bla5", aggregate = FALSE),"corrupt cache")
+  getComment(a) <- getComment(b)
   expect_identical(a,b)
-  expect_identical(b,calcOutput("Bla5", aggregate=FALSE))
+  expect_identical(b,calcOutput("Bla5", aggregate = FALSE))
   
   calcError <- function()stop("I am an error!")
   globalassign("calcError")
-  expect_warning(a <- calcOutput("Error", try=TRUE), "I am an error")
+  expect_warning(suppressMessages(a <- calcOutput("Error", try=TRUE)), "I am an error", )
   expect_identical(class(a),"try-error")
   sink()
 })
@@ -115,7 +117,7 @@ test_that("Calculation for tau example data set works", {
   x <- calcOutput("TauTotal",source="historical",years = 1995, round=2, supplementary = TRUE) 
   expect_true(is.list(x))
   expect_equivalent(x$x,expected_result)
-  expect_message(x <- readSource("Tau","historical"),"use cache")
+  expect_message(x <- readSource("Tau","historical"),"loading cache")
   expect_error(x <- readSource("Tau","wtf"),"Unknown subtype")
   sink()
 })

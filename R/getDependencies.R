@@ -17,16 +17,35 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided. 
 #' @param type type filter. Only dependencies of that type will be returned. Currently available
 #' types are "calc", "read" and "tool"
+#' @param self boolean defining whether the function itself, which is analyzed, should be 
+#' included in the output, or not
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}},  \code{\link{getMadratInfo}}
+#' @importFrom igraph graph_from_data_frame subcomponent
 #' @export
 
-getDependencies <- function(name, direction="in", graph=NULL, type=NULL, ...) {
-  if (!requireNamespace("igraph", quietly = TRUE)) stop("Package \"igraph\" needed for this function to work.")
+getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FALSE, ...) {
   if(is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
-  if(!(name %in% c(graph$from,graph$to))) stop("There is no function with the name \"",name,"\"")
+  packages <- c(graph$from_package,graph$to_package)
+  names(packages) <- c(graph$from,graph$to)
+  
+  if(!(name %in% c(graph$from,graph$to))) {
+    .tmp <- function(name, ...) {
+      if(name %in% names(list(...))) {
+        return(list(...)[[name]])
+      } else {
+        return(getConfig(name))
+      }  
+    }
+    fpool <- getCalculations("read|calc|full|tool", packages = .tmp("packages", ...), globalenv = .tmp("globalenv", ...))
+    fpool$shortcall <- sub("^.*:::","",fpool$call)
+    if(!(name %in% fpool$shortcall))stop("There is no function with the name \"",name,"\"")
+    if(!self) return(NULL) 
+    return(data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
+                      row.names=NULL, stringsAsFactors = FALSE))
+  }
   ggraph <- igraph::graph_from_data_frame(graph)
   if(direction=="full") direction <- "all"
   if(direction=="both") {
@@ -39,10 +58,7 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, ...) {
   } else {
     tmp <- attr(igraph::subcomponent(ggraph,name,direction),"names")
   }
-  tmp <- setdiff(tmp,name)
-  
-  packages <- c(graph$from_package,graph$to_package)
-  names(packages) <- c(graph$from,graph$to)
+  if(!self) tmp <- setdiff(tmp,name)
   
   out <- data.frame(func=tmp,type=substr(tmp,1,4),package=packages[tmp],row.names=NULL, stringsAsFactors = FALSE)
   if(!is.null(type)) out <- out[out$type %in% type,]

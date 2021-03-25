@@ -34,44 +34,49 @@
 vcat <- function(verbosity,...,level=NULL, fill=TRUE, show_prefix=TRUE) {
   #write output based on set verbosity level
   
-  if(!is.null(level)) {
-    if(level==0) {
-      options(gdt_nestinglevel=NULL)
-    } else if(level=="-"){
+  if (!is.null(level)) {
+    if (level == 0) {
+      options(gdt_nestinglevel = NULL)
+    } else if (level == "-") {
       # remove empty space
-      options(gdt_nestinglevel=substring(getOption("gdt_nestinglevel"),2))
-      if(getOption("gdt_nestinglevel")=="") options(gdt_nestinglevel=NULL)
+      options(gdt_nestinglevel = substring(getOption("gdt_nestinglevel"),2))
+      if (getOption("gdt_nestinglevel") == "") options(gdt_nestinglevel = NULL)
     }
   }  
   
   d <- getConfig("diagnostics")
-  if(is.character(d)) {
+  if (is.character(d)) {
     writelog <- TRUE
     logfile <-  paste0(getConfig("outputfolder"),"/",d,".log")
     fulllogfile <- paste0(getConfig("outputfolder"),"/",d,"_full.log")
   } else {
     writelog <- FALSE
   }
-  if(verbosity > 2) verbosity <- 2
-  prefix <- c("","ERROR:","WARNING:","NOTE:","MINOR NOTE:")[verbosity+3]
-  if(prefix=="" | !show_prefix) prefix <- NULL
-  if(writelog && dir.exists(dirname(fulllogfile))) base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"),file=fulllogfile,append=TRUE) 
-  if(getConfig("verbosity") >= verbosity) {
-    if(writelog && dir.exists(dirname(logfile))) base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"),file=logfile,append=TRUE)
-    if(verbosity == -1) {
+  prefix <- c("", "ERROR: ", "WARNING: ", "NOTE: ", "MINOR NOTE: ")[min(verbosity,2) + 3]
+  if (prefix == "" | !show_prefix) prefix <- NULL
+  if (writelog && dir.exists(dirname(fulllogfile))) {
+    base::cat(c(prefix,...), fill = fill, sep = "",labels = getOption("gdt_nestinglevel"), file = fulllogfile, append = TRUE) 
+  }
+  if (getConfig("verbosity") >= verbosity) {
+    if (writelog && dir.exists(dirname(logfile))) {
+      base::cat(c(prefix,...), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"), file = logfile, append = TRUE)
+    }
+    if (verbosity == -1) {
       base::stop(..., call. = FALSE)      
-    } else if(verbosity == 0) {
+    } else if (verbosity == 0) {
       base::warning(..., call. = FALSE) 
-      message(capture.output(base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))))
+      message(paste(capture.output(base::cat(c(prefix,...), fill = fill, sep = "",
+                                             labels = getOption("gdt_nestinglevel"))), collapse = "\n"))
     } else {
-      message(capture.output(base::cat(c(prefix,...),fill=fill,labels = getOption("gdt_nestinglevel"))))  
+      message(paste(capture.output(base::cat(c(prefix,...), fill = fill, sep = "",
+                                             labels = getOption("gdt_nestinglevel"))), collapse = "\n"))  
     }
   }
   
-  if(!is.null(level)){
-    if(level=="+") {
+  if (!is.null(level)) {
+    if (level == "+") {
       # add empty space
-      options(gdt_nestinglevel=paste0(">",getOption("gdt_nestinglevel")))
+      options(gdt_nestinglevel = paste0(">", getOption("gdt_nestinglevel")))
     }
   }
   

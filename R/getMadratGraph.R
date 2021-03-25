@@ -16,6 +16,34 @@
 
 getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConfig("globalenv")) {
   
+  if(is.null(getOption("MadratCache"))) options(MadratCache = new.env(size=NA))
+  
+  .graphHash <- function(packages, globalenv) {
+    mtimes <- as.character(file.mtime(.libPaths()))
+    if(globalenv) {
+      f <- grep("^(read|download|convert|correct|calc|full|tool)",ls(envir=.GlobalEnv), 
+                perl=TRUE, value=TRUE)
+      globalenv <- sapply(mget(f, envir = .GlobalEnv),deparse)
+    }
+    return(digest(c(mtimes,sort(packages),globalenv), algo = getConfig("hash")))
+  }
+  
+  gHash <- .graphHash(packages,globalenv)
+  if(exists(gHash, envir = getOption("MadratCache"))) return(get(gHash, getOption("MadratCache")))
+
+  .extractCode <- function(x) {
+    out <- deparse(eval(parse(text=x)))
+    pattern <- "(^|::)read"
+    if(grepl(pattern,x)) {
+      extras <- c("download","convert","correct")
+      for(e in extras) {
+        tmp <- try(deparse(eval(parse(text=sub(pattern,paste0("\\1",e),x)))),silent=TRUE)
+        if(!("try-error" %in% class(tmp))) out <- c(out,tmp)
+      }
+    }
+    return(paste(out,collapse=" "))
+  }
+  
   # extract function pool
   fpool <- getCalculations("read|calc|full|tool", packages = packages, globalenv = globalenv)
   
@@ -28,26 +56,8 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
   }
   
   # read in source code
-  extractCode <- function(x) {
-    out <- deparse(eval(parse(text=x)))
-    pattern <- "(^|::)read"
-    if(grepl(pattern,x)) {
-      extras <- c("download","convert","correct")
-      for(e in extras) {
-        tmp <- try(deparse(eval(parse(text=sub(pattern,paste0("\\1",e),x)))),silent=TRUE)
-        if(!("try-error" %in% class(tmp))) out <- c(out,tmp)
-      }
-    }
-    return(paste(out,collapse=" "))
-  }
-  code <- sapply(fpool$call,extractCode)
+  code <- sapply(fpool$call, .extractCode)
 
-  # merge download-, convert-, correct- and read-calls just as read-calls
-  
-  fpool$fname <- sub("^(correct|convert|download)","read", fpool$fname)
-  fpool$call <- sub("(^|:::)(correct|convert|download)","\\1read", fpool$call)
-  #names(code) <- sub("(^|:::)(correct|convert|download)","\\1read", names(code))
-  
   # extract read/calc calls
   pattern <- "(readSource|calcOutput)\\( *([^=\"',]*=|) *(\"|')?([^\"',]*)[\"']?"
   matches <- stri_match_all_regex(code,pattern, omit_no_match = TRUE)
@@ -86,6 +96,7 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
   out <- unique(rbind(out[,c("from","to")],out2[,c("from","to")]))
   out$from_package <- as.character(fpool$package[match(out$from,fpool$fname)])
   out$to_package <- sub(":::.*$","",out$to)
+  out$to_package[!grepl(":::", out$to)] <- ".GlobalEnv"
   out$to <- sub("^.*:::","",out$to) 
   
   fromNA <- is.na(out$from)
@@ -122,5 +133,6 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
     }
   }
   attr(out,"fpool") <- fpool
+  assign(gHash, out, envir = getOption("MadratCache"))
   return(out)
 }

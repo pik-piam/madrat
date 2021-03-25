@@ -9,7 +9,6 @@
 #' Currently this setting can have 4 states: NULL (nothing will be changed), 0
 #' (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
 #' hierarchy level by 1).
-#' @param id additional id which uniquely identifies the process that just has been finished
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolstartmessage}}, \code{\link{vcat}}
 #' @examples
@@ -24,9 +23,10 @@
 #' }
 #'
 
-toolendmessage <- function(startdata, level=NULL, id="none") {
+toolendmessage <- function(startdata, level=NULL) {
   startdata$time2 <- proc.time()
-  runtime <- round((startdata$time2-startdata$time1)["elapsed"],2)
-  functioncall <-  paste(deparse(sys.call(-1)),collapse="")
-  vcat(1,"Exit",functioncall,"in",runtime,"seconds",level=level, fill=300, show_prefix=FALSE)
+  runtime <- round((startdata$time2 - startdata$time1)["elapsed"], 2)
+  functioncall <-  paste(deparse(sys.call(-1)), collapse = "")
+  vcat(1, "Exit ", functioncall, " in ", runtime, " seconds", level = level, 
+       fill = 300, show_prefix = FALSE)
 }

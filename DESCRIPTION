@@ -1,8 +1,8 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 1.93.6
-Date: 2021-03-02
+Version: 1.96.2
+Date: 2021-03-22
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
              person("Stephen", "Wirth", email = "wirth@pik-potsdam.de", role = "aut"),
@@ -17,6 +17,7 @@ Depends:
     R(>= 2.10.0),
     magclass(>= 5.7.0)
 Imports:
+    igraph (>= 1.0.1),
     Matrix,
     tools,
     utils,
@@ -28,7 +29,6 @@ Imports:
     assertthat,
     yaml
 Suggests:
-    igraph (>= 1.0.1),
     knitr,
     rmarkdown,
     testthat,

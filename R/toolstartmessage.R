@@ -26,7 +26,7 @@
 
 toolstartmessage <- function(level=NULL) {
   functioncall <- paste(deparse(sys.call(-1)),collapse="")
-  vcat(-2,"Run",functioncall, level=level, fill=300)
+  vcat(-2,"Run ",functioncall, level=level, fill=300)
   startdata <- list(time1=proc.time())
   return(startdata)
 }

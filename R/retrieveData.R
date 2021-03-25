@@ -11,13 +11,13 @@
 #' @param dev development suffix to distinguish development versions for the same data
 #' revision. This can be useful to distinguish parallel lines of development.
 #' @param cachetype defines what cache should be used. "rev" points to a cache
-#' shared by all calculations for the given revision, "def" points to the cache
-#' as defined in the current settings and "tmp" temporarily creates a cache
-#' folder for the calculations and deletes it afterwards again
-#' @param ... (Optional) Settings that should be changed using or arguments which should
-#' be forwared to the corresponding fullXYZ function (Please make sure that argument names
-#' in full functions do not match settings in \code{setConfig}!)
-#' \code{\link{setConfig}} (e.g. regionmapping).
+#' shared by all calculations for the given revision and sets forcecache to TRUE, 
+#' "def" points to the cache as defined in the current settings and does not change
+#' forcecache setting.
+#' @param ... (Optional) Settings that should be changed using \code{setConfig} 
+#' (e.g. regionmapping). or arguments which should be forwared to the corresponding 
+#' fullXYZ function (Please make sure that argument names in full functions do not 
+#' match settings in \code{setConfig}!)
 #' @author Jan Philipp Dietrich, Lavinia Baumstark
 #' @seealso
 #' \code{\link{calcOutput}},\code{\link{setConfig}}
@@ -30,10 +30,12 @@
 #' @export
 retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
 
+ if (!(cachetype %in% c("rev","def"))) stop("Unknown cachetype \"",cachetype,"\"!")
+   
  # extract setConfig settings and apply via setConfig
  inargs <- list(...)
  tmp <- intersect(names(inargs),formalArgs(setConfig))
- if(length(tmp)>0) do.call(setConfig,inargs[tmp])
+ if (length(tmp) > 0) do.call(setConfig,inargs[tmp])
  
  #receive function name and function
  functionname <- prepFunctionName(type=toupper(model), prefix="full")
@@ -58,8 +60,8 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
  defargs$rev <- NULL
  toadd <- names(defargs)[!(names(defargs)%in%names(inargs))]
  if(length(toadd)>0) inargs[toadd] <- defargs[toadd] 
- if(length(inargs)>0 && uselabels) args_hash <- paste0(toolCodeLabels(digest(inargs,"md5")),"_")
- else if(length(inargs)>0 && !uselabels) args_hash <- paste0(digest(inargs,"md5"),"_")
+ if(length(inargs)>0 && uselabels) args_hash <- paste0(toolCodeLabels(digest(inargs, algo = getConfig("hash"))),"_")
+ else if(length(inargs)>0 && !uselabels) args_hash <- paste0(digest(inargs, algo = getConfig("hash")),"_")
  else args_hash <- NULL
 
  regionmapping <- getConfig("regionmapping")  
@@ -78,35 +80,28 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
    # data not yet ready and has to be prepared first
    
    #create folder if required
-   if(!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
+   if (!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
    
    #copy mapping to mapping folder and set config accordingly
    mappath <- toolMappingFile("regional",paste0(regionscode,".csv"),error.missing = FALSE)
-   if(!file.exists(mappath)) file.copy(regionmapping,mappath)
+   if (!file.exists(mappath)) file.copy(regionmapping,mappath)
    #copy mapping to output folder
    try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-   setConfig(regionmapping=paste0(regionscode,".csv"),
-             outputfolder=sourcefolder,
-             diagnostics="diagnostics")
-   # make new temporary cache folder and forche the use of it
-   if(cachetype=="tmp") {
-     cache_tmp <- paste0(getConfig("mainfolder"),"/cache/tmp",format(Sys.time(), "%Y-%m-%d_%H-%M-%S"))
-   } else if(cachetype=="rev") {
-     cache_tmp <- paste0(getConfig("mainfolder"),"/cache/rev",rev,dev)
-   } else if(cachetype=="def") {
-     cache_tmp <- getConfig("cachefolder")
-   } else {
-     stop("Unknown cachetype \"",cachetype,"\"!")
-   }
-   if(!exists(cache_tmp)) dir.create(cache_tmp, recursive = TRUE, showWarnings = FALSE)
-   # change settings
-   setConfig(cachefolder=cache_tmp)
-   setConfig(forcecache=TRUE)
-   # run full* functions
+   setConfig(regionmapping = paste0(regionscode,".csv"),
+             outputfolder = sourcefolder,
+             diagnostics = "diagnostics")
    
+   if (cachetype == "rev") {
+      setConfig(cachefolder = paste0(getConfig("mainfolder"),"/cache/rev",rev,dev),
+                forcecache = TRUE)
+   } 
+   
+   getConfig(print = TRUE)
+
+   # run full* functions
    startinfo <- toolstartmessage(0)
     
-   vcat(2," - execute function",functionname, fill=300, show_prefix=FALSE)
+   vcat(2," - execute function ",functionname, fill=300, show_prefix=FALSE)
    
    # add rev and dev arguments
    inargs$rev <- rev
@@ -117,20 +112,17 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
       if(n %in% names(inargs)) args[[n]] <- inargs[[n]]
    }
    x <- do.call(functiononly,args)
-   vcat(2," - function",functionname,"finished", fill=300, show_prefix=FALSE)   
+   vcat(2," - function ",functionname," finished", fill=300, show_prefix=FALSE)   
    
  } else {
-  if(!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
+  if (!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
   cwd <- getwd()
   setwd(sourcefolder)
-  trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern=TRUE)
+  trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern = TRUE)
   setwd(cwd) 
   startinfo <- toolstartmessage(0)
-  vcat(-2," - data is already available and not calculated again.", fill=300) 
- } 
- 
- # delete new temporary cache folder and set back configutations 
- if(exists("cache_tmp") & getConfig()$delete_cache & cachetype=="tmp") unlink(cache_tmp, recursive=TRUE)
+  vcat(-2," - data is already available and not calculated again.", fill = 300) 
+ }  
 
  toolendmessage(startinfo)
  

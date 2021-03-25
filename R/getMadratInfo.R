@@ -14,6 +14,8 @@
 #' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
+#' @importFrom igraph graph_from_data_frame components V delete.vertices 
+#' cluster_edge_betweenness as.undirected membership
 #' @export
 
 getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
@@ -117,80 +119,76 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   }
   
   #### Further Info is based on graph structure ###
-  if (!requireNamespace("igraph", quietly = TRUE)) {
-    message("\n[INFO] Package \"igraph\" needed for additional information.")
-  } else {
-    # create graph but without tool functions
-    ggraphNoTools <- igraph::graph_from_data_frame(graph[!grepl("^tool",graph$from),])
+  # create graph but without tool functions
+  ggraphNoTools <- igraph::graph_from_data_frame(graph[!grepl("^tool",graph$from),])
     
-    writeCommunities <- function(membership, what="independent networks", elem="network", cutoff=5){
-      no <- max(membership)
-      out <- list()
-      message("[INFO] ",no," ",what," detected")
-      for(i in 1:no) {
-        member <- names(membership)[membership==i]
-        message("[INFO]\n[INFO] .: ",elem," #",i," (",length(member)," members) :.")
-        out[[i]] <- member
-        if(length(member)>cutoff) member <- c(member[1:cutoff],"...")
-        message("[INFO]  -> ",paste(member,collapse="\n[INFO]  -> "))
-      }
-      return(out)
+  writeCommunities <- function(membership, what="independent networks", elem="network", cutoff=5){
+  no <- max(membership)
+  out <- list()
+  message("[INFO] ",no," ",what," detected")
+  for(i in 1:no) {
+    member <- names(membership)[membership==i]
+    message("[INFO]\n[INFO] .: ",elem," #",i," (",length(member)," members) :.")
+    out[[i]] <- member
+    if(length(member)>cutoff) member <- c(member[1:cutoff],"...")
+      message("[INFO]  -> ",paste(member,collapse="\n[INFO]  -> "))
     }
+    return(out)
+  }
     
-    message("\n.:: Check for independent networks (tools ignored) ::.")
-    comp <- igraph::components(ggraphNoTools)
-    out$independent_networks <- writeCommunities(comp$membership, what="independent networks", 
-                                                 elem="network", cutoff=cutoff)
+  message("\n.:: Check for independent networks (tools ignored) ::.")
+  comp <- igraph::components(ggraphNoTools)
+  out$independent_networks <- writeCommunities(comp$membership, what="independent networks", 
+                                               elem="network", cutoff=cutoff)
       
     
-    message("\n.:: Check for sub-structures (tools ignored) ::.")
-    fullfunc <- grep("^full",attr(igraph::V(ggraphNoTools),"names"),value=TRUE)
-    greduced <- igraph::delete.vertices(ggraphNoTools,fullfunc)
-    comp <- igraph::components(greduced)
-    out$sub_structures <- writeCommunities(comp$membership, what="independent calculations cluster", 
-                                           elem="cluster", cutoff=cutoff)
+  message("\n.:: Check for sub-structures (tools ignored) ::.")
+  fullfunc <- grep("^full",attr(igraph::V(ggraphNoTools),"names"),value=TRUE)
+  greduced <- igraph::delete.vertices(ggraphNoTools,fullfunc)
+  comp <- igraph::components(greduced)
+  out$sub_structures <- writeCommunities(comp$membership, what="independent calculations cluster", 
+                                         elem="cluster", cutoff=cutoff)
     
-    message("\n.:: Identify functions which are used exclusively by one full function (tools ignored) ::.")
-    funcs <- attr(graph,"fpool")$fname
-    fulls <- grep("^full",funcs,value=TRUE)
-    tmpfun <- function(x,graph=graph) return(data.frame(callfunc=x,getDependencies(x,graph=graph), stringsAsFactors = FALSE))
-    tmp <- do.call(rbind,lapply(fulls,tmpfun,graph=graph))
-    n <- table(tmp$func)
-    nouse <- setdiff(funcs,tmp$func)
-    nouse <- grep("^(full|tool)",nouse,value=TRUE,invert=TRUE)
-    multiuse  <- names(n)[n>1]
-    singleuse <- names(n)[n==1]
-    singleuse <- tmp[match(singleuse,tmp$func),]
+  message("\n.:: Identify functions which are used exclusively by one full function (tools ignored) ::.")
+  funcs <- attr(graph,"fpool")$fname
+  fulls <- grep("^full",funcs,value=TRUE)
+  tmpfun <- function(x,graph=graph) return(data.frame(callfunc=x,getDependencies(x,graph=graph), stringsAsFactors = FALSE))
+  tmp <- do.call(rbind,lapply(fulls,tmpfun,graph=graph))
+  n <- table(tmp$func)
+  nouse <- setdiff(funcs,tmp$func)
+  nouse <- grep("^(full|tool)",nouse,value=TRUE,invert=TRUE)
+  multiuse  <- names(n)[n>1]
+  singleuse <- names(n)[n==1]
+  singleuse <- tmp[match(singleuse,tmp$func),]
     
-    out$exclusive_use <- list()
+  out$exclusive_use <- list()
     
-    out$exclusive_use$multi_use <- multiuse
+  out$exclusive_use$multi_use <- multiuse
     
-    for(f in fulls) {
-      tmp <- singleuse[singleuse$callfunc==f,2:3]
-      tmp <- tmp[order(tmp[2],tmp[1]),]
-      message("[INFO]\n[INFO] .: exclusive calls for ",f," (",dim(tmp)[1]," members) :.")
-      out$exclusive_use[[f]] <- tmp 
-      if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
-      if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$func, sep="::",collapse="\n[INFO]  -> "))
-    }
-
-    tmp <- data.frame(as.matrix(attr(graph,"fpool")[,c("fname","package")]), stringsAsFactors = FALSE)
-    tmp <- tmp[tmp$fname %in% nouse,]
+  for(f in fulls) {
+    tmp <- singleuse[singleuse$callfunc==f,2:3]
     tmp <- tmp[order(tmp[2],tmp[1]),]
-    message("[INFO]\n[INFO] .: functions with no calls in full-functions (",dim(tmp)[1]," members) :.")
-    out$exclusive_use$no_use <- tmp
+    message("[INFO]\n[INFO] .: exclusive calls for ",f," (",dim(tmp)[1]," members) :.")
+    out$exclusive_use[[f]] <- tmp 
     if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
-    if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$fname, sep="::",collapse="\n[INFO]  -> "))
-    
-    if(extended) {
-      message("\n.:: Check for community structures (tools ignored) ::.")
-      ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraphNoTools))
-      out$community_structrues <- writeCommunities(igraph::membership(ceb), what="close communities", 
-                                                   elem="community", cutoff=cutoff)
-    }
-    
+    if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$func, sep="::",collapse="\n[INFO]  -> "))
   }
+
+  tmp <- data.frame(as.matrix(attr(graph,"fpool")[,c("fname","package")]), stringsAsFactors = FALSE)
+  tmp <- tmp[tmp$fname %in% nouse,]
+  tmp <- tmp[order(tmp[2],tmp[1]),]
+  message("[INFO]\n[INFO] .: functions with no calls in full-functions (",dim(tmp)[1]," members) :.")
+  out$exclusive_use$no_use <- tmp
+  if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
+  if(dim(tmp)[1]>0) message("[INFO]  -> ",paste(tmp$package,tmp$fname, sep="::",collapse="\n[INFO]  -> "))
+  
+  if(extended) {
+    message("\n.:: Check for community structures (tools ignored) ::.")
+    ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraphNoTools))
+    out$community_structrues <- writeCommunities(igraph::membership(ceb), what="close communities", 
+                                                 elem="community", cutoff=cutoff)
+  }
+    
   invisible(out)
 }
 

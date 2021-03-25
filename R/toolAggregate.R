@@ -164,8 +164,10 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
-    if(length(noagg)>1) vcat(verbosity, "The following entries were not aggregated because there was no respective entry in the relation matrix", noagg, "\n")
-    
+    if (length(noagg) > 0) {
+      if (length(noagg) > 1) noagg[1:(length(noagg)-1)] <- paste0(noagg[1:(length(noagg)-1)],", ")
+      vcat(verbosity, noagg, " not mapped in aggregation!")
+    }
     rel <- rel[,common,drop=FALSE]
     rel <- rel[rowSums(rel)>0,,drop=FALSE]
   }

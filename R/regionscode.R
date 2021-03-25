@@ -75,7 +75,7 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
   } else {
     tmp <- mapping
   }
-  out <- digest(tmp,"md5")
+  out <- digest(tmp, algo = getConfig("hash"))
   if(label) { 
     return(toolCodeLabels(out))
   }

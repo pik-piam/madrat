@@ -12,6 +12,11 @@ rel <- data.frame(from=getRegions(pm),to=rep(c("REG1","REG2"),each=5))
 
 cfg <- getConfig(verbose = FALSE)
 
+noC <- function(x) {
+  getComment(x) <- NULL
+  return(x)
+}
+
 test_that("Identity mapping is not changing the data", {
   expect_equivalent(toolAggregate(pm,map2),pm)
   pimpf <- pm
@@ -20,25 +25,25 @@ test_that("Identity mapping is not changing the data", {
 })
 
 test_that("Mappings work in matrix and data.frame format identical", {
-  expect_identical(toolAggregate(pm,as.matrix(map)),toolAggregate(pm,map))
+  expect_identical(noC(toolAggregate(pm,as.matrix(map))),noC(toolAggregate(pm,map)))
 })
 
 test_that("Combination via '+' works", {
-  reg <- toolAggregate(pm,map,to="reg")
-  glo <- toolAggregate(pm,map,to="glo")
-  expect_equivalent(toolAggregate(pm,map,to="reg+glo"),mbind(reg,glo))
+  reg <- noC(toolAggregate(pm,map,to="reg"))
+  glo <- noC(toolAggregate(pm,map,to="glo"))
+  expect_equivalent(noC(toolAggregate(pm,map,to="reg+glo")),mbind(reg,glo))
 })
 
 test_that("NA columns in weight are summed up", {
-  expect_equivalent(toolAggregate(pm,map),toolAggregate(pm,map, weight=w, mixed_aggregation=TRUE))
+  expect_equivalent(noC(toolAggregate(pm,map)),noC(toolAggregate(pm,map, weight=w, mixed_aggregation=TRUE)))
 })
 
 test_that("NA in weight leads to summation and other weight to weighting", {
   w[,,1] <- 1
   w[,,2] <- NA
-  mix <- toolAggregate(pm,map, weight=w, mixed_aggregation=TRUE)
-  mean <- toolAggregate(pm[,,1],map, weight=w[,,1])
-  sum <- toolAggregate(pm[,,2],map)
+  mix <- noC(toolAggregate(pm,map, weight=w, mixed_aggregation=TRUE))
+  mean <- noC(toolAggregate(pm[,,1],map, weight=w[,,1]))
+  sum <- noC(toolAggregate(pm[,,2],map))
   expect_equivalent(mix,mbind(mean,sum))
 })
 
