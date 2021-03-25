@@ -168,3 +168,32 @@ test_that("Custom class support works", {
   expect_identical(readRDS(paste0(getConfig("outputfolder"),"/test.rds")),data)
   sink()
 })
+
+test_that("Old descriptors are properly removed from comment", {
+  sink(tempfile())
+  setConfig(globalenv = TRUE, outputfolder = tempdir(), .verbose = FALSE)
+  calcBlub <- function() {
+    x <- as.magpie(1)
+    getComment(x) <- "test comment"
+    return(list(x           = x,
+                unit        = "1",
+                description = "Descriptor test ",
+                title       = "Blub"))
+  }
+  
+  calcBlub2 <- function() {
+    return(list(x           = calcOutput("Blub", aggregate=FALSE),
+                unit        = "1",
+                description = "Descriptor test 2",
+                title       = "Blub2"))
+  }
+  
+  globalassign("calcBlub", "calcBlub2")
+  a <- calcOutput("Blub", aggregate=FALSE)
+  expect_true(" comment: test comment" %in% getComment(a))
+  a <- calcOutput("Blub2", aggregate=FALSE)
+  expect_false(any(grepl("comment:", getComment(a))))
+  sink()
+})
+
+
