@@ -137,8 +137,8 @@ test_that("Standard workflow works", {
   readTest2 <- function() return(read.magpie("test.mz"))
   convertTest2 <- function(x) return(toolCountryFill(x, fill = 10))
   calcTest2 <- function() return(list(x=readSource("Test2"),
-                                     weight=NULL,
-                                     unit="1"))
+                                      weight=NULL,
+                                      unit="1"))
   
   fullTEST2 <- function(rev=0, dev="") {
     expected_output <- new("magpie", 

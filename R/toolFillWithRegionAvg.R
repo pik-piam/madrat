@@ -22,7 +22,7 @@
 #' newly added and previously missing values are filled with the region average.
 #' @param regionmapping Data frame containing the mapping between countries and regions.
 #' Expects column names CountryCode and RegionCode. Uses the currently set mapping
-#' (as returned by toolMappingFile) if no mapping is specified.
+#' if no mapping is specified.
 #' @param verbose Boolean variable indicating if the function should print out what it is doing.
 #' Can generate a lot of output for a large object.
 #' @param warningThreshold If more than this fraction of the countries in a given region and
@@ -74,7 +74,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   
   # get default mapping if no mapping is defined
   if (is.null(regionmapping)){
-    map <- read.csv(toolMappingFile("regional",getConfig("regionmapping")),sep=";")
+    map <- toolGetMapping(getConfig("regionmapping"),"regional")
   } else {
     map <- regionmapping
   }
@@ -98,7 +98,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
       x_new[c_NA,yr,] <- fill_val
       
       if (verbose) {
-        print(sprintf("%s %s : replaced %s missing values with regional average of %.2e", 
+        vcat(1,sprintf("%s %s : replaced %s missing values with regional average of %.2e", 
                       regi,yr,length(c_NA),fill_val))
       }
       

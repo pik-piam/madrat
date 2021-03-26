@@ -32,51 +32,45 @@
 #' @export
 regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
   
-  if(is.null(mapping)) mapping <- toolMappingFile("regional",getConfig("regionmapping"),readcsv = TRUE)
+  if (is.null(mapping)) mapping <- getConfig("regionmapping")
   
-  if(is.character(mapping)) {
-    if(length(mapping)>1) {
-      return(sapply(mapping,regionscode,label=label, strict=strict))
-    }
-    if(file.exists(mapping)) {
-      mapping <- read.csv(mapping,sep=";")
-    } else {
-      mapping <- toolMappingFile("regional",mapping,readcsv = TRUE)
-    }
+  if (is.character(mapping)) {
+    if (length(mapping) > 1) return(sapply(mapping, regionscode, label = label, strict = strict))
+    mapping <- toolGetMapping(mapping, "regional")
   }
   
-  if(strict) {
+  if (strict) {
     #remove first column if data has 3 or more columns
-    if(ncol(mapping)>=3) mapping[[1]] <- NULL
+    if (ncol(mapping) >= 3) mapping[[1]] <- NULL
   
     # read list of ISO-countries   
-    iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+    iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"), row.names = NULL)
     iso_country1 <- as.vector(iso_country[,"x"])
     names(iso_country1) <- iso_country[,"X"]
     isocountries <- sort(iso_country1)
   
-    if(nrow(mapping)>length(isocountries)) stop("Provided regionmapping has more rows than there are ISO countries in the ISO reference list. Please check the mapping!")
-    if(nrow(mapping)<length(isocountries)) stop("Provided regionmapping has less rows than there are ISO countries in the ISO reference list. Please check the mapping!")
+    if (nrow(mapping) > length(isocountries)) stop("Provided regionmapping has more rows than there are ISO countries in the ISO reference list. Please check the mapping!")
+    if (nrow(mapping) < length(isocountries)) stop("Provided regionmapping has less rows than there are ISO countries in the ISO reference list. Please check the mapping!")
   
     lists_agree <- NULL
-    for(i in 1:ncol(mapping)) {
-      lists_agree <- c(lists_agree,all(isocountries==sort(as.vector(mapping[[i]]))))
+    for (i in 1:ncol(mapping)) {
+      lists_agree <- c(lists_agree,all(isocountries == sort(as.vector(mapping[[i]]))))
     }
   
-    if(!any(lists_agree)) stop("Provided regionmapping does not contain a iso country column which agrees with the reference list of ISO countries! Please check the mapping!")
+    if (!any(lists_agree)) stop("Provided regionmapping does not contain a iso country column which agrees with the reference list of ISO countries! Please check the mapping!")
   
     # Reorder if only second column contains ISO countries
-    if(!lists_agree[1]) mapping <- mapping[2:1]
+    if (!lists_agree[1]) mapping <- mapping[2:1]
     
     tmp <- as.vector(mapping[[1]])
-    for ( i in 2:ncol(mapping)) {
-      tmp <- sort(paste(tmp, as.vector(mapping[[i]]),sep="."))
+    for (i in 2:ncol(mapping)) {
+      tmp <- sort(paste(tmp, as.vector(mapping[[i]]), sep = "."))
     }
   } else {
     tmp <- mapping
   }
   out <- digest(tmp, algo = getConfig("hash"))
-  if(label) { 
+  if (label) { 
     return(toolCodeLabels(out))
   }
   return(out)

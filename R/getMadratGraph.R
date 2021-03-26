@@ -11,7 +11,7 @@
 #' to (function which is using the source), to_package (package of the using function)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getConfig}}
-#' @importFrom stringi stri_match_all_regex
+#' @importFrom stringi stri_match_all_regex stri_extract_all
 #' @export
 
 getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConfig("globalenv")) {
