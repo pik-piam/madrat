@@ -27,9 +27,16 @@
 #' @export
 
 getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FALSE, ...) {
-  if(is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
+  if (is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
   packages <- c(graph$from_package,graph$to_package)
   names(packages) <- c(graph$from,graph$to)
+  .filterSupportData <- function(graph, calls) {
+    support <- attr(graph, "support")
+    .tmp <- function(x,filter) return(sort(unique(unlist(x[filter]))))
+    out <- lapply(support, .tmp, filter = calls)
+    if (all(sapply(out,length) == 0)) return(NULL)
+    return(out)
+  }
   
   if(!(name %in% c(graph$from,graph$to))) {
     .tmp <- function(name, ...) {
@@ -43,10 +50,12 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
     fpool$shortcall <- sub("^.*:::","",fpool$call)
     if(!(name %in% fpool$shortcall))stop("There is no function with the name \"",name,"\"")
     if(!self) return(NULL) 
-    return(data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
+    out <- data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
                       call = fpool$call[fpool$shortcall == name],
                       hash = attr(graph, "hash")[fpool$call[fpool$shortcall == name]],
-                      row.names=NULL, stringsAsFactors = FALSE))
+                      row.names=NULL, stringsAsFactors = FALSE)
+    attr(out, "support") <- .filterSupportData(graph, out$call)
+    return(out)
   }
   ggraph <- igraph::graph_from_data_frame(graph)
   if(direction=="full") direction <- "all"
@@ -66,9 +75,11 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   out$call <- paste0(out$package,":::",out$func)
   out$call[out$package == ".GlobalEnv"] <- out$func[out$package == ".GlobalEnv"]
   out$hash <- attr(graph, "hash")[out$call]
-  if(!is.null(type)) out <- out[out$type %in% type,]
+  if (!is.null(type)) out <- out[out$type %in% type,]
   out <- out[order(out$package),]
   out <- out[order(out$type),]
-  return(data.frame(out ,row.names=NULL, stringsAsFactors = FALSE))
+  out <- data.frame(out ,row.names = NULL, stringsAsFactors = FALSE)
+  attr(out, "support") <- .filterSupportData(graph, out$call)
+  return(out)
 }
 

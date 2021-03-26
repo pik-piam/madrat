@@ -41,13 +41,10 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   names(fpfu) <- d$call[order(d$call)]
   
   sources <- substring(d$func[d$type == "read"], 5) 
-  if (length(sources) > 0) {
-    fpfo <- fingerprintFolder(paste0(getConfig("sourcefolder"),"/",sort(sources)))
-  } else {
-    fpfo <- NULL
-  }
-  
-  fp <- c(fpfu, fpfo)
+  if (length(sources) > 0) sources <- paste0(getConfig("sourcefolder"),"/",sort(sources))
+  fpfo <- fingerprintFiles(sources, use.mtime = TRUE)
+  fpsf <- fingerprintFiles(attr(d, "support")$files, use.mtime = FALSE)
+  fp <- c(fpfu, fpfo, fpsf)
   out <- digest(unname(fp), algo = getConfig("hash"))
   if (details) {
     attr(out,"details") <- fp
@@ -68,7 +65,16 @@ fingerprintCall <- function(name) {
   return(unlist(sapply(name, .tmp)))
 }
 
-fingerprintFolder <- function(folder) {
-  .tmp <- function(f) return(digest(file.mtime(sort(list.files(f,recursive = TRUE, full.names = TRUE))), algo = getConfig("hash")))
-  return(sapply(folder, .tmp))
+fingerprintFiles <- function(paths, use.mtime) {
+  if (length(paths) == 0) return(NULL)
+  paths <- paths[file.exists(paths)]
+  if (length(paths) == 0) return(NULL)
+  .tmp <- function(f, use.mtime) {
+    if (dir.exists(f)) f <- sort(list.files(f,recursive = TRUE, full.names = TRUE))
+    if (use.mtime) f <- file.mtime(f)
+    return(digest(f, algo = getConfig("hash"), file = !use.mtime))
+  }
+  out <- sapply(paths, .tmp, use.mtime = use.mtime)
+  names(out) <- basename(names(out))
+  return(out)
 }
