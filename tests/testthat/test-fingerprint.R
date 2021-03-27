@@ -43,6 +43,8 @@ test_that("fingerprinting works for edge cases", {
   }
   globalassign("readFingerprintTest")
   expect_silent({fp <- madrat:::fingerprint("readFingerprintTest", packages = getConfig("packages"), details = TRUE)})
+  print(fp)
+  print(madrat:::fingerprintFiles("map.csv", use.mtime = FALSE))
   expect_identical(as.character(fp), "ba19195c")
   expect_identical(attr(fp,"details")[-1], c(readFingerprintTest="b5efba0b","map.csv"="7e76cec7"))
 })
