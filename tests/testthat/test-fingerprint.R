@@ -33,14 +33,18 @@ test_that("fingerprintFiles works as expected", {
 
 test_that("fingerprinting works for edge cases", {
   setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1)
+  cwd <- getwd()
+  setwd(tempdir())
+  on.exit(setwd(cwd))
+  writeLines("this is a test","map.csv")
   readFingerprintTest <- function() {
-    map <- toolGetMapping("regionmappingH12.csv", where = "madrat")
+    map <- toolGetMapping("map.csv", where = "local")
     return(1)
   }
   globalassign("readFingerprintTest")
   expect_silent({fp <- madrat:::fingerprint("readFingerprintTest", packages = getConfig("packages"), details = TRUE)})
-  expect_identical(as.character(fp), "3ab72933")
-  expect_identical(attr(fp,"details")[-1], c(readFingerprintTest="8d0dcbc4","regionmappingH12.csv"="1b4241c6"))
+  expect_identical(as.character(fp), "ba19195c")
+  expect_identical(attr(fp,"details")[-1], c(readFingerprintTest="b5efba0b","map.csv"="7e76cec7"))
 })
 
 
