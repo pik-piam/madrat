@@ -11,9 +11,14 @@
 
 convertTau <- function(x) {
   
+  "!# @monitor madrat:::sysdata$iso_cell magclass:::ncells"
+  "!# @ignore  madrat:::toolAggregate"
+  
   tau  <- x[,,"tau"]
   xref <- x[,,"xref"]
 
+  "!# @nerd  bla blub bla"
+  
   # clean data
   # make sure that the weight for nonexisting tau values is 10^-10
   xref[is.na(tau) | is.nan(tau)] <- 10^-10
@@ -21,7 +26,7 @@ convertTau <- function(x) {
   tau[ is.na(tau) | is.nan(tau)] <- 1  
   
   #calculate numbers on country level if they are provided on cellular level
-  if(ncells(x)==59199) {
+  if (ncells(x) == 59199) {
 
     # read mapping cells -> iso countries
     iso_cell <- sysdata$iso_cell

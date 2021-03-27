@@ -30,31 +30,32 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   if (is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
   packages <- c(graph$from_package,graph$to_package)
   names(packages) <- c(graph$from,graph$to)
-  .filterSupportData <- function(graph, calls) {
-    support <- attr(graph, "support")
+  
+  .filterList <- function(l, calls, owncall, aggregate="monitor") {
+    # in case of aggregate, aggregate list entries over all calls
+    # otherwise only take entries from current call
     .tmp <- function(x,filter) return(sort(unique(unlist(x[filter]))))
-    out <- lapply(support, .tmp, filter = calls)
+    aggr <- (names(l) %in% aggregate)
+    out  <- l
+    out[aggr] <- lapply(l[aggr], .tmp, filter = union(owncall,calls))
+    out[!aggr] <- lapply(l[!aggr], .tmp, filter = owncall)
     if (all(sapply(out,length) == 0)) return(NULL)
     return(out)
-  }
+   }
   
-  if(!(name %in% c(graph$from,graph$to))) {
-    .tmp <- function(name, ...) {
-      if(name %in% names(list(...))) {
-        return(list(...)[[name]])
-      } else {
-        return(getConfig(name))
-      }  
-    }
-    fpool <- getCalculations("read|calc|full|tool", packages = .tmp("packages", ...), globalenv = .tmp("globalenv", ...))
-    fpool$shortcall <- sub("^.*:::","",fpool$call)
-    if(!(name %in% fpool$shortcall))stop("There is no function with the name \"",name,"\"")
-    if(!self) return(NULL) 
+  fpool <- attr(graph,"fpool")
+  fpool$shortcall <- sub("^.*:::","",fpool$call)
+  owncall <- fpool$call[fpool$shortcall == name]
+  
+  if (!(name %in% c(graph$from,graph$to))) {
+    if (!(name %in% fpool$shortcall)) stop("There is no function with the name \"",name,"\"")
+    if (!self) return(NULL) 
     out <- data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
-                      call = fpool$call[fpool$shortcall == name],
+                      call = owncall,
                       hash = attr(graph, "hash")[fpool$call[fpool$shortcall == name]],
-                      row.names=NULL, stringsAsFactors = FALSE)
-    attr(out, "support") <- .filterSupportData(graph, out$call)
+                      row.names = NULL, stringsAsFactors = FALSE)
+    attr(out, "mappings") <- sort(unique(unlist(attr(graph,"mappings")[out$call])))
+    attr(out, "flags") <- .filterList(attr(graph,"flags"), owncall, owncall)
     return(out)
   }
   ggraph <- igraph::graph_from_data_frame(graph)
@@ -79,7 +80,8 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   out <- out[order(out$package),]
   out <- out[order(out$type),]
   out <- data.frame(out ,row.names = NULL, stringsAsFactors = FALSE)
-  attr(out, "support") <- .filterSupportData(graph, out$call)
+  attr(out, "mappings") <- sort(unique(unlist(attr(graph,"mappings")[out$call])))
+  attr(out, "flags") <- .filterList(attr(graph,"flags"), out$call, owncall)
   return(out)
 }
 

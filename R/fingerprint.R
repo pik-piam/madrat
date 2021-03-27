@@ -40,11 +40,22 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   fpfu <- d$hash[order(d$call)]
   names(fpfu) <- d$call[order(d$call)]
   
+  # handle special requests via flags
+  .tmp <- function(x) return(sort(sub(":+",":::",x)))
+  ignore  <- .tmp(attr(d,"flags")$ignore)
+  monitor <- .tmp(attr(d,"flags")$monitor)
+  # if conflicting information is giving (monitor and ignore at the same time,
+  # prioritize monitor request)
+  ignore <- setdiff(ignore,monitor)
+  # add calls from the monitor list which are not already monitored
+  fpmo <- fingerprintCall(setdiff(monitor,names(fpfu)))
+  # ignore functions mentioned in the ignore list
+  fpfu <- fpfu[setdiff(names(fpfu),ignore)]
   sources <- substring(d$func[d$type == "read"], 5) 
   if (length(sources) > 0) sources <- paste0(getConfig("sourcefolder"),"/",sort(sources))
   fpfo <- fingerprintFiles(sources, use.mtime = TRUE)
-  fpsf <- fingerprintFiles(attr(d, "support")$files, use.mtime = FALSE)
-  fp <- c(fpfu, fpfo, fpsf)
+  fpsf <- fingerprintFiles(attr(d, "mappings"), use.mtime = FALSE)
+  fp <- c(fpfu, fpfo, fpsf, fpmo)
   out <- digest(unname(fp), algo = getConfig("hash"))
   if (details) {
     attr(out,"details") <- fp
@@ -60,7 +71,7 @@ fingerprintCall <- function(name) {
   .tmp <- function(x) {
     f <- try(eval(parse(text = x)), silent = TRUE)
     if ("try-error" %in% class(f)) return(NULL)
-    return(digest(deparse(f), algo = getConfig("hash")))
+    return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
   }
   return(unlist(sapply(name, .tmp)))
 }

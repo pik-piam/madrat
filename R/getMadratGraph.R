@@ -111,7 +111,7 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
     }
   }
   
-  for (a in c("fpool", "hash", "support")) attr(out,a) <- attr(code,a)
+  for (a in c("fpool", "hash", "mappings", "flags")) attr(out,a) <- attr(code,a)
   assign(gHash, out, envir = getOption("MadratCache"))
   return(out)
 }

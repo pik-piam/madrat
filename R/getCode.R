@@ -5,6 +5,7 @@
 #' @param packages A character vector with packages for which the available Sources/Calculations should be returned
 #' @param globalenv Boolean deciding whether sources/calculations in the global environment should be included or not
 #' @return A named vector with condensed function code 
+#' @importFrom stringi stri_split stri_extract
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMadratGraph}}
 
@@ -39,7 +40,7 @@ getCode <- function(packages=installedMadratUniverse(), globalenv=getConfig("glo
   code <- sapply(fpool$call, .extractCode)
   
   
-  .getMappingCalls <- function(code) {
+  .getMappingFiles <- function(code) {
     code <- code[!(names(code) %in% paste0("madrat:::",c("toolGetMapping", "toolConvertMapping", "toolAggregate")))]
     getMappings <- stri_extract_all(code, regex = "toolGetMapping\\(([^()]*|[^(]*\\([^)]*\\)[^)]*)\\)", omit_no_match = TRUE)
     names(getMappings) <- names(code)
@@ -60,8 +61,33 @@ getCode <- function(packages=installedMadratUniverse(), globalenv=getConfig("glo
     return(getMappings)
   }
   
-  attr(code,"fpool") <- fpool
-  attr(code,"hash")  <- sapply(code, digest, algo = getConfig("hash"))
-  attr(code,"support") <- list(files = .getMappingCalls(code))
+  .getFlags <- function(code){
+    flags <- stri_extract_all(code, regex = '"\\!#.*?[^\\\\]\\"', omit_no_match = TRUE)
+    names(flags) <- names(code)
+    flags <- flags[sapply(flags,length) > 0]
+    if (length(flags) == 0) return(NULL)
+    
+    x <- unlist(flags, use.names=FALSE)
+    tmp   <- stri_split(gsub('\\"(!#)? *(@[a-z]* *)?','',x), regex = " +")
+    type <- substring(stri_extract(x,regex = "@[^ ]*"),2)
+    names(tmp) <- rep(names(flags), sapply(flags,length))
+    out <- list()
+    for(t in unique(type)) {
+      out[[t]] <- tmp[type==t]
+      if (anyDuplicated(names(out[[t]]))) {
+        tmp2 <- list()
+        for (n in unique(names(out[[t]]))) tmp2[[n]] <- unique(unlist(out[[t]][names(out[[t]]) == n], use.names = FALSE))
+        out[[t]] <- tmp2
+      } else {
+        out[[t]] <- lapply(out[[t]], unique)
+      }
+    }
+    return(out)
+  }
+  
+  attr(code,"fpool")     <- fpool
+  attr(code,"hash")      <- sapply(code, digest, algo = getConfig("hash"))
+  attr(code,"mappings")  <- .getMappingFiles(code)
+  attr(code,"flags")     <- .getFlags(code)
   return(code)
 }
