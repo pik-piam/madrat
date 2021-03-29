@@ -16,8 +16,6 @@ convertTau <- function(x) {
   
   tau  <- x[,,"tau"]
   xref <- x[,,"xref"]
-
-  "!# @nerd  bla blub bla"
   
   # clean data
   # make sure that the weight for nonexisting tau values is 10^-10
