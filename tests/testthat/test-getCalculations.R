@@ -1,6 +1,7 @@
 context("Test getCalculations")
 
 test_that("getCalculations works", {
+  setConfig(globalenv = FALSE, .verbose = FALSE)
   expect_warning(x <- getCalculations(packages="blub"),"is not available")
   expect_null(x)
   
