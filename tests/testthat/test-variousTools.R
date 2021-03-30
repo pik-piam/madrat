@@ -14,5 +14,23 @@ test_that("toolFillYears works", {
 })
 
 test_that("toolXlargest works", {
+  expect_error(toolXlargest(1), "must be a MAgPIE object")
   expect_identical(toolXlargest(maxample("pop"), range=1:3, years=c(1995,2005), elements="A2"), c("SAS","CPA","AFR"))
+})
+
+test_that("toolSubtypeSelect works as expected", {
+  expect_identical(toolSubtypeSelect("blub", c(bla = 12, blub = "hallo")), "hallo")
+  expect_error(toolSubtypeSelect(NULL, c(bla = 12, blub = "hallo")), "Subtype has to be set")
+  expect_error(toolSubtypeSelect("abc", c(bla = 12, blub = "hallo")), "Unknown subtype")
+  expect_identical(toolSubtypeSelect("blub", list(bla = 12, blub = 1:10)), 1:10)
+})
+
+test_that("toolNAreplace works as expected", {
+  p <- maxample("pop")[1:3,1:2,]
+  attr(p, "Metadata") <- NULL
+  p2 <- p
+  p[seq(1,11,2)]  <- NA
+  p2[seq(1,11,2)] <- 99
+  expect_identical(toolNAreplace(p, replaceby = 99)$x, p2)
+  expect_identical(toolNAreplace(p, replaceby = as.magpie(99))$x, p2)
 })
