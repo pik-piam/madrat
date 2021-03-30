@@ -11,53 +11,30 @@
 #' to (function which is using the source), to_package (package of the using function)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getConfig}}
-#' @importFrom stringi stri_match_all_regex
+#' @importFrom stringi stri_match_all_regex stri_extract_all
 #' @export
 
 getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConfig("globalenv")) {
   
-  if(is.null(getOption("MadratCache"))) options(MadratCache = new.env(size=NA))
+  if (is.null(getOption("MadratCache"))) options(MadratCache = new.env(size = NA))
   
   .graphHash <- function(packages, globalenv) {
     mtimes <- as.character(file.mtime(.libPaths()))
-    if(globalenv) {
-      f <- grep("^(read|download|convert|correct|calc|full|tool)",ls(envir=.GlobalEnv), 
-                perl=TRUE, value=TRUE)
-      globalenv <- sapply(mget(f, envir = .GlobalEnv),deparse)
+    if (globalenv) {
+      f <- grep("^(read|download|convert|correct|calc|full|tool)", ls(envir = .GlobalEnv), 
+                perl = TRUE, value = TRUE)
+      if (length(f) > 0)  globalenv <- sapply(mget(f, envir = .GlobalEnv),deparse)
+      else globalenv <- FALSE
     }
-    return(digest(c(mtimes,sort(packages),globalenv), algo = getConfig("hash")))
+    return(paste0("GH",digest(c(mtimes,sort(packages),globalenv), algo = getConfig("hash"))))
   }
   
   gHash <- .graphHash(packages,globalenv)
-  if(exists(gHash, envir = getOption("MadratCache"))) return(get(gHash, getOption("MadratCache")))
+  if (exists(gHash, envir = getOption("MadratCache"))) return(get(gHash, getOption("MadratCache")))
 
-  .extractCode <- function(x) {
-    out <- deparse(eval(parse(text=x)))
-    pattern <- "(^|::)read"
-    if(grepl(pattern,x)) {
-      extras <- c("download","convert","correct")
-      for(e in extras) {
-        tmp <- try(deparse(eval(parse(text=sub(pattern,paste0("\\1",e),x)))),silent=TRUE)
-        if(!("try-error" %in% class(tmp))) out <- c(out,tmp)
-      }
-    }
-    return(paste(out,collapse=" "))
-  }
-  
-  # extract function pool
-  fpool <- getCalculations("read|calc|full|tool", packages = packages, globalenv = globalenv)
-  
-  # check for duplicates
-  fpool$fname <- sub("^.*:::","",fpool$call)
-  duplicated <- duplicated(fpool$fname, fromLast=TRUE)
-  if(any(duplicated)) {
-    base::warning("Duplicate entries found for ",paste(fpool$fname[duplicated],collapse=", "),"! Last entry will be used!")
-    fpool <- fpool[!duplicated,]
-  }
-  
   # read in source code
-  code <- sapply(fpool$call, .extractCode)
-
+  code <- getCode(packages = packages, globalenv = globalenv)
+  
   # extract read/calc calls
   pattern <- "(readSource|calcOutput)\\( *([^=\"',]*=|) *(\"|')?([^\"',]*)[\"']?"
   matches <- stri_match_all_regex(code,pattern, omit_no_match = TRUE)
@@ -86,21 +63,22 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
   out2 <- do.call(rbind,out2)
   # clean up output
   colnames(out2) <- c("to","from","type")
-  out2 <- as.data.frame(out2, stringsAsFactors=FALSE)
-  out2$from <- sub("(","",out2$from,fixed=TRUE)
+  out2 <- as.data.frame(out2, stringsAsFactors = FALSE)
+  out2$from <- sub("(","",out2$from,fixed = TRUE)
   out2$class <- "tool"
   
   
   # set from info to NA for cases in which call statement could not be read properly
   out$from[is.na(out$quote)] <- NA
-  out <- unique(rbind(out[,c("from","to")],out2[,c("from","to")]))
+  out   <- unique(rbind(out[,c("from","to")],out2[,c("from","to")]))
+  fpool <- attr(code,"fpool")
   out$from_package <- as.character(fpool$package[match(out$from,fpool$fname)])
   out$to_package <- sub(":::.*$","",out$to)
   out$to_package[!grepl(":::", out$to)] <- ".GlobalEnv"
   out$to <- sub("^.*:::","",out$to) 
   
   fromNA <- is.na(out$from)
-  if(any(fromNA)) {
+  if (any(fromNA)) {
     out$from[is.na(out$from)] <- "UNKNOWN"
     out$from_package[fromNA]  <- "UNKNOWN"
     base::warning("Following functions contain read or calc statements which could not be identified: \n   ",
@@ -132,7 +110,8 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
               "\n  You might want to have a look at the following connections: ",hints)
     }
   }
-  attr(out,"fpool") <- fpool
+  
+  for (a in c("fpool", "hash", "mappings", "flags")) attr(out,a) <- attr(code,a)
   assign(gHash, out, envir = getOption("MadratCache"))
   return(out)
 }

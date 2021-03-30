@@ -21,6 +21,7 @@
 #' @export
 #' 
 toolMappingFile <- function(type, name, readcsv=FALSE, error.missing=TRUE, where="mappingfolder") {
+  .Deprecated("toolGetMapping")
   if(where=="mappingfolder") {
     mf <- getConfig("mappingfolder")
     if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')

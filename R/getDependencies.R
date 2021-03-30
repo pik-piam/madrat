@@ -27,24 +27,36 @@
 #' @export
 
 getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FALSE, ...) {
-  if(is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
+  if (is.null(graph)) graph <- suppressWarnings(getMadratGraph(...))
   packages <- c(graph$from_package,graph$to_package)
   names(packages) <- c(graph$from,graph$to)
   
-  if(!(name %in% c(graph$from,graph$to))) {
-    .tmp <- function(name, ...) {
-      if(name %in% names(list(...))) {
-        return(list(...)[[name]])
-      } else {
-        return(getConfig(name))
-      }  
-    }
-    fpool <- getCalculations("read|calc|full|tool", packages = .tmp("packages", ...), globalenv = .tmp("globalenv", ...))
-    fpool$shortcall <- sub("^.*:::","",fpool$call)
-    if(!(name %in% fpool$shortcall))stop("There is no function with the name \"",name,"\"")
-    if(!self) return(NULL) 
-    return(data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
-                      row.names=NULL, stringsAsFactors = FALSE))
+  .filterList <- function(l, calls, owncall, aggregate="monitor") {
+    # in case of aggregate, aggregate list entries over all calls
+    # otherwise only take entries from current call
+    .tmp <- function(x,filter) return(sort(unique(unlist(x[filter]))))
+    aggr <- (names(l) %in% aggregate)
+    out  <- l
+    out[aggr] <- lapply(l[aggr], .tmp, filter = union(owncall,calls))
+    out[!aggr] <- lapply(l[!aggr], .tmp, filter = owncall)
+    if (all(sapply(out,length) == 0)) return(NULL)
+    return(out)
+   }
+  
+  fpool <- attr(graph,"fpool")
+  fpool$shortcall <- sub("^.*:::","",fpool$call)
+  owncall <- fpool$call[fpool$shortcall == name]
+  
+  if (!(name %in% c(graph$from,graph$to))) {
+    if (!(name %in% fpool$shortcall)) stop("There is no function with the name \"",name,"\"")
+    if (!self) return(NULL) 
+    out <- data.frame(func = name, type = substr(name,1,4), package = fpool$package[fpool$shortcall == name],
+                      call = owncall,
+                      hash = attr(graph, "hash")[fpool$call[fpool$shortcall == name]],
+                      row.names = NULL, stringsAsFactors = FALSE)
+    attr(out, "mappings") <- sort(unique(unlist(attr(graph,"mappings")[out$call])))
+    attr(out, "flags") <- .filterList(attr(graph,"flags"), owncall, owncall)
+    return(out)
   }
   ggraph <- igraph::graph_from_data_frame(graph)
   if(direction=="full") direction <- "all"
@@ -61,9 +73,15 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   if(!self) tmp <- setdiff(tmp,name)
   
   out <- data.frame(func=tmp,type=substr(tmp,1,4),package=packages[tmp],row.names=NULL, stringsAsFactors = FALSE)
-  if(!is.null(type)) out <- out[out$type %in% type,]
+  out$call <- paste0(out$package,":::",out$func)
+  out$call[out$package == ".GlobalEnv"] <- out$func[out$package == ".GlobalEnv"]
+  out$hash <- attr(graph, "hash")[out$call]
+  if (!is.null(type)) out <- out[out$type %in% type,]
   out <- out[order(out$package),]
   out <- out[order(out$type),]
-  return(data.frame(out ,row.names=NULL, stringsAsFactors = FALSE))
+  out <- data.frame(out ,row.names = NULL, stringsAsFactors = FALSE)
+  attr(out, "mappings") <- sort(unique(unlist(attr(graph,"mappings")[out$call])))
+  attr(out, "flags") <- .filterList(attr(graph,"flags"), out$call, owncall)
+  return(out)
 }
 

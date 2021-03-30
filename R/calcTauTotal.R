@@ -20,6 +20,7 @@
 #' @importFrom utils bibentry person
 
 calcTauTotal <- function(source="paper") {
+  
   tau    <- readSource("Tau",source)
   x      <- collapseNames(tau[,,"tau.total"])
   weight <- collapseNames(tau[,,"xref.total"])

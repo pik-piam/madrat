@@ -47,11 +47,7 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
           }
       }
     }
-    if(error.missing & !file.exists(as.character(fname))) {
-      if(!file.exists(mf)) stop('The mappings folder "', mf, '" does not exist!')
-      if(!file.exists(paste0(mf,"/",type))) stop('Unknown mappings type "',type,'"!')
-      stop('Mapping "',name,'" not found!')
-    }
+    if(error.missing & !file.exists(as.character(fname))) stop('Mapping "',name,'" not found!')
   } else if(where=="local") {
     if(is.null(type)) {
       fname <- name

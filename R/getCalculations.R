@@ -44,7 +44,10 @@ getCalculations <- function(prefix="calc", packages=getConfig("packages"), globa
     } else {
       ns <- try(getNamespace(p), silent=TRUE)
     }
-    if ("tryError" %in% class(ns)) return(NULL)
+    if ("try-error" %in% class(ns)) {
+      warning("Package \"", p, "\" is not available and is ignored!")
+      return(NULL)
+    }
     tmp <- ls(ns)
     names(tmp) <- rep(p,length(tmp))
     return(tmp)

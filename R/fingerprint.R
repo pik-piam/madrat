@@ -36,54 +36,56 @@
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   d <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
+
+  fpfu <- d$hash[order(d$call)]
+  names(fpfu) <- d$call[order(d$call)]
   
-  dr <- d[d$type == "read",]
-  if (dim(dr)[1] > 0) {
-    sources <- substring(dr$func,5)
-    prefix <- c("download", "read", "convert", "correct")
-    read_functions <- paste0(rep(dr$package, each = length(prefix)),":::",
-                             paste0(prefix, rep(sources, each = length(prefix))))
-  } else {
-    sources <- NULL
-    read_functions <- NULL
-  }
-  do <- d[d$type != "read",]
-  if (dim(do)[1] > 0) {
-    other_functions <- paste0(do$package,":::",do$func)
-  } else {
-    other_functions <- NULL
-  }
-  funcs <- sort(sub("^\\.GlobalEnv:::","",c(read_functions, other_functions)))
-  
-  fpfu <- fingerprintFunction(sort(funcs))
-  if (length(sources) > 0) {
-    fpfo <- fingerprintFolder(paste0(getConfig("sourcefolder"),"/",sort(sources)))
-  } else {
-    fpfo <- NULL
-  }
-  
-  fp <- c(fpfu, fpfo)
+  # handle special requests via flags
+  .tmp <- function(x) return(sort(sub(":+",":::",x)))
+  ignore  <- .tmp(attr(d,"flags")$ignore)
+  monitor <- .tmp(attr(d,"flags")$monitor)
+  # if conflicting information is giving (monitor and ignore at the same time,
+  # prioritize monitor request)
+  ignore <- setdiff(ignore,monitor)
+  # add calls from the monitor list which are not already monitored
+  fpmo <- fingerprintCall(setdiff(monitor,names(fpfu)))
+  # ignore functions mentioned in the ignore list
+  fpfu <- fpfu[setdiff(names(fpfu),ignore)]
+  sources <- substring(d$func[d$type == "read"], 5) 
+  if (length(sources) > 0) sources <- paste0(getConfig("sourcefolder"),"/",sort(sources))
+  fpfo <- fingerprintFiles(sources, use.mtime = TRUE)
+  fpsf <- fingerprintFiles(attr(d, "mappings"), use.mtime = FALSE)
+  fp <- c(fpfu, fpfo, fpsf, fpmo)
   out <- digest(unname(fp), algo = getConfig("hash"))
   if (details) {
     attr(out,"details") <- fp
     vcat(3,"hash components (",out,"):", show_prefix = FALSE)
-    for(n in names(fp)) {
+    for (n in names(fp)) {
       vcat(3,"  ",fp[n]," | ",n, show_prefix = FALSE)
     }
   }
   return(out)
 }
 
-fingerprintFunction <- function(name) {
+fingerprintCall <- function(name) {
   .tmp <- function(x) {
     f <- try(eval(parse(text = x)), silent = TRUE)
     if ("try-error" %in% class(f)) return(NULL)
-    return(digest(deparse(f), algo = getConfig("hash")))
+    return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
   }
   return(unlist(sapply(name, .tmp)))
 }
 
-fingerprintFolder <- function(folder) {
-  .tmp <- function(f) return(digest(file.mtime(sort(list.files(f,recursive = TRUE, full.names = TRUE))), algo = getConfig("hash")))
-  return(sapply(folder, .tmp))
+fingerprintFiles <- function(paths, use.mtime) {
+  if (length(paths) == 0) return(NULL)
+  paths <- paths[file.exists(paths)]
+  if (length(paths) == 0) return(NULL)
+  .tmp <- function(f, use.mtime) {
+    if (dir.exists(f)) f <- sort(list.files(f,recursive = TRUE, full.names = TRUE))
+    if (use.mtime) f <- file.mtime(f)
+    return(digest(f, algo = getConfig("hash"), file = !use.mtime))
+  }
+  out <- sapply(paths, .tmp, use.mtime = use.mtime)
+  names(out) <- basename(names(out))
+  return(out)
 }

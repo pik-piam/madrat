@@ -65,7 +65,7 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
  else args_hash <- NULL
 
  regionmapping <- getConfig("regionmapping")  
- if(!file.exists(regionmapping)) regionmapping <- toolMappingFile("regional",getConfig("regionmapping"))
+ if (!file.exists(regionmapping)) regionmapping <- toolGetMapping(regionmapping, type = "regional", returnPathOnly = TRUE)
  regionscode <- regionscode(regionmapping, label = uselabels) 
  
  # save current settings to set back if needed
@@ -83,8 +83,11 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
    if (!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
    
    #copy mapping to mapping folder and set config accordingly
-   mappath <- toolMappingFile("regional",paste0(regionscode,".csv"),error.missing = FALSE)
-   if (!file.exists(mappath)) file.copy(regionmapping,mappath)
+   mappath <- toolGetMapping(paste0(regionscode,".csv"), "regional", error.missing = FALSE, returnPathOnly = TRUE)
+   if (!file.exists(mappath)) {
+      if (!dir.exists(dirname(mappath))) dir.create(dirname(mappath), recursive = TRUE)
+      file.copy(regionmapping,mappath)
+   }
    #copy mapping to output folder
    try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
    setConfig(regionmapping = paste0(regionscode,".csv"),
