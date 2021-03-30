@@ -25,7 +25,7 @@ getConfig("cachefolder", verbose = FALSE)
 ```
 
 When running data processing via `retrieveData` it currently offers two types of cache folders: `cachetype = "def"` will use a shared cachefolder in which all processes write their cache files by default. RetrieveData will check in this folder for fitting cache files and read them if available. Whether they are fitting or not will depend on their `fingerprint` which is explained further down.
-With `cachetype = "rev"` `retrieveData` will create a new, revision-specific cachefolder and set `setConfig(forcecache = TRUE)` (default is FALSE). Via this approach calculations will start with now cache files at all but created cache files will be read if a calculation is repeated. The forcecache option will in this case make sure that any available cache file which fits the function call is read in, independent of whether the content of the cache file might be outdated or not.
+With `cachetype = "rev"` `retrieveData` will create a new, revision-specific cachefolder and set `setConfig(forcecache = TRUE)` (default is FALSE). Via this approach calculations will start with new cache files at all but created cache files will be read if a calculation is repeated. The forcecache option will in this case make sure that any available cache file which fits the function call is read in, independent of whether the content of the cache file might be outdated or not.
 
 ## Fingerprint
 
