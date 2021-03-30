@@ -48,6 +48,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   message("\n.:: Check readSource and calcOutput call syntax ::.") 
   fromNA <- (graph$from=="UNKNOWN")
   if(any(fromNA)) {
+    warning("Some read- or calc- functions could not be identified! Check report for more info!")
     message("[warning] following functions contain read or calc statements which could not be identified: \n[warning] -> ",
             paste(unique(graph$to[fromNA]),collapse="\n[warning] -> "),"\n[warning] Please adress the type explicitly in the call to allow",
             " for proper detection, e.g. readSource(\"MySource\")")
@@ -59,6 +60,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   from_packageNA <- (graph$from_package=="UNKNOWN") & !fromNA
   if(any(from_packageNA)) {
     graph$from_package[from_packageNA] <- "UNKNOWN"
+    warning("Some functions could not be found in scope! Check report for more info!")
     message("[warning]\n[warning] Following functions could not be found in the scope of packages to be checked.: \n[warning]   ",
             paste0(graph$from[from_packageNA]," -> ",graph$to[from_packageNA],collapse="\n[warning]   "),
             "\n[warning]\n[warning] Please make sure that they exist and adjust the scope of packages accordingly!")
@@ -69,30 +71,27 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   message("\n.:: Check for bidirectional package connections ::.")
   pkgdeps <- unique(graph[c("from_package","to_package")])
   pkgdeps <- pkgdeps[pkgdeps$from_package!=pkgdeps$to_package & pkgdeps$from_package!="UNKNOWN",]
-  if(nrow(pkgdeps)>2) {
-    din <- paste0(pkgdeps$from_package,"-",pkgdeps$to_package)
-    dout <- paste0(pkgdeps$to_package,"-",pkgdeps$from_package)  
-    if(any(din %in% dout)) {
-      p <- pkgdeps[din %in% dout,]
-      hints <- NULL
-      hints_full <- list()
-      message("[warning]\n[warning] bidirectional dependencies found: \n[warning]   -> ",
-              paste0(p$from_package," -> ",p$to_package,collapse="\n[warning]   -> "))
-      message("[warning]\n[warning] The following links between these packages exist:")
-      for(i in 1:nrow(p)) {
-        tmp <- graph[graph$from_package==p$from_package[i] & graph$to_package==p$to_package[i],]
-        hints_full[[i]] <- paste0(tmp$from," -> ",tmp$to)
-        message("[warning]\n[warning]   .: PACKAGES | ",paste0(p$from_package[i]," -> ",p$to_package[i])," :.")
-        if(length(hints_full[[i]])>cutoff) {
-          hints_short <- c(hints_full[[i]][1:cutoff],"...")
-        } else {
-          hints_short <- hints_full[[i]]
-        }
-        message("[warning]     -> ",paste0(hints_short,collapse="\n[warning]     -> "))
-        if(nrow(tmp)<5 & nrow(tmp)>0) hints <- paste0(hints,paste0(tmp$from,"->",tmp$to,collapse=", "), collapse=", ") 
+  din <- paste0(pkgdeps$from_package,"-",pkgdeps$to_package)
+  dout <- paste0(pkgdeps$to_package,"-",pkgdeps$from_package)  
+  if(nrow(pkgdeps)>1 && any(din %in% dout)) {
+    p <- pkgdeps[din %in% dout,]
+    hints <- NULL
+    hints_full <- list()
+    warning("Bidirectional dependencies found. Check report for more info!")
+    message("[warning]\n[warning] bidirectional dependencies found: \n[warning]   ",
+            paste0(p$from_package," -> ",p$to_package,collapse="\n[warning]   "))
+    message("[warning]\n[warning] The following links between these packages exist:")
+    for(i in 1:nrow(p)) {
+      tmp <- graph[graph$from_package==p$from_package[i] & graph$to_package==p$to_package[i],]
+      hints_full[[i]] <- paste0(tmp$from," -> ",tmp$to)
+      message("[warning]\n[warning]   .: PACKAGES | ",paste0(p$from_package[i]," -> ",p$to_package[i])," :.")
+      if(length(hints_full[[i]])>cutoff) {
+        hints_short <- c(hints_full[[i]][1:cutoff],"...")
+      } else {
+        hints_short <- hints_full[[i]]
       }
-    } else {
-      message("[passed] no bidirectional package connections found!")
+      message("[warning]     ",paste0(hints_short,collapse="\n[warning]     "))
+      if(nrow(tmp)<5 & nrow(tmp)>0) hints <- paste0(hints,paste0(tmp$from,"->",tmp$to,collapse=", "), collapse=", ") 
     }
   } else {
     message("[passed] no bidirectional package connections found!")
@@ -101,6 +100,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   message("\n.:: Check for read/calc calls in tool functions ::.")
   tmp <- sort(unique(graph[grepl("^tool",graph$to) & !grepl("^tool",graph$from),"to"]))
   if(length(tmp)>0) {
+    warning("Some tool functions contain read or calc statements! Check report for more info!")
     message("[warning]\n[warning] Following tool function contain either read or calc calls: \n[warning]   ",
             paste0(tmp,collapse="\n[warning]   "),
             "\n[warning]\n[warning] Please remove these calls from all tool functions!") 
