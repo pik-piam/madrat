@@ -9,7 +9,8 @@
 #' @param type Mapping type (e.g. "regional", "cell", or "sectoral"). Can be set to NULL if file
 #' is not stored in a type specific subfolder
 #' @param where location to look for the mapping, either "mappingfolder", "local" (if the path is relative to your current
-#' directory) or the name of a package which contains the mapping
+#' directory) or the name of a package which contains the mapping. If set to NULL it will first try "local", then "mappingfolder"
+#' and afterwards scan all packages currently listed in \code{getConfig("packages")}
 #' @param error.missing Boolean which decides whether an error is returned if
 #' the mapping file does not exist or not.
 #' @param returnPathOnly If set to TRUE only the file path is returned
@@ -26,10 +27,9 @@
 #' @importFrom tools file_ext
 #' @export
 #' 
-toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing=TRUE, returnPathOnly=FALSE, activecalc=NULL) {
-  if(where=="mappingfolder") {
+toolGetMapping <- function(name, type=NULL, where=NULL, error.missing=TRUE, returnPathOnly=FALSE, activecalc=NULL) {
+  if (is.null(where)) {
     mf <- getConfig("mappingfolder")
-    if(is.null(mf)) stop('No mappingfolder specified in used cfg! Please load a config with the corresponding information!')
     fname <- paste0(mf,"/",type,"/",name)
     if (file.exists(as.character(name))) {
       fname <- name
@@ -37,53 +37,54 @@ toolGetMapping <- function(name, type=NULL, where="mappingfolder", error.missing
       packages <- getConfig("packages")
       if (!is.null(activecalc[[1]]) & any(grepl(paste0("^",activecalc[[1]],"$"),getCalculations()[,"type"]))) {
         fp <- as.character(attr(prepFunctionName(activecalc[[1]],"calc"),"package"))
-        packages <- c(fp,grep(fp,packages,invert = TRUE,value=TRUE))
+        packages <- c(fp,grep(fp,packages,invert = TRUE,value = TRUE))
       }
       for (i in packages) {
         out <- toolGetMapping(name, type = type, where = i, error.missing = FALSE, returnPathOnly = TRUE)
-        if (out!="") {
+        if (out != "") {
           fname <- out
           break
           }
       }
     }
-    if(error.missing & !file.exists(as.character(fname))) stop('Mapping "',name,'" not found!')
-  } else if(where=="local") {
-    if(is.null(type)) {
+  } else if (where == "mappingfolder") {
+    mf <- getConfig("mappingfolder")
+    fname <- paste0(mf,"/",type,"/",name)
+  } else if (where == "local") {
+    if (is.null(type)) {
       fname <- name
     } else {
       fname <- paste0(type,"/",name)  
     }
   } else {
-    if(is.null(type)) {
+    if (is.null(type)) {
       tmpfname <- name
     } else {
       tmpfname <- paste0(type,"/",name)  
     }
-    fname <-  system.file("extdata", tmpfname, package=where)
-    if(fname=="") fname <- system.file("inst/extdata", tmpfname, package=where)
-    if(fname=="") fname <- system.file("extdata", strsplit(tmpfname,split = "/")[[1]][2], package=where)
-    if(fname=="") fname <- system.file("inst/extdata", strsplit(tmpfname,split = "/")[[1]][2], package=where)
-    if(fname=="" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
+    fname <-  system.file("extdata", tmpfname, package = where)
+    if (fname == "") fname <- system.file("inst/extdata", tmpfname, package = where)
+    if (fname == "") fname <- system.file("extdata", strsplit(tmpfname,split = "/")[[1]][2], package = where)
+    if (fname == "") fname <- system.file("inst/extdata", strsplit(tmpfname,split = "/")[[1]][2], package = where)
+    if (fname == "" & error.missing) stop('Mapping "',name,'" with type "',type,'" not found in package "',where,'"!')
   } 
+  if (error.missing & !file.exists(as.character(fname))) stop('Mapping "',name,'" not found!')
   fname <- gsub("/+","/",fname)
-  if(returnPathOnly) return(fname)
+  if (returnPathOnly) return(fname)
   filetype <- tolower(file_ext(fname))
-  if(filetype=="csv") {
-    if(grepl(pattern = ";",x=readLines(fname,1))){
+  if (filetype == "csv") {
+    if (grepl(pattern = ";", x = readLines(fname,1))) {
       return(read.csv(fname,sep = ";", stringsAsFactors = FALSE, comment.char = "*"))
     } else {
       return(read.csv(fname,sep = ",", stringsAsFactors = FALSE, comment.char = "*"))
     }
-  } else if(filetype=="rda") {
+  } else if (filetype == "rda") {
     data <- NULL
     load(fname)
-    if(is.null(data)) stop(fname," did not contain a object named \"data\"!")
+    if (is.null(data)) stop(fname," did not contain a object named \"data\"!")
     return(data)
-  } else if(filetype=="rds") {
+  } else if (filetype == "rds") {
     return(readRDS(fname))
-  } else if(filetype=="") {
-    if (error.missing) stop("Unsupported filetype \"", filetype,"\"")
   } else {
     stop("Unsupported filetype \"", filetype,"\"")
   }

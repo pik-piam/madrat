@@ -26,7 +26,7 @@ test_that("toolSubtypeSelect works as expected", {
 })
 
 test_that("toolNAreplace works as expected", {
-  p <- maxample("pop")[1:3,1:2,]
+  p <- magclass::maxample("pop")[1:3,1:2,]
   attr(p, "Metadata") <- NULL
   p2 <- p
   p[seq(1,11,2)]  <- NA
@@ -34,3 +34,73 @@ test_that("toolNAreplace works as expected", {
   expect_identical(toolNAreplace(p, replaceby = 99)$x, p2)
   expect_identical(toolNAreplace(p, replaceby = as.magpie(99))$x, p2)
 })
+
+test_that("toolTimeSpline works as expected", {
+  expect_error(toolTimeSpline(1), "not a MAgPIE object")
+  
+  p <- magclass::maxample("pop")[1:2,1:6,1]
+  attr(p, "Metadata") <- NULL
+  
+  o5 <- new("magpie", .Data = structure(c(513.1, 1314.4, 711.9, 1411.1, 920.9, 1499.2, 1146.2,
+                                          1574.7, 1386, 1638.5, 1633.3, 1695.7), 
+                                        .Dim = c(2L,6L, 1L), 
+                                        .Dimnames = list(i = c("AFR", "CPA"), 
+                                                         t = c("y1995", "y2005","y2015", "y2025", "y2035", "y2045"), 
+                                                         scenario = "A2")))
+  o3 <- new("magpie", .Data = structure(c(491.3, 1332, 715.5, 1408.1, 939.8, 1484.2, 1164, 1560.3, 
+                                          1388.3, 1636.5, 1612.5, 1712.6), 
+                                        .Dim = c(2L,6L, 1L), 
+                                        .Dimnames = list(i = c("AFR", "CPA"), 
+                                                         t = c("y1995", "y2005","y2015", "y2025", "y2035", "y2045"), 
+                                                         scenario = "A2")))                                      
+  ncr <- function(x) {
+    getComment(x) <- NULL
+    return(round(x,1))
+  }
+  
+  expect_identical(ncr(toolTimeSpline(p)), o5)
+  expect_identical(ncr(toolTimeSpline(p, dof = 5)), o5)
+  expect_identical(ncr(toolTimeSpline(p, dof = 3)), o3)
+  
+  expect_warning(p5 <- ncr(toolTimeSpline(p, dof = 0)), "dof values < 1 not allowed!")
+  expect_identical(p5, o5)
+  expect_warning(p100 <- ncr(toolTimeSpline(p, dof=100)), "Degrees of freedom too high")
+  expect_identical(p100, ncr(p))
+})
+
+test_that("toolConvertMapping works as expected", {
+  setConfig(mappingfolder = tempdir(), .verbose = FALSE)
+  file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))
+
+  expect_silent(toolConvertMapping("regionmappingH12.csv"))
+  expect_true(file.exists(toolGetMapping("regionmappingH12.rds", returnPathOnly = TRUE)))
+  expect_identical(toolGetMapping("regionmappingH12.rds"), toolGetMapping("regionmappingH12.csv"))
+  
+  expect_silent(toolConvertMapping("regionmappingH12.csv", format = "rda"))
+  expect_true(file.exists(toolGetMapping("regionmappingH12.rda", returnPathOnly = TRUE)))
+  expect_identical(toolGetMapping("regionmappingH12.rda"), toolGetMapping("regionmappingH12.csv"))
+  
+  unlink(toolGetMapping("regionmappingH12.csv", where = "mappingfolder", returnPathOnly = TRUE))
+  expect_error(toolGetMapping("regionmappingH12.csv", where = "mappingfolder", returnPathOnly = TRUE))
+  expect_silent(toolConvertMapping("regionmappingH12.rds", format = "csv"))
+  expect_true(file.exists(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE)))
+  expect_identical(toolGetMapping("regionmappingH12.rds"), toolGetMapping("regionmappingH12.csv"))
+  
+  expect_error(toolConvertMapping("regionmappingH12.csv", format = "xyz"), "Unsupported format")
+})
+
+test_that("toolConditionalReplace works as expected", {
+  
+  setConfig(verbosity = 0, .verbose = FALSE)
+  m <- as.magpie(c(1,NA,0,-1,Inf))
+  
+  expect_error(toolConditionalReplace(m), "missing, with no default")
+
+  expect_identical(toolConditionalReplace(m, "< -100"),m)
+  expect_identical(toolConditionalReplace(m, "is.na()"), as.magpie(c(1,0,0,-1,Inf)))
+  expect_identical(toolConditionalReplace(m, c("is.na()", "<0"), replaceby = 1:2), as.magpie(c(1,1,0,2,Inf)))
+  expect_identical(toolConditionalReplace(m, c("<0","is.na()"), replaceby = 1:2), as.magpie(c(1,2,0,1,Inf)))
+  expect_identical(toolConditionalReplace(m, c("<0","is.na()"), replaceby = 3), as.magpie(c(1,3,0,3,Inf)))
+  expect_error(toolConditionalReplace(m, c("<0","is.na()"), replaceby = 1:3), "has to be of length 1 or the same length")
+})
+

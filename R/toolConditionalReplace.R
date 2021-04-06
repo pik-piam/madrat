@@ -1,8 +1,8 @@
 #' toolConditionalReplace
 #'
-#' Sets values (NA, negative, ..) to zero
-#' @param x magpie object on cellular level
-#' @param conditions vector of conditions for values, that should be removed e.g. "== NA", "< 0" (order matters)
+#' Sets values (NA, negative, ..) to value \code{replaceby}
+#' @param x magpie object
+#' @param conditions vector of conditions for values, that should be removed e.g. "is.na()", "< 0" (order matters)
 #' @param replaceby value which should be used instead (can be a vector of same length as conditions as well)
 #'
 #' @return return changed input data
@@ -25,8 +25,9 @@ toolConditionalReplace <- function(x, conditions, replaceby = 0){
       conditions[i] <- paste0("x",conditions[i])
     }
     x_check <- eval(parse(text = conditions[i]))
-
-    if(any(x_check)){
+    x_check[is.na(x_check)] <- FALSE
+    
+    if(any(x_check)) {
       percent    <- sum(x_check) / length(x) * 100
       verbosity  <- ifelse(percent > 1, 1, 2)
       vcat(verbosity=verbosity, paste(percent, "% of data points with", conditions[i],"set to", replaceby[i],"."))
