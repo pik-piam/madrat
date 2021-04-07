@@ -26,6 +26,7 @@ test_that("toolSubtypeSelect works as expected", {
 })
 
 test_that("toolNAreplace works as expected", {
+  a <- magclass::maxample("animal")
   p <- magclass::maxample("pop")[1:3,1:2,]
   attr(p, "Metadata") <- NULL
   p2 <- p
@@ -33,6 +34,17 @@ test_that("toolNAreplace works as expected", {
   p2[seq(1,11,2)] <- 99
   expect_identical(toolNAreplace(p, replaceby = 99)$x, p2)
   expect_identical(toolNAreplace(p, replaceby = as.magpie(99))$x, p2)
+  expect_error(toolNAreplace(p, replaceby = a), "replaceby must be expandable")
+  expect_error(toolNAreplace(p, replaceby = 1:10), "length different than 1")
+  
+  p[,,] <- 1:12
+  r <- p
+  r[,,] <- c(1:4,rep(-1,6),11,12)
+  expect_identical(toolNAreplace(p, replaceby = -1, val.rm = 5:10)$x, r)
+  w <- p
+  w[,,] <- 1
+  r[,,] <- c(rep(1,4), rep(0,6),1,1)
+  expect_identical(toolNAreplace(p, weight = w, replaceby = -1, val.rm = 5:10)$weight, r)
 })
 
 test_that("toolTimeSpline works as expected", {

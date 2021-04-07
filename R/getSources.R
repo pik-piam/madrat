@@ -49,7 +49,6 @@ getSources <- function(name=NULL, type=NULL, packages=getConfig("packages"), glo
     out <- data.frame(source=unique(unlist(tmp)))
     for(i in names(tmp)) out[i] <- (out$source %in% tmp[[i]])
     return(out)
-    return(.filter("read",n))
   } else if(type %in% types) {
     return(.filter(type,n))
   } else {
