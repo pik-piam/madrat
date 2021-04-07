@@ -34,7 +34,9 @@ getCalculations <- function(prefix="calc", packages=getConfig("packages"), globa
   x$call <- paste0(x$package,":::",x$type)
   x$type <- sub(pattern,"",x$type)  
   x$call <- sub(".GlobalEnv:::","",x$call, fixed = TRUE)
-  return(x[!(x$type %in% c("Source","Output")),])
+  x <- x[!(x$type %in% c("Source","Output")),]
+  rownames(x) <- NULL
+  return(x)
 }
 
 .getAllFunctions <- function(packages) {

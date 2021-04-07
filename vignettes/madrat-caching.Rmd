@@ -20,7 +20,7 @@ A central feature of the MADRaT framework is its ability to load data from cache
 By default every read- or calc-function creates a cache file from its computations and stores it in the cachefolder. Where this folder is located can be checked via
 
 ```{r, echo = TRUE, eval=TRUE}
-library(madrat)
+library(madrat, quietly = TRUE)
 getConfig("cachefolder", verbose = FALSE)
 ```
 

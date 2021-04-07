@@ -104,3 +104,8 @@ test_that("toolConditionalReplace works as expected", {
   expect_error(toolConditionalReplace(m, c("<0","is.na()"), replaceby = 1:3), "has to be of length 1 or the same length")
 })
 
+test_that("mad(l)apply function return defunct message", {
+  expect_error(madapply(),"defunct")
+  expect_error(madlapply(),"defunct")
+})
+  
