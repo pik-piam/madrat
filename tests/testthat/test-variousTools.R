@@ -120,4 +120,10 @@ test_that("mad(l)apply function return defunct message", {
   expect_error(madapply(),"defunct")
   expect_error(madlapply(),"defunct")
 })
+
+test_that("vcat redirect works", {
+  setConfig(verbosity = 1, .verbose = FALSE)
+  expect_message(madrat:::cat("blub"), "NOTE: blub")
+  expect_message(suppressWarnings(madrat:::warning("blub")), "WARNING: blub")
+})
   

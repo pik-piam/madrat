@@ -47,8 +47,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     convert <- FALSE
   }
   
-  testISO <- function(x, allowGLO=FALSE, functionname="function") {
-    if(allowGLO && length(x)==1 && x=="GLO") return()
+  testISO <- function(x, functionname="function") {
     iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
     iso_country1 <- as.vector(iso_country[,"x"])
     names(iso_country1) <-iso_country[,"X"]
@@ -62,13 +61,13 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     # get data either from cache or by calculating it from source
     sourcefolder <- paste0(getConfig("sourcefolder"),"/",make.names(type))
     if(!is.null(subtype) && file.exists(paste0(sourcefolder,"/",make.names(subtype),"/DOWNLOAD.yml"))) sourcefolder <- paste0(sourcefolder,"/",make.names(subtype))
-    if(!file.exists(sourcefolder)) stop('Source folder "',sourcefolder,'" for source "',type,'" cannot be found! Please set a proper path with "setConfig"!')  
 
     fname <- paste0(prefix,type,subtype)
-    
-    x <- cacheGet(prefix = prefix, type = type, args=list(subtype=subtype))
+    args <- NULL
+    if(!is.null(subtype)) args <- list(subtype = subtype)
+    x <- cacheGet(prefix = prefix, type = type, args = args)
     if (!is.null(x) && prefix == "convert") {
-      err <- try(testISO(getRegions(x), functionname = fname))
+      err <- try(testISO(getRegions(x), functionname = fname), silent = TRUE)
       if("try-error" %in% class(err)) {
         vcat(2," - cache file corrupt for ", fname, show_prefix = FALSE)
         x <- NULL
@@ -97,7 +96,9 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     if(prefix=="convert") {
       testISO(getRegions(x),functionname=functionname)
     }
-    cachePut(x, prefix = prefix, type = type, args=list(subtype=subtype))
+    args <- NULL
+    if (!is.null(subtype)) args <- list(subtype = subtype)
+    cachePut(x, prefix = prefix, type = type, args = args)
     return(x)
   }
   
@@ -138,11 +139,6 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     
   on.exit(toolendmessage(startinfo,"-"))
   
-  if(convert==TRUE) {
-    # make sure that data is either on ISO country level or global
-    functionname <- prepFunctionName(type=type, prefix=prefix, ignore=ifelse(is.null(subtype),"subtype",NA))
-    testISO(getRegions(x), allowGLO=TRUE, functionname=paste0("readSource(\"",type,"\", convert=TRUE)"))
-  }
   x <- clean_magpie(x)
   x <- updateMetadata(x,calcHistory="update",cH_priority=1)
   setwd(cwd)

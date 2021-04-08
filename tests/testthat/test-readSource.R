@@ -6,6 +6,13 @@ globalassign <- function(...) {
   for(x in c(...)) assign(x,eval.parent(parse(text=x)),.GlobalEnv)
 }
 
+nce <- function(x) {
+  getComment(x) <- NULL
+  attr(x,"cachefile") <- NULL
+  attr(x,"id") <- NULL
+  return(x)
+}
+
 test_that("readSource detects common problems", {
   setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, mainfolder=tempdir())
   readNoDownload <- function(){}
@@ -33,6 +40,24 @@ test_that("readSource detects common problems", {
   
   expect_error(readSource(TRUE),"Invalid type")
   expect_error(readSource("NonAvailable"), "not a valid source")
+  
+  readTest <- function()return(as.magpie(1))
+  correctTest <- function(x) return(as.magpie(2))
+  convertTest <- function(x) return(new.magpie(getISOlist(), fill = 1))
+  globalassign("correctTest","convertTest", "readTest")
+  expect_identical(nce(readSource("Test", convert = FALSE)), clean_magpie(as.magpie(1)))
+  expect_identical(nce(readSource("Test", convert = "onlycorrect")), clean_magpie(as.magpie(2)))
+  expect_identical(nce(readSource("Test")), clean_magpie(new.magpie(getISOlist(), fill = 1)))
+  
+  cache <- madrat:::cacheName("convert","Test")
+  a <- readRDS(cache)
+  getCells(a)[1] <- "BLA"
+  saveRDS(a,cache)
+  setConfig(verbosity = 2, .verbose = FALSE)
+  expect_message(readSource("Test"), "cache file corrupt")
+  
+  convertTest <- function(x) return(as.magpie(1))
+  globalassign("convertTest")
   
   skip_if_offline()
   expect_error(readSource("Tau", subtype="historical", convert="WTF"), "Unknown convert setting")
