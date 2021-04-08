@@ -3,6 +3,8 @@
 #' This function manipulates the current madrat configuration. 
 #' In general, NULL means that the argument remains as it is whereas
 #' all other inputs will overwrite the current setting.
+#' For values which can be reset to NULL (currenly only "extramappings") 
+#' you can achieve an reset by setting the value to "".
 #' 
 #' 
 #' @param regionmapping The name of the csv file containing the region mapping
@@ -123,6 +125,7 @@ setConfig <- function(regionmapping=NULL,
   for(x in args) {
     if(!is.null(get(x))) {
       value <- get(x)
+      if(x == "extramappings" && value == "") value <- NULL
       #additional checks/modifications if input is a folder
       if(grepl("folder",x,fixed = TRUE)) {
         if(!is.na(value)) {
