@@ -326,9 +326,6 @@ test_that("Edge cases work as expected", {
                "calcNoMag","calcNoMag2","calcNoMag3","calcNoMag4","calcNoMag5")
   expect_warning(calcOutput("EdgeTest", append = TRUE), "works only when the file name is provided")
   expect_warning(calcOutput("EdgeTest", file = "blub.mif"), "Time dimension missing and data cannot be written to a mif-file")
-  a <- calcOutput("EdgeTest2", file = "blub.mif")
-  b <- magclass::read.report(paste0(getConfig("outputfolder"),"/blub.mif"), as.list = FALSE)
-  expect_identical(sum(a - b), 0)
   a <- calcOutput("EdgeTest2", file = "blub.rds")
   expect_identical(a, readRDS(paste0(getConfig("outputfolder"),"/blub.rds")))
   
@@ -343,6 +340,11 @@ test_that("Edge cases work as expected", {
   expect_error(calcOutput("NoMag3", aggregate = FALSE),"Min/Max checks cannot be used")
   expect_error(calcOutput("NoMag4", aggregate = FALSE),"Structure checks cannot be used")
   expect_error(calcOutput("NoMag5", aggregate = FALSE),"isocountries can only be set if")
+  
+  skip_if_not_installed("reshape2")
+  a <- calcOutput("EdgeTest2", file = "blub.mif")
+  b <- magclass::read.report(paste0(getConfig("outputfolder"),"/blub.mif"), as.list = FALSE)
+  expect_identical(sum(a - b), 0)
 })
 
 test_that("Data check works as expected", {
