@@ -31,8 +31,6 @@
 #' @author Bjoern Soergel, Lavinia Baumstark
 #' 
 #' @importFrom magclass as.magpie is.magpie getRegions getYears dimSums
-#' @importFrom assertthat assert_that
-#' @importFrom rlang is_empty
 #' @export
 #' 
 #' @examples
@@ -46,19 +44,19 @@
 toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToolCountryFill = FALSE, 
                                   regionmapping = NULL, verbose = TRUE, warningThreshold = 0.5){
 
-  assert_that(is.magpie(x))
+  if (!is.magpie(x)) stop("Input x has to be a MAgPIE object!")
   # limit to one data dimension at a time (avoids potential pitfalls with weight dimensions)
-  assert_that(ndata(x) == 1)
+  if (!(ndata(x) == 1)) stop("Only one element in data dimension allowed!")
   
   # if no weights are specified use unweighted average
   if (is.null(weight)){
     weight <- as.magpie(x)
     weight[] <- 1.
   } else {
-    assert_that(ndata(weight) == 1)
+    if (ndata(weight) != 1) stop("Weight must have exactly one element in data dimension!")
     # ensure that all countries have weights
-    assert_that(is_empty(setdiff(getRegions(x),getRegions(weight))))
-    assert_that(is_empty(setdiff(getYears(x),getYears(weight))))
+    if (length(setdiff(getRegions(x),getRegions(weight))) > 0) stop("Regions in x and weight do not match!")
+    if (length(setdiff(getYears(x),getYears(weight))) > 0) stop("Years in x and weight do not match!")
     weight <- weight[getRegions(x),getYears(x),]
   }
   

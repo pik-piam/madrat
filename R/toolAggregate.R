@@ -93,7 +93,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
   }
   
   .isMatrix <- function(x) {
-    return(any(is.element(class(x),c("dgCMatrix","dsCMatrix", "dsyMatrix")) || ("Matrix" %in% attr(class(x),"package"))))
+    return(any(is.element(class(x),c("dgCMatrix","dsCMatrix", "dsyMatrix"))) || ("Matrix" %in% attr(class(x),"package")))
   }
   
   if (!is.numeric(rel) && !.isMatrix(rel)) {
