@@ -10,7 +10,8 @@
 #' @param m MAgPIE object with ISO country codes in the spatial dimension
 #' @param mapping mapping of historical ISO countries to the standard ISO
 #' country list. For the default setting (mapping=NULL) the mapping stored as
-#' supplementary data in the madrat package is used.
+#' supplementary data in the madrat package is used. If provided as file the
+#' mapping needs to contain three columns "fromISO", "toISO" and "lastYear".
 #' @param additional_mapping vector or list of vectors to provide some specific
 #' mapping, first the old country code, second the new country code and last
 #' the last year of the old country, e.g. additional_mapping =
@@ -41,7 +42,7 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
   }
   # add additional mapping, if provided
   if(!is.null(additional_mapping)){
-    if(!is.list(additional_mapping)) {
+    if(is.data.frame(additional_mapping) || !is.list(additional_mapping)) {
       mapping <- rbind(mapping,additional_mapping)
     } else {
       for(elem in additional_mapping) {
@@ -74,7 +75,7 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
       }
     }  
     # sort again based on transition year if more than one transition exists
-    if (length(ptr[,1]) != 1) {
+    if (length(ptr[,1]) > 1) {
        ptr <- ptr[order(ptr[,2]),]
     }
     # calculate number of transitions ntr 
@@ -87,12 +88,13 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
         fromISO_year[[ntr]] <- cbind(h,ptr[i,])
         h <- NULL
       } else if (length(mapping$toISO[mapping$fromISO==ptr[i,1]])==1){
-        if(mapping$toISO[mapping$fromISO==ptr[i,1]]!=mapping$toISO[mapping$fromISO==ptr[i+1,1]]){
-          ntr <- ntr+1
+        to1 <- mapping$toISO[mapping$fromISO == ptr[i,1]]
+        to2 <- mapping$toISO[mapping$fromISO == ptr[i + 1,1]]
+        if (length(to1) != length(to2) || to1 != to2) {
+          ntr <- ntr + 1
           fromISO_year[[ntr]] <- cbind(h,ptr[i,])
           h <- NULL
         } else {
-          ntr <- ntr
           h <- cbind(h,ptr[i,])  # evtl ptr[i,1] für Vereinigungen
         }
       }
@@ -112,48 +114,45 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
   }
   
   tr <- .identifyTransitions(m)
-  vcat(2,"The following transitions are found in the data \n",paste(tr,collapse=", \n"))
+  vcat(2,"The following transitions are found in the data \n",paste(tr,collapse = ", \n"))
   
   # loop over all transitions         
-  for(a in tr) {
+  for (a in tr) {
     # check if new regions of transition exists in m
-    toISOmissing   <- all(is.element(a$toISO,getRegions(m)))
-    if(toISOmissing==FALSE) stop("there is no data for the following new countrys: ", paste(a$toISO[which(!is.element(a$toISO,getRegions(m)))],collapse=", ") )
+    toISOmissing   <- !all(is.element(a$toISO,getRegions(m)))
+    if (toISOmissing) stop("there is no data for the following new countrys: ", paste(a$toISO[which(!is.element(a$toISO,getRegions(m)))],collapse = ", ") )
     
     # create transformation matrix
     ## time span where the data need to be adjusted
-    sub_time <- getYears(m[,c(1:which(getYears(m)==a$fromY)),])
+    sub_time <- getYears(m[,c(1:which(getYears(m) == a$fromY)),])
     # disaggregation of countries
-    if(length(a$fromISO)==1){  
+    if (length(a$fromISO) == 1) {  
       weight <- setYears(m[a$toISO,a$toY,],NULL)
-      if(anyNA(weight)) {
+      if (anyNA(weight)) {
         weight[is.na(weight)] <- 0
         vcat(0,"Weight in toolISOhistorical contained NAs. Set NAs to 0!")
       }
-      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=weight, negative_weight="allow")
+      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight = weight, negative_weight = "allow")
     ## aggregation of countries
-    } else{ 
-      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight=NULL)
+    } else { 
+      m_tr <- toolAggregate(m[a$fromISO,sub_time,],mapping[is.element(mapping$toISO,a$toISO),c("fromISO","toISO")],weight = NULL)
     }
-    #print(m_tr)
     # fill data
-    if(overwrite==TRUE){
+    if (overwrite == TRUE) {
       m[a$toISO,sub_time,] <- m_tr 
-    }else{
+    } else {
       m[a$toISO,sub_time,][is.na(m[a$toISO,sub_time,])] <- m_tr[is.na(m[a$toISO,sub_time,])]
     }
   } # a in tr - transitions
   
   # delete old lines
-  for(b in mapping$fromISO) {
-    if(is.element(b,getRegions(m))) {
-      m <- m[-which(getRegions(m)==b),,]
+  for (b in mapping$fromISO) {
+    if (is.element(b,getRegions(m))) {
+      m <- m[-which(getRegions(m) == b),,]
     }   
   }
-  # print(m)
   
-  return(updateMetadata(m,calcHistory="update",cH_priority=3))
-  
+  return(updateMetadata(m, calcHistory = "update", cH_priority = 3))
 }
 
 
