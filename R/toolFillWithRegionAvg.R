@@ -96,8 +96,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
       x_new[c_NA,yr,] <- fill_val
       
       if (verbose) {
-        vcat(1,sprintf("%s %s : replaced %s missing values with regional average of %.2e", 
-                      regi,yr,length(c_NA),fill_val))
+        vcat(1,sprintf("%s %s : replaced %s missing values with regional average of %.2e", regi,yr,length(c_NA),fill_val))
       }
       
       if (length(c_NA)/length(c_regi) > warningThreshold) {

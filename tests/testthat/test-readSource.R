@@ -60,11 +60,18 @@ test_that("readSource detects common problems", {
   globalassign("convertTest")
   
   skip_if_offline()
-  expect_error(readSource("Tau", subtype="historical", convert="WTF"), "Unknown convert setting")
+  expect_error(readSource("Tau", subtype="paper", convert="WTF"), "Unknown convert setting")
 })
 
 test_that("default readSource example works", {
   expect_silent(suppressMessages(a <- readSource("Tau", "paper")))
   expect_equal(getYears(a, as.integer = TRUE), c(1995, 2000))
 })
+
+test_that("downloadSource works", {
+  expect_error(downloadSource("Tau", "paper"), "does already exist!")
+  expect_error(downloadSource(1:10), "Invalid type")
+  expect_error(downloadSource("Tau", subtype = 1:10), "Invalid subtype")
+})
+
 
