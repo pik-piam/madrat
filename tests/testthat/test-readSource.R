@@ -63,3 +63,8 @@ test_that("readSource detects common problems", {
   expect_error(readSource("Tau", subtype="historical", convert="WTF"), "Unknown convert setting")
 })
 
+test_that("default readSource example works", {
+  expect_silent(suppressMessages(a <- readSource("Tau", "paper")))
+  expect_equal(getYears(a, as.integer = TRUE), c(1995, 2000))
+})
+
