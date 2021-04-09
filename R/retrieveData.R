@@ -59,10 +59,12 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
  defargs$dev <- NULL
  defargs$rev <- NULL
  toadd <- names(defargs)[!(names(defargs)%in%names(inargs))]
- if(length(toadd)>0) inargs[toadd] <- defargs[toadd] 
- if(length(inargs)>0 && uselabels) args_hash <- paste0(toolCodeLabels(digest(inargs, algo = getConfig("hash"))),"_")
- else if(length(inargs)>0 && !uselabels) args_hash <- paste0(digest(inargs, algo = getConfig("hash")),"_")
- else args_hash <- NULL
+ if (length(toadd) > 0) inargs[toadd] <- defargs[toadd]
+ if (length(inargs) > 0) {
+   hashs <- digest(inargs, algo = getConfig("hash"))
+   if (uselabels) hashs <- toolCodeLabels(hashs)
+   args_hash <- paste0(hashs,"_")
+ } else args_hash <- NULL
 
  regionmapping <- getConfig("regionmapping")  
  if (!file.exists(regionmapping)) regionmapping <- toolGetMapping(regionmapping, type = "regional", returnPathOnly = TRUE)
@@ -117,22 +119,14 @@ retrieveData <- function(model, rev=0, dev="", cachetype="rev", ...) {
    x <- do.call(functiononly,args)
    vcat(2," - function ",functionname," finished", fill=300, show_prefix=FALSE)   
    
+   cwd <- getwd()
+   setwd(sourcefolder)
+   trash <- system(paste0("tar -czf ../",collectionname,".tgz"," *"), intern = TRUE)
+   setwd(cwd) 
+   unlink(sourcefolder, recursive = TRUE)
  } else {
-  if (!file.exists(sourcefolder)) dir.create(sourcefolder,recursive = TRUE)
-  cwd <- getwd()
-  setwd(sourcefolder)
-  trash <- system(paste0("tar -xvf ../",collectionname,".tgz"), intern = TRUE)
-  setwd(cwd) 
   startinfo <- toolstartmessage(0)
   vcat(-2," - data is already available and not calculated again.", fill = 300) 
  }  
-
  toolendmessage(startinfo)
- 
- cwd <- getwd()
- setwd(sourcefolder)
- trash <- system(paste0("tar -czf ../",collectionname,".tgz"," *"), intern = TRUE)
- setwd(cwd) 
- unlink(sourcefolder, recursive = TRUE)
-
 }
