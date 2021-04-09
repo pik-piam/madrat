@@ -14,6 +14,7 @@ cfg <- getConfig(verbose = FALSE)
 
 noC <- function(x) {
   getComment(x) <- NULL
+  attr(x,"Metadata") <- NULL
   return(x)
 }
 
@@ -22,10 +23,37 @@ test_that("Identity mapping is not changing the data", {
   pimpf <- pm
   pimpf[2,2005,] <- Inf
   expect_equivalent(toolAggregate(pimpf,map2),pimpf)
+  expect_identical(noC(toolAggregate(pm,diag(1,10,10))),noC(pm))
 })
 
-test_that("Mappings work in matrix and data.frame format identical", {
-  expect_identical(noC(toolAggregate(pm,as.matrix(map))),noC(toolAggregate(pm,map)))
+test_that("NAs and Infs in input data are treated correctly", {
+  pm2 <- pm[c(1,3,5),1:2,1:2]
+  pm2[1,1,1] <- Inf
+  pm2[2,2,2] <- NA
+  
+  ref <- new("magpie", .Data = structure(c(Inf, 1837, 1559, NA), .Dim = c(1L,2L, 2L), 
+         .Dimnames = list(i = "REG1", t = c("y1995", "y2005"),scenario = c("A2", "B1"))))
+  expect_identical(noC(round(toolAggregate(pm2, map, partrel = TRUE))), ref)
+  
+})
+
+test_that("Mappings work in various formats identical", {
+  expect_silent(ref <- noC(toolAggregate(pm,map)))
+  expect_identical(noC(toolAggregate(pm,as.matrix(map))), ref)
+  
+  expect_identical(noC(toolAggregate(pm,map[,3:1])), ref)
+  expect_identical(noC(toolAggregate(pm,map[,2:1])), ref)
+  
+  tmpfile <- paste0(tempdir(),"/map.rds")
+  saveRDS(map,tmpfile)
+  tmpfile2 <- paste0(tempdir(),"/map.csv")
+  write.csv(map,tmpfile2)
+  
+  expect_identical(noC(toolAggregate(pm, tmpfile)), ref)
+  expect_identical(noC(toolAggregate(pm, tmpfile2)), ref)
+  
+  skip_if_not_installed("tibble")
+  expect_identical(noC(toolAggregate(pm,tibble::as_tibble(map))), ref)
 })
 
 test_that("Combination via '+' works", {
@@ -93,7 +121,6 @@ test_that("aggregating across dim=1.1 and then dim=1.2 produces the same result 
 })
 
 test_that("weight with reduced dimensionality can be used", {
-  #skip("not yet fixed")
   unweighted <- toolAggregate(td,rel=map,dim=1.2)
   getSets(pm)[1] <- "region1"
   weighted <- toolAggregate(td,rel=map,weight=pm,dim=1.2)
@@ -129,4 +156,37 @@ test_that("aggregation for subdimensions works properly", {
   a <- magclass::maxample("animal")[1:3,1:2,"black"]
   rel <- data.frame(from=c("rabbit","bird"),to="sweet")
   expect_identical(getItems(toolAggregate(a, rel, dim = "species"),dim=3, full=TRUE), "animal.sweet.black")
+})
+
+test_that("Malformed inputs are properly detected", {
+  expect_error(toolAggregate(1,2), "Input is not a MAgPIE object")
+  expect_error(toolAggregate(pm, map, weight = 1),"Weight is not a MAgPIE object")
+  expect_error(toolAggregate(as.magpie(1), rel = "notthere.csv"), "Cannot find given region mapping file")
+  expect_error(toolAggregate(pm, map[, 1, drop = FALSE]), "has only 1 column")
+  expect_error(toolAggregate(pm, map[, 1]), "Malformed relation mapping")
+  expect_error(toolAggregate(pm, map, weight = pm[1:2,,]), "no match")
+  w <- pm
+  getCells(w) <- paste0(getCells(pm),".",getCells(pm)[10:1])
+  expect_error(toolAggregate(pm, map, weight = w), "multiple matches")
+  expect_warning(toolAggregate(pm, map, weight = -pm), "Negative numbers in weight.")
+  expect_error(toolAggregate(pm, map, weight = -pm, negative_weight = "stop"), "Negative numbers in weight.")
+  expect_error(toolAggregate(pm,diag(1,16,16), dim = 2), "Missing dimnames for aggregated dimension")
+})
+
+test_that("Edge cases work", {
+  rel <- diag(1,10,4)
+  colnames(rel) <- c("A","A","B","B")
+  expect_identical(getItems(toolAggregate(pm,rel),1), c("A.1","A.2","B.3","B.4"))
+  
+  a <- magclass::maxample("animal")
+  rel2 <- diag(1,3,3)
+  expect_error(toolAggregate(a, rel2, dim = 3.2), "colnames and/or rownames missing")
+  colnames(rel2) <- paste0("A",1:3)
+  rownames(rel2) <- paste0("B",1:3)
+  expect_error(toolAggregate(a, rel2, dim = 3.2), "not be found in the data")
+  rownames(rel2) <- c("dog", "bird", "rabbit")
+  expect_identical(getItems(toolAggregate(a, rel2, dim = 3.2), 3.2), paste0("A",1:3))
+  colnames(rel2) <- c("dog", "bird", "rabbit")
+  expect_identical(getItems(toolAggregate(a, rel2[1:2,], dim = 3.2), 3.2), c("dog", "bird"))
+  
 })
