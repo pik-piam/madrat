@@ -68,17 +68,18 @@
 #' @examples
 #' 
 #' # create example mapping
-#' mapping <- data.frame(from   = getRegions(population_magpie),
+#' p <- magclass::maxample("pop")
+#' mapping <- data.frame(from   = getRegions(p),
 #'                       region = rep(c("REG1","REG2"),5),
 #'                       global = "GLO")
 #' mapping 
 #' 
 #' # run aggregation
-#' toolAggregate(population_magpie,mapping)
+#' toolAggregate(p,mapping)
 #' # weighted aggregation
-#' toolAggregate(population_magpie,mapping, weight=population_magpie)
+#' toolAggregate(p,mapping, weight=p)
 #' # combined aggregation across two columns
-#' toolAggregate(population_magpie, mapping, to="region+global")
+#' toolAggregate(p, mapping, to="region+global")
 
 toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=NULL, partrel=FALSE, negative_weight="warn", mixed_aggregation=FALSE, verbosity=1) {
 

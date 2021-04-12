@@ -89,7 +89,7 @@ test_that("fingerprinting works with control flags", {
   expect_identical(madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat"), fp2_expected)
   expect_identical(madrat:::fingerprint("calcExample3", details = TRUE, packages = "madrat"), fp3_expected)
   expect_identical(madrat:::fingerprint("calcExample4", details = TRUE, packages = "madrat"), fp4_expected)
-  
+  rm(list = c("readData3","calcExample2","calcExample3","calcExample4"), envir = .GlobalEnv)
 })
 
 

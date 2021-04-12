@@ -30,7 +30,7 @@ getCalculations <- function(prefix="calc", packages=getConfig("packages"), globa
   
   pattern <- paste0("^",prefix)
   x <- x[grep(pattern,x$type),]
-  if (dim(x)[1] == 0) return(NULL)
+  if (is.null(dim(x)) || dim(x)[1] == 0) return(NULL)
   x$call <- paste0(x$package,":::",x$type)
   x$type <- sub(pattern,"",x$type)  
   x$call <- sub(".GlobalEnv:::","",x$call, fixed = TRUE)

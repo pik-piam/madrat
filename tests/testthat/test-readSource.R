@@ -72,6 +72,10 @@ test_that("downloadSource works", {
   expect_error(downloadSource("Tau", "paper"), "does already exist!")
   expect_error(downloadSource(1:10), "Invalid type")
   expect_error(downloadSource("Tau", subtype = 1:10), "Invalid subtype")
+  downloadTest <- function() return(list(url = 1, author = 1, title = 1, license = 1,
+                                         description = 1, unit = 1, call = "notallowed"))
+  globalassign("downloadTest")
+  expect_warning(downloadSource("Test", overwrite = TRUE), "reserved and will be overwritten")
 })
 
 
