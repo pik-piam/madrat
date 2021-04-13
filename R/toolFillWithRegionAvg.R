@@ -83,7 +83,9 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   # computation of regional averages and replacing
   for (regi in unique(map$RegionCode)){
     c_regi <- map$CountryCode[map$RegionCode==regi]
-    for (yr in getYears(x)){
+    c_regi <- intersect(c_regi,getRegions(x))
+    if(length(c_regi) == 0) next
+    for (yr in 1:nyears(x)){
       # filter out the countries that are NA
       NAvals <- is.na(x[c_regi,yr,])
       # if no NAs -> jump to next iteration
