@@ -4,15 +4,10 @@ github_checks:
 coverage:
   precision: 2
   round: down
-  range: "0...95"
+  range: "70...100"
   status:
     project:
       default:
         target: auto
         threshold: 1%
-        informational: true
-    patch:
-      default:
-        target: auto
-        threshold: 1%
-        informational: true
+        informational: false
