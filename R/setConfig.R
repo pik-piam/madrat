@@ -63,7 +63,7 @@
 #' @param diagnostics file name for additional diagnostics information (without file ending).
 #' 2 log files be written if a file name is provided (a compact version with the most
 #' relevant information and a full version with all available details).
-#' @param nocores  integer number of cores to use for \code{\link[parallel]{clusterApply}} calls
+#' @param nocores  integer number of cores to use
 #' @param debug Boolean which activates a debug mode. In debug mode all calculations will
 #' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
 #' This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
