@@ -172,5 +172,8 @@ test_that("Argument hashing works", {
   expect_null(madrat:::cacheArgumentsHash(calcOutput, args=list(try=FALSE)))
   expect_identical(madrat:::cacheArgumentsHash(calcOutput, args=list(try=TRUE)), "-01df3eb2")
   expect_identical(madrat:::cacheArgumentsHash(calcOutput, args=list(try=TRUE, notthere = 42)), "-ae021eac")
-  
+  calcArgs <- function(a = NULL) return(1)
+  expect_null(madrat:::cacheArgumentsHash(calcArgs))
+  expect_null(madrat:::cacheArgumentsHash(calcArgs, args=list(a = NULL)))
+  expect_identical(madrat:::cacheArgumentsHash(calcArgs, args=list(a=12)), "-8bb64daf")
 })

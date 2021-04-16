@@ -22,6 +22,10 @@ cacheArgumentsHash <- function(call, args=NULL) {
   if (!("..." %in% names(defargs))) args <- args[commonargs]
   
   for (i in commonargs) {
+    if (is.null(defargs[[i]]) || is.null(args[[i]])) {
+      if (is.null(defargs[[i]]) && is.null(args[[i]])) args <- args[names(args) != i]
+      next
+    } 
     if (defargs[[i]] == args[[i]]) args <- args[names(args) != i]
   }
   if (length(args) == 0) return(NULL)
