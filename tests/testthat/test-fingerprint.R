@@ -14,7 +14,7 @@ test_that("fingerprinting works as expected", {
   }
   globalassign("toolTest")
   expect_error(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = FALSE), "There is no function with the name")
-  expect_equal(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = TRUE), "8b3413cc")
+  expect_equivalent(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = TRUE), "8b3413cc")
   emptyfolder <- paste0(tempdir(),"/empty")
   dir.create(emptyfolder, recursive = TRUE, showWarnings = FALSE)
   expect_equal(unname(madrat:::fingerprintFiles(emptyfolder, use.mtime = TRUE)), "ca265a9c")
@@ -57,7 +57,8 @@ test_that("fingerprinting works with control flags", {
     if(FALSE) b <- readSource("Data2")
   }
   globalassign("readData","readData2","calcExample2")
-  fp_expected <- structure("7e60a810", details = c(calcExample2 = "8386790d", 
+  fp_expected <- structure("7e60a810", call = "calcExample2", 
+                                       details = c(calcExample2 = "8386790d", 
                                                    readData = "783a5e2f", 
                                                    readData2 = "fb52578f"))
   expect_identical(madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat"),fp_expected)
@@ -77,14 +78,17 @@ test_that("fingerprinting works with control flags", {
   }
   globalassign("readData3","calcExample2","calcExample3","calcExample4")
   
-  fp2_expected <- structure("7b150c88", details = c(calcExample2 = "ded5ab1f", 
+  fp2_expected <- structure("7b150c88", call = "calcExample2",
+                                        details = c(calcExample2 = "ded5ab1f", 
                                     readData = "783a5e2f", readData3 = "2cd95ca8"))
-  fp3_expected <- structure("edf89c03", details = c(calcExample2 = "ded5ab1f", 
+  fp3_expected <- structure("edf89c03", call = "calcExample3",
+                                        details = c(calcExample2 = "ded5ab1f", 
                                                     calcExample3 = "94819ad1", 
                                                     readData = "783a5e2f", 
                                                     readData2 = "fb52578f", 
                                                     readData3 = "2cd95ca8"))
-  fp4_expected <- structure("91bbc100", details = c(calcExample4 = "9aad0909", 
+  fp4_expected <- structure("91bbc100", call = "calcExample4",
+                                        details = c(calcExample4 = "9aad0909", 
                                                     readData2 = "fb52578f"))
   expect_identical(madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat"), fp2_expected)
   expect_identical(madrat:::fingerprint("calcExample3", details = TRUE, packages = "madrat"), fp3_expected)

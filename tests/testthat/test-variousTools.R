@@ -161,3 +161,16 @@ test_that("Caching works", {
   expect_message(cf <- madrat:::cacheName("calc","CacheExample", mode = "get"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-F4ece4fe6.rds")
 })
+
+test_that("Argument hashing works", {
+  expect_null(madrat:::cacheArgumentsHash(madrat:::readTau))
+  expect_null(madrat:::cacheArgumentsHash(madrat:::readTau, list(subtype="paper")))
+  expect_identical(madrat:::cacheArgumentsHash(madrat:::readTau, args=list(subtype="historical")), "-50d72f51")
+  # nonexisting arguments will be ignored if ... is missing
+  expect_identical(madrat:::cacheArgumentsHash(madrat:::readTau, args=list(subtype="historical", notthere = 42)), "-50d72f51")
+  # if ... exists all arguments will get considered
+  expect_null(madrat:::cacheArgumentsHash(calcOutput, args=list(try=FALSE)))
+  expect_identical(madrat:::cacheArgumentsHash(calcOutput, args=list(try=TRUE)), "-01df3eb2")
+  expect_identical(madrat:::cacheArgumentsHash(calcOutput, args=list(try=TRUE, notthere = 42)), "-ae021eac")
+  
+})
