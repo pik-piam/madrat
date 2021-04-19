@@ -63,6 +63,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
              
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
+    vcat(3, " - Search pattern ", basename(.fname(prefix,type,"-F*",args)), show_prefix = FALSE)
     return(NULL)
   }
   if (length(files) == 1) file <- files
