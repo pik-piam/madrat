@@ -57,6 +57,9 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
   # (either with no fingerprint hash or with differing fingerprint)
   files <- Sys.glob(c(.fname(prefix,type,"-F*",args),
                       .fname(prefix,type,"",args)))
+  
+  # remove false positives
+  if (is.null(args)) files <- grep("-[^F].*$", files, value = TRUE, invert = TRUE)
              
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
