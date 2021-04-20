@@ -36,11 +36,10 @@ prepFunctionName <- function(type, prefix="calc", ignore=NULL, error_on_missing=
   if(length(name)>1) {
     name <- as.character(tail(name,1))
     package <- as.character(tail(package,1))
+    warning("More than one function found for type \"",type,"\" and prefix \"",prefix,"\". Use last occurrence (package \"",package,"\")")
     if(package==".GlobalEnv" & type %in% c("TauTotal","Tau")) {
       stop("Cannot substitute package internal function for type \"",type,"\" and prefix \"",prefix,"\" with function in global environment. Please use other function name instead!")  
-    } else {
-      warning("More than one function found for type \"",type,"\" and prefix \"",prefix,"\". Use last occurrence (package \"",package,"\")")
-    }
+    } 
   }
   
   # extract arguments which agree between the given function and its corresponding wrapper function

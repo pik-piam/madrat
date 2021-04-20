@@ -3,6 +3,8 @@
 #' This function manipulates the current madrat configuration. 
 #' In general, NULL means that the argument remains as it is whereas
 #' all other inputs will overwrite the current setting.
+#' For values which can be reset to NULL (currenly only "extramappings") 
+#' you can achieve an reset by setting the value to "".
 #' 
 #' 
 #' @param regionmapping The name of the csv file containing the region mapping
@@ -61,7 +63,7 @@
 #' @param diagnostics file name for additional diagnostics information (without file ending).
 #' 2 log files be written if a file name is provided (a compact version with the most
 #' relevant information and a full version with all available details).
-#' @param nocores  integer number of cores to use for \code{\link[parallel]{clusterApply}} calls
+#' @param nocores  integer number of cores to use
 #' @param debug Boolean which activates a debug mode. In debug mode all calculations will
 #' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
 #' This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
@@ -123,6 +125,7 @@ setConfig <- function(regionmapping=NULL,
   for(x in args) {
     if(!is.null(get(x))) {
       value <- get(x)
+      if(x == "extramappings" && value == "") value <- NULL
       #additional checks/modifications if input is a folder
       if(grepl("folder",x,fixed = TRUE)) {
         if(!is.na(value)) {

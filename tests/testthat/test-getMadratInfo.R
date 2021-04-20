@@ -43,7 +43,7 @@ test_that("bidirectional package connections are correctly detected", {
                                 fname=c("readData1","calcExample","calcExample2","calcExample2"),
                                 stringsAsFactors = FALSE)
   
-  expect_warning(a <- getMadratInfo(g), "Bidirectional dependencies found")
-  expect_warning(b <- getMadratInfo(g, cutoff = 1), "Bidirectional dependencies found")
+  expect_warning(a <- getMadratInfo(g), "Bidirectional package dependencies detected")
+  expect_warning(b <- getMadratInfo(g, cutoff = 1), "Bidirectional package dependencies detected")
   expect_identical(a,b)
 })

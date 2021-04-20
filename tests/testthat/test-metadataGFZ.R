@@ -8,5 +8,6 @@ test_that("metadata can be extracted from GFZ dataservice", {
                year = "EWEMBI", license = "CC BY 4.0")
   expect_identical(m,mref)
   expect_error(metadataGFZ("12.3456/pik.2019.004"), "does not belong to a GFZ dataservice entry")
+  expect_null(metadataGFZ(NULL))
 })
 

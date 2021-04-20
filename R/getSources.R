@@ -46,10 +46,9 @@ getSources <- function(name=NULL, type=NULL, packages=getConfig("packages"), glo
   
   if(is.null(type)) {
     tmp <- sapply(types,.filter,n)
-    out <- data.frame(source=unique(unlist(tmp)))
+    out <- data.frame(source=unique(unlist(tmp)), stringsAsFactors = FALSE)
     for(i in names(tmp)) out[i] <- (out$source %in% tmp[[i]])
     return(out)
-    return(.filter("read",n))
   } else if(type %in% types) {
     return(.filter(type,n))
   } else {

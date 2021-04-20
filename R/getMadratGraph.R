@@ -94,22 +94,7 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
             " the scope of packages accordingly!")
   }
   # check for bidirectional package connections
-  pkgdeps <- unique(out[c("from_package","to_package")])
-  pkgdeps <- pkgdeps[pkgdeps$from_package!=pkgdeps$to_package & pkgdeps$from_package!="UNKNOWN",]
-  if(nrow(pkgdeps)>2) {
-    din <- paste0(pkgdeps$from_package,"-",pkgdeps$to_package)
-    dout <- paste0(pkgdeps$to_package,"-",pkgdeps$from_package)  
-    if(any(din %in% dout)) {
-      p <- pkgdeps[din %in% dout,]
-      hints <- NULL
-      for(i in 1:nrow(p)) {
-        tmp <- out[out$from_package==p$from_package[i] & out$to_package==p$to_package[i],]
-        if(nrow(tmp)<5 & nrow(tmp)>0) hints <- paste0(hints,paste0(tmp$from,"->",tmp$to,collapse=", "), collapse=", ") 
-      }
-      base::warning("Bidirectional package dependencies detected: ",paste0(p$from_package,"->",p$to_package,collapse=", "),
-              "\n  You might want to have a look at the following connections: ",hints)
-    }
-  }
+  .checkBidirectional(out, details = FALSE)
   
   for (a in c("fpool", "hash", "mappings", "flags")) attr(out,a) <- attr(code,a)
   assign(gHash, out, envir = getOption("MadratCache"))

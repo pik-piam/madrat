@@ -57,6 +57,7 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   fpsf <- fingerprintFiles(attr(d, "mappings"), use.mtime = FALSE)
   fp <- c(fpfu, fpfo, fpsf, fpmo)
   out <- digest(unname(fp), algo = getConfig("hash"))
+  attr(out,"call") <- d$call[d$func == name]
   if (details) {
     attr(out,"details") <- fp
     vcat(3,"hash components (",out,"):", show_prefix = FALSE)

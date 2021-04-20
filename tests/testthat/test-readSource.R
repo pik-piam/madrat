@@ -6,6 +6,13 @@ globalassign <- function(...) {
   for(x in c(...)) assign(x,eval.parent(parse(text=x)),.GlobalEnv)
 }
 
+nce <- function(x) {
+  getComment(x) <- NULL
+  attr(x,"cachefile") <- NULL
+  attr(x,"id") <- NULL
+  return(x)
+}
+
 test_that("readSource detects common problems", {
   setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, mainfolder=tempdir())
   readNoDownload <- function(){}
@@ -34,7 +41,41 @@ test_that("readSource detects common problems", {
   expect_error(readSource(TRUE),"Invalid type")
   expect_error(readSource("NonAvailable"), "not a valid source")
   
+  readTest <- function()return(as.magpie(1))
+  correctTest <- function(x) return(as.magpie(2))
+  convertTest <- function(x) return(new.magpie(getISOlist(), fill = 1))
+  globalassign("correctTest","convertTest", "readTest")
+  expect_identical(nce(readSource("Test", convert = FALSE)), clean_magpie(as.magpie(1)))
+  expect_identical(nce(readSource("Test", convert = "onlycorrect")), clean_magpie(as.magpie(2)))
+  expect_identical(nce(readSource("Test")), clean_magpie(new.magpie(getISOlist(), fill = 1)))
+  
+  cache <- madrat:::cacheName("convert","Test")
+  a <- readRDS(cache)
+  getCells(a)[1] <- "BLA"
+  saveRDS(a,cache)
+  setConfig(verbosity = 2, .verbose = FALSE)
+  expect_message(readSource("Test"), "cache file corrupt")
+  
+  convertTest <- function(x) return(as.magpie(1))
+  globalassign("convertTest")
+  
   skip_if_offline()
-  expect_error(readSource("Tau", subtype="historical", convert="WTF"), "Unknown convert setting")
+  expect_error(readSource("Tau", subtype="paper", convert="WTF"), "Unknown convert setting")
 })
+
+test_that("default readSource example works", {
+  expect_silent(suppressMessages(a <- readSource("Tau", "paper")))
+  expect_equal(getYears(a, as.integer = TRUE), c(1995, 2000))
+})
+
+test_that("downloadSource works", {
+  expect_error(downloadSource("Tau", "paper"), "does already exist!")
+  expect_error(downloadSource(1:10), "Invalid type")
+  expect_error(downloadSource("Tau", subtype = 1:10), "Invalid subtype")
+  downloadTest <- function() return(list(url = 1, author = 1, title = 1, license = 1,
+                                         description = 1, unit = 1, call = "notallowed"))
+  globalassign("downloadTest")
+  expect_warning(downloadSource("Test", overwrite = TRUE), "reserved and will be overwritten")
+})
+
 

@@ -7,6 +7,6 @@ test_that("getCalculations works", {
   
   xe <- structure(list(type = c("TauTotal", "Tau"), package = c("madrat", 
                                                                 "madrat"), call = c("madrat:::calcTauTotal", "madrat:::readTau"
-                                                                )), row.names = c(6L, 34L), class = "data.frame")
+                                                                )), row.names = c(1L, 2L), class = "data.frame")
   expect_identical(getCalculations(c("calc","read"), packages="madrat"), xe)
 })

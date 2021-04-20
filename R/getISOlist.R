@@ -22,24 +22,20 @@
 #' @importFrom magclass ncells
 #' @export
 getISOlist <- function(type="all") {
-  iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-  iso_country1<-as.vector(iso_country[,"x"])
-  names(iso_country1)<-iso_country[,"X"]
-  if(type=="all") {
-    return(sort(iso_country1))
-  } else {
-    ref <- sort(iso_country1)
-  }
-  pop2015 <- read.magpie(system.file("extdata","pop2015.csv",package = "madrat"))
-  names(dimnames(pop2015))<-c("ISO2_WB_CODE","Year","data")
-  if(length(ref)!=ncells(pop2015))  stop("Inconsistency between official ISO list and pop2015 data set (different number of countries)")
-  if(!all(ref==getCells(pop2015))) stop("Inconsistency between official ISO list and pop2015 data set (different countries)")
+  iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"), row.names = NULL)
+  iso_country1 <- as.vector(iso_country[,"x"])
+  names(iso_country1) <- iso_country[,"X"]
+  ref <- sort(iso_country1)
+  if (type == "all") return(ref)
   
-  if(type=="important") {
-    return(ref[as.vector(pop2015[,1,1]>=getConfig("pop_threshold")/10^6)])
-  } else if(type=="dispensable") {
-    return(ref[as.vector(pop2015[,1,1]<getConfig("pop_threshold")/10^6)])
+  pop2015 <- read.magpie(system.file("extdata","pop2015.csv",package = "madrat"))
+  names(dimnames(pop2015)) <- c("ISO2_WB_CODE","Year","data")
+  
+  if (type == "important") {
+    return(ref[as.vector(pop2015[,1,1] >= getConfig("pop_threshold")/10^6)])
+  } else if (type == "dispensable") {
+    return(ref[as.vector(pop2015[,1,1] < getConfig("pop_threshold")/10^6)])
   } else {
-    stop("Unknown type",type)
+    stop("Unknown type ",type)
   }
 }

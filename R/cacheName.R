@@ -34,8 +34,8 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
   if (fpprefix %in% c("convert", "correct")) fpprefix <- "read"
   fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode=="put"), 
                     packages = packages, globalenv = globalenv)
-  if (length(args) == 0) args <- NULL
-  if (!is.null(args)) args <- paste0("-",digest(args[order(names(args))], algo = getConfig("hash")))
+  args <- cacheArgumentsHash(attr(fp,"call"), args)
+  
   .isSet <- function(prefix, type, setting) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))
   }
@@ -57,9 +57,13 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
   # (either with no fingerprint hash or with differing fingerprint)
   files <- Sys.glob(c(.fname(prefix,type,"-F*",args),
                       .fname(prefix,type,"",args)))
+  
+  # remove false positives
+  if (is.null(args)) files <- grep("-[^F].*$", files, value = TRUE, invert = TRUE)
              
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
+    vcat(3, " - Search pattern ", basename(.fname(prefix,type,"-F*",args)), show_prefix = FALSE)
     return(NULL)
   }
   if (length(files) == 1) file <- files

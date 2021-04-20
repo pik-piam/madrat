@@ -133,8 +133,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
       if(nyears(x$weight)==1) getYears(x$weight) <- NULL
     }
     x$package <- attr(functionname,"pkgcomment")
-    #make sure that x$class is defined
-    if(is.null(x$class)) x$class <- "magpie"
     
     # read and check x$isocountries value which describes whether the data is in
     # iso country resolution or not (affects aggregation and certain checks)
@@ -157,20 +155,18 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     
     #check that data is returned for ISO countries except if x$isocountries=FALSE
     if(x$isocountries) {
-      iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
-      iso_country1<-as.vector(iso_country[,"x"])
-      names(iso_country1)<-iso_country[,"X"]
-      isocountries <- sort(iso_country1)
-      datacountries <- sort(getRegions(x$x))
-      if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
-      if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
-      if(!is.null(x$weight)) {
-        if(nregions(x$weight)>1){
-          weightcountries <- sort(getRegions(x$weight))
-          if(length(isocountries)!=length(weightcountries)) stop("Wrong number of countries in weight returned by ",functionname,"!")
-          if(any(isocountries!=weightcountries)) stop("Countries in weight returned by ",functionname," do not agree with iso country list!")
-        }
+      datacountries <- 
+      .countrycheck <- function(datacountries, name){
+        datacountries <- sort(datacountries)
+        iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
+        iso_country1<-as.vector(iso_country[,"x"])
+        names(iso_country1)<-iso_country[,"X"]
+        isocountries <- sort(iso_country1)
+        if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries in ",name," returned by ",functionname,"!")
+        if(any(isocountries!=datacountries)) stop("Countries in ",name," returned by ",functionname," do not agree with iso country list!")
       }
+      .countrycheck(getRegions(x$x), "x")
+      if(!is.null(x$weight) && nregions(x$weight) > 1) .countrycheck(getRegions(x$weight), "weight")
     }  
     #perform additional checks
     if(x$class!="magpie" && (!is.null(x$min) | !is.null(x$max))) stop("Min/Max checks cannot be used in combination with x$class!=\"magpie\"")
@@ -213,7 +209,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   x <- cacheGet(prefix = "calc", type = type, args=args)
   
   if(!is.null(x)) {
-    x <- try(.checkData(x, functionname))
+    x <- try(.checkData(x, functionname), silent = TRUE)
     if("try-error" %in% class(x)) {
       vcat(2," - cache file corrupt for ",functionname, show_prefix=FALSE)
       x <- NULL
@@ -278,13 +274,12 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     if(x$class!="magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
     items <- getItems(x$x,dim=1)
     rel_fitting <- which(sapply(rel,nrow) == length(items))
-    if(length(rel_fitting)==0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") contain a mapping compatible to the provided data!")
-    if(length(rel_fitting)>1) {
-      names(rel) <- NULL
-      rel <- do.call(cbind,rel[rel_fitting])
-    } else {
-      rel <- rel[[rel_fitting]]
+    if(length(rel_fitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\") contain a mapping compatible to the provided data!")
+    if(length(rel_fitting) > 1) {
+      warning("Multiple compatible mappings found in getConfig(\"regionmapping\") and getConfig(\"extramappings\"). Use only the first one!")
+      rel_fitting <- rel_fitting[1]
     }
+    rel <- rel[[rel_fitting]]
   }
   
   # read and check x$aggregationFunction value which provides the aggregation function
@@ -335,7 +330,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   }
   
   if(!is.null(file)) {
-    if(!file.exists(getConfig("outputfolder"))) stop('Outputfolder "',getConfig("outputfolder"),'" does not exist!')
     if(x$class=="magpie") {
       if(grepl(".mif",file)==TRUE){
         if(!is.null(getYears(x$x))) { 
