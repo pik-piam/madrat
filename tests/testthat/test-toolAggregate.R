@@ -189,4 +189,8 @@ test_that("Edge cases work", {
   colnames(rel2) <- c("dog", "bird", "rabbit")
   expect_identical(getItems(toolAggregate(a, rel2[1:2,], dim = 3.2), 3.2), c("dog", "bird"))
   
+  a <- collapseDim(a,dim=c(1.1,1.2))
+  rel <- data.frame(from=getCells(a), to=getRegionList(a), stringsAsFactors = FALSE)
+  expect_silent(b <- toolAggregate(a,rel, weight=a))
+  expect_setequal(getCells(b), c("NLD","BEL","LUX"))
 })
