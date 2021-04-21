@@ -182,7 +182,10 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
     }
 
     if (length(wdim) == 0) stop("Could not detect aggregation dimension in weight (no match)!")
-    if (length(wdim) > 1)  stop("Could not detect aggregation dimension in weight (multiple matches)!")
+    if (length(wdim) > 1)  {
+      if (any(wdim == floor(dim))) wdim <- floor(dim) # if full dimension and subdimension is matched, use only full dimension
+      else stop("Could not detect aggregation dimension in weight (multiple matches)!")
+    }
       
     if (floor(dim) == dim) wdim <- floor(wdim)
     
