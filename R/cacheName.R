@@ -59,7 +59,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
                       .fname(prefix,type,"",args)))
   
   # remove false positives
-  if (is.null(args)) files <- grep("-[^F].*$", files, value = TRUE, invert = TRUE)
+  if (is.null(args)) files <- files[!grepl("-[^F].*$", basename(files))]
              
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
