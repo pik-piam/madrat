@@ -32,9 +32,10 @@
 cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages = getConfig("packages"), globalenv = getConfig("globalenv")) {
   fpprefix <- prefix
   if (fpprefix %in% c("convert", "correct")) fpprefix <- "read"
-  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode=="put"), 
+  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode == "put"), 
                     packages = packages, globalenv = globalenv)
-  args <- cacheArgumentsHash(attr(fp,"call"), args)
+  call <- sub(paste0(fpprefix, type), paste0(prefix,type), attr(fp,"call"), fixed = TRUE)
+  args <- cacheArgumentsHash(call, args)
   
   .isSet <- function(prefix, type, setting) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))
