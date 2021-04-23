@@ -14,20 +14,18 @@
 #' @importFrom utils read.table
 #' @examples
 #' 
-#' \dontrun{
 #' innerFunction <- function() {
 #'   startinfo <- madrat:::toolstartmessage("+")
-#'   print("inner")
+#'   vcat(1, "inner")
 #'   madrat:::toolendmessage(startinfo,"-")
 #' }
 #' outerFunction <- function() {
 #'   startinfo <- madrat:::toolstartmessage("+")
-#'   print("outer")
+#'   vcat(1, "outer")
 #'   innerFunction()
 #'   madrat:::toolendmessage(startinfo,"-")
 #' }
 #' outerFunction()
-#' }
 #' 
 
 toolstartmessage <- function(level=NULL) {

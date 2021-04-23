@@ -123,7 +123,7 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
           missingItems <- setdiff(rel[[maxMatchColumn]], items)
 
           if (length(unmappedItems) > 0) {
-            warning(paste("The following items were not found in the mapping file:", toString(unmappedItems)))
+            warning(paste("The following items were not found in the mapping:", toString(unmappedItems)))
           }
           if (length(missingItems) > 0) {
             warning(paste("The mapping expected the following items, but they are missing:", toString(missingItems)))
