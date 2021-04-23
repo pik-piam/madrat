@@ -22,6 +22,7 @@ getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE, print=FALSE) {
   initializeConfig(verbose=verbose)
   
   cfg <- getOption("madrat_cfg")
+  cfg$mainfolder <- sub("/$", "", cfg$mainfolder)
   
   n <- c("sourcefolder"="sources", "cachefolder"="cache/default", "mappingfolder"="mappings", "outputfolder"="output/default")
   for(p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder")){

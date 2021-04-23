@@ -15,12 +15,18 @@
 #' @examples
 #' 
 #' \dontrun{
-#' tmp <- function(bla=NULL) {
-#'   startinfo <- toolstartmessage("+")
-#'   print(bla)
-#'   toolendmessage(startinfo,"-")
-#'   }
-#' tmp(bla=99)
+#' innerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage("+")
+#'   print("inner")
+#'   madrat:::toolendmessage(startinfo,"-")
+#' }
+#' outerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage("+")
+#'   print("outer")
+#'   innerFunction()
+#'   madrat:::toolendmessage(startinfo,"-")
+#' }
+#' outerFunction()
 #' }
 #' 
 

@@ -1,6 +1,6 @@
 #' calcOutput
 #' 
-#' Calculate a specific output for which a calculation function exists package. The function is a
+#' Calculate a specific output for which a calculation function exists. The function is a
 #' wrapper for specific functions designed for the different possible output types.
 #' 
 #' 

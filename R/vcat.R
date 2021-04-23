@@ -75,8 +75,8 @@ vcat <- function(verbosity,...,level=NULL, fill=TRUE, show_prefix=TRUE) {
   
   if (!is.null(level)) {
     if (level == "+") {
-      # add empty space
-      options(gdt_nestinglevel = paste0(">", getOption("gdt_nestinglevel")))
+      # indent output using the ~ character (findBottleneck expects ~ at line start)
+      options(gdt_nestinglevel = paste0("~", getOption("gdt_nestinglevel")))
     }
   }
   

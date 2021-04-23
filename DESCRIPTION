@@ -10,7 +10,8 @@ Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de"
              person("Renato", "Rodrigues", email = "Renato.Rodrigues@pik-potsdam.de", role = "aut"),
              person("Benjamin Leon", "Bodirsky", email = "bodirsky@pik-potsdam.de", role = "aut"),
              person("Ulrich", "Kreidenweis", email = "kreidenweis@pik-potsdam.de", role = "aut"),
-             person("David", "Klein", email = "dklein@pik-potsdam.de", role = "aut"))
+             person("David", "Klein", email = "dklein@pik-potsdam.de", role = "aut"),
+             person("Pascal", "Führlich", email = "pascal.fuehrlich@pik-potsdam.de", role = "aut"))
 Description: Provides a framework which should improve reproducibility and transparency in data processing. It provides functionality such as automatic meta data creation and management, rudimentary quality management, data caching, work-flow management and data aggregation.
     * The title is a wish not a promise. By no means we expect this package to deliver everything what is needed to achieve full reproducibility and transparency, but we believe that it supports efforts in this direction.
 Depends:
