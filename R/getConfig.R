@@ -24,7 +24,7 @@ getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE, print=FALSE) {
   cfg <- getOption("madrat_cfg")
   cfg$mainfolder <- sub("/$", "", cfg$mainfolder)
   
-  n <- c("sourcefolder"="sources", "cachefolder"="cache/default", "mappingfolder"="mappings", "outputfolder"="output/default")
+  n <- c("sourcefolder"="sources", "cachefolder"="cache/default", "mappingfolder"="mappings", "outputfolder"="output")
   for(p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder")){
     if(is.na(cfg[[p]]) & !raw) cfg[[p]] <- paste0(cfg$mainfolder,"/",n[p])
   }
