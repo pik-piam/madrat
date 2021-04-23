@@ -52,7 +52,9 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   if(!all(is.character(type)) || length(type)!=1) stop("Invalid type (must be a single character string)!")
   if(!is.null(subtype) && (!all(is.character(subtype)) || length(subtype)!=1)) stop("Invalid subtype (must be a single character string)!")
   
-  functionname <- prepFunctionName(type=type, prefix="download")
+  functionname <- prepFunctionName(type = type,
+                                   prefix = "download",
+                                   ignore = ifelse(is.null(subtype), "subtype", NA))
 
   if(!grepl("subtype=subtype",functionname,fixed=TRUE)) subtype <- NULL
   
@@ -77,7 +79,10 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   
   # define mandatory elements of meta data and check if they exist
   mandatory <- c("url","author","title","license","description","unit")
-  if(!all(mandatory %in% names(meta))) {vcat(0, "Missing entries in the meta data of function '",functionname[1],"': ",mandatory[!mandatory %in% names(meta)])}
+  if(!all(mandatory %in% names(meta))) {
+    vcat(0, "Missing entries in the meta data of function '", functionname[1], "': ",
+         toString(mandatory[!mandatory %in% names(meta)]))
+  }
   
   # define reserved elements of meta data and check if they already exist
   reserved <- c("call","accessibility")

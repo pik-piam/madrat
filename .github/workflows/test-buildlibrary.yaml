@@ -13,8 +13,6 @@ name: check
 jobs:
   check:
     runs-on: ubuntu-20.04
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
 
@@ -52,11 +50,15 @@ jobs:
             BiocManager::install(missing$package)
           }
           remotes::install_deps(dependencies = TRUE, repos=repos)
-          remotes::install_cran(c("covr","lucode2"), repos=repos)
+          remotes::install_cran(c("devtools","covr","lucode2"), repos=repos)
+        shell: Rscript {0}
+        
+      - name: Run tests
+        run: devtools::test(stop_on_failure = TRUE)
         shell: Rscript {0}
 
       - name: Test coverage
-        run: covr::codecov()
+        run: covr::codecov(quiet = FALSE)
         shell: Rscript {0}
         
       - name: Validation key 

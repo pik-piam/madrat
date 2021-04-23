@@ -23,8 +23,9 @@
 #' @param x magclass object that should be (dis-)aggregated
 #' @param rel relation matrix, mapping or file containing a mapping in a format
 #' supported by \code{\link{toolGetMapping}} (currently csv, rds or rda).
-#' A mapping object should contain 2 columns in which each element of x
-#' is mapped to the category it should belong to after (dis-)aggregation
+#' A mapping object consists of any number of columns, where one column contains
+#' all the elements in x. These elements are mapped to the corresponding values
+#' in another column, as described below (see parameter 'from').
 #' @param weight magclass object containing weights which should be considered
 #' for a weighted aggregation. The provided weight should only contain positive
 #' values, but does not need to be normalized (any positive number>=0 is allowed). 
@@ -116,7 +117,19 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
         } else {
           from <- as.integer(which(sapply(rel,setequal,items)))
         }
-        if (length(from) == 0) stop("Could not find matching 'from' column in mapping!")
+        if (length(from) == 0) {
+          maxMatchColumn <- which.max(sapply(lapply(rel,intersect,items),length))
+          unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
+          missingItems <- setdiff(rel[[maxMatchColumn]], items)
+
+          if (length(unmappedItems) > 0) {
+            warning(paste("The following items were not found in the mapping:", toString(unmappedItems)))
+          }
+          if (length(missingItems) > 0) {
+            warning(paste("The mapping expected the following items, but they are missing:", toString(missingItems)))
+          }
+          stop("Complete mapping failed. If you want a partial mapping, call toolAggregate(..., partrel = TRUE).")
+        }
         if (length(from) > 1) from <- from[1]
       }
       if (is.null(to)) {

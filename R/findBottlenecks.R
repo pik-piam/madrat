@@ -18,7 +18,8 @@ findBottlenecks <- function(file, unit="min", cumulative=TRUE) {
     f <- readLines(file)
   }
   f <- grep("in [0-9.]* seconds",f,value=TRUE)
-  x <- data.frame(level=nchar(gsub("^(>*).*$","\\1",f)))
+
+  x <- data.frame(level = nchar(gsub(paste0("^(", getConfig("indentationCharacter"), "*).*$"), "\\1", f)))
   x$class <- NA
   x$class[grepl("readSource",f)] <- "read"
   x$class[grepl("downloadSource",f)] <- "download"

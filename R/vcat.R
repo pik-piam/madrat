@@ -75,8 +75,7 @@ vcat <- function(verbosity,...,level=NULL, fill=TRUE, show_prefix=TRUE) {
   
   if (!is.null(level)) {
     if (level == "+") {
-      # add empty space
-      options(gdt_nestinglevel = paste0(">", getOption("gdt_nestinglevel")))
+      options(gdt_nestinglevel = paste0(getConfig("indentationCharacter"), getOption("gdt_nestinglevel")))
     }
   }
   
