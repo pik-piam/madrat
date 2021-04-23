@@ -120,7 +120,15 @@ toolAggregate <- function(x, rel, weight=NULL, from=NULL, to=NULL, dim=1, wdim=N
         if (length(from) == 0) {
           maxMatchColumn <- which.max(sapply(lapply(rel,intersect,items),length))
           unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
-          stop(paste("The following items were not found in the mapping:", toString(unmappedItems)))
+          missingItems <- setdiff(rel[[maxMatchColumn]], items)
+
+          if (length(unmappedItems) > 0) {
+            warning(paste("The following items were not found in the mapping file:", toString(unmappedItems)))
+          }
+          if (length(missingItems) > 0) {
+            warning(paste("The mapping expected the following items, but they are missing:", toString(missingItems)))
+          }
+          stop("Complete mapping failed. If you want a partial mapping, call toolAggregate(..., partrel = TRUE).")
         }
         if (length(from) > 1) from <- from[1]
       }

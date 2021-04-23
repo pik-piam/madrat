@@ -148,7 +148,7 @@ test_that("toolAggregate does not get confused by identical sets", {
 })
 
 test_that("toolAggregate detects inconsistencies in inputs", {
-  expect_error(toolAggregate(pm[1:3,,],map2),"The following items were not found in the mapping: ")
+  expect_error(toolAggregate(pm[1:3,,], map2), "Complete mapping failed.")
   expect_error(toolAggregate(pm[1:3,,],map2, from="from", to="to"),"different number of entries")
 })
 
