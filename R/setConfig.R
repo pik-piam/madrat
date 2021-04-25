@@ -3,8 +3,8 @@
 #' This function manipulates the current madrat configuration. 
 #' In general, NULL means that the argument remains as it is whereas
 #' all other inputs will overwrite the current setting.
-#' For values which can be reset to NULL (currenly only "extramappings") 
-#' you can achieve an reset by setting the value to "".
+#' For values which can be reset to NULL (currently only "extramappings")
+#' you can achieve a reset by setting the value to "".
 #' 
 #' 
 #' @param regionmapping The name of the csv file containing the region mapping
@@ -63,13 +63,14 @@
 #' @param diagnostics file name for additional diagnostics information (without file ending).
 #' 2 log files be written if a file name is provided (a compact version with the most
 #' relevant information and a full version with all available details).
-#' @param nocores  integer number of cores to use
+#' @param nocores integer number of cores to use
 #' @param debug Boolean which activates a debug mode. In debug mode all calculations will
 #' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
 #' This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
 #' debug=TRUE will add the suffix "debug" to the files created to avoid there use in productive runs.
 #' Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file 
 #' already exists.
+#' @param indentationCharacter character used for indenting the output of nested function calls
 #' @param .cfgchecks boolean deciding whether the given inputs to setConfig should be checked for
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)
@@ -104,6 +105,7 @@ setConfig <- function(regionmapping=NULL,
                       diagnostics=NULL,
                       nocores=NULL,
                       debug=NULL,
+                      indentationCharacter=NULL,
                       .cfgchecks=TRUE,
                       .verbose=TRUE){
   cfg <- getConfig(raw=TRUE, verbose=.verbose)
