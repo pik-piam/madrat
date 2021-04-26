@@ -40,6 +40,7 @@ test_that("Argument hashing works", {
   expect_null(madrat:::cacheArgumentsHash(madrat:::readTau))
   expect_null(madrat:::cacheArgumentsHash(madrat:::readTau, list(subtype="paper")))
   expect_identical(madrat:::cacheArgumentsHash(madrat:::readTau, args=list(subtype="historical")), "-50d72f51")
+  expect_identical(madrat:::cacheArgumentsHash(c(madrat:::readTau, madrat:::convertTau), args=list(subtype="historical")), "-50d72f51")
   # nonexisting arguments will be ignored if ... is missing
   expect_identical(madrat:::cacheArgumentsHash(madrat:::readTau, args=list(subtype="historical", notthere = 42)), "-50d72f51")
   # if ... exists all arguments will get considered
@@ -62,7 +63,20 @@ test_that("Cache naming and identification works correctly", {
     else if (subtype == "bla") return(as.magpie(2))
   }
   globalassign("downloadCacheExample", "readCacheExample", "correctCacheExample")
-  expect_message(readSource("CacheExample", convert = "onlycorrect"), "correctCacheExample-F.*.rds")
-  expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"), "correctCacheExample-F.*-d0d19d80.rds")
-  expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"), "correctCacheExample-F.*.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect"), "correctCacheExample-F[^-]*.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"), "correctCacheExample-F[^-]*-d0d19d80.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"), "correctCacheExample-F[^-]*.rds")
+  
+  readCacheExample <- function(subtype = "blub") {
+    if (subtype == "blub") return(as.magpie(1))
+    else if (subtype == "bla") return(as.magpie(2))
+  }
+  correctCacheExample <- function(x) return(x)
+
+  globalassign("downloadCacheExample", "readCacheExample", "correctCacheExample")
+  expect_message(readSource("CacheExample", convert = "onlycorrect"), "correctCacheExample-F[^-]*.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"), "correctCacheExample-F[^-]*-d0d19d80.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"), "correctCacheExample-F[^-]*.rds")
+  
+  
 })
