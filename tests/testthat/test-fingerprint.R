@@ -17,7 +17,7 @@ test_that("fingerprinting works as expected", {
   expect_equivalent(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = TRUE), "8b3413cc")
   emptyfolder <- paste0(tempdir(),"/empty")
   dir.create(emptyfolder, recursive = TRUE, showWarnings = FALSE)
-  expect_equal(unname(madrat:::fingerprintFiles(emptyfolder, use.mtime = TRUE)), "ca265a9c")
+  expect_equal(unname(madrat:::fingerprintFiles(emptyfolder)), "9ffb1463")
   unlink(emptyfolder)
 })
 
@@ -27,8 +27,8 @@ test_that("fingerprintFiles works as expected", {
   setwd(tempdir())
   on.exit(setwd(cwd))
   writeLines("this is a test","test.txt")
-  fp <- madrat:::fingerprintFiles("test.txt", use.mtime = FALSE)
-  expect_identical(fp, c(test.txt="7e76cec7"))
+  fp <- madrat:::fingerprintFiles("test.txt")
+  expect_identical(fp, c(test.txt="515abfd5"))
 })
 
 test_that("fingerprinting works for edge cases", {
@@ -43,7 +43,7 @@ test_that("fingerprinting works for edge cases", {
   }
   globalassign("readFingerprintTest")
   expect_silent({fp <- madrat:::fingerprint("readFingerprintTest", packages = getConfig("packages"), details = TRUE)})
-  expect_identical(attr(fp,"details")[-1], c(readFingerprintTest="b5efba0b","map.csv"="7e76cec7"))
+  expect_identical(attr(fp,"details")[-1], c(readFingerprintTest="b5efba0b","map.csv"="0350ec95"))
   expect_null(madrat:::fingerprintCall("blub"))
 })
 

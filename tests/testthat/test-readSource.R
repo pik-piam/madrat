@@ -77,5 +77,3 @@ test_that("downloadSource works", {
   globalassign("downloadTest")
   expect_warning(downloadSource("Test", overwrite = TRUE), "reserved and will be overwritten")
 })
-
-
