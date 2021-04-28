@@ -2,21 +2,33 @@
 #' 
 #' Calculate hash from given function arguments for given call
 #' 
-#' @param call function call
-#' @param args a list of named arguments used to call the given function
+#' @param call function call or vector of functions calls
+#' @param args a list of named arguments used to call the given function(s). If duplicates
+#' of arguments exists the first occurrence of the argument will be used.
 #' @return hash representing the given arguments hash for the given call. 
 #' NULL, if no argument deviates from the default argument settings
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
-#' madrat:::cacheName("calc","TauTotal")
+#' madrat:::cacheArgumentsHash("madrat:::readTau", args=list(subtype="historical"))
+#' madrat:::cacheArgumentsHash("madrat:::readTau", args=list(subtype="paper"))
+#' calls <- c(madrat:::readTau, madrat:::convertTau)
+#' madrat:::cacheArgumentsHash(calls, args=list(subtype="historical"))
 #' @importFrom digest digest
 
 cacheArgumentsHash <- function(call, args=NULL) {
   if (length(args) == 0) return(NULL)
   
-  if (is.character(call)) call <- eval(parse(text = call))
-  defargs <- formals(call)
+  .tmp <- function(call) {
+    if (is.character(call)) call <- eval(parse(text = call))
+    return(formals(call))
+  }
+  if (length(call) > 1) {
+    defargs <- unlist(lapply(call, .tmp))
+    defargs <- defargs[!duplicated(names(defargs))]
+  } else {
+    defargs <- .tmp(call)
+  }
   
   commonargs <- intersect(names(defargs), names(args))
   if (!("..." %in% names(defargs))) args <- args[commonargs]
