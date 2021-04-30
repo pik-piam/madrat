@@ -1,68 +1,69 @@
 #' Tool: fingerprint
 #' 
 #' Function which creates a unique fingerprint for a madrat function based on
-#' the code of the function itself, of all other madrat functions which feed
+#' the code of the function itself, other madrat functions which are called by
 #' this function and of all source folders involved in the process.
 #' The fingerprint can serve as an indication whether the workflow for the given
 #' function has been most likely changed, or not. If all involved source folders
 #' and the code of all involved functions remains the same, also the fingerprint
-#' will stay the same, otherwise it will change. Hence, it can be used as an
-#' indication whether calculations needs to be redone or not.
-#' It is used to figure out whether a cache file can be used for further
-#' calculations, or whether the calculation should be redone.
+#' will stay the same, otherwise it will change. Hence, it can be to figure out
+#' whether a cache file can be used for further calculations, or whether the
+#' calculation should be redone.
 #' 
-#' @note For a better performance not the files in a folder itself are hashed
-#' but the last modified dates of these files.
+#' @note For a better performance only the first 300 bytes of each file and the
+#' corresponding file size is hashed.
 #' As the fingerprint function only takes madrat-based functions into account
 #' (e.g. read-functions or calc-functions), but does ignore all other functions
-#' there might be instances in which the workflow actually would lead to 
-#' other numbers but the fingerprint stays the same. In a similar fashion it is
-#' possible that the fingerprint changes even so the workflow stayed the same 
+#' there might be cases where calculations actually changed, but the fingerprint
+#' is still the same. In a similar fashion it is possible that the fingerprint
+#' changes even though the workflow stayed the same
 #' (as the dependencies are sometimes overestimated).
 #' 
 #' @param name Name of the function to be analyzed
 #' @param details Boolean indicating whether additional details in form
 #' of an attribute with underlying hash information should be added or not
-#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}. 
+#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}.
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
 #' @return A md5-based fingerprint of all provided sources
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' madrat:::fingerprint("toolGetMapping", package="madrat")
 #' @importFrom digest digest
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
-  d <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
+  dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
 
-  fpfu <- d$hash[order(d$call)]
-  names(fpfu) <- d$call[order(d$call)]
-  
+  fingerprintFunctions <- dependencies$hash[order(dependencies$call)]
+  names(fingerprintFunctions) <- dependencies$call[order(dependencies$call)]
+
   # handle special requests via flags
-  .tmp <- function(x) return(sort(sub(":+",":::",x)))
-  ignore  <- .tmp(attr(d,"flags")$ignore)
-  monitor <- .tmp(attr(d,"flags")$monitor)
+  .tmp <- function(x) return(sort(sub(":+", ":::", x)))
+  ignore  <- .tmp(attr(dependencies, "flags")$ignore)
+  monitor <- .tmp(attr(dependencies, "flags")$monitor)
   # if conflicting information is giving (monitor and ignore at the same time,
   # prioritize monitor request)
-  ignore <- setdiff(ignore,monitor)
+  ignore <- setdiff(ignore, monitor)
   # add calls from the monitor list which are not already monitored
-  fpmo <- fingerprintCall(setdiff(monitor,names(fpfu)))
+  fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
   # ignore functions mentioned in the ignore list
-  fpfu <- fpfu[setdiff(names(fpfu),ignore)]
-  sources <- substring(d$func[d$type == "read"], 5) 
-  if (length(sources) > 0) sources <- paste0(getConfig("sourcefolder"),"/",sort(sources))
-  fpfo <- fingerprintFiles(sources, use.mtime = TRUE)
-  fpsf <- fingerprintFiles(attr(d, "mappings"), use.mtime = FALSE)
-  fp <- c(fpfu, fpfo, fpsf, fpmo)
-  out <- digest(unname(fp), algo = getConfig("hash"))
-  attr(out,"call") <- d$call[d$func == name]
+  fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
+  sources <- substring(dependencies$func[dependencies$type == "read"], 5)
+  if (length(sources) > 0) {
+    sources <- paste0(getConfig("sourcefolder"), "/", sort(sources))
+  }
+  fingerprintSources <- fingerprintFiles(sources)
+  fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
+  fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
+  out <- digest(unname(fingerprint), algo = getConfig("hash"))
+  attr(out, "call") <- dependencies$call[dependencies$func == name]
   if (details) {
-    attr(out,"details") <- fp
-    vcat(3,"hash components (",out,"):", show_prefix = FALSE)
-    for (n in names(fp)) {
-      vcat(3,"  ",fp[n]," | ",n, show_prefix = FALSE)
+    attr(out, "details") <- fingerprint
+    vcat(3, "hash components (", out, "):", show_prefix = FALSE)
+    for (n in names(fingerprint)) {
+      vcat(3, "  ", fingerprint[n], " | ", n, show_prefix = FALSE)
     }
   }
   return(out)
@@ -77,16 +78,23 @@ fingerprintCall <- function(name) {
   return(unlist(sapply(name, .tmp)))
 }
 
-fingerprintFiles <- function(paths, use.mtime) {
+fingerprintFiles <- function(paths) {
   if (length(paths) == 0) return(NULL)
   paths <- paths[file.exists(paths)]
   if (length(paths) == 0) return(NULL)
-  .tmp <- function(f, use.mtime) {
-    if (dir.exists(f)) f <- sort(list.files(f,recursive = TRUE, full.names = TRUE))
-    if (use.mtime) f <- file.mtime(f)
-    return(digest(f, algo = getConfig("hash"), file = !use.mtime))
+  hashMethod <- getConfig("hash")
+  .tmp <- function(path) {
+    if (dir.exists(path)) {
+      filenames <- sort(list.files(path, recursive = TRUE, full.names = TRUE))
+    } else {
+      filenames <- path
+    }
+    # use the first 300 byte of each file and the file sizes for hashing
+    fileFingerprints <- sapply(filenames, digest, algo = hashMethod, file = TRUE, length = 300)
+    fileSizes <- file.size(filenames)
+    return(digest(c(fileFingerprints, fileSizes), algo = hashMethod))
   }
-  out <- sapply(paths, .tmp, use.mtime = use.mtime)
+  out <- sapply(paths, .tmp)
   names(out) <- basename(names(out))
   return(out)
 }

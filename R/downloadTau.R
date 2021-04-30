@@ -12,7 +12,7 @@ downloadTau <- function(subtype="paper") {
                                              doi = "10.5281/zenodo.4282548"))
   meta <- toolSubtypeSelect(subtype,settings)
   
-  download.file(meta$url, destfile = "tau.zip")
+  download.file(meta$url, destfile = "tau.zip", quiet = testthat::is_testing())
   unzip("tau.zip")
   unlink("tau.zip")
   
