@@ -97,9 +97,20 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     "rev", rev, dev, "_", regionscode, "_", argsHash, tolower(model),
     ifelse(getConfig("debug") == TRUE, "_debug", "")
   )
-  sourcefolder <- paste0(getConfig("outputfolder"), "/", collectionname)
-  if (!file.exists(paste0(sourcefolder, ".tgz")) || getConfig("debug") == TRUE) {
+
+  .characterInCollectionname <- function(regexCharacter) {
+    return(grepl(regexCharacter, collectionname, fixed = TRUE))
+  }
+  if (any(unlist(lapply(strsplit("[](){}*+?|^$.\\", "")[[1]], .characterInCollectionname)))) {
+    warning(paste0("At least one of the regex characters [](){}*+?|^$.\\ appeared in collectionname",
+                   " - this might lead to unexpected caching behavior"))
+  }
+
+  if (length(dir(path = getConfig("outputfolder"),
+                 pattern = paste0(collectionname, ".*\\.tgz"))) == 0
+      || getConfig("debug") == TRUE) {
     # data not yet ready and has to be prepared first
+    sourcefolder <- paste0(getConfig("outputfolder"), "/", collectionname)
 
     # create folder if required
     if (!file.exists(sourcefolder)) {
@@ -144,12 +155,16 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
         args[[n]] <- inargs[[n]]
       }
     }
-    do.call(functiononly, args)
+    returnedValue <- do.call(functiononly, args)
+    collectionname <- paste0(collectionname,
+                             ifelse(is.list(returnedValue) && exists("tag", returnedValue),
+                                    paste0("_", returnedValue$tag),
+                                    ""))
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
     cwd <- getwd()
     setwd(sourcefolder)
-    system(paste0("tar -czf ../", collectionname, ".tgz", " *"), intern = TRUE)
+    system(paste0("tar --create --gzip --file ../", collectionname, ".tgz", " ./*"))
     setwd(cwd)
     unlink(sourcefolder, recursive = TRUE)
   } else {
