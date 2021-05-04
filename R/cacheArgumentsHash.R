@@ -34,15 +34,10 @@ cacheArgumentsHash <- function(call, args=NULL) {
   if (!("..." %in% names(defargs))) args <- args[commonargs]
   
   for (i in commonargs) {
-    if (is.null(defargs[[i]]) || is.null(args[[i]])) {
-      if (is.null(defargs[[i]]) && is.null(args[[i]])) args <- args[names(args) != i]
-      next
-    } 
-    if (defargs[[i]] == args[[i]]) args <- args[names(args) != i]
+    if (identical(defargs[[i]], args[[i]])) args <- args[names(args) != i]
   }
   if (length(args) == 0) return(NULL)
-  if (!is.null(args)) args <- paste0("-",digest(args[order(names(args))], algo = getConfig("hash")))
+  if (!is.null(args)) args <- paste0("-",digest(args[order(names(args), method = "radix")], algo = getConfig("hash")))
   return(args)
 }
-
 
