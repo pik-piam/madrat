@@ -1,6 +1,6 @@
 #' Tool: MappingFile
 #' 
-#' Functions which calculates the path to a mapping file
+#' Function which calculates the path to a mapping file
 #' 
 #' 
 #' @param type Mapping type ("regional", or "sectoral")
