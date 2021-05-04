@@ -28,6 +28,6 @@ fullEXAMPLE <- function(rev = 0, dev = "") {
   if (dev == "test") {
     message("Here you could execute code for a hypothetical development version called \"test\"")
   }
-  # return is not required, but can be used to append a tag to the resulting file
+  # return is not required, but can be used to append a tag to the resulting filename
   return(list(tag = "customizable_tag"))
 }
