@@ -57,7 +57,7 @@
 #' use compression. TRUE corresponds to gzip compression, and character strings "gzip", 
 #' "bzip2" or "xz" specify the type of compression.
 #' @param hash specifies the used hashing algorithm. Default is "xxhash32" and
-#' all algorithms supported by \code{link[digest]{digest}} can be used.
+#' all algorithms supported by \code{\link[digest]{digest}} can be used.
 #' @param delete_cache Boolean deciding whether a temporary cache folder (as
 #' created by retrieveInput) should be deleted after completion or not.
 #' @param diagnostics file name for additional diagnostics information (without file ending).
