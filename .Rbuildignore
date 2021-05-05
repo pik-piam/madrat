@@ -6,3 +6,4 @@ cran-comments.md
 ^\.buildlibrary$
 ^\.github$
 ^codecov\.yml$
+^\.git$
