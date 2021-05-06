@@ -45,3 +45,11 @@ test_that("retrieveData works if no tag is returned", {
   expect_message(retrieveData("Testtwo", globalenv = TRUE), "Run retrieveData")
   expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_h12_testtwo.tgz")))
 })
+
+test_that("retrieveData warns on regex characters in model name", {
+  fullMODEL.REGEX <- function() {
+  }
+  globalassign("fullMODEL.REGEX")
+
+  expect_warning(retrieveData("MODEL.REGEX", globalenv = TRUE), "At least one of the regex characters")
+})
