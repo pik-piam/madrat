@@ -1,8 +1,8 @@
 #' Tool: Start message
-#' 
+#'
 #' Function writes a process start message and performs some diagnostics
-#' 
-#' 
+#'
+#'
 #' @param level This argument allows to establish a hierarchy of print
 #' statements. The hierarchy is preserved for the next vcat executions.
 #' Currently this setting can have 4 states: NULL (nothing will be changed), 0
@@ -13,24 +13,34 @@
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
 #' @importFrom utils read.table
 #' @examples
-#' 
+#'
 #' innerFunction <- function() {
 #'   startinfo <- madrat:::toolstartmessage("+")
 #'   vcat(1, "inner")
-#'   madrat:::toolendmessage(startinfo,"-")
+#'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction <- function() {
 #'   startinfo <- madrat:::toolstartmessage("+")
 #'   vcat(1, "outer")
 #'   innerFunction()
-#'   madrat:::toolendmessage(startinfo,"-")
+#'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction()
-#' 
+toolstartmessage <- function(level = NULL) {
+  functionAndArgs <- as.list(sys.call(-1))
+  evaluatedArguments <- lapply(functionAndArgs[-1], eval)
 
-toolstartmessage <- function(level=NULL) {
-  functioncall <- paste(deparse(sys.call(-1)), collapse = "")
-  vcat(1, "Run ",functioncall, level = level, fill = 300, show_prefix = FALSE)
-  startdata <- list(time1 = proc.time())
-  return(startdata)
+  argsString <- paste0(list(evaluatedArguments))  # wrap everything in list for nicer string output
+  argsString <- substr(argsString, 6, nchar(argsString) - 1)  # remove superfluous list from string
+
+  if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {
+    functionCallString <- paste0(functionAndArgs[1], "(", argsString, ")", collapse = "")
+    hint <- ""
+  } else {
+    functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
+    hint <- paste0(" -- to print evaluated arguments: setConfig(\"maxLengthLogMessage\", ", nchar(argsString), ") ")
+  }
+
+  vcat(1, "Run ", functionCallString, hint, level = level, fill = 300, show_prefix = FALSE)
+  return(list(time1 = proc.time(), functionCallString = functionCallString))
 }
