@@ -71,6 +71,8 @@
 #' Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file 
 #' already exists.
 #' @param indentationCharacter character used for indenting the output of nested function calls
+#' @param maxLengthLogMessage in log messages evaluated arguments are printed if the resulting message
+#' is shorter than this value, otherwise arguments are shown as passed, potentially  with unevaluated variable names
 #' @param .cfgchecks boolean deciding whether the given inputs to setConfig should be checked for
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)
@@ -106,6 +108,7 @@ setConfig <- function(regionmapping=NULL,
                       nocores=NULL,
                       debug=NULL,
                       indentationCharacter=NULL,
+                      maxLengthLogMessage=NULL,
                       .cfgchecks=TRUE,
                       .verbose=TRUE){
   cfg <- getConfig(raw=TRUE, verbose=.verbose)

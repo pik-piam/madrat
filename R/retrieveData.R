@@ -28,6 +28,8 @@
 #' @importFrom methods formalArgs
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
+  argumentValues <- as.list(environment())  # capture arguments for logging
+
   if (!(cachetype %in% c("rev", "def"))) {
     stop("Unknown cachetype \"", cachetype, "\"!")
   }
@@ -141,7 +143,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     getConfig(print = TRUE)
 
     # run full* functions
-    startinfo <- toolstartmessage(0)
+    startinfo <- toolstartmessage(0, argumentValues = argumentValues)
 
     vcat(2, " - execute function ", functionname, fill = 300, show_prefix = FALSE)
 
@@ -168,7 +170,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     setwd(cwd)
     unlink(sourcefolder, recursive = TRUE)
   } else {
-    startinfo <- toolstartmessage(0)
+    startinfo <- toolstartmessage(0, argumentValues = argumentValues)
     vcat(-2, " - data is already available and not calculated again.", fill = 300)
   }
   toolendmessage(startinfo)

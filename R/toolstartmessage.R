@@ -8,6 +8,7 @@
 #' Currently this setting can have 4 states: NULL (nothing will be changed), 0
 #' (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
 #' hierarchy level by 1).
+#' @param argumentValues list of the evaluated arguments of the calling function
 #' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
@@ -26,9 +27,9 @@
 #'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction()
-toolstartmessage <- function(level = NULL) {
+toolstartmessage <- function(level = NULL, argumentValues = parent.frame()) {
   functionAndArgs <- as.list(sys.call(-1))
-  evaluatedArguments <- lapply(functionAndArgs[-1], eval)
+  evaluatedArguments <- lapply(functionAndArgs[-1], eval, envir = argumentValues)
 
   argsString <- paste0(list(evaluatedArguments))  # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1)  # remove superfluous list from string
