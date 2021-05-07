@@ -1,10 +1,10 @@
 ---
-title: "Data caching in MADRaT"
+title: "Data caching in madrat"
 author: "Jan Philipp Dietrich"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Data caching in MADRaT}
+  %\VignetteIndexEntry{Data caching in madrat}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-A central feature of the MADRaT framework is its ability to load data from cache rather than recompute it when the calculation have run already before. Here, we explain what user should know about the caching to avoid unwanted behavior.
+A central feature of the madrat framework is its ability to load data from cache rather than recompute it when the calculation have run already before. Here, we explain what user should know about the caching to avoid unwanted behavior.
 
 ## Basics
 
@@ -29,9 +29,9 @@ With `cachetype = "rev"` `retrieveData` will create a new, revision-specific cac
 
 ## Fingerprint
 
-In order to estimate whether a calculation should be rerun or whether the data can be read from cache MADRaT creates fingerprints for each function. If the fingerprint of the current function call agrees with the fingerprint of the corresponding cache file the cache is assumed up-to-date and read in. If they disagree, the cache file is assumed to be potentially outdated and ignored (except for `forcecache = TRUE` in which case it would be read in anyways).
+In order to estimate whether a calculation should be rerun or whether the data can be read from cache madrat creates fingerprints for each function. If the fingerprint of the current function call agrees with the fingerprint of the corresponding cache file the cache is assumed up-to-date and read in. If they disagree, the cache file is assumed to be potentially outdated and ignored (except for `forcecache = TRUE` in which case it would be read in anyways).
 
-The fingerpint is created by looking at the dependency graph of a function which can be retrieved via `getDependencies`:
+The fingerprint is created by looking at the dependency graph of a function which can be retrieved via `getDependencies`:
 
 ```{r, echo = TRUE, eval=TRUE}
 getDependencies("calcTauTotal")
@@ -53,7 +53,7 @@ On the other hand, the dependency graph might also include dependencies which on
 
 ## Customize fingerprinting
 
-To make sure that the fingerprint is appropriatly reflecting the current status of a calculation there are a few possibilities to steer its behavior:
+To make sure that the fingerprint is appropriately reflecting the current status of a calculation there are a few possibilities to steer its behavior:
 
 1. Use madrat-style functions for all calculation that should get monitored by the fingerprinting algorithm (e.g. if part of the calculation is outsourced, call this new function `tool..` to have it monitored.)
 
@@ -96,7 +96,7 @@ In this example are two source data sets and two calculation functions. `calcExa
   fp2 <- madrat:::fingerprint("calcExample2", details = TRUE)
 ```
 
-Looking at the fingerprints this is reflected in the hash components of each fingerprint (please NOTE that the source folders are not hashed in this example as they do not exist yet. If they exist they would show up here as well as hash components). One can see, that the hash for `readData` is the same in bothe fingerprints but as the other hashs differ also the resulting fingerprint for bothe calculations is different.
+Looking at the fingerprints this is reflected in the hash components of each fingerprint (please NOTE that the source folders are not hashed in this example as they do not exist yet. If they exist they would show up here as well as hash components). One can see, that the hash for `readData` is the same in both fingerprints but as the other hashes differ also the resulting fingerprint for both calculations is different.
 
 ```{r, echo = TRUE, eval=TRUE}
   readData <- function() return(99)
