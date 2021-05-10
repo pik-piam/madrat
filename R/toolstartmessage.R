@@ -39,7 +39,7 @@ toolstartmessage <- function(level = NULL, argumentValues = parent.frame()) {
     hint <- ""
   } else {
     functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
-    hint <- paste0(" -- to print evaluated arguments: setConfig(\"maxLengthLogMessage\", ", nchar(argsString), ") ")
+    hint <- paste0(" -- to print evaluated arguments: setConfig(maxLengthLogMessage = ", nchar(argsString), ")")
   }
 
   vcat(1, "Run ", functionCallString, hint, level = level, fill = 300, show_prefix = FALSE)
