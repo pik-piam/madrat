@@ -26,7 +26,6 @@
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #' @importFrom methods formalArgs
-#' @importFrom utils hasName
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   if (!(cachetype %in% c("rev", "def"))) {
@@ -157,7 +156,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
       }
     }
     returnedValue <- do.call(functiononly, args)
-    collectionname <- paste0(collectionname, ifelse(hasName(returnedValue, "tag"), paste0("_", returnedValue$tag), ""))
+    collectionname <- paste0(collectionname, ifelse("tag" %in% names(returnedValue), paste0("_", returnedValue$tag), ""))
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
     cwd <- getwd()
