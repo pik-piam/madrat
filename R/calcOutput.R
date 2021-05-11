@@ -83,7 +83,7 @@
 #' @export
 
 calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
-  argumentValues <- as.list(environment())  # capture arguments for logging
+  argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
  
   # read region mappings check settings for aggregate
   if (aggregate!=FALSE) {

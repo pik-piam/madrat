@@ -28,7 +28,7 @@
 #' @importFrom methods formalArgs
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
-  argumentValues <- as.list(environment())  # capture arguments for logging
+  argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   if (!(cachetype %in% c("rev", "def"))) {
     stop("Unknown cachetype \"", cachetype, "\"!")
@@ -36,7 +36,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
   # extract setConfig settings and apply via setConfig
   inargs <- list(...)
-  argumentValues <- c(argumentValues, inargs)
 
   tmp <- intersect(names(inargs), formalArgs(setConfig))
   if (length(tmp) > 0) {
