@@ -36,6 +36,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
   # extract setConfig settings and apply via setConfig
   inargs <- list(...)
+  argumentValues <- c(argumentValues, inargs)
+
   tmp <- intersect(names(inargs), formalArgs(setConfig))
   if (length(tmp) > 0) {
     do.call(setConfig, inargs[tmp])
@@ -143,7 +145,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     getConfig(print = TRUE)
 
     # run full* functions
-    startinfo <- toolstartmessage(0, argumentValues = argumentValues)
+    startinfo <- toolstartmessage(argumentValues, 0)
 
     vcat(2, " - execute function ", functionname, fill = 300, show_prefix = FALSE)
 
@@ -167,7 +169,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     setwd(cwd)
     unlink(sourcefolder, recursive = TRUE)
   } else {
-    startinfo <- toolstartmessage(0, argumentValues = argumentValues)
+    startinfo <- toolstartmessage(argumentValues, 0)
     vcat(-2, " - data is already available and not calculated again.", fill = 300)
   }
   toolendmessage(startinfo)

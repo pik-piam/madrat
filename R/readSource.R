@@ -33,7 +33,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   cwd <- getwd()
   setwd(getConfig("mainfolder"))
   options(reducedHistory=TRUE)
-  startinfo <- toolstartmessage("+", argumentValues = argumentValues)
+  startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo,"-"))
   
   # check type input

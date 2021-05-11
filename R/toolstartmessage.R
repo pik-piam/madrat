@@ -16,22 +16,22 @@
 #' @examples
 #'
 #' innerFunction <- function() {
-#'   startinfo <- madrat:::toolstartmessage("+")
+#'   startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
 #'   vcat(1, "inner")
 #'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction <- function() {
-#'   startinfo <- madrat:::toolstartmessage("+")
+#'   startinfo <- madrat:::toolstartmessage(list(), "+")
 #'   vcat(1, "outer")
 #'   innerFunction()
 #'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction()
-toolstartmessage <- function(level = NULL, argumentValues = parent.frame()) {
-  functionAndArgs <- as.list(sys.call(-1))
-  evaluatedArguments <- lapply(functionAndArgs[-1], eval, envir = argumentValues)
 
-  argsString <- paste0(list(evaluatedArguments))  # wrap everything in list for nicer string output
+toolstartmessage <- function(argumentValues, level = NULL) {
+  functionAndArgs <- as.list(sys.call(-1))
+
+  argsString <- paste0(list(argumentValues))  # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1)  # remove superfluous list from string
 
   if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {

@@ -198,7 +198,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   cwd <- getwd()
   on.exit(setwd(cwd))
   if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
-  startinfo <- toolstartmessage("+", argumentValues = argumentValues)
+  startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo,"-"), add = TRUE)
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))

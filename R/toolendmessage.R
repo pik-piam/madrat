@@ -12,15 +12,19 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolstartmessage}}, \code{\link{vcat}}
 #' @examples
-#' \dontrun{
-#' tmp <- function(bla = NULL) {
-#'   startinfo <- toolstartmessage("+")
-#'   print(bla)
-#'   toolendmessage(startinfo, "-")
+#' innerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
+#'   vcat(1, "inner")
+#'   madrat:::toolendmessage(startinfo, "-")
 #' }
-#' tmp(bla = 99)
+#' outerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage(list(), "+")
+#'   vcat(1, "outer")
+#'   innerFunction()
+#'   madrat:::toolendmessage(startinfo, "-")
 #' }
-#'
+#' outerFunction()
+
 toolendmessage <- function(startdata, level = NULL) {
   runtime <- round((proc.time() - startdata$time1)["elapsed"], 2)
   vcat(1, "Exit ", startdata$functionCallString, " in ", runtime, " seconds",
