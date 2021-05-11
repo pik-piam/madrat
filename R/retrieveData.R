@@ -101,17 +101,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     ifelse(getConfig("debug") == TRUE, "_debug", "")
   )
 
-  .characterInCollectionname <- function(regexCharacter) {
-    return(grepl(regexCharacter, collectionname, fixed = TRUE))
-  }
-  if (any(unlist(lapply(strsplit("[](){}*+?|^$.\\", "")[[1]], .characterInCollectionname)))) {
-    warning(paste0("At least one of the regex characters [](){}*+?|^$.\\ appeared in collectionname",
-                   " - this might lead to unexpected caching behavior"))
-  }
-
-  if (length(dir(path = getConfig("outputfolder"),
-                 pattern = paste0(collectionname, ".*\\.tgz"))) == 0
-      || getConfig("debug") == TRUE) {
+  matchingCacheFiles <- dir(path = getConfig("outputfolder"), pattern = ".*\\.tgz")
+  matchingCacheFiles <- matchingCacheFiles[startsWith(matchingCacheFiles, collectionname)]
+  if (length(matchingCacheFiles) == 0 || getConfig("debug") == TRUE) {
     # data not yet ready and has to be prepared first
     sourcefolder <- paste0(getConfig("outputfolder"), "/", collectionname)
 
