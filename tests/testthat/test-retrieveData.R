@@ -24,7 +24,7 @@ test_that("argument handling works", {
   setConfig(globalenv = FALSE, .verbose = FALSE)
   expect_error(retrieveData("Test"), "is not a valid output type")
   expect_warning(retrieveData("Test", globalenv = TRUE), "Overlapping arguments")
-  expect_message(suppressWarnings(retrieveData("Test", myargument = "hello")), "myargument = hello")
+  expect_message(suppressWarnings(retrieveData("Test", myargument = "hello")), "myargument = \"hello\"")
 })
 
 test_that("a tag can be appended to filename", {
@@ -44,14 +44,6 @@ test_that("retrieveData works if no tag is returned", {
 
   expect_message(retrieveData("Testtwo", globalenv = TRUE), "Run retrieveData")
   expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_h12_testtwo.tgz")))
-})
-
-test_that("retrieveData warns on regex characters in model name", {
-  fullMODEL.REGEX <- function() {
-  }
-  globalassign("fullMODEL.REGEX")
-
-  expect_warning(retrieveData("MODEL.REGEX", globalenv = TRUE), "At least one of the regex characters")
 })
 
 test_that("different kinds of arguments are logged correctly", {
