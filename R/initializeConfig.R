@@ -1,18 +1,18 @@
 #' initializeConfig
-#' 
+#'
 #' Checks whether configuration already has been set. If not, it will be initialized
 #' with default settings or (if available) system settings.
-#' 
+#'
 #' @param verbose boolean deciding whether status information/updates should be shown or not
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMainfolder}}, \code{\link{getConfig}}, \code{\link{setConfig}}
-#' 
+#'
 initializeConfig <- function(verbose=TRUE) {
   # check whether config has not been initialized yet
   # and initialize it (otherwise do nothing)
-  if(is.null(getOption("madrat_cfg"))) {
-    if(verbose) message("\nInitialize madrat config with default settings..")
-    
+  if (is.null(getOption("madrat_cfg"))) {
+    if (verbose) message("\nInitialize madrat config with default settings..")
+
     cfg <- list(regionmapping        = "regionmappingH12.csv",
                 extramappings        = NULL,
                 packages             = "madrat",
@@ -34,12 +34,12 @@ initializeConfig <- function(verbose=TRUE) {
                 diagnostics          = FALSE,
                 nocores              = 1,
                 debug                = FALSE,
-                indentationCharacter = "~")
+                indentationCharacter = "~",
+                maxLengthLogMessage = 200)
      options(madrat_cfg = cfg)
-     if(verbose) {
-      message(paste(paste0("    ",names(cfg)),cfg,sep=" = ",collapse="\n"))
+     if (verbose) {
+      message(paste(paste0("    ", names(cfg)), cfg, sep = " = ", collapse = "\n"))
       message("..done!\n")
      }
-  }   
+  }
 }
-

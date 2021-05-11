@@ -1,8 +1,8 @@
 #' Tool: End message
-#' 
+#'
 #' Function writes a process end message and performs some diagnostics
-#' 
-#' 
+#'
+#'
 #' @param startdata a list containing diagnostic information provided by \code{\link{toolstartmessage}}
 #' @param level This argument allows to establish a hierarchy of print
 #' statements. The hierarchy is preserved for the next vcat executions.
@@ -12,21 +12,21 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolstartmessage}}, \code{\link{vcat}}
 #' @examples
-#' 
-#' \dontrun{
-#' tmp <- function(bla=NULL) {
-#'   startinfo <- toolstartmessage("+")
-#'   print(bla)
-#'   toolendmessage(startinfo,"-")
-#'   }
-#' tmp(bla=99)
+#' innerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
+#'   vcat(1, "inner")
+#'   madrat:::toolendmessage(startinfo, "-")
 #' }
-#'
+#' outerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage(list(), "+")
+#'   vcat(1, "outer")
+#'   innerFunction()
+#'   madrat:::toolendmessage(startinfo, "-")
+#' }
+#' outerFunction()
 
-toolendmessage <- function(startdata, level=NULL) {
-  startdata$time2 <- proc.time()
-  runtime <- round((startdata$time2 - startdata$time1)["elapsed"], 2)
-  functioncall <-  paste(deparse(sys.call(-1)), collapse = "")
-  vcat(1, "Exit ", functioncall, " in ", runtime, " seconds", level = level, 
-       fill = 300, show_prefix = FALSE)
+toolendmessage <- function(startdata, level = NULL) {
+  runtime <- round((proc.time() - startdata$time1)["elapsed"], 2)
+  vcat(1, "Exit ", startdata$functionCallString, " in ", runtime, " seconds",
+       level = level, fill = 300, show_prefix = FALSE)
 }

@@ -83,6 +83,7 @@
 #' @export
 
 calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {
+  argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
  
   # read region mappings check settings for aggregate
   if (aggregate!=FALSE) {
@@ -197,7 +198,7 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   cwd <- getwd()
   on.exit(setwd(cwd))
   if(is.null(getOption("gdt_nestinglevel"))) vcat(-2,"")
-  startinfo <- toolstartmessage("+")
+  startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo,"-"), add = TRUE)
   if(!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"),recursive = TRUE)
   setwd(getConfig("outputfolder"))

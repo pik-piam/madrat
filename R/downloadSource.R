@@ -45,7 +45,8 @@
 #' 
 #' @export 
 downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
-  startinfo <- toolstartmessage("+")
+  argumentValues <- as.list(environment())  # capture arguments for logging
+  startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo,"-"))
   
   # check type input

@@ -29,10 +29,11 @@
 #' @importFrom methods existsFunction is
 #' @export
 readSource <- function(type,subtype=NULL,convert=TRUE) {
+  argumentValues <- as.list(environment())  # capture arguments for logging
   cwd <- getwd()
   setwd(getConfig("mainfolder"))
   options(reducedHistory=TRUE)
-  startinfo <- toolstartmessage("+")
+  startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo,"-"))
   
   # check type input
@@ -118,7 +119,7 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
   if(source_missing) {
     # does a routine exist to download the source data?
     if(type %in% getSources(type="download")) {
-      downloadSource(type, subtype=subtype)
+      downloadSource(type = type, subtype = subtype)
     } else {
       typesubtype <- paste0(paste(c(paste0("type = \"",type),subtype),collapse="\" subtype = \""),"\"")
       stop("Sourcefolder does not contain data for the requested source ",typesubtype," and there is no download script which could provide the missing data. Please check your settings!")
