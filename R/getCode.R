@@ -10,6 +10,10 @@
 #' @seealso \code{\link{getMadratGraph}}
 
 getCode <- function(packages=installedMadratUniverse(), globalenv=getConfig("globalenv")) {
+  # LC_CTYPE changes how \uFC is deparsed (ü vs <U+00FC>), but we want locale independent results
+  ctypeLocale <- Sys.getlocale("LC_CTYPE")
+  Sys.setlocale("LC_CTYPE", "C")
+  on.exit(Sys.setlocale("LC_CTYPE", ctypeLocale))
   
   .extractCode <- function(x) {
     out <- deparse(eval(parse(text = x)))
