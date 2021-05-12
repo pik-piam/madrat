@@ -63,7 +63,7 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
     attr(out, "details") <- fingerprint
     vcat(3, "hash components (", out, "):", show_prefix = FALSE)
     for (n in names(fingerprint)) {
-      vcat(3, "  ", fingerprint[n], " | ", n, show_prefix = FALSE)
+      vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
     }
   }
   return(out)
