@@ -56,7 +56,7 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   fingerprintSources <- fingerprintFiles(sources)
   fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
   fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
-  out <- digest(unname(sort(fingerprint, method = "radix")))
+  out <- digest(sort(unname(fingerprint), method = "radix"))
   attr(out, "call") <- dependencies$call[dependencies$func == name]
   if (details) {
     attr(out, "details") <- fingerprint
