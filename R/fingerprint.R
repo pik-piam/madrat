@@ -91,10 +91,9 @@ fingerprintFiles <- function(paths) {
     }
     # use the first 300 byte of each file and the file sizes for hashing
     fileFingerprints <- sapply(filenames, digest, algo = hashMethod, file = TRUE, length = 300)
+    names(fileFingerprints) <- basename(names(fileFingerprints))
     fileSizes <- file.size(filenames)
     return(digest(c(fileFingerprints, fileSizes), algo = hashMethod))
   }
-  out <- sapply(paths, .tmp)
-  names(out) <- basename(names(out))
-  return(out)
+  return(sapply(paths, .tmp))
 }
