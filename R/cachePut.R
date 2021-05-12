@@ -17,7 +17,6 @@
 #'   example <- 1
 #'   madrat:::cachePut(example, "calc","Example", packages="madrat")
 #'  }
-#' @importFrom digest digest
 
 cachePut <- function(x, prefix, type, args=NULL, graph = NULL, ...) {
   fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "put", ...) 

@@ -27,7 +27,6 @@
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheName("calc","TauTotal")
-#' @importFrom digest digest
 
 cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages = getConfig("packages"), globalenv = getConfig("globalenv")) {
   fpprefix <- prefix

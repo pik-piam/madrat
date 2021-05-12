@@ -14,7 +14,6 @@
 #' madrat:::cacheArgumentsHash("madrat:::readTau", args=list(subtype="paper"))
 #' calls <- c(madrat:::readTau, madrat:::convertTau)
 #' madrat:::cacheArgumentsHash(calls, args=list(subtype="historical"))
-#' @importFrom digest digest
 
 cacheArgumentsHash <- function(call, args=NULL) {
   if (length(args) == 0) return(NULL)
@@ -37,7 +36,7 @@ cacheArgumentsHash <- function(call, args=NULL) {
     if (identical(defargs[[i]], args[[i]])) args <- args[names(args) != i]
   }
   if (length(args) == 0) return(NULL)
-  if (!is.null(args)) args <- paste0("-",digest(args[order(names(args), method = "radix")], algo = getConfig("hash")))
+  if (!is.null(args)) args <- paste0("-",digest(args[order(names(args), method = "radix")]))
   return(args)
 }
 

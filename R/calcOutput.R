@@ -79,7 +79,6 @@
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report2 write.magpie
 #' getCells getYears<- is.magpie dimSums getMetadata updateMetadata
 #' @importFrom utils packageDescription read.csv2 read.csv
-#' @importFrom digest digest
 #' @export
 
 calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,supplementary=FALSE, append=FALSE, na_warning=TRUE, try=FALSE, ...) {

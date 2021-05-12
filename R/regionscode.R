@@ -22,13 +22,12 @@
 #' @return A md5-based regionscode which describes the given mapping or, if \code{label=TRUE}
 #' and a corresponding label is available, the label belonging to the regionscode
 #' @author Jan Philipp Dietrich
-#' @seealso \code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link[digest]{digest}}
+#' @seealso \code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link{digest}}
 #' @examples
 #' 
 #' file <- system.file("extdata","regionmappingH12.csv",package="madrat")
 #' regionscode(file)
 #' 
-#' @importFrom digest digest
 #' @export
 regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
   
@@ -64,12 +63,12 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
     
     tmp <- as.vector(mapping[[1]])
     for (i in 2:ncol(mapping)) {
-      tmp <- sort(paste(tmp, as.vector(mapping[[i]]), sep = "."))
+      tmp <- sort(paste(tmp, as.vector(mapping[[i]]), sep = "."), method = "radix")
     }
   } else {
     tmp <- mapping
   }
-  out <- digest(tmp, algo = getConfig("hash"))
+  out <- digest(tmp)
   if (label) { 
     return(toolCodeLabels(out))
   }

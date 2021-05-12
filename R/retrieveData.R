@@ -75,7 +75,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     inargs[toadd] <- defargs[toadd]
   }
   if (length(inargs) > 0) {
-    hashs <- digest(inargs, algo = getConfig("hash"))
+    hashs <- digest(inargs)
     if (uselabels) {
       hashs <- toolCodeLabels(hashs)
     }

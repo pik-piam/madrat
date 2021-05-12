@@ -31,7 +31,6 @@
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' madrat:::fingerprint("toolGetMapping", package="madrat")
-#' @importFrom digest digest
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
@@ -40,7 +39,7 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   names(fingerprintFunctions) <- dependencies$call[order(dependencies$call)]
 
   # handle special requests via flags
-  .tmp <- function(x) return(sort(sub(":+", ":::", x)))
+  .tmp <- function(x) return(sort(sub(":+", ":::", x), method = "radix"))
   ignore  <- .tmp(attr(dependencies, "flags")$ignore)
   monitor <- .tmp(attr(dependencies, "flags")$monitor)
   # if conflicting information is giving (monitor and ignore at the same time,
@@ -52,12 +51,12 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
   sources <- substring(dependencies$func[dependencies$type == "read"], 5)
   if (length(sources) > 0) {
-    sources <- paste0(getConfig("sourcefolder"), "/", sort(sources))
+    sources <- paste0(getConfig("sourcefolder"), "/", sort(sources, method = "radix"))
   }
   fingerprintSources <- fingerprintFiles(sources)
   fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
   fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
-  out <- digest(unname(fingerprint), algo = getConfig("hash"))
+  out <- digest(unname(sort(fingerprint, method = "radix")))
   attr(out, "call") <- dependencies$call[dependencies$func == name]
   if (details) {
     attr(out, "details") <- fingerprint
@@ -73,7 +72,7 @@ fingerprintCall <- function(name) {
   .tmp <- function(x) {
     f <- try(eval(parse(text = x)), silent = TRUE)
     if ("try-error" %in% class(f)) return(NULL)
-    return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
+    return(digest(paste(deparse(f), collapse = " ")))
   }
   return(unlist(sapply(name, .tmp)))
 }
@@ -82,18 +81,17 @@ fingerprintFiles <- function(paths) {
   if (length(paths) == 0) return(NULL)
   paths <- paths[file.exists(paths)]
   if (length(paths) == 0) return(NULL)
-  hashMethod <- getConfig("hash")
   .tmp <- function(path) {
     if (dir.exists(path)) {
-      filenames <- sort(list.files(path, recursive = TRUE, full.names = TRUE))
+      filenames <- sort(list.files(path, recursive = TRUE, full.names = TRUE), method = "radix")
     } else {
       filenames <- path
     }
     # use the first 300 byte of each file and the file sizes for hashing
-    fileFingerprints <- sapply(filenames, digest, algo = hashMethod, file = TRUE, length = 300)
+    fileFingerprints <- sapply(filenames, digest, file = TRUE, length = 300)
     names(fileFingerprints) <- basename(names(fileFingerprints))
     fileSizes <- file.size(filenames)
-    return(digest(c(fileFingerprints, fileSizes), algo = hashMethod))
+    return(digest(c(fileFingerprints, fileSizes)))
   }
   return(sapply(paths, .tmp))
 }
