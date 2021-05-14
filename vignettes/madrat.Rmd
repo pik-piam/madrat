@@ -168,11 +168,7 @@ The same procedure works also for all other functions such as `downloadXYZ`, `re
 
 ### Create madrat-based package
 
-Since version 1.00 madrat allows to link packages to it and make use of its functionality. For linking madrat (in version >= 1.00) has to be added as a package dependency.
-
-```{r, eval = FALSE}
-Depends: madrat(>= 1.00)
-```
+Since version 1.00 madrat allows to link packages to it and make use of its functionality. For linking madrat (in version >= 1.00) has to be added as a package dependency: in the DESCRIPTION file add `Depends: madrat(>= 1.00)`.
 
 In addition the following lines of code should be added as `madrat.R` to the R folder of the package.
 
