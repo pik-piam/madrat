@@ -26,7 +26,7 @@ getMadratGraph <- function(packages=installedMadratUniverse(), globalenv=getConf
       if (length(f) > 0)  globalenv <- sapply(mget(f, envir = .GlobalEnv),deparse)
       else globalenv <- FALSE
     }
-    return(paste0("GH",digest(c(mtimes,sort(packages),globalenv))))
+    return(paste0("GH",digest(c(mtimes,sort(packages),globalenv), algo = getConfig("hash"))))
   }
   
   gHash <- .graphHash(packages,globalenv)

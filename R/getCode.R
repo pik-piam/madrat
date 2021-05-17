@@ -90,7 +90,7 @@ getCode <- function(packages=installedMadratUniverse(), globalenv=getConfig("glo
   }
   
   attr(code,"fpool")     <- fpool
-  attr(code,"hash")      <- sapply(code, digest)
+  attr(code,"hash")      <- sapply(code, digest, algo = getConfig("hash"))
   attr(code,"mappings")  <- .getMappingFiles(code)
   attr(code,"flags")     <- .getFlags(code)
   return(code)

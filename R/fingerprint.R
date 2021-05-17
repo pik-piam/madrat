@@ -31,6 +31,7 @@
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' madrat:::fingerprint("toolGetMapping", package="madrat")
+#' @importFrom digest digest
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
@@ -57,7 +58,7 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
   fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
   fingerprint <- fingerprint[order(basename(names(fingerprint)), method = "radix")]
-  out <- digest(unname(fingerprint))
+  out <- digest(unname(fingerprint), algo = getConfig("hash"))
   attr(out, "call") <- dependencies$call[dependencies$func == name]
   if (details) {
     attr(out, "details") <- fingerprint
@@ -73,7 +74,7 @@ fingerprintCall <- function(name) {
   .tmp <- function(x) {
     f <- try(eval(parse(text = x)), silent = TRUE)
     if ("try-error" %in% class(f)) return(NULL)
-    return(digest(paste(deparse(f), collapse = " ")))
+    return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
   }
   return(unlist(sapply(name, .tmp)))
 }
@@ -89,10 +90,10 @@ fingerprintFiles <- function(paths) {
       filenames <- path
     }
     # use the first 300 byte of each file and the file sizes for hashing
-    fileFingerprints <- sapply(filenames, digest, file = TRUE, length = 300)
+    fileFingerprints <- sapply(filenames, digest, algo = getConfig("hash"), file = TRUE, length = 300)
     names(fileFingerprints) <- basename(names(fileFingerprints))
     fileSizes <- file.size(filenames)
-    return(digest(c(fileFingerprints, fileSizes)))
+    return(digest(c(fileFingerprints, fileSizes), algo = getConfig("hash")))
   }
   return(sapply(paths, .tmp))
 }

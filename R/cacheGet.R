@@ -14,6 +14,7 @@
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheGet("calc","TauTotal", packages="madrat")
+#' @importFrom digest digest
 cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
   .isSet <- function(prefix, type, setting) {
     if (is.null(getConfig(setting))) return(FALSE)
