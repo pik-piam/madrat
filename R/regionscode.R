@@ -64,7 +64,7 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
     
     tmp <- as.vector(mapping[[1]])
     for (i in 2:ncol(mapping)) {
-      tmp <- sort(paste(tmp, as.vector(mapping[[i]]), sep = "."))
+      tmp <- sort(paste(tmp, as.vector(mapping[[i]]), sep = "."), method = "radix")
     }
   } else {
     tmp <- mapping
