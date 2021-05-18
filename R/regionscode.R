@@ -47,14 +47,14 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
     iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"), row.names = NULL)
     iso_country1 <- as.vector(iso_country[,"x"])
     names(iso_country1) <- iso_country[,"X"]
-    isocountries <- sort(iso_country1)
+    isocountries <- robustSort(iso_country1)
   
     if (nrow(mapping) > length(isocountries)) stop("Provided regionmapping has more rows than there are ISO countries in the ISO reference list. Please check the mapping!")
     if (nrow(mapping) < length(isocountries)) stop("Provided regionmapping has less rows than there are ISO countries in the ISO reference list. Please check the mapping!")
   
     lists_agree <- NULL
     for (i in 1:ncol(mapping)) {
-      lists_agree <- c(lists_agree,all(isocountries == sort(as.vector(mapping[[i]]))))
+      lists_agree <- c(lists_agree,all(isocountries == robustSort(as.vector(mapping[[i]]))))
     }
   
     if (!any(lists_agree)) stop("Provided regionmapping does not contain a iso country column which agrees with the reference list of ISO countries! Please check the mapping!")
@@ -64,7 +64,7 @@ regionscode <- function(mapping=NULL, label=FALSE, strict=TRUE) {
     
     tmp <- as.vector(mapping[[1]])
     for (i in 2:ncol(mapping)) {
-      tmp <- sort(paste(tmp, as.vector(mapping[[i]]), sep = "."), method = "radix")
+      tmp <- robustSort(paste(tmp, as.vector(mapping[[i]]), sep = "."))
     }
   } else {
     tmp <- mapping

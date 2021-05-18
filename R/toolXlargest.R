@@ -18,6 +18,6 @@ toolXlargest <- function(x, range=1:20, years=NULL , elements=NULL, ...) {
   if (!is.null(years)) x <- x[, years, ]
   if (!is.null(elements)) x <- x[,,elements]
   tmp <- dimSums(x, dim = c(2,3))
-  out <- getRegions(tmp[order(tmp, decreasing = TRUE),,])[range]
+  out <- getRegions(tmp[robustOrder(tmp, decreasing = TRUE),,])[range]
   return(out)
 }

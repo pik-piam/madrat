@@ -34,7 +34,7 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   .filterList <- function(l, calls, owncall, aggregate="monitor") {
     # in case of aggregate, aggregate list entries over all calls
     # otherwise only take entries from current call
-    .tmp <- function(x,filter) return(sort(unique(unlist(x[filter]))))
+    .tmp <- function(x,filter) return(robustSort(unique(unlist(x[filter]))))
     aggr <- (names(l) %in% aggregate)
     out  <- l
     out[aggr] <- lapply(l[aggr], .tmp, filter = union(owncall,calls))
@@ -54,7 +54,7 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
                       call = owncall,
                       hash = attr(graph, "hash")[fpool$call[fpool$shortcall == name]],
                       row.names = NULL, stringsAsFactors = FALSE)
-    attr(out, "mappings") <- sort(unique(unlist(attr(graph,"mappings")[out$call])))
+    attr(out, "mappings") <- robustSort(unique(unlist(attr(graph,"mappings")[out$call])))
     attr(out, "flags") <- .filterList(attr(graph,"flags"), owncall, owncall)
     return(out)
   }
@@ -64,9 +64,9 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
     tmp <- unique(c(attr(igraph::subcomponent(ggraph,name,"in"),"names"),
                     attr(igraph::subcomponent(ggraph,name,"out"),"names")))
   } else if(direction=="dout") {
-    tmp <- sort(unique(graph$to[graph$from==name]))
+    tmp <- robustSort(unique(graph$to[graph$from==name]))
   } else if(direction=="din") {
-    tmp <- sort(unique(graph$from[graph$to==name]))
+    tmp <- robustSort(unique(graph$from[graph$to==name]))
   } else {
     tmp <- attr(igraph::subcomponent(ggraph,name,direction),"names")
   }
@@ -77,10 +77,10 @@ getDependencies <- function(name, direction="in", graph=NULL, type=NULL, self=FA
   out$call[out$package == ".GlobalEnv"] <- out$func[out$package == ".GlobalEnv"]
   out$hash <- attr(graph, "hash")[out$call]
   if (!is.null(type)) out <- out[out$type %in% type,]
-  out <- out[order(out$package),]
-  out <- out[order(out$type),]
+  out <- out[robustOrder(out$package),]
+  out <- out[robustOrder(out$type),]
   out <- data.frame(out ,row.names = NULL, stringsAsFactors = FALSE)
-  attr(out, "mappings") <- sort(unique(unlist(attr(graph,"mappings")[out$call])))
+  attr(out, "mappings") <- robustSort(unique(unlist(attr(graph,"mappings")[out$call])))
   attr(out, "flags") <- .filterList(attr(graph,"flags"), out$call, owncall)
   return(out)
 }
