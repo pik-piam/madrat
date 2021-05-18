@@ -35,6 +35,10 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
 
   fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode == "put"), 
                     packages = packages, globalenv = globalenv)
+  if (identical(fp, "fingerprintError")) {
+    vcat(2, " - Ignoring cache, because fingerprinting failed", show_prefix = FALSE)
+    return(NULL)
+  }
   call <- attr(fp,"call")
   if (prefix %in% c("convert", "correct")) call <- c(call, sub(paste0(fpprefix, type), paste0(prefix,type), attr(fp,"call"), fixed = TRUE))
   args <- cacheArgumentsHash(call, args)

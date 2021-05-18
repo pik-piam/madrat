@@ -34,40 +34,46 @@
 #' @importFrom digest digest
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
-  dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
+  result <- tryCatch({
+    dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
 
-  fingerprintFunctions <- dependencies$hash[order(dependencies$call)]
-  names(fingerprintFunctions) <- dependencies$call[order(dependencies$call)]
+    fingerprintFunctions <- dependencies$hash[order(dependencies$call)]
+    names(fingerprintFunctions) <- dependencies$call[order(dependencies$call)]
 
-  # handle special requests via flags
-  .tmp <- function(x) return(sort(sub(":+", ":::", x), method = "radix"))
-  ignore  <- .tmp(attr(dependencies, "flags")$ignore)
-  monitor <- .tmp(attr(dependencies, "flags")$monitor)
-  # if conflicting information is giving (monitor and ignore at the same time,
-  # prioritize monitor request)
-  ignore <- setdiff(ignore, monitor)
-  # add calls from the monitor list which are not already monitored
-  fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
-  # ignore functions mentioned in the ignore list
-  fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
-  sources <- substring(dependencies$func[dependencies$type == "read"], 5)
-  if (length(sources) > 0) {
-    sources <- paste0(getConfig("sourcefolder"), "/", sort(sources, method = "radix"))
-  }
-  fingerprintSources <- fingerprintFiles(sources)
-  fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
-  fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
-  fingerprint <- fingerprint[order(basename(names(fingerprint)), method = "radix")]
-  out <- digest(unname(fingerprint), algo = getConfig("hash"))
-  attr(out, "call") <- dependencies$call[dependencies$func == name]
-  if (details) {
-    attr(out, "details") <- fingerprint
-    vcat(3, "hash components (", out, "):", show_prefix = FALSE)
-    for (n in names(fingerprint)) {
-      vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
+    # handle special requests via flags
+    .tmp <- function(x) return(sort(sub(":+", ":::", x), method = "radix"))
+    ignore  <- .tmp(attr(dependencies, "flags")$ignore)
+    monitor <- .tmp(attr(dependencies, "flags")$monitor)
+    # if conflicting information is giving (monitor and ignore at the same time,
+    # prioritize monitor request)
+    ignore <- setdiff(ignore, monitor)
+    # add calls from the monitor list which are not already monitored
+    fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
+    # ignore functions mentioned in the ignore list
+    fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
+    sources <- substring(dependencies$func[dependencies$type == "read"], 5)
+    if (length(sources) > 0) {
+      sources <- paste0(getConfig("sourcefolder"), "/", sort(sources, method = "radix"))
     }
-  }
-  return(out)
+    fingerprintSources <- fingerprintFiles(sources)
+    fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
+    fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
+    fingerprint <- fingerprint[order(basename(names(fingerprint)), method = "radix")]
+    out <- digest(unname(fingerprint), algo = getConfig("hash"))
+    attr(out, "call") <- dependencies$call[dependencies$func == name]
+    if (details) {
+      attr(out, "details") <- fingerprint
+      vcat(3, "hash components (", out, "):", show_prefix = FALSE)
+      for (n in names(fingerprint)) {
+        vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
+      }
+    }
+    return(out)
+  }, error = function(error) {
+    vcat(2, paste(" - Fingerprinting failed:", error), show_prefix = FALSE)
+    return("fingerprintError")
+  })
+  return(result)
 }
 
 fingerprintCall <- function(name) {
