@@ -1,10 +1,6 @@
 # May All Data be Reproducible and Transparent (MADRaT) *
 
-<<<<<<< HEAD
 R package **madrat**, version **1.102.6**
-=======
-R package **madrat**, version **1.102.5**
->>>>>>> ad776d12f52d4e4700095b664daf8ff84a2f1e6d
 
 [![CRAN status](https://www.r-pkg.org/badges/version/madrat)](https://cran.r-project.org/package=madrat) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1115490.svg)](https://doi.org/10.5281/zenodo.1115490)  [![R build status](https://github.com/pik-piam/madrat/workflows/check/badge.svg)](https://github.com/pik-piam/madrat/actions) [![codecov](https://codecov.io/gh/pik-piam/madrat/branch/master/graph/badge.svg)](https://codecov.io/gh/pik-piam/madrat)
 
@@ -63,11 +59,7 @@ A BibTeX entry for LaTeX users is
   title = {madrat: May All Data be Reproducible and Transparent (MADRaT)},
   author = {Jan Philipp Dietrich and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Ulrich Kreidenweis and David Klein and Pascal Führlich},
   year = {2021},
-<<<<<<< HEAD
   note = {R package version 1.102.6},
-=======
-  note = {R package version 1.102.5},
->>>>>>> ad776d12f52d4e4700095b664daf8ff84a2f1e6d
   doi = {10.5281/zenodo.1115490},
   url = {https://github.com/pik-piam/madrat},
 }
