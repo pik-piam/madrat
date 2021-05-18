@@ -79,7 +79,7 @@ prepFunctionName <- function(type, prefix="calc", ignore=NULL, error_on_missing=
   if(package==".GlobalEnv") {
     attr(out,"pkgcomment") <- ".GlobalEnv"
   } else {
-    attr(out,"pkgcomment") <- paste(package,packageDescription(package)$Version)
+    attr(out,"pkgcomment") <- paste(package, unname(getNamespaceVersion(package)))
   }
   return(out)
 }

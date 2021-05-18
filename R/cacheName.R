@@ -35,8 +35,14 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
 
   fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode == "put"), 
                     packages = packages, globalenv = globalenv)
+  if (identical(fp, "fingerprintError") && !isTRUE(getConfig("forcecache"))) {
+    vcat(2, " - cacheName = NULL, because fingerprinting failed", show_prefix = FALSE)
+    return(NULL)
+  }
   call <- attr(fp,"call")
-  if (prefix %in% c("convert", "correct")) call <- c(call, sub(paste0(fpprefix, type), paste0(prefix,type), attr(fp,"call"), fixed = TRUE))
+  if (prefix %in% c("convert", "correct")) {
+    call <- c(call, sub(paste0(fpprefix, type), paste0(prefix,type), attr(fp,"call"), fixed = TRUE))
+  }
   args <- cacheArgumentsHash(call, args)
   
   .isSet <- function(prefix, type, setting) {
@@ -75,6 +81,3 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
        fill = 300, show_prefix = FALSE)
   return(file)
 }
-
-
-

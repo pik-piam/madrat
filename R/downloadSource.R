@@ -90,9 +90,9 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
   if(any(reserved %in% names(meta))) {vcat(0, "The following entries in the meta data of the function '",functionname[1],"' are reserved and will be overwritten: ",reserved[reserved %in% names(meta)])}
   
   # set reserved meta data elements
-  meta$call <- list(origin  = paste0(gsub("\\s{2,}"," ",paste(deparse(match.call()),collapse="")),
-                                     " -> ",functionname," (madrat ",packageDescription("madrat")$Version,
-                                     " | ",attr(functionname,"pkgcomment"),")"),
+  meta$call <- list(origin  = paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()),collapse="")),
+                                     " -> ", functionname, " (madrat ", unname(getNamespaceVersion("madrat")),
+                                     " | ", attr(functionname, "pkgcomment"), ")"),
                     type    = type,
                     subtype = ifelse(is.null(subtype), "none",subtype),
                     time    = format(Sys.time(),"%F %T %Z"))
