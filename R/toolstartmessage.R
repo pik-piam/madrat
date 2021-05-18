@@ -10,9 +10,8 @@
 #' hierarchy level by 1).
 #' @param argumentValues list of the evaluated arguments of the calling function
 #' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
-#' @importFrom utils read.table
 #' @examples
 #'
 #' innerFunction <- function() {
