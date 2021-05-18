@@ -29,12 +29,14 @@
 
 toolstartmessage <- function(argumentValues, level = NULL) {
   functionAndArgs <- as.list(sys.call(-1))
+  theFunction <- functionAndArgs[[1]]
+  nonDefaultArguments <- getNonDefaultArguments(theFunction, argumentValues)
 
-  argsString <- paste0(list(argumentValues))  # wrap everything in list for nicer string output
+  argsString <- paste0(list(nonDefaultArguments))  # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1)  # remove superfluous list from string
 
   if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {
-    functionCallString <- paste0(functionAndArgs[1], "(", argsString, ")", collapse = "")
+    functionCallString <- paste0(theFunction, "(", argsString, ")", collapse = "")
     hint <- ""
   } else {
     functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")

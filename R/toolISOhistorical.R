@@ -52,7 +52,7 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
   }
     
   # sort mapping(transitions) in historical order -> needed for the correct filling of data
-  mapping <- mapping[order(mapping$lastYear),]
+  mapping <- mapping[robustOrder(mapping$lastYear),]
   # delete transitions from mapping which are not in the time horizon of m
 #  print("The following transitions are ignorred as it exceeds the time horizon of the data",
 #        subset(mapping, mapping$lastYear > max(intersect(mapping$lastYear,getYears(m))))        
@@ -76,7 +76,7 @@ toolISOhistorical <- function(m,mapping=NULL,additional_mapping=NULL,overwrite=F
     }  
     # sort again based on transition year if more than one transition exists
     if (length(ptr[,1]) > 1) {
-       ptr <- ptr[order(ptr[,2]),]
+       ptr <- ptr[robustOrder(ptr[,2]),]
     }
     # calculate number of transitions ntr 
     ntr <- 0

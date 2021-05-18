@@ -19,5 +19,5 @@
 #' @export
 #' 
 installedMadratUniverse <- function() {
- return(sort(union(getConfig("packages"),grep("^m[rs]", rownames(installed.packages()), value=TRUE))))
+ return(robustSort(union(getConfig("packages"), grep("^m[rs]", rownames(installed.packages()), value = TRUE))))
 }

@@ -25,7 +25,7 @@ getISOlist <- function(type="all") {
   iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"), row.names = NULL)
   iso_country1 <- as.vector(iso_country[,"x"])
   names(iso_country1) <- iso_country[,"X"]
-  ref <- sort(iso_country1)
+  ref <- robustSort(iso_country1)
   if (type == "all") return(ref)
   
   pop2015 <- read.magpie(system.file("extdata","pop2015.csv",package = "madrat"))

@@ -37,7 +37,9 @@ cacheArgumentsHash <- function(call, args=NULL) {
     if (identical(defargs[[i]], args[[i]])) args <- args[names(args) != i]
   }
   if (length(args) == 0) return(NULL)
-  if (!is.null(args)) args <- paste0("-",digest(args[order(names(args), method = "radix")], algo = getConfig("hash")))
+  if (!is.null(args)) {
+    args <- paste0("-", digest(args[robustOrder(names(args))], algo = getConfig("hash")))
+  }
   return(args)
 }
 

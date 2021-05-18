@@ -76,7 +76,7 @@ cacheName <- function(prefix, type, args=NULL,  graph=NULL, mode="put", packages
     return(NULL)
   }
   if (length(files) == 1) file <- files
-  else file <- files[order(file.mtime(files), decreasing = TRUE)][1]
+  else file <- files[robustOrder(file.mtime(files), decreasing = TRUE)][1]
   vcat(1," - forced cache does not match fingerprint ", fp, 
        fill = 300, show_prefix = FALSE)
   return(file)
