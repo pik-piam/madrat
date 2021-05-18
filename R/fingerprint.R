@@ -69,8 +69,8 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
       }
     }
     return(out)
-  }, error = {
-    vcat(2, " - Fingerprinting failed", show_prefix = FALSE)
+  }, error = function(error) {
+    vcat(2, paste(" - Fingerprinting failed:", error), show_prefix = FALSE)
     return("fingerprintError")
   })
   return(result)
