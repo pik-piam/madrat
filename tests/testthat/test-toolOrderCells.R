@@ -10,6 +10,6 @@ test_that("Equivalence of data", {
 test_that("Ordering works properly for trivial case", {
   getCells(p) <- paste(getItems(p, dim=1),sample(c(1:length(getItems(p, dim=1)))), sep=".") 
   expect_equal(as.numeric(substring(getCells(toolOrderCells(p)),5)), 
-               sort(as.numeric(substring(getCells(p),5))))
+               robustSort(as.numeric(substring(getCells(p),5))))
   expect_error(toolOrderCells(1), "Input is not a MAgPIE object")
 })

@@ -52,8 +52,8 @@ readSource <- function(type,subtype=NULL,convert=TRUE) {
     iso_country  <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
     iso_country1 <- as.vector(iso_country[,"x"])
     names(iso_country1) <-iso_country[,"X"]
-    isocountries  <- sort(iso_country1)
-    datacountries <- sort(x)
+    isocountries  <- robustSort(iso_country1)
+    datacountries <- robustSort(x)
     if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries returned by ",functionname,"!")
     if(any(isocountries!=datacountries)) stop("Countries returned by ",functionname," do not agree with iso country list!")
   }

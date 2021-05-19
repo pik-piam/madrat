@@ -37,11 +37,11 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
   dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
   result <- tryCatch({
 
-    fingerprintFunctions <- dependencies$hash[order(dependencies$call)]
-    names(fingerprintFunctions) <- dependencies$call[order(dependencies$call)]
+    fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
+    names(fingerprintFunctions) <- dependencies$call[robustOrder(dependencies$call)]
 
     # handle special requests via flags
-    .tmp <- function(x) return(sort(sub(":+", ":::", x), method = "radix"))
+    .tmp <- function(x) return(robustSort(sub(":+", ":::", x)))
     ignore  <- .tmp(attr(dependencies, "flags")$ignore)
     monitor <- .tmp(attr(dependencies, "flags")$monitor)
     # if conflicting information is giving (monitor and ignore at the same time,
@@ -53,12 +53,12 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
     fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
     sources <- substring(dependencies$func[dependencies$type == "read"], 5)
     if (length(sources) > 0) {
-      sources <- paste0(getConfig("sourcefolder"), "/", sort(sources, method = "radix"))
+      sources <- paste0(getConfig("sourcefolder"), "/", robustSort(sources))
     }
     fingerprintSources <- fingerprintFiles(sources)
     fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
     fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
-    fingerprint <- fingerprint[order(basename(names(fingerprint)), method = "radix")]
+    fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
     out <- digest(unname(fingerprint), algo = getConfig("hash"))
     if (details) {
       attr(out, "details") <- fingerprint
@@ -91,7 +91,7 @@ fingerprintFiles <- function(paths) {
   if (length(paths) == 0) return(NULL)
   .tmp <- function(path) {
     if (dir.exists(path)) {
-      filenames <- sort(list.files(path, recursive = TRUE, full.names = TRUE), method = "radix")
+      filenames <- robustSort(list.files(path, recursive = TRUE, full.names = TRUE))
     } else {
       filenames <- path
     }

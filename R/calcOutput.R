@@ -158,11 +158,11 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
     if(x$isocountries) {
       datacountries <- 
       .countrycheck <- function(datacountries, name){
-        datacountries <- sort(datacountries)
+        datacountries <- robustSort(datacountries)
         iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"),row.names=NULL)
         iso_country1<-as.vector(iso_country[,"x"])
         names(iso_country1)<-iso_country[,"X"]
-        isocountries <- sort(iso_country1)
+        isocountries <- robustSort(iso_country1)
         if(length(isocountries)!=length(datacountries)) stop("Wrong number of countries in ",name," returned by ",functionname,"!")
         if(any(isocountries!=datacountries)) stop("Countries in ",name," returned by ",functionname," do not agree with iso country list!")
       }

@@ -70,7 +70,7 @@ findBottlenecks <- function(file, unit="min", cumulative=TRUE) {
   message("Total runtime: ", th, " hours ", tmin, " minutes ",ts," seconds")
   x$"time[%]" <- round(x$"time[s]"/totalruntime*100,2)
   x$"net[%]" <- round(x$"net[s]"/totalruntime*100,2)
-  x <- x[order(x$"net[s]", decreasing = TRUE),]
+  x <- x[robustOrder(x$"net[s]", decreasing = TRUE),]
   
   if (unit %in% c("min","h")) {
     x$"time[s]" <- NULL

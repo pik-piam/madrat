@@ -72,7 +72,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
   .checkBidirectional(graph, details = TRUE, cutoff = cutoff)
   
   message("\n.:: Check for read/calc calls in tool functions ::.")
-  tmp <- sort(unique(graph[grepl("^tool",graph$to) & !grepl("^tool",graph$from),"to"]))
+  tmp <- robustSort(unique(graph[grepl("^tool",graph$to) & !grepl("^tool",graph$from),"to"]))
   if(length(tmp)>0) {
     warning("Some tool functions contain read or calc statements! Check report for more info!")
     message("[warning]\n[warning] Following tool function contain either read or calc calls: \n[warning]   ",
@@ -141,7 +141,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     
   for(f in fulls) {
     tmp <- singleuse[singleuse$callfunc==f,2:3]
-    tmp <- tmp[order(tmp[2],tmp[1]),]
+    tmp <- tmp[robustOrder(tmp[2],tmp[1]),]
     message("[INFO]\n[INFO] .: exclusive calls for ",f," (",dim(tmp)[1]," members) :.")
     out$exclusive_use[[f]] <- tmp 
     if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
@@ -150,7 +150,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
 
   tmp <- data.frame(as.matrix(attr(graph,"fpool")[,c("fname","package")]), stringsAsFactors = FALSE)
   tmp <- tmp[tmp$fname %in% nouse,]
-  tmp <- tmp[order(tmp[2],tmp[1]),]
+  tmp <- tmp[robustOrder(tmp[2],tmp[1]),]
   message("[INFO]\n[INFO] .: functions with no calls in full-functions (",dim(tmp)[1]," members) :.")
   out$exclusive_use$no_use <- tmp
   if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
