@@ -19,6 +19,8 @@ test_that("robustOrder can deal with non-UTF-8 strings", {
   expect_equal(madrat:::robustOrder(x), c(2, 1))
   expect_equal(madrat:::robustSort(x), c("1Mor\xe9e et al_2013.pdf", "2Mor\xe9e et al_2013.pdf"))
 
-  x <- c(5, 3, 2, 4)
-  expect_equal(madrat:::robustSort(x, decreasing = TRUE), 5:2)
+  expect_equal(madrat:::robustSort(c(5, 3, 2, 4), decreasing = TRUE), 5:2)
+  expect_equal(madrat:::robustOrder(c(5, 2, 2, 4), c(0, 1, 0, 17)), c(3, 2, 4, 1))
+  expect_equal(madrat:::robustSort(vector(mode = "character", length = 0)), vector(mode = "character", length = 0))
+  expect_equal(madrat:::robustOrder(vector(mode = "character", length = 0)), vector(mode = "integer", length = 0))
 })
