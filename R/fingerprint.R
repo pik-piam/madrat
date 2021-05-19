@@ -34,8 +34,8 @@
 #' @importFrom digest digest
 
 fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
+  dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
   result <- tryCatch({
-    dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
 
     fingerprintFunctions <- dependencies$hash[order(dependencies$call)]
     names(fingerprintFunctions) <- dependencies$call[order(dependencies$call)]
@@ -60,7 +60,6 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
     fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
     fingerprint <- fingerprint[order(basename(names(fingerprint)), method = "radix")]
     out <- digest(unname(fingerprint), algo = getConfig("hash"))
-    attr(out, "call") <- dependencies$call[dependencies$func == name]
     if (details) {
       attr(out, "details") <- fingerprint
       vcat(3, "hash components (", out, "):", show_prefix = FALSE)
@@ -68,11 +67,12 @@ fingerprint <- function(name, details=FALSE, graph = NULL, ...) {
         vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
       }
     }
-    return(out)
+    out
   }, error = function(error) {
     vcat(2, paste(" - Fingerprinting failed:", error), show_prefix = FALSE)
     return("fingerprintError")
   })
+  attr(result, "call") <- dependencies$call[dependencies$func == name]
   return(result)
 }
 

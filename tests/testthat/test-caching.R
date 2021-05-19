@@ -51,6 +51,7 @@ test_that("Argument hashing works", {
   expect_null(madrat:::cacheArgumentsHash(calcArgs))
   expect_null(madrat:::cacheArgumentsHash(calcArgs, args=list(a = NULL)))
   expect_identical(madrat:::cacheArgumentsHash(calcArgs, args=list(a=12)), "-8bb64daf")
+  expect_error(madrat:::cacheArgumentsHash(NULL,args=list(no="call")), "No call")
 })
 
 test_that("Cache naming and identification works correctly", {
