@@ -13,7 +13,6 @@ test_that("fingerprinting works as expected", {
     return(paste0(this, is, a, test))
   }
   globalassign("toolTest")
-  expect_identical(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = FALSE), "fingerprintError")
   expect_equivalent(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = TRUE), "8b3413cc")
   emptyfolder <- paste0(tempdir(),"/empty")
   dir.create(emptyfolder, recursive = TRUE, showWarnings = FALSE)
