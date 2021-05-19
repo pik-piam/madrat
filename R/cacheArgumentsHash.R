@@ -18,6 +18,9 @@
 
 cacheArgumentsHash <- function(call, args=NULL) {
   if (length(args) == 0) return(NULL)
+  if (length(call) == 0) {
+    stop("No call provided for argument hash calculation!")
+  }
   
   .tmp <- function(call) {
     if (is.character(call)) call <- eval(parse(text = call))
