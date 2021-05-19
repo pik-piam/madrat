@@ -16,10 +16,13 @@
 robustOrder <- function(..., na.last = TRUE, decreasing = FALSE, method = "radix") {
   args <- list(...)
   if (any(lapply(args, length) == 0)) {
-    return()
+    return(vector(mode = "integer", length = 0))
   }
-  args <- lapply(args, sapply, function(element) {
-    ifelse(is.character(element), enc2utf8(element), element)
+  args <- lapply(args, function(x) {
+    if (is.character(x)) {
+      return(enc2utf8(x))
+    }
+    return(x)
   })
   args <- unname(args)
   args$na.last <- na.last
