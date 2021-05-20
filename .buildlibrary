@@ -5,4 +5,4 @@ AcceptedWarnings:
 AcceptedNotes: unable to verify current time
 AutocreateReadme: yes
 UseGithubActions: yes
-allowLinterWarnings: yes
+allowLinterWarnings: no
