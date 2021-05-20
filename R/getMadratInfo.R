@@ -141,7 +141,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
     
   for(f in fulls) {
     tmp <- singleuse[singleuse$callfunc==f,2:3]
-    tmp <- tmp[robustOrder(tmp[2],tmp[1]),]
+    tmp <- tmp[robustOrder(tmp[[2]], tmp[[1]]), ]
     message("[INFO]\n[INFO] .: exclusive calls for ",f," (",dim(tmp)[1]," members) :.")
     out$exclusive_use[[f]] <- tmp 
     if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
