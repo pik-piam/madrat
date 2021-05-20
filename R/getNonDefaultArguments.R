@@ -1,11 +1,11 @@
 #' getNonDefaultArguments
-#' 
+#'
 #' Given a function and an argument list, identify which arguments are different from their default.
-#' 
+#'
 #' @param aFunction a single function
 #' @param args a list of named arguments used to call the given function. If duplicates of arguments exists the first
 #' occurrence of the argument will be used.
-#' @return a named list of the arguments that are actually used and have a non-default value
+#' @return a named list of the arguments that are actually used and have a non-default value, sorted by name
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @examples
 #' madrat:::getNonDefaultArguments(madrat:::readTau, args = list(subtype = "historical"))
