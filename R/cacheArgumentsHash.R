@@ -1,14 +1,14 @@
 #' Tool: cacheArgumentsHash
-#' 
+#'
 #' Calculate hash from given function arguments for given call
-#' 
+#'
 #' @param call A function as a string or symbol. Passing a vector of functions is possible, but is only intended for
 #' corresponding read/correct/convert functions. If multiple functions in a vector define arguments with the same name
 #' but different default values only the default defined in the first function is considered.
 #' @param args A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
 #' occurrence of the argument will be used.
-#' @return A hash representing the given arguments hash for the given call. NULL, if no argument deviates from the default
-#' argument settings.
+#' @return A hash representing the given arguments hash for the given call. NULL, if no argument deviates from the
+#' default argument settings.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
 #' @examples

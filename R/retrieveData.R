@@ -28,7 +28,7 @@
 #' @importFrom methods formalArgs
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
-  argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
+  argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   if (!(cachetype %in% c("rev", "def"))) {
     stop("Unknown cachetype \"", cachetype, "\"!")
@@ -103,6 +103,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
   matchingCacheFiles <- dir(path = getConfig("outputfolder"), pattern = ".*\\.tgz")
   matchingCacheFiles <- matchingCacheFiles[startsWith(matchingCacheFiles, collectionname)]
+  if (!isTRUE(getConfig("debug"))) { # do not use debug files if not in debug mode
+    matchingCacheFiles <- matchingCacheFiles[!startsWith(matchingCacheFiles, paste0(collectionname, "_debug"))]
+  }
   if (length(matchingCacheFiles) == 0 || getConfig("debug") == TRUE) {
     # data not yet ready and has to be prepared first
     sourcefolder <- paste0(getConfig("outputfolder"), "/", collectionname)
@@ -129,8 +132,10 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     )
 
     if (cachetype == "rev") {
-      setConfig(cachefolder = paste0(getConfig("mainfolder"), "/cache/rev", rev, dev),
-                forcecache = TRUE)
+      setConfig(
+        cachefolder = paste0(getConfig("mainfolder"), "/cache/rev", rev, dev),
+        forcecache = TRUE
+      )
     }
 
     getConfig(print = TRUE)
@@ -151,7 +156,13 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
       }
     }
     returnedValue <- do.call(functiononly, args)
-    collectionname <- paste0(collectionname, ifelse("tag" %in% names(returnedValue), paste0("_", returnedValue$tag), ""))
+    if ("tag" %in% names(returnedValue)) {
+      if (grepl(pattern = "debug", returnedValue$tag)) {
+        warning("The tag returned in a fullXYZ function should not include the word 'debug'")
+      }
+      collectionname <- paste0(collectionname, paste0("_", returnedValue$tag))
+    }
+
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
     cwd <- getwd()

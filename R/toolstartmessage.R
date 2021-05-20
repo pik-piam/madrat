@@ -26,14 +26,13 @@
 #'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction()
-
 toolstartmessage <- function(argumentValues, level = NULL) {
   functionAndArgs <- as.list(sys.call(-1))
   theFunction <- functionAndArgs[[1]]
   nonDefaultArguments <- getNonDefaultArguments(eval(theFunction), argumentValues)
 
-  argsString <- paste0(list(nonDefaultArguments))  # wrap everything in list for nicer string output
-  argsString <- substr(argsString, 6, nchar(argsString) - 1)  # remove superfluous list from string
+  argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
+  argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
 
   if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {
     functionCallString <- paste0(theFunction, "(", argsString, ")", collapse = "")

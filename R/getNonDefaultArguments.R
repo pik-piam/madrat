@@ -11,12 +11,14 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cacheArgumentsHash}}, \code{\link{toolstartmessage}}
 #' @examples
-#' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype="historical"))
-#' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype="paper"))
+#' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "historical"))
+#' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "paper"))
 #' calls <- c(madrat:::readTau, madrat:::convertTau)
 #' madrat:::getNonDefaultArguments(calls, args = list(subtype = "historical"))
 getNonDefaultArguments <- function(call, args = NULL) {
-  if (length(args) == 0) return(NULL)
+  if (length(args) == 0) {
+    return(NULL)
+  }
   if (length(call) == 0) {
     stop("No call provided for argument hash calculation!")
   }
@@ -38,6 +40,8 @@ getNonDefaultArguments <- function(call, args = NULL) {
   for (i in commonargs) {
     if (identical(defargs[[i]], args[[i]])) args <- args[names(args) != i]
   }
-  if (length(args) == 0) return(NULL)
+  if (length(args) == 0) {
+    return(NULL)
+  }
   return(args[robustOrder(names(args))])
 }
