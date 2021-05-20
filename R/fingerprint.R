@@ -90,15 +90,24 @@ fingerprintFiles <- function(paths) {
   paths <- paths[file.exists(paths)]
   if (length(paths) == 0) return(NULL)
   .tmp <- function(path) {
-    if (dir.exists(path)) {
-      filenames <- robustSort(list.files(path, recursive = TRUE, full.names = TRUE))
+    hashCacheFile <- paste0(path,"/.hashCache.rds")
+    if (file.exists(hashCacheFile)) {
+      hashCache <- readRDS(hashCacheFile)
     } else {
-      filenames <- path
+      hashCache <- NULL
     }
+    
+    if (dir.exists(path)) {
+      files <- data.frame(names = robustSort(list.files(path, recursive = TRUE, full.names = TRUE)),
+                          stringsAsFactors = FALSE)
+    } else {
+      files <- data.frame(names = path, stringsAsFactors = FALSE)
+    }
+    files$mtime <- file.mtime(files$names)
     # use the first 300 byte of each file and the file sizes for hashing
-    fileFingerprints <- sapply(filenames, digest, algo = getConfig("hash"), file = TRUE, length = 300)
+    fileFingerprints <- sapply(files$names, digest, algo = getConfig("hash"), file = TRUE, length = 300)
     names(fileFingerprints) <- basename(names(fileFingerprints))
-    fileSizes <- file.size(filenames)
+    fileSizes <- file.size(files$names)
     return(digest(c(fileFingerprints, fileSizes), algo = getConfig("hash")))
   }
   return(sapply(paths, .tmp))
