@@ -1,48 +1,26 @@
 #' Tool: cacheArgumentsHash
-#' 
+#'
 #' Calculate hash from given function arguments for given call
-#' 
-#' @param call function call or vector of functions calls
-#' @param args a list of named arguments used to call the given function(s). If duplicates
-#' of arguments exists the first occurrence of the argument will be used.
-#' @return hash representing the given arguments hash for the given call. 
-#' NULL, if no argument deviates from the default argument settings
+#'
+#' @param call A function as a string or symbol. Passing a vector of functions is possible, but is only intended for
+#' corresponding read/correct/convert functions. If multiple functions in a vector define arguments with the same name
+#' but different default values only the default defined in the first function is considered.
+#' @param args A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
+#' occurrence of the argument will be used.
+#' @return A hash representing the given arguments hash for the given call. NULL, if no argument deviates from the
+#' default argument settings.
 #' @author Jan Philipp Dietrich
-#' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
+#' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
 #' @examples
-#' madrat:::cacheArgumentsHash("madrat:::readTau", args=list(subtype="historical"))
-#' madrat:::cacheArgumentsHash("madrat:::readTau", args=list(subtype="paper"))
+#' madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historical"))
+#' madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "paper"))
 #' calls <- c(madrat:::readTau, madrat:::convertTau)
-#' madrat:::cacheArgumentsHash(calls, args=list(subtype="historical"))
+#' madrat:::cacheArgumentsHash(calls, args = list(subtype = "historical"))
 #' @importFrom digest digest
-
-cacheArgumentsHash <- function(call, args=NULL) {
-  if (length(args) == 0) return(NULL)
-  if (length(call) == 0) {
-    stop("No call provided for argument hash calculation!")
+cacheArgumentsHash <- function(call, args = NULL) {
+  nonDefaultArguments <- getNonDefaultArguments(call, args)
+  if (length(nonDefaultArguments) == 0) {
+    return(NULL)
   }
-  
-  .tmp <- function(call) {
-    if (is.character(call)) call <- eval(parse(text = call))
-    return(formals(call))
-  }
-  if (length(call) > 1) {
-    defargs <- unlist(lapply(call, .tmp))
-    defargs <- defargs[!duplicated(names(defargs))]
-  } else {
-    defargs <- .tmp(call)
-  }
-  
-  commonargs <- intersect(names(defargs), names(args))
-  if (!("..." %in% names(defargs))) args <- args[commonargs]
-  
-  for (i in commonargs) {
-    if (identical(defargs[[i]], args[[i]])) args <- args[names(args) != i]
-  }
-  if (length(args) == 0) return(NULL)
-  if (!is.null(args)) {
-    args <- paste0("-", digest(args[robustOrder(names(args))], algo = getConfig("hash")))
-  }
-  return(args)
+  return(paste0("-", digest(nonDefaultArguments, algo = getConfig("hash"))))
 }
-
