@@ -150,7 +150,7 @@ getMadratInfo <- function(graph=NULL, cutoff=5, extended=FALSE, ...) {
 
   tmp <- data.frame(as.matrix(attr(graph,"fpool")[,c("fname","package")]), stringsAsFactors = FALSE)
   tmp <- tmp[tmp$fname %in% nouse,]
-  tmp <- tmp[robustOrder(tmp[2],tmp[1]),]
+  tmp <- tmp[robustOrder(tmp[[2]], tmp[[1]]), ]
   message("[INFO]\n[INFO] .: functions with no calls in full-functions (",dim(tmp)[1]," members) :.")
   out$exclusive_use$no_use <- tmp
   if(dim(tmp)[1]>cutoff) tmp <- rbind(tmp[1:cutoff,],c("...","..."))
