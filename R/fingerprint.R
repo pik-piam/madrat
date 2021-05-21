@@ -107,7 +107,6 @@ fingerprintFiles <- function(paths) {
         name = robustSort(list.files(path, recursive = TRUE, full.names = FALSE)),
         stringsAsFactors = FALSE
       )
-      files <- files[files$name != "madratHashCache.rds", , drop = FALSE]
     } else {
       files <- data.frame(name = basename(path), stringsAsFactors = FALSE)
       path <- dirname(path)
@@ -125,8 +124,19 @@ fingerprintFiles <- function(paths) {
       )
     }
 
-    hashCacheFile <- paste0(path, "/madratHashCache.rds")
-    if (file.exists(hashCacheFile)) {
+    getHashCacheName <- function(path) {
+      # return file name for fileHash cahe if the given path belongs to a source folder,
+      # otherwise return NULL
+      if (dir.exists(getConfig("sourcefolder")) &&
+          startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
+        return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))
+      } else {
+        return(NULL)
+      }
+    }
+    hashCacheFile <- getHashCacheName(path)
+
+    if (!is.null(hashCacheFile) && file.exists(hashCacheFile)) {
       filesCache <- readRDS(hashCacheFile)
       # keep only entries which are still up-to-date
       filesCache <- filesCache[filesCache$key %in% files$key, ]
@@ -141,10 +151,8 @@ fingerprintFiles <- function(paths) {
       # use the first 300 byte of each file and the file sizes for hashing
       files$hash <- sapply(files$path, digest, algo = getConfig("hash"), file = TRUE, length = 300)
       files$path <- NULL
-      # write cachefile if path belongs to the source folder
-      if (dir.exists(getConfig("sourcefolder")) &&
-        startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
-        saveRDS(files, paste0(path, "/madratHashCache.rds"), version = 2)
+      if (!is.null(hashCacheFile)) {
+        saveRDS(files, hashCacheFile, version = 2)
       }
     }
     files <- rbind(filesCache, files)
