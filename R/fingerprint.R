@@ -90,25 +90,52 @@ fingerprintFiles <- function(paths) {
   paths <- paths[file.exists(paths)]
   if (length(paths) == 0) return(NULL)
   .tmp <- function(path) {
-    hashCacheFile <- paste0(path,"/.hashCache.rds")
-    if (file.exists(hashCacheFile)) {
-      hashCache <- readRDS(hashCacheFile)
+    if (file.exists(paste0(path,"/DONTFINGERPRINT"))) return("SKIPPED")
+    if (dir.exists(path)) {
+      files <- data.frame(name = robustSort(list.files(path, recursive = TRUE, full.names = FALSE)),
+                          stringsAsFactors = FALSE)
+      files <- files[files$name != "madratHashCache.rds",,drop = FALSE]
     } else {
-      hashCache <- NULL
+      files <- data.frame(name = basename(path), stringsAsFactors = FALSE)
+      path  <- dirname(path)
+    }
+    if (nrow(files) == 0) {
+      files <- NULL
+    } else {
+      files$path  <- paste0(path,"/",files$name)
+      files$mtime <- file.mtime(files$path)
+      files$size  <- file.size(files$path)
+      # create key to identify entries which require recalculation
+      files$key   <- apply(files[c("name", "mtime", "size")], 1, 
+                           digest, algo = getConfig("hash"))
     }
     
-    if (dir.exists(path)) {
-      files <- data.frame(names = robustSort(list.files(path, recursive = TRUE, full.names = TRUE)),
-                          stringsAsFactors = FALSE)
+    hashCacheFile <- paste0(path,"/madratHashCache.rds")
+    if (file.exists(hashCacheFile)) {
+      filesCache <- readRDS(hashCacheFile)
+      # keep only entries which are still up-to-date
+      filesCache <- filesCache[filesCache$key %in% files$key, ]
+      files <- files[!(files$key %in% filesCache$key), ]
+      if (nrow(filesCache) == 0) filesCache <- NULL
+      if (nrow(files) == 0) files <- NULL
     } else {
-      files <- data.frame(names = path, stringsAsFactors = FALSE)
+      filesCache <- NULL
     }
-    files$mtime <- file.mtime(files$names)
-    # use the first 300 byte of each file and the file sizes for hashing
-    fileFingerprints <- sapply(files$names, digest, algo = getConfig("hash"), file = TRUE, length = 300)
-    names(fileFingerprints) <- basename(names(fileFingerprints))
-    fileSizes <- file.size(files$names)
-    return(digest(c(fileFingerprints, fileSizes), algo = getConfig("hash")))
+    
+    if (!is.null(files)) {
+      # use the first 300 byte of each file and the file sizes for hashing
+      files$hash  <- sapply(files$path, digest, algo = getConfig("hash"), file = TRUE, length = 300)
+      files$path  <- NULL
+      # write cachefile if path belongs to the source folder
+      if (dir.exists(getConfig("sourcefolder")) && 
+          startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
+        saveRDS(files, paste0(path,"/madratHashCache.rds"), version = 2)
+      }
+    }
+    files <- rbind(filesCache, files)
+    files$mtime <- NULL
+    files$key   <- NULL
+    return(digest(files[robustOrder(files$name),], algo = getConfig("hash")))
   }
   return(sapply(paths, .tmp))
 }
