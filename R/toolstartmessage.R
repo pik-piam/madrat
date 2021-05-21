@@ -10,9 +10,8 @@
 #' hierarchy level by 1).
 #' @param argumentValues list of the evaluated arguments of the calling function
 #' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
-#' @importFrom utils read.table
 #' @examples
 #'
 #' innerFunction <- function() {
@@ -27,15 +26,16 @@
 #'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction()
-
 toolstartmessage <- function(argumentValues, level = NULL) {
   functionAndArgs <- as.list(sys.call(-1))
+  theFunction <- functionAndArgs[[1]]
+  nonDefaultArguments <- getNonDefaultArguments(eval(theFunction), argumentValues)
 
-  argsString <- paste0(list(argumentValues))  # wrap everything in list for nicer string output
-  argsString <- substr(argsString, 6, nchar(argsString) - 1)  # remove superfluous list from string
+  argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
+  argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
 
   if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {
-    functionCallString <- paste0(functionAndArgs[1], "(", argsString, ")", collapse = "")
+    functionCallString <- paste0(theFunction, "(", argsString, ")", collapse = "")
     hint <- ""
   } else {
     functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
