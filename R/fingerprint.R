@@ -125,7 +125,7 @@ fingerprintFiles <- function(paths) {
     }
 
     getHashCacheName <- function(path) {
-      # return file name for fileHash cahe if the given path belongs to a source folder,
+      # return file name for fileHash cache if the given path belongs to a source folder,
       # otherwise return NULL
       if (dir.exists(getConfig("sourcefolder")) &&
           startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {

@@ -19,6 +19,8 @@
 #' @importFrom digest digest
 cacheArgumentsHash <- function(call, args = NULL) {
   nonDefaultArguments <- getNonDefaultArguments(call, args)
+  nonDefaultArguments <- nonDefaultArguments[robustOrder(names(nonDefaultArguments))]
+
   if (length(nonDefaultArguments) == 0) {
     return(NULL)
   }

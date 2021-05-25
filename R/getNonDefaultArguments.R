@@ -43,5 +43,5 @@ getNonDefaultArguments <- function(call, args = NULL) {
   if (length(args) == 0) {
     return(NULL)
   }
-  return(args[robustOrder(names(args))])
+  return(args)
 }
