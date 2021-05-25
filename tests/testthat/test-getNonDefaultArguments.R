@@ -7,6 +7,4 @@ test_that("getNonDefaultArguments returns only non-default arguments", {
   expect_identical(madrat:::getNonDefaultArguments(testFunction, args = list(a = 1)), list(a = 1))
   expect_identical(madrat:::getNonDefaultArguments(testFunction, args = list(a = 0, b = 1, x = 1)), list(b = 1, x = 1))
   expect_identical(madrat:::getNonDefaultArguments(testFunction, args = list(a = 0, x = 1, b = 1)), list(x = 1, b = 1))
-  expect_identical(madrat:::getNonDefaultArguments(testFunction, args = list(a = 0, x = 1, b = 1), sort = TRUE),
-                                                   list(b = 1, x = 1))
 })

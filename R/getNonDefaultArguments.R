@@ -7,7 +7,6 @@
 #' name but different default values only the default defined in the first function is considered.
 #' @param args A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
 #' occurrence of the argument will be used.
-#' @param sort A boolean deciding arguments should be returned sorted or in its original order
 #' @return A subset of args that is used by the function/s and is different from default values.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cacheArgumentsHash}}, \code{\link{toolstartmessage}}
@@ -16,7 +15,7 @@
 #' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "paper"))
 #' calls <- c(madrat:::readTau, madrat:::convertTau)
 #' madrat:::getNonDefaultArguments(calls, args = list(subtype = "historical"))
-getNonDefaultArguments <- function(call, args = NULL, sort = FALSE) {
+getNonDefaultArguments <- function(call, args = NULL) {
   if (length(args) == 0) {
     return(NULL)
   }
@@ -44,6 +43,5 @@ getNonDefaultArguments <- function(call, args = NULL, sort = FALSE) {
   if (length(args) == 0) {
     return(NULL)
   }
-  if (!sort) return(args)
-  return(args[robustOrder(names(args))])
+  return(args)
 }
