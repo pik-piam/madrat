@@ -18,7 +18,7 @@
 #' madrat:::cacheArgumentsHash(calls, args = list(subtype = "historical"))
 #' @importFrom digest digest
 cacheArgumentsHash <- function(call, args = NULL) {
-  nonDefaultArguments <- getNonDefaultArguments(call, args)
+  nonDefaultArguments <- getNonDefaultArguments(call, args, sort = TRUE)
   if (length(nonDefaultArguments) == 0) {
     return(NULL)
   }
