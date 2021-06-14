@@ -77,7 +77,7 @@
 #' }
 #' 
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report2 write.magpie
-#' getCells getYears<- is.magpie dimSums getMetadata updateMetadata
+#' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
 #' @importFrom digest digest
 #' @export
@@ -323,7 +323,6 @@ calcOutput <- function(type,aggregate=TRUE,file=NULL,years=NULL,round=NULL,suppl
   if(x$class=="magpie") {
     getComment(x$x) <- extended_comment
     x$x <- clean_magpie(x$x)
-    x$x <- updateMetadata(x$x,unit=x$unit,source=x$source,calcHistory="update",description=x$description,note=x$note,cH_priority=1)
   } else {
     attr(x$x,"comment") <- extended_comment
   }
