@@ -39,20 +39,21 @@
 #' y <- toolCountryFill(x, 99)
 #' @importFrom magclass getRegions new.magpie getYears getNames mbind setCells
 #' @export
-toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, countrylist = NULL, ...) {
+toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, #nolint
+                            countrylist = NULL, ...) {
   if (is.null(countrylist)) {
-    iso_country <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
-    countrylist <- as.vector(iso_country[, "x"])
-    names(countrylist) <- iso_country[, "X"]
+    isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
+    countrylist <- as.vector(isoCountry[, "x"])
+    names(countrylist) <- isoCountry[, "X"]
   }
-  missing_countries    <- setdiff(countrylist, getRegions(x))
-  additional_countries <- setdiff(getRegions(x), countrylist)
+  missingCountries    <- setdiff(countrylist, getRegions(x))
+  additionalCountries <- setdiff(getRegions(x), countrylist)
 
   # remove irrelevant information
-  if (length(additional_countries) > 0) {
-    x <- x[setdiff(getRegions(x), additional_countries), , ]
+  if (length(additionalCountries) > 0) {
+    x <- x[setdiff(getRegions(x), additionalCountries), , ]
     # warn only for countries which were not explicitly mentioned in argument "remove"
-    countries2warn <- setdiff(additional_countries, no_remove_warning)
+    countries2warn <- setdiff(additionalCountries, no_remove_warning)
     if (length(countries2warn) > 0) vcat(0, "Data for following unknown country codes removed: ",
       paste(countries2warn, collapse = ", "))
   }
@@ -61,46 +62,46 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
   map <- c(...)
   if (!is.null(map)) {
     if (!is.null(names(map))) names(map) <- sub("^.*\\.", "", names(map))
-    if (any(map %in% missing_countries)) {
-      tmp <- map[map %in% missing_countries]
+    if (any(map %in% missingCountries)) {
+      tmp <- map[map %in% missingCountries]
       stop("Try to fill a country with data from another country which is non-existent in the data set (",
         paste(tmp, names(tmp), sep = " -> ", collapse = " | "), ").")
     }
-    if (!all(names(map) %in% missing_countries)) {
+    if (!all(names(map) %in% missingCountries)) {
       if (overwrite) {
-        tmp <- map[!(names(map) %in% missing_countries)]
+        tmp <- map[!(names(map) %in% missingCountries)]
         vcat(1, "Existing data overwritten with data from another country (",
           paste(tmp, names(tmp), sep = " -> ", collapse = " | "), ").")
       } else {
-        map <- map[(names(map) %in% missing_countries)]
+        map <- map[(names(map) %in% missingCountries)]
         if (length(map) == 0) map <- NULL
       }
     }
   }
 
   # add missing data
-  if (length(missing_countries) > 0) {
+  if (length(missingCountries) > 0) {
 
-    missing_important_countries <- setdiff(intersect(missing_countries, getISOlist("important")), names(map))
-    if (length(missing_important_countries) > 0) {
-      names_countries <- names(countrylist)[countrylist %in% missing_important_countries]
+    missingImportantCountries <- setdiff(intersect(missingCountries, getISOlist("important")), names(map))
+    if (length(missingImportantCountries) > 0) {
+      namesCountries <- names(countrylist)[countrylist %in% missingImportantCountries]
       vcat(verbosity, " - toolCountryFill set missing values for IMPORTANT countries to ", fill, ":")
-      vcat(verbosity, " --- ", paste0(names_countries, " (", countrylist[names_countries], ") "), show_prefix = FALSE)
+      vcat(verbosity, " --- ", paste0(namesCountries, " (", countrylist[namesCountries], ") "), show_prefix = FALSE)
     }
 
-    missing_dispensable_countries <- setdiff(intersect(missing_countries, getISOlist("dispensable")), names(map))
-    if (length(missing_important_countries) > 0) {
-      names_countries <- names(countrylist)[countrylist %in% missing_dispensable_countries]
+    missingDispensableCountries <- setdiff(intersect(missingCountries, getISOlist("dispensable")), names(map))
+    if (length(missingImportantCountries) > 0) {
+      namesCountries <- names(countrylist)[countrylist %in% missingDispensableCountries]
       vcat(2, " - toolCountryFill set missing values for DISPENSABLE countries to ", fill, ":")
-      vcat(2, " --- ", paste0(names_countries, " (", countrylist[names_countries], ") "), show_prefix = FALSE)
+      vcat(2, " --- ", paste0(namesCountries, " (", countrylist[namesCountries], ") "), show_prefix = FALSE)
     }
 
-    tmp <- new.magpie(missing_countries, getYears(x), getNames(x), fill = fill)
+    tmp <- new.magpie(missingCountries, getYears(x), getNames(x), fill = fill)
     x <- mbind(x, tmp)
 
     # map data as defined by additional mappings
     if (!is.null(map)) {
-      for (i in 1:length(map)) {
+      for (i in seq_along(map)) {
         x[names(map)[i], , ] <- setCells(x[map[i], , ], names(map)[i])
       }
       vcat(2, " - toolCountryFill set missing values to values of existing countries:")

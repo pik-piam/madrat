@@ -76,35 +76,37 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   }
 
   # container for new values
-  x_new <- as.magpie(x)
+  xNew <- as.magpie(x)
 
   # computation of regional averages and replacing
   for (regi in unique(map$RegionCode)) {
-    c_regi <- map$CountryCode[map$RegionCode == regi]
-    c_regi <- intersect(c_regi, getRegions(x))
-    if (length(c_regi) == 0) next
+    cRegi <- map$CountryCode[map$RegionCode == regi]
+    cRegi <- intersect(cRegi, getRegions(x))
+    if (length(cRegi) == 0) next
     for (yr in 1:nyears(x)) {
       # filter out the countries that are NA
-      NAvals <- is.na(x[c_regi, yr, ])
+      naVals <- is.na(x[cRegi, yr, ])
       # if no NAs -> jump to next iteration
-      if (sum(NAvals) == 0) next
-      c_NA <- c_regi[NAvals]
-      c_vals <- c_regi[!NAvals]
+      if (sum(naVals) == 0) next
+      cNA <- cRegi[naVals]
+      cVals <- cRegi[!naVals]
 
       # weighted aggregation. convert to numeric to avoid issue with single country avg
-      fill_val <- as.numeric(dimSums(x[c_vals, yr, ] * weight[c_vals, yr, ], dim = 1) / dimSums(weight[c_vals, yr, ], dim = 1))
-      x_new[c_NA, yr, ] <- fill_val
+      fillVal <- as.numeric(dimSums(x[cVals, yr, ] * weight[cVals, yr, ], dim = 1) / dimSums(weight[cVals, yr, ],
+        dim = 1))
+      xNew[cNA, yr, ] <- fillVal
 
       if (verbose) {
-        vcat(1, sprintf("%s %s : replaced %s missing values with regional average of %.2e", regi, yr, length(c_NA), fill_val))
+        vcat(1, sprintf("%s %s : replaced %s missing values with regional average of %.2e", regi, yr,
+          length(cNA), fillVal))
       }
 
-      if (length(c_NA) / length(c_regi) > warningThreshold) {
+      if (length(cNA) / length(cRegi) > warningThreshold) {
         warning(sprintf("%s %s : more than %s percent missing values \n", regi, yr, 100 * warningThreshold))
       }
 
     }
   }
 
-  return(x_new)
+  return(xNew)
 }

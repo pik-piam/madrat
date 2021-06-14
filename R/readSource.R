@@ -39,7 +39,10 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
   if (!is.character(type) || length(type) != 1) stop("Invalid type (must be a single character string)!")
 
   # Does the source that should be read exist?
-  if (!(type %in% getSources(type = "read"))) stop('Type "', type, '" is not a valid source type. Available sources are: "', paste(getSources(type = "read"), collapse = '", "'), '"')
+  if (!(type %in% getSources(type = "read"))) {
+    stop('Type "', type, '" is not a valid source type. Available sources are: "',
+      paste(getSources(type = "read"), collapse = '", "'), '"')
+  }
 
   # Does a correctTYPE function exist?
   if (convert == "onlycorrect" & !(type %in% getSources(type = "correct"))) {
@@ -48,19 +51,22 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
   }
 
   testISO <- function(x, functionname = "function") {
-    iso_country  <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
-    iso_country1 <- as.vector(iso_country[, "x"])
-    names(iso_country1) <- iso_country[, "X"]
-    isocountries  <- robustSort(iso_country1)
+    isoCountry  <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
+    isoCountry1 <- as.vector(isoCountry[, "x"])
+    names(isoCountry1) <- isoCountry[, "X"]
+    isocountries  <- robustSort(isoCountry1)
     datacountries <- robustSort(x)
     if (length(isocountries) != length(datacountries)) stop("Wrong number of countries returned by ", functionname, "!")
-    if (any(isocountries != datacountries)) stop("Countries returned by ", functionname, " do not agree with iso country list!")
+    if (any(isocountries != datacountries)) stop("Countries returned by ", functionname,
+      " do not agree with iso country list!")
   }
 
   .getData <- function(type, subtype, prefix = "read") {
     # get data either from cache or by calculating it from source
     sourcefolder <- paste0(getConfig("sourcefolder"), "/", make.names(type))
-    if (!is.null(subtype) && file.exists(paste0(sourcefolder, "/", make.names(subtype), "/DOWNLOAD.yml"))) sourcefolder <- paste0(sourcefolder, "/", make.names(subtype))
+    if (!is.null(subtype) && file.exists(paste0(sourcefolder, "/", make.names(subtype), "/DOWNLOAD.yml"))) {
+      sourcefolder <- paste0(sourcefolder, "/", make.names(subtype))
+    }
 
     fname <- paste0(prefix, type, subtype)
     args <- NULL
@@ -108,24 +114,26 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
   # otherwise just check whether the sourcefolder exists
   df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
   if (length(df) == 0) {
-    source_missing <- !file.exists(sourcefolder)
+    sourceMissing <- !file.exists(sourcefolder)
   } else {
     sourcefile <- paste0(getConfig("sourcefolder"), "/", make.names(type), "/DOWNLOAD.yml")
     sourcesubfile <- paste0(getConfig("sourcefolder"), "/", make.names(type), "/", make.names(subtype), "/DOWNLOAD.yml")
-    source_missing <- (!file.exists(sourcefile) && !file.exists(sourcesubfile))
+    sourceMissing <- (!file.exists(sourcefile) && !file.exists(sourcesubfile))
   }
 
-  if (source_missing) {
+  if (sourceMissing) {
     # does a routine exist to download the source data?
     if (type %in% getSources(type = "download")) {
       downloadSource(type = type, subtype = subtype)
     } else {
       typesubtype <- paste0(paste(c(paste0("type = \"", type), subtype), collapse = "\" subtype = \""), "\"")
-      stop("Sourcefolder does not contain data for the requested source ", typesubtype, " and there is no download script which could provide the missing data. Please check your settings!")
+      stop("Sourcefolder does not contain data for the requested source ", typesubtype,
+        " and there is no download script which could provide the missing data. Please check your settings!")
     }
   }
 
-  if (!is.logical(convert) && convert != "onlycorrect") stop("Unknown convert setting \"", convert, "\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
+  if (!is.logical(convert) && convert != "onlycorrect") stop("Unknown convert setting \"", convert,
+    "\" (allowed: TRUE, FALSE and \"onlycorrect\") ")
 
   if (convert == TRUE && (type %in% getSources(type = "convert"))) {
     prefix <- "convert"
