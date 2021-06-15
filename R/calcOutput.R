@@ -94,7 +94,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
       # rename column names from old to new convention, if necessary
       if (any(names(rel[[r]]) == "CountryCode")) names(rel[[r]])[names(rel[[r]]) == "CountryCode"] <- "country"
       if (any(names(rel[[r]]) == "RegionCode")) names(rel[[r]])[names(rel[[r]]) == "RegionCode"] <- "region"
-      if (is.null(rel[[r]]$global)) rel[[r]]$global <- "GLO"  # add global column
+      if (is.null(rel[[r]]$global)) {
+        rel[[r]]$global <- "GLO"  # add global column
+      }
       relNames <- union(relNames, names(rel[[r]]))
     }
   }
