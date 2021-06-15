@@ -167,7 +167,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
 
     # check that data is returned for ISO countries except if x$isocountries=FALSE
     if (x$isocountries) {
-      datacountries <-      .countrycheck <- function(datacountries, name) {
+      .countrycheck <- function(datacountries, name) {
         datacountries <- robustSort(datacountries)
         isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
         isoCountry1 <- as.vector(isoCountry[, "x"])
