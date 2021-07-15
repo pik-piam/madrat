@@ -44,7 +44,7 @@ toolGetMapping <- function(name, type=NULL, where=NULL, error.missing=TRUE, retu
         if (out != "") {
           fname <- out
           break
-          }
+        }
       }
     }
   } else if (where == "mappingfolder") {
