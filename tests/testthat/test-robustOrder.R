@@ -8,9 +8,14 @@ test_that("robustOrder sorts locale independent", {
   expect_equal(madrat:::robustOrder(x), c(3, 1, 2))
 
   if (!identical(Sys.info()[["sysname"]], "Windows")) {
-    expected <- c(3, 1, 2)
-    # TODO loop all available locales ($ locale -a), ensure robustOrder is always the same
-    expect_equal(1, 2)
+    expect_true(all(vapply(
+      system("locale -a", intern = TRUE),
+      function(availableLocale) {
+        Sys.setlocale("LC_COLLATE", availableLocale)
+        return(isTRUE(all.equal(madrat:::robustOrder(x), c(3, 1, 2))))
+      },
+      logical(1)
+    )))
   }
 })
 
