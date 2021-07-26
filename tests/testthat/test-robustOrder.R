@@ -1,16 +1,17 @@
 test_that("robustOrder sorts locale independent", {
   lcCollate <- Sys.getlocale("LC_COLLATE")
+  on.exit(Sys.setlocale("LC_COLLATE", lcCollate))
 
   x <- c("a", "b", "C")
   Sys.setlocale("LC_COLLATE", "C")
   expect_equal(order(x), c(3, 1, 2))
   expect_equal(madrat:::robustOrder(x), c(3, 1, 2))
 
-  Sys.setlocale("LC_COLLATE", "en_US.UTF-8")
-  expect_equal(order(x), c(1, 2, 3))
-  expect_equal(madrat:::robustOrder(x), c(3, 1, 2))
-
-  Sys.setlocale("LC_COLLATE", lcCollate)
+  if (!identical(Sys.info()[["sysname"]], "Windows")) {
+    expected <- c(3, 1, 2)
+    # TODO loop all available locales ($ locale -a), ensure robustOrder is always the same
+    expect_equal(1, 2)
+  }
 })
 
 test_that("robustOrder can deal with non-UTF-8 strings", {
