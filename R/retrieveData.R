@@ -26,6 +26,7 @@
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #' @importFrom methods formalArgs
+#' @importFrom utils sessionInfo
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
