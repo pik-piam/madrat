@@ -133,7 +133,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     if (cachetype == "rev") {
       setConfig(
-        cachefolder = paste0(getConfig("mainfolder"), "/cache/rev", rev, dev),
+        cachefolder = file.path(getConfig("mainfolder"), "cache", paste0("rev", rev, dev)),
         forcecache = TRUE
       )
     }
