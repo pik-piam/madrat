@@ -140,6 +140,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     getConfig(print = TRUE)
 
+    # log sessionInfo
+    vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
+
     # run full* functions
     startinfo <- toolstartmessage(argumentValues, 0)
 
