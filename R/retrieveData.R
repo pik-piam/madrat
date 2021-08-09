@@ -26,6 +26,7 @@
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #' @importFrom methods formalArgs
+#' @importFrom utils sessionInfo
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
@@ -133,12 +134,15 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     if (cachetype == "rev") {
       setConfig(
-        cachefolder = paste0(getConfig("mainfolder"), "/cache/rev", rev, dev),
+        cachefolder = file.path(getConfig("mainfolder"), "cache", paste0("rev", rev, dev)),
         forcecache = TRUE
       )
     }
 
     getConfig(print = TRUE)
+
+    # log sessionInfo
+    vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
 
     # run full* functions
     startinfo <- toolstartmessage(argumentValues, 0)
