@@ -94,6 +94,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
       # weighted aggregation. convert to numeric to avoid issue with single country avg
       fillVal <- as.numeric(dimSums(x[cVals, yr, ] * weight[cVals, yr, ], dim = 1) / dimSums(weight[cVals, yr, ],
         dim = 1))
+      if (length(fillVal) == 0) fillVal <- NA
       xNew[cNA, yr, ] <- fillVal
 
       if (verbose) {
