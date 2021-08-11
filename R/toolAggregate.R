@@ -348,6 +348,8 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       regOut <- rownames(rel)
     } else if (dim == 1) {
       regionList <- as.factor(getItems(x, dim = 1.1, full = TRUE))
+      # Compute region vector for outputs after aggregation via sending 
+      # factor values through the relation matrix
       regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
         (rel %*% rep(1, dim(rel)[2])))))
       levels(regOut) <- levels(regionList)
