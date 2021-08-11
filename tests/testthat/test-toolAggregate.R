@@ -46,7 +46,7 @@ test_that("Mappings work in various formats identical", {
   expect_identical(noC(toolAggregate(pm, map[, 3:1])), ref)
   expect_identical(noC(toolAggregate(pm, map[, 2:1])), ref)
 
-  tmpfile <- paste0(tempdir(), "/map.rds")
+  tmpfile <- file.path(tempdir(), "map.rds")
   saveRDS(map, tmpfile)
   tmpfile2 <- paste0(tempdir(), "/map.csv")
   write.csv(map, tmpfile2)
