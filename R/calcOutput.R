@@ -81,7 +81,7 @@
 #' @importFrom digest digest
 #' @export
 
-calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE,
+calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, #nolint
                        append = FALSE, na_warning = TRUE, try = FALSE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
@@ -153,7 +153,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
       x$isocountries <- FALSE
     }
     if (is.null(x$isocountries)) {
-      if (nregions(x$x) == 1 && getRegions(x$x) == "GLO") {
+      if (nregions(x$x) == 1 && (is.null(getItems(x$x, dim = 1)) || getItems(x$x, dim = 1) == "GLO")) {
         x$isocountries <- FALSE
       } else {
         x$isocountries <- TRUE
@@ -214,15 +214,15 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   }
 
   cwd <- getwd()
-  on.exit(setwd(cwd))
+  on.exit(setwd(cwd)) #nolint
   if (is.null(getOption("gdt_nestinglevel"))) vcat(-2, "")
   startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"), add = TRUE)
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
-  setwd(getConfig("outputfolder"))
+  setwd(getConfig("outputfolder")) #nolint
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
-  extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE)
+  extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) #nolint
   args <- c(extraArgs, list(...))
 
   x <- cacheGet(prefix = "calc", type = type, args = args)
@@ -300,7 +300,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   if (aggregate != FALSE) {
     if (x$class != "magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
     items <- getItems(x$x, dim = 1)
-    relFitting <- which(sapply(rel, nrow) == length(items))
+    relFitting <- which(sapply(rel, nrow) == length(items)) #nolint
     if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
       " contain a mapping compatible to the provided data!")
     if (length(relFitting) > 1) {
