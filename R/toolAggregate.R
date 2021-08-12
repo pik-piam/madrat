@@ -82,7 +82,7 @@
 #' toolAggregate(p, mapping, weight = p)
 #' # combined aggregation across two columns
 #' toolAggregate(p, mapping, to = "region+global")
-toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, #nolint
+toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
                           negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1) { # nolint
 
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
@@ -115,12 +115,12 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
 
       if (is.null(from)) {
         if (partrel) {
-          from <- as.integer(which(sapply(lapply(rel, intersect, items), length) > 0)) #nolint
+          from <- as.integer(which(sapply(lapply(rel, intersect, items), length) > 0)) # nolint
         } else {
-          from <- as.integer(which(sapply(rel, setequal, items))) #nolint
+          from <- as.integer(which(sapply(rel, setequal, items))) # nolint
         }
         if (length(from) == 0) {
-          maxMatchColumn <- which.max(sapply(lapply(rel, intersect, items), length)) #nolint
+          maxMatchColumn <- which.max(sapply(lapply(rel, intersect, items), length)) # nolint
           unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
           missingItems <- setdiff(rel[[maxMatchColumn]], items)
 
@@ -274,7 +274,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
 
         tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
         additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
-        add <- sapply(additions, function(x) return(x[1:2])) #nolint
+        add <- sapply(additions, function(x) return(x[1:2])) # nolint
         add[is.na(add)] <- ""
         .tmp <- function(add, fill) return(paste0(rep(add[1, ], each = length(fill)),
           fill,
@@ -335,8 +335,8 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       if (length(dim(out)) == 2) out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
     } else {
       optMatprod <- getOption("matprod")
-      on.exit(options(matprod = optMatprod)) #nolint
-      options(matprod = "blas")              #nolint
+      on.exit(options(matprod = optMatprod)) # nolint
+      options(matprod = "blas")              # nolint
       notdim <- setdiff(1:3, dim)
       out <- rel %*% as.array(wrap(x, list(dim, notdim)))
       out <- array(out, dim = c(dim(rel)[1], dim(x)[notdim]))
@@ -348,7 +348,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       regOut <- rownames(rel)
     } else if (dim == 1) {
       regionList <- as.factor(getItems(x, dim = 1.1, full = TRUE))
-      # Compute region vector for outputs after aggregation via sending 
+      # Compute region vector for outputs after aggregation via sending
       # factor values through the relation matrix
       regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
         (rel %*% rep(1, dim(rel)[2])))))

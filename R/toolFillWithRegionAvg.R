@@ -78,6 +78,9 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   # container for new values
   xNew <- as.magpie(x)
 
+  aboveThreshold <- NULL
+  replace <- NULL
+
   # computation of regional averages and replacing
   for (regi in unique(map$RegionCode)) {
     cRegi <- map$CountryCode[map$RegionCode == regi]
@@ -97,16 +100,18 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
       if (length(fillVal) == 0) fillVal <- NA
       xNew[cNA, yr, ] <- fillVal
 
-      if (verbose) {
-        vcat(1, sprintf("%s %s : replaced %s missing values with regional average of %.2e", regi, yr,
-          length(cNA), fillVal))
-      }
-
+      replace <- c(replace, paste0(regi, "|", yr, " (", length(cNA), "x) -> ", round(fillVal, 2)))
       if (length(cNA) / length(cRegi) > warningThreshold) {
-        warning(sprintf("%s %s : more than %s percent missing values \n", regi, yr, 100 * warningThreshold))
+        aboveThreshold <- c(aboveThreshold, paste0(regi, "|", yr))
       }
 
     }
+  }
+  if (verbose) {
+    vcat(1, "Replaced missing values with regional average for: ", paste(replace, collapse = ", "))
+  }
+  if (length(aboveThreshold) > 0) {
+    warning("More than ", 100 * warningThreshold, "% missing values for: ", paste(aboveThreshold, collapse = ", "))
   }
 
   return(xNew)
