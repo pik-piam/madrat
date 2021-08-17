@@ -330,7 +330,14 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   if (aggregate != FALSE) {
     x$aggregationArguments$rel <- quote(rel)
     if (aggregate != TRUE) x$aggregationArguments$to <- aggregate
-    x$x <- do.call(x$aggregationFunction, x$aggregationArguments)
+    if (try || getConfig("debug") == TRUE) {
+      x$x <- try(do.call(x$aggregationFunction, x$aggregationArguments), silent = TRUE)
+      if ("try-error" %in% class(x$x)) {
+        vcat(0, as.character(attr(x$x, "condition")))
+      }
+    } else {
+      x$x <- do.call(x$aggregationFunction, x$aggregationArguments)
+    }
     x$x <- toolOrderCells(x$x)
   }
 
