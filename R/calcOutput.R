@@ -334,6 +334,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
       x$x <- try(do.call(x$aggregationFunction, x$aggregationArguments), silent = TRUE)
       if ("try-error" %in% class(x$x)) {
         vcat(0, as.character(attr(x$x, "condition")))
+        return(NULL)
       }
     } else {
       x$x <- do.call(x$aggregationFunction, x$aggregationArguments)
