@@ -1,0 +1,79 @@
+#' compareData
+#'
+#' Compares the content of two data archives and looks for similarities and differences
+#'
+#' @param x Either a tgz file or a folder containing data sets
+#' @param y Either a tgz file or a folder containing data sets
+#' @param tolerance tolerance level below which differences will
+#' get ignored
+#' @author Jan Philipp Dietrich
+#' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
+#' @importFrom utils untar
+#' @export
+
+compareData <- function(x, y, tolerance = 10^-4) {
+  tDir <- tempdir()
+
+  .rmag <- function(f) {
+    x <- try(read.magpie(f), silent = TRUE)
+    if (!is.magpie(x)) return(NULL)
+    attr(x, "comment") <- NULL
+    return(x)
+  }
+
+  .getDir <- function(tDir, file, name) {
+    if (dir.exists(file)) return(file)
+    d <- file.path(tDir, name)
+    untar(file, exdir = d)
+    return(d)
+  }
+  xDir <- .getDir(tDir, x, "x")
+  yDir <- .getDir(tDir, y, "y")
+
+  out <- list(ok = 0, skip = 0, diff = 0, miss = 0)
+  out$files <- list(notInX = setdiff(list.files(yDir), list.files(xDir)),
+                    notInY = setdiff(list.files(xDir), list.files(yDir)),
+                    inBoth = intersect(list.files(xDir), list.files(yDir)))
+
+  maxchar <- max(vapply(out$files$inBoth, nchar, integer(1)))
+  out$miss <- length(out$files$notInA) + length(out$files$notInA)
+
+  .reportMissingFiles <- function(x, name) {
+    if (length(x) > 0) {
+      message(length(x), " file(s) missing in ", name, ": ", paste(x, collapse = ", "))
+    }
+  }
+  .reportMissingFiles(out$files$notInX, "x")
+  .reportMissingFiles(out$files$notInY, "y")
+
+  i <- 1
+  for (f in out$files$inBoth) {
+    counter <- format(paste0("(", i, "/", length(out$files$inBoth), ") "), width = 10)
+    message(counter, format(f, width = maxchar), " ... ", appendLF = FALSE)
+    i <- i + 1
+    x <- .rmag(file.path(xDir, f))
+    y <- .rmag(file.path(yDir, f))
+    if (is.null(x) && is.null(y)) {
+      message("skipped")
+      out$skip <- out$skip + 1
+    } else {
+      if (!identical(dim(x), dim(y))) {
+        message("!= dim")
+        out$diff <- out$diff + 1
+      } else if (!identical(dimnames(x), dimnames(y))) {
+        message("!= dimnames")
+        out$diff <- out$diff + 1
+      } else {
+        diff <- max(abs(x - y))
+        if (!identical(x, y) && diff > tolerance) {
+          message("!= values (max diff = ", diff, ")")
+          out$diff <- out$diff + 1
+        } else {
+          message("OK")
+          out$ok <- out$ok + 1
+        }
+      }
+    }
+  }
+  message("[OK ", out$ok, " | DIFF ", out$diff, " | SKIP ", out$skip, " | MISS ", out$miss, "]")
+}
