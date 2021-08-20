@@ -48,6 +48,14 @@ compareData <- function(x, y, tolerance = 10^-5) {
   .reportMissingFiles(out$files$notInX, "x")
   .reportMissingFiles(out$files$notInY, "y")
 
+  .dimEqual <- function(x, y) {
+    equal <- TRUE
+    for (i in 1:3) {
+      if (!setequal(dimnames(x)[[i]], dimnames(y)[[i]])) equal <- FALSE
+    }
+    return(equal)
+  }
+
   i <- 1
   for (f in out$files$inBoth) {
     counter <- format(paste0("(", i, "/", length(out$files$inBoth), ") "), width = 10)
@@ -62,7 +70,7 @@ compareData <- function(x, y, tolerance = 10^-5) {
       if (!identical(dim(x), dim(y))) {
         message("!= dim")
         out$diff <- out$diff + 1
-      } else if (!identical(dimnames(x), dimnames(y))) {
+      } else if (!.dimEqual(x, y)) {
         message("!= dimnames")
         out$diff <- out$diff + 1
       } else {
