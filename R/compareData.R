@@ -11,8 +11,9 @@
 #' @importFrom utils untar
 #' @export
 
-compareData <- function(x, y, tolerance = 10^-4) {
+compareData <- function(x, y, tolerance = 10^-5) {
   tDir <- tempdir()
+  on.exit(unlink(tDir, recursive = TRUE, force = TRUE))
 
   .rmag <- function(f) {
     x <- try(read.magpie(f), silent = TRUE)
@@ -24,6 +25,7 @@ compareData <- function(x, y, tolerance = 10^-4) {
   .getDir <- function(tDir, file, name) {
     if (dir.exists(file)) return(file)
     d <- file.path(tDir, name)
+    if (file.exists(d)) unlink(d, recursive = TRUE, force = TRUE)
     untar(file, exdir = d)
     return(d)
   }
@@ -66,7 +68,7 @@ compareData <- function(x, y, tolerance = 10^-4) {
       } else {
         diff <- max(abs(x - y))
         if (!identical(x, y) && diff > tolerance) {
-          message("!= values (max diff = ", diff, ")")
+          message("!= values (max diff = ", round(diff, 8), ")")
           out$diff <- out$diff + 1
         } else {
           message("OK")
