@@ -4,8 +4,6 @@
 
 # Session Data files
 .RData
-# Help files (because they will be created automatically by roxygen)
-*.Rd
 # Example code in package build process
 *-Ex.R
 # Output files from R CMD build
