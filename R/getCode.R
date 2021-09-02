@@ -36,7 +36,7 @@ getCode <- function(packages = installedMadratUniverse(), globalenv = getConfig(
   duplicated <- duplicated(fpool$fname, fromLast = TRUE)
   if (any(duplicated)) {
     for (d in fpool$fname[duplicated]) {
-      base::warning("Duplicate functions found: ", paste(fpool$call[fpool$fname == d], collapse = ", "),
+      warning("Duplicate functions found: ", paste(fpool$call[fpool$fname == d], collapse = ", "),
               "! Laste entry will be used")
     }
     fpool <- fpool[!duplicated, ]
@@ -70,7 +70,7 @@ getCode <- function(packages = installedMadratUniverse(), globalenv = getConfig(
       notfound <- vapply(getMappings, .notfound, logical(1))
       notfound <- names(notfound[notfound])
       if (length(notfound) > 0) {
-        for (nf in notfound) base::warning("Mapping in ", nf, " not found!")
+        for (nf in notfound) warning("Mapping in ", nf, " not found!")
       }
     }
     .warnNotfound(getMappings)

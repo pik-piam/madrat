@@ -48,6 +48,9 @@ test_that("fingerprinting works for edge cases", {
   expect_null(madrat:::fingerprintCall("blub"))
 })
 
+rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
+
+
 test_that("fingerprinting works with control flags", {
   setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1)
   setConfig(globalenv = TRUE)
@@ -116,5 +119,6 @@ test_that("fingerprinting works with control flags", {
   expect_identical(madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat"), fp2Expected)
   expect_identical(madrat:::fingerprint("calcExample3", details = TRUE, packages = "madrat"), fp3Expected)
   expect_identical(madrat:::fingerprint("calcExample4", details = TRUE, packages = "madrat"), fp4Expected)
-  rm(list = c("readData3", "calcExample2", "calcExample3", "calcExample4"), envir = .GlobalEnv)
 })
+
+rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

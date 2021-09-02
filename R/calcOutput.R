@@ -75,13 +75,13 @@
 #' a <- calcOutput(type = "TauTotal")
 #' }
 #'
-#' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report2 write.magpie
+#' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
 #' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
 #' @importFrom digest digest
 #' @export
 
-calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, #nolint
+calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
                        append = FALSE, na_warning = TRUE, try = FALSE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
@@ -178,8 +178,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
         if (any(isocountries != datacountries)) stop("Countries in ", name, " returned by ", functionname,
           " do not agree with iso country list!")
       }
-      .countrycheck(getRegions(x$x), "x")
-      if (!is.null(x$weight) && nregions(x$weight) > 1) .countrycheck(getRegions(x$weight), "weight")
+      .countrycheck(getItems(x$x, dim = 1.1), "x")
+      if (!is.null(x$weight) && nregions(x$weight) > 1) .countrycheck(getItems(x$weight, dim = 1.1), "weight")
     }
     # perform additional checks
     if (x$class != "magpie" && (!is.null(x$min) | !is.null(x$max))) stop("Min/Max checks cannot be used in combination",
@@ -214,15 +214,15 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   }
 
   cwd <- getwd()
-  on.exit(setwd(cwd)) #nolint
+  on.exit(setwd(cwd)) # nolint
   if (is.null(getOption("gdt_nestinglevel"))) vcat(-2, "")
   startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"), add = TRUE)
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
-  setwd(getConfig("outputfolder")) #nolint
+  setwd(getConfig("outputfolder")) # nolint
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
-  extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) #nolint
+  extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) # nolint
   args <- c(extraArgs, list(...))
 
   x <- cacheGet(prefix = "calc", type = type, args = args)
@@ -300,7 +300,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   if (aggregate != FALSE) {
     if (x$class != "magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
     items <- getItems(x$x, dim = 1)
-    relFitting <- which(sapply(rel, nrow) == length(items)) #nolint
+    relFitting <- which(sapply(rel, nrow) == length(items)) # nolint
     if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
       " contain a mapping compatible to the provided data!")
     if (length(relFitting) > 1) {
@@ -371,7 +371,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     if (x$class == "magpie") {
       if (grepl(".mif", file) == TRUE) {
         if (!is.null(getYears(x$x))) {
-          write.report2(x$x, file = paste(getConfig("outputfolder"), file, sep = "/"), unit = x$unit, append = append)
+          write.report(x$x, file = paste(getConfig("outputfolder"), file, sep = "/"), unit = x$unit, append = append)
         } else {
           vcat(0, "Time dimension missing and data cannot be written to a mif-file. Skip data set!")
         }

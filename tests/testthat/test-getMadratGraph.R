@@ -1,7 +1,7 @@
 context("getMadratGraph")
 
 globalassign <- function(...) {
-  for(x in c(...)) assign(x,eval.parent(parse(text=x)),.GlobalEnv)
+  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
 
 test_that("getMadratGraph works", {
@@ -13,6 +13,8 @@ test_that("getMadratGraph works", {
   expect_setequal(graph$to_package, c("madrat", ".GlobalEnv"))
 })
 
-test_that("MADRaT Universe detection works",{
+test_that("MADRaT Universe detection works", {
   expect_true("madrat" %in% installedMadratUniverse())
 })
+
+rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

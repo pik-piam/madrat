@@ -82,7 +82,7 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
   if (any(fromNA)) {
     out$from[is.na(out$from)] <- "UNKNOWN"
     out$from_package[fromNA]  <- "UNKNOWN"
-    base::warning("Following functions contain read or calc statements which could not be identified: \n   ",
+    warning("Following functions contain read or calc statements which could not be identified: \n   ",
             paste(out$to[fromNA], collapse = ", "), "\n  Please adress the type explicitly in the call to allow",
             " for proper detection, e.g. readSource(\"MySource\")")
   }
@@ -90,7 +90,7 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
   from_packageNA <- is.na(out$from_package) & !fromNA # nolint
   if (any(from_packageNA)) {
     out$from_package[from_packageNA] <- "UNKNOWN"
-    base::warning("Following functions could not be found in the scope of packages to be checked.: \n   ",
+    warning("Following functions could not be found in the scope of packages to be checked.: \n   ",
             paste0(out$from[from_packageNA], "->", out$to[from_packageNA], collapse = ", "),
             "\n  Please make sure that they exist and adjust the scope of packages accordingly!")
   }

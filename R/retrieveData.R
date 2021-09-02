@@ -93,7 +93,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
   # save current settings to set back if needed
   cfgBackup <- getOption("madrat_cfg")
-  on.exit(options("madrat_cfg" = cfgBackup))
+  on.exit(options("madrat_cfg" = cfgBackup)) # nolint
 
   rev <- numeric_version(rev)
 
@@ -149,6 +149,10 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     vcat(2, " - execute function ", functionname, fill = 300, show_prefix = FALSE)
 
+    # get madrat graph to check for possible problems
+    getMadratGraph(packages = getConfig("packages"),
+                   globalenv = getConfig("globalenv"))
+
     # add rev and dev arguments
     inargs$rev <- rev
     inargs$dev <- dev
@@ -170,9 +174,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
     cwd <- getwd()
-    setwd(sourcefolder)
+    setwd(sourcefolder) # nolint
     system(paste0("tar --create --gzip --file ../", collectionname, ".tgz", " ./*"))
-    setwd(cwd)
+    setwd(cwd) # nolint
     unlink(sourcefolder, recursive = TRUE)
   } else {
     startinfo <- toolstartmessage(argumentValues, 0)
