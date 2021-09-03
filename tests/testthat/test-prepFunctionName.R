@@ -1,7 +1,7 @@
 context("prepFunctionName")
 
 globalassign <- function(...) {
-  for(x in c(...)) assign(x,eval.parent(parse(text=x)),.GlobalEnv)
+  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
 
 test_that("prepFunctionName works", {
@@ -15,3 +15,4 @@ test_that("prepFunctionName works", {
   rm(list = "calcTauTotal", envir = .GlobalEnv)
 })
 
+rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

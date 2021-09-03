@@ -67,3 +67,5 @@ test_that("different kinds of arguments are logged correctly", {
     fixed = TRUE
   )
 })
+
+rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
