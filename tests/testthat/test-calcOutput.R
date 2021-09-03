@@ -170,7 +170,7 @@ test_that("Custom class support works", {
   globalassign(paste0("calcBla", 1))
   data <- calcOutput("Bla1", aggregate = FALSE, file = "test.rds")
   expect_equivalent(data, list(1))
-  expect_identical(readRDS(paste0(getConfig("outputfolder"), "/test.rds")), data)
+  expect_identical(readRDS(file.path(getConfig("outputfolder"), "test.rds")), data)
 })
 
 test_that("Old descriptors are properly removed from comment", {
@@ -257,7 +257,7 @@ test_that("Aggregation works", {
   expect_error(calcOutput("MalformedAggregation"), "must be a function")
   expect_error(calcOutput("MalformedAggregation2"), "must be a list of function arguments")
 
-  xtramap <- paste0(tempdir(), "/blub.csv")
+  xtramap <- file.path(tempdir(), "blub.csv")
   file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
   setConfig(extramappings = xtramap)
   expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "glo")), "Multiple compatible mappings found")
@@ -347,7 +347,7 @@ test_that("Edge cases work as expected", {
 
   skip_if_not_installed("reshape2")
   a <- calcOutput("EdgeTest2", file = "blub.mif")
-  b <- magclass::read.report(paste0(getConfig("outputfolder"), "/blub.mif"), as.list = FALSE)
+  b <- magclass::read.report(file.path(getConfig("outputfolder"), "blub.mif"), as.list = FALSE)
   expect_identical(sum(a - b), 0)
 })
 

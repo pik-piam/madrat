@@ -173,10 +173,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
-    cwd <- getwd()
-    setwd(sourcefolder) # nolint
-    system(paste0("tar --create --gzip --file ../", collectionname, ".tgz", " ./*"))
-    setwd(cwd) # nolint
+    withr::with_dir(sourcefolder, system(paste0("tar --create --gzip --file ../", collectionname, ".tgz", " ./*")))
     unlink(sourcefolder, recursive = TRUE)
   } else {
     startinfo <- toolstartmessage(argumentValues, 0)

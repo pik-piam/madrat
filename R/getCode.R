@@ -6,14 +6,13 @@
 #' @param globalenv Boolean deciding whether sources/calculations in the global environment should be included or not
 #' @return A named vector with condensed function code
 #' @importFrom stringi stri_split stri_extract
+#' @importFrom withr local_locale
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMadratGraph}}
 
 getCode <- function(packages = installedMadratUniverse(), globalenv = getConfig("globalenv")) {
   # LC_CTYPE changes how \uFC is deparsed (ü vs <U+00FC>), but we want locale independent results
-  ctypeLocale <- Sys.getlocale("LC_CTYPE")
-  Sys.setlocale("LC_CTYPE", "C") # nolint
-  on.exit(Sys.setlocale("LC_CTYPE", ctypeLocale))  # nolint
+  withr::local_locale(c(LC_CTYPE = "C"))
 
   .extractCode <- function(x) {
     out <- deparse(eval(parse(text = x)))
