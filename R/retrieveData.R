@@ -27,6 +27,7 @@
 #' }
 #' @importFrom methods formalArgs
 #' @importFrom utils sessionInfo
+#' @importFrom withr with_dir
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
