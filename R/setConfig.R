@@ -98,13 +98,13 @@ setConfig <- function(regionmapping = NULL,
                       cachefolder = NULL,
                       mappingfolder = NULL,
                       outputfolder = NULL,
-                      pop_threshold = NULL,
+                      pop_threshold = NULL, # nolint
                       nolabels = NULL,
                       forcecache = NULL,
                       ignorecache = NULL,
                       cachecompression = NULL,
                       hash = NULL,
-                      delete_cache = NULL,
+                      delete_cache = NULL, # nolint
                       diagnostics = NULL,
                       nocores = NULL,
                       debug = NULL,
@@ -122,7 +122,10 @@ setConfig <- function(regionmapping = NULL,
     packages <- unique(packages, fromLast = TRUE)
     if (.cfgchecks) {
       missing <- setdiff(packages, rownames(installed.packages()))
-      if (length(missing) > 0) stop("Setting \"packages\" can only be set to installed packages (missing: \"", paste(missing, collapse = "\", \""), "\")")
+      if (length(missing) > 0) {
+        stop("Setting \"packages\" can only be set to installed packages (missing: \"",
+             paste(missing, collapse = "\", \""), "\")")
+      }
     }
   }
 
@@ -142,7 +145,9 @@ setConfig <- function(regionmapping = NULL,
           # normalize path value
           if (!file.exists(value)) {
             dir.create(value, recursive = TRUE)
-            if (.verbose) vcat(-2, paste("created folder", sub("/$", "", normalizePath(value, winslash = "/")), "..."), fill = 300)
+            if (.verbose) {
+              vcat(-2, paste("created folder", sub("/$", "", normalizePath(value, winslash = "/")), "..."), fill = 300)
+            }
           }
           value <-  sub("/$", "", normalizePath(value, winslash = "/"))
         }
@@ -157,7 +162,7 @@ setConfig <- function(regionmapping = NULL,
     # change options until the function calling this function exits
     local_options(madrat_cfg = cfg, .local_envir = parent.frame())
   } else {
-    options(madrat_cfg = cfg)
+    options(madrat_cfg = cfg) # nolint
   }
 
   if (!is.null(info) & .verbose) {
