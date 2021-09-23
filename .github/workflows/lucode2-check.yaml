@@ -1,0 +1,79 @@
+# Run CI for R using https://eddelbuettel.github.io/r-ci/
+
+name: lucode2-check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+env:
+  USE_BSPM: "true"
+  _R_CHECK_FORCE_SUGGESTS_: "false"
+  NO_BINARY_INSTALL_R_PACKAGES: 'c("madrat", "magclass", "citation", "gms", "goxygen")'
+
+jobs:
+  lucode2-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Bootstrap
+        run: |
+          curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
+          chmod 0755 run.sh
+          ./run.sh bootstrap
+
+      - name: Enable r-universe repo, modify bspm integration
+        run: |
+          # install packages from https://pik-piam.r-universe.dev and CRAN
+          echo '
+          options(repos = c(universe = "https://pik-piam.r-universe.dev",
+                            CRAN = "https://cloud.r-project.org"))
+          ' >> .Rprofile
+          cat .Rprofile
+          # modify bspm integration to never install binary builds of PIK CRAN packages
+          sudo sed -i '/bspm::enable()/d' /etc/R/Rprofile.site
+          # need double % because of printf, %s is replaced with "$NO_BINARY_INSTALL_R_PACKAGES" (see "env:" above)
+          printf '
+          local({
+            expr <- quote({
+              if (!is.null(repos)) {
+                noBinaryInstallRPackages <- %s
+                pkgs <- c(bspm::install_sys(pkgs[!pkgs %%in%% noBinaryInstallRPackages]),
+                          pkgs[pkgs %%in%% noBinaryInstallRPackages])
+              }
+            })
+            trace(utils::install.packages, expr, print = FALSE)
+          })
+          ' "$NO_BINARY_INSTALL_R_PACKAGES" | sudo tee --append /etc/R/Rprofile.site >/dev/null
+          cat /etc/R/Rprofile.site
+
+      - uses: r-lib/actions/setup-pandoc@v1
+
+      - name: Install dependencies
+        run: |
+          ./run.sh install_aptget libhdf5-dev
+          ./run.sh install_all
+          ./run.sh install_r lucode2 covr
+
+      - name: Remove bspm integration # to get rid of error when running install.packages
+        run: |
+          sudo sed -i '/  trace(utils::install.packages, expr, print = FALSE)/d' /etc/R/Rprofile.site
+          cat /etc/R/Rprofile.site
+
+      - name: Verify validation key
+        shell: Rscript {0}
+        run: lucode2:::validkey(stopIfInvalid = TRUE)
+
+      - name: Checks
+        shell: Rscript {0}
+        run: |
+          options(crayon.enabled = TRUE)
+          lucode2::check(runLinter = FALSE)
+
+      - name: Test coverage
+        shell: Rscript {0}
+        run: covr::codecov(quiet = FALSE)

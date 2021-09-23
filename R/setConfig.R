@@ -77,6 +77,7 @@
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)
 #' @param .verbose boolean deciding whether status information/updates should be shown or not
+#' @param .local boolean deciding whether options are only changed until the end of the current function execution
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{getISOlist}}
 #' @examples
@@ -84,6 +85,7 @@
 #' setConfig(forcecache = c("readSSPall", "convertSSPall"))
 #' }
 #' @importFrom utils installed.packages
+#' @importFrom withr local_options
 #' @export
 setConfig <- function(regionmapping = NULL,
                       extramappings = NULL,
@@ -96,20 +98,21 @@ setConfig <- function(regionmapping = NULL,
                       cachefolder = NULL,
                       mappingfolder = NULL,
                       outputfolder = NULL,
-                      pop_threshold = NULL,
+                      pop_threshold = NULL, # nolint
                       nolabels = NULL,
                       forcecache = NULL,
                       ignorecache = NULL,
                       cachecompression = NULL,
                       hash = NULL,
-                      delete_cache = NULL,
+                      delete_cache = NULL, # nolint
                       diagnostics = NULL,
                       nocores = NULL,
                       debug = NULL,
                       indentationCharacter = NULL,
                       maxLengthLogMessage = NULL,
                       .cfgchecks = TRUE,
-                      .verbose = TRUE) {
+                      .verbose = TRUE,
+                      .local = FALSE) {
   cfg <- getConfig(raw = TRUE, verbose = .verbose)
 
   firstsetting <- TRUE
@@ -119,7 +122,10 @@ setConfig <- function(regionmapping = NULL,
     packages <- unique(packages, fromLast = TRUE)
     if (.cfgchecks) {
       missing <- setdiff(packages, rownames(installed.packages()))
-      if (length(missing) > 0) stop("Setting \"packages\" can only be set to installed packages (missing: \"", paste(missing, collapse = "\", \""), "\")")
+      if (length(missing) > 0) {
+        stop("Setting \"packages\" can only be set to installed packages (missing: \"",
+             paste(missing, collapse = "\", \""), "\")")
+      }
     }
   }
 
@@ -139,7 +145,9 @@ setConfig <- function(regionmapping = NULL,
           # normalize path value
           if (!file.exists(value)) {
             dir.create(value, recursive = TRUE)
-            if (.verbose) vcat(-2, paste("created folder", sub("/$", "", normalizePath(value, winslash = "/")), "..."), fill = 300)
+            if (.verbose) {
+              vcat(-2, paste("created folder", sub("/$", "", normalizePath(value, winslash = "/")), "..."), fill = 300)
+            }
           }
           value <-  sub("/$", "", normalizePath(value, winslash = "/"))
         }
@@ -150,7 +158,13 @@ setConfig <- function(regionmapping = NULL,
       cfg[[x]] <- value
     }
   }
-  options(madrat_cfg = cfg)
+  if (.local) {
+    # change options until the function calling this function exits
+    local_options(madrat_cfg = cfg, .local_envir = parent.frame())
+  } else {
+    options(madrat_cfg = cfg) # nolint
+  }
+
   if (!is.null(info) & .verbose) {
     for (i in info) vcat(-2, i)
   }

@@ -29,7 +29,8 @@ setConfig(
   indentationCharacter = NULL,
   maxLengthLogMessage = NULL,
   .cfgchecks = TRUE,
-  .verbose = TRUE
+  .verbose = TRUE,
+  .local = FALSE
 )
 }
 \arguments{
@@ -127,6 +128,8 @@ consistency or just be accepted (latter is only necessary in very rare cases and
 in regular cases)}
 
 \item{.verbose}{boolean deciding whether status information/updates should be shown or not}
+
+\item{.local}{boolean deciding whether options are only changed until the end of the current function execution}
 }
 \description{
 This function manipulates the current madrat configuration.
