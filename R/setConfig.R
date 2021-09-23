@@ -77,6 +77,7 @@
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)
 #' @param .verbose boolean deciding whether status information/updates should be shown or not
+#' @param .local boolean deciding whether options are only changed until the end of the current function execution
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{getISOlist}}
 #' @examples
@@ -84,6 +85,7 @@
 #' setConfig(forcecache = c("readSSPall", "convertSSPall"))
 #' }
 #' @importFrom utils installed.packages
+#' @importFrom withr local_options
 #' @export
 setConfig <- function(regionmapping = NULL,
                       extramappings = NULL,
@@ -109,7 +111,8 @@ setConfig <- function(regionmapping = NULL,
                       indentationCharacter = NULL,
                       maxLengthLogMessage = NULL,
                       .cfgchecks = TRUE,
-                      .verbose = TRUE) {
+                      .verbose = TRUE,
+                      .local = FALSE) {
   cfg <- getConfig(raw = TRUE, verbose = .verbose)
 
   firstsetting <- TRUE
@@ -150,7 +153,13 @@ setConfig <- function(regionmapping = NULL,
       cfg[[x]] <- value
     }
   }
-  options(madrat_cfg = cfg)
+  if (.local) {
+    # change options until the function calling this function exits
+    local_options(madrat_cfg = cfg, .local_envir = parent.frame())
+  } else {
+    options(madrat_cfg = cfg)
+  }
+
   if (!is.null(info) & .verbose) {
     for (i in info) vcat(-2, i)
   }

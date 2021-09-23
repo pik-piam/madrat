@@ -1,7 +1,3 @@
-context("MADRaT configuration")
-
-cfg <- getConfig(verbose = FALSE)
-
 test_that("cache folder can be set properly", {
   setConfig(cachefolder=getwd(), .verbose = FALSE)
   expect_identical(getwd(),getConfig("cachefolder"))
@@ -9,6 +5,21 @@ test_that("cache folder can be set properly", {
   # test shortcut formulation
   setConfig(cachefolder="rev123", .verbose = FALSE)
   expect_identical(file.path(getConfig("mainfolder"),"cache/rev123"),getConfig("cachefolder"))
+})
+
+test_that("setConfig(..., .local = TRUE) only changes config temporarily", {
+  cacheFolder <- withr::local_tempdir()
+  setConfig(cachefolder = cacheFolder, .local = TRUE)
+  f <- function() {
+    expect_identical(getConfig("cachefolder"), cacheFolder)
+    cacheFolder2 <- withr::local_tempdir()
+    expect_false(identical(cacheFolder, cacheFolder2))
+    setConfig(cachefolder = cacheFolder2, .local = TRUE)
+    expect_identical(getConfig("cachefolder"), cacheFolder2)
+  }
+  expect_identical(getConfig("cachefolder"), cacheFolder)
+  f()
+  expect_identical(getConfig("cachefolder"), cacheFolder)
 })
 
 test_that("main folder setting works", {
