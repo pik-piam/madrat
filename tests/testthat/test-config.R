@@ -4,15 +4,16 @@ test_that("cache folder can be set properly", {
 
   # test shortcut formulation
   setConfig(cachefolder = "rev123", .verbose = FALSE)
-  expect_identical(file.path(getConfig("mainfolder"), "cache/rev123"), getConfig("cachefolder"))
+  expect_identical(normalizePath(file.path(getConfig("mainfolder"), "cache", "rev123"), winslash = "/"),
+                   getConfig("cachefolder"))
 })
 
 test_that("setConfig(..., .local = TRUE) only changes config temporarily", {
-  cacheFolder <- withr::local_tempdir()
+  cacheFolder <- normalizePath(withr::local_tempdir(), winslash = "/")
   setConfig(cachefolder = cacheFolder, .local = TRUE)
   f <- function() {
     expect_identical(getConfig("cachefolder"), cacheFolder)
-    cacheFolder2 <- withr::local_tempdir()
+    cacheFolder2 <- normalizePath(withr::local_tempdir(), winslash = "/")
     expect_false(identical(cacheFolder, cacheFolder2))
     setConfig(cachefolder = cacheFolder2, .local = TRUE)
     expect_identical(getConfig("cachefolder"), cacheFolder2)
