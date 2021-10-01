@@ -30,7 +30,7 @@ test_that("calcOutput will stop if unused arguments are provided", {
 })
 
 test_that("Malformed inputs are properly detected", {
-  skip_if_offline()
+  skip_if_offline("zenodo.org")
   expect_error(setConfig(packages = "nonexistentpackage"), 'Setting "packages" can only be set to installed packages')
   expect_error(calcOutput("TauTotal", aggregate = "wtf"),
                "None of the columns given in aggregate = wtf could be found in the mappings!")
@@ -108,7 +108,7 @@ test_that("Malformed calc outputs are properly detected", {
 })
 
 test_that("Calculation for tau example data set works", {
-  skip_if_offline()
+  skip_if_offline("zenodo.org")
   sink(tempfile())
   require(magclass)
   setConfig(enablecache = TRUE, forcecache = FALSE, verbosity = 2, mainfolder = tempdir())

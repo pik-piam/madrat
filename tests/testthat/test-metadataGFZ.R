@@ -1,6 +1,7 @@
 context("Metadata extraction from GFZ dataservices")
 
 test_that("metadata can be extracted from GFZ dataservice", {
+  skip_if_offline("doi.org")
   expect_silent({m <- metadataGFZ("10.5880/pik.2019.004")})
   mref <- list(citation = "Lange, Stefan (2019): EartH2Observe, WFDEI and ERA-Interim data Merged and Bias-corrected for ISIMIP (EWEMBI). V. 1.1. GFZ Data Services. https://doi.org/10.5880/pik.2019.004", 
                authors = structure(list(list(given = "Stefan", family = "Lange", 
