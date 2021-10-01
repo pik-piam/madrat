@@ -60,17 +60,20 @@ test_that("readSource detects common problems", {
   convertTest <- function(x) return(as.magpie(1))
   globalassign("convertTest")
 
+  skip_on_cran()
   skip_if_offline("zenodo.org")
   expect_error(readSource("Tau", subtype = "paper", convert = "WTF"), "Unknown convert setting")
 })
 
 test_that("default readSource example works", {
+  skip_on_cran()
   skip_if_offline("zenodo.org")
   expect_silent(suppressMessages(a <- readSource("Tau", "paper")))
   expect_equal(getYears(a, as.integer = TRUE), c(1995, 2000))
 })
 
 test_that("downloadSource works", {
+  skip_on_cran()
   skip_if_offline("zenodo.org")
   expect_error(downloadSource("Tau", "paper"), "does already exist!")
   expect_error(downloadSource(1:10), "Invalid type")
