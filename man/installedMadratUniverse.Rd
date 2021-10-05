@@ -15,14 +15,14 @@ Returns a name vector of installed packages which
 supposedly belong to the madrat universe.
 They are currently derived as the union of
 all loaded madrat packages and all packages
-with a name starting with "mr" or "ms" 
-(as the usual indicator for madrat-packages and 
+with a name starting with "mr" or "ms"
+(as the usual indicator for madrat-packages and
 madrat-support-packages).
 }
 \examples{
-
+\dontrun{
 installedMadratUniverse()
-
+}
 }
 \seealso{
 \code{\link{setConfig}}
