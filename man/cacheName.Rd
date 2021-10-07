@@ -21,19 +21,19 @@ cacheName(
 
 \item{args}{a list of named arguments used to call the given function}
 
-\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}. 
+\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}.
 Will be created with \code{\link{getMadratGraph}} if not provided.}
 
-\item{mode}{Context in which the function is used. Either "get" (loading) or 
-"put" (writing). In case of "put" the potential file name is returned. 
-When set to "get", a file name will only be returned if the file exists 
-(otherwise NULL) and in combination which \code{setConfig(forcecache=TRUE)} 
+\item{mode}{Context in which the function is used. Either "get" (loading) or
+"put" (writing). In case of "put" the potential file name is returned.
+When set to "get", a file name will only be returned if the file exists
+(otherwise NULL) and in combination which \code{setConfig(forcecache=TRUE)}
 even a cache file with deviating hash might get selected.}
 
-\item{packages}{A character vector with packages for which the available 
+\item{packages}{A character vector with packages for which the available
 Sources/Calculations should be returned}
 
-\item{globalenv}{Boolean deciding whether sources/calculations in the global 
+\item{globalenv}{Boolean deciding whether sources/calculations in the global
 environment should be included or not}
 }
 \value{
@@ -51,7 +51,7 @@ will be left out since due to cache forcing it cannot be guaranteed
 that the cache file agrees with the state represented by the hash.
 }
 \examples{
-madrat:::cacheName("calc","TauTotal")
+madrat:::cacheName("calc", "TauTotal")
 }
 \seealso{
 \code{\link{cachePut}}, \code{\link{cacheName}}
