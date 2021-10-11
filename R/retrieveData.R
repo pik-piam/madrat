@@ -26,7 +26,7 @@
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #' @importFrom methods formalArgs
-#' @importFrom utils sessionInfo
+#' @importFrom utils sessionInfo tar
 #' @importFrom withr with_dir
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
@@ -174,7 +174,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
-    withr::with_dir(sourcefolder, system(paste0("tar --create --gzip --file ../", collectionname, ".tgz", " ./*")))
+    withr::with_dir(sourcefolder, suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip")))
     unlink(sourcefolder, recursive = TRUE)
   } else {
     startinfo <- toolstartmessage(argumentValues, 0)

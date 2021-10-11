@@ -1,5 +1,4 @@
-* Bugfix in toolAggregate
-* Shortened console output of examples
-
-## R CMD check results
-* Depending on the system I sometimes get a note which is about spelling. From my understanding it reports two false positives and therefore is ignored.
+## CHANGES
+* fixed issue with tar gzip compression on Solaris systems
+* fixed rare sorting issue on MACOS system (different file order compared to other systems)
+* fixed rounding issue in tests on ATLAS system
