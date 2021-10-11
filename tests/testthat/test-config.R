@@ -24,20 +24,11 @@ test_that("setConfig(..., .local = TRUE) only changes config temporarily", {
 })
 
 test_that("main folder setting works", {
-  sink(tempfile())
-  main <- getOption("MADRAT_MAINFOLDER")
-  on.exit(options(MADRAT_MAINFOLDER = main))
-  options(MADRAT_MAINFOLDER = NULL)
+  withr::local_options(MADRAT_MAINFOLDER = NULL)
   expect_identical(basename(madrat:::getMainfolder(.testmode = TRUE)), "testmaindir")
   expect_identical(basename(madrat:::getMainfolder()), "testmaindir")
 
-  options(MADRAT_MAINFOLDER = NULL)
-  if (!is.na(Sys.getenv("MADRAT_MAINFOLDER", unset = NA))) {
-    madratenv <- Sys.getenv("MADRAT_MAINFOLDER", unset = NA)
-    on.exit(Sys.setenv(MADRAT_MAINFOLDER = madratenv), add = TRUE)
-  }
-  Sys.setenv(MADRAT_MAINFOLDER = "test")
+  withr::local_options(MADRAT_MAINFOLDER = NULL)
+  withr::local_envvar(MADRAT_MAINFOLDER = "test")
   expect_identical(basename(madrat:::getMainfolder()), "test")
-  Sys.unsetenv("MADRAT_MAINFOLDER")
-  sink()
 })
