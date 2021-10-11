@@ -152,6 +152,9 @@ fingerprintFiles <- function(paths) {
       files$hash <- sapply(files$path, digest, algo = getConfig("hash"), file = TRUE, length = 300)
       files$path <- NULL
       if (!is.null(hashCacheFile)) {
+        if (!dir.exists(dirname(hashCacheFile))) {
+          dir.create(dirname(hashCacheFile), recursive = TRUE)
+        }
         saveRDS(files, hashCacheFile, version = 2)
       }
     }

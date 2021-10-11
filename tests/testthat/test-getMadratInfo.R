@@ -1,9 +1,3 @@
-context("MADRaT analysis tools")
-
-cfg <- getConfig(verbose = FALSE)
-
-g <- getMadratGraph(packages = "madrat")
-
 globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
@@ -22,20 +16,23 @@ test_that("getMadratInfo properly detects problems", {
   globalassign("calcBla")
   expect_warning(a <- getMadratInfo(packages = "madrat", cutoff = 1),
                  "Following functions contain read or calc statements which could not be identified: .* calcBla")
-  rm(calcBla, envir = .GlobalEnv)
+  rm("calcBla", envir = .GlobalEnv)
+
   expect_silent(a <- suppressMessages(getMadratInfo(packages = "madrat")))
   toolBla <- function() {
     return(calcOutput("TauTotal"))
   }
   globalassign("toolBla")
   expect_warning(a <- getMadratInfo(packages = "madrat"), "Some tool functions contain read or calc")
-  rm(toolBla, envir = .GlobalEnv)
+  rm("toolBla", envir = .GlobalEnv)
+
   calcBla2 <- function() {
     calcOutput("UnknownType")
   }
   globalassign("calcBla2")
   expect_warning(a <- getMadratInfo(packages = "madrat"),
       "Following functions could not be found in the scope of packages to be checked.: .* calcUnknownType->calcBla2")
+  rm("calcBla2", envir = .GlobalEnv)
 })
 
 
@@ -57,5 +54,3 @@ test_that("bidirectional package connections are correctly detected", {
   expect_warning(b <- getMadratInfo(g, cutoff = 1), "Bidirectional package dependencies detected")
   expect_identical(a, b)
 })
-
-rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
