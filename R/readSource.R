@@ -26,11 +26,11 @@
 #'
 #' @importFrom magclass read.magpie is.magpie getComment<-
 #' @importFrom methods existsFunction is
+#' @importFrom withr local_dir
 #' @export
 readSource <- function(type, subtype = NULL, convert = TRUE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
-  cwd <- getwd()
-  setwd(getConfig("mainfolder"))
+  local_dir(getConfig("mainfolder"))
   options(reducedHistory = TRUE)
   startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"))
@@ -94,10 +94,10 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
     }
 
     cwd <- getwd()
-    setwd(sourcefolder)
+    local_dir(sourcefolder)
     functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
     x <- eval(parse(text = functionname))
-    setwd(cwd)
+    local_dir(cwd)
     if (!is.magpie(x)) stop("Output of function \"", functionname, "\" is not a MAgPIE object!")
     if (prefix == "convert") {
       testISO(getRegions(x), functionname = functionname)
@@ -146,6 +146,5 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
   x <- .getData(type, subtype, prefix)
   on.exit(toolendmessage(startinfo, "-"))
   x <- clean_magpie(x)
-  setwd(cwd)
   return(x)
 }

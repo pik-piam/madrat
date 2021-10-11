@@ -35,6 +35,7 @@
 #' Besides the names above (user-provided and automatically derived) it is possible to add custom metadata entries by extending
 #' the return list with additional, named entries.
 #' @importFrom yaml write_yaml
+#' @importFrom withr local_dir
 #' @author Jan Philipp Dietrich, David Klein
 #' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
 #' @examples
@@ -58,14 +59,12 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
                                    ignore = ifelse(is.null(subtype), "subtype", NA))
 
   if(!grepl("subtype=subtype",functionname,fixed=TRUE)) subtype <- NULL
-  
-  cwd <- getwd()
-  on.exit(setwd(cwd), add = TRUE)
+
   if(!file.exists(getConfig("sourcefolder"))) dir.create(getConfig("sourcefolder"), recursive = TRUE)
   
   typesubtype <- paste(c(make.names(type),make.names(subtype)),collapse="/")
   
-  setwd(getConfig("sourcefolder"))
+  local_dir(getConfig("sourcefolder"))
   if(file.exists(typesubtype)) {
     if(overwrite) {
       unlink(typesubtype,recursive = TRUE)
@@ -74,7 +73,7 @@ downloadSource <- function(type,subtype=NULL,overwrite=FALSE) {
     }
   }
   dir.create(typesubtype, recursive = TRUE)
-  setwd(typesubtype)
+  local_dir(typesubtype)
   on.exit(if(length(dir())==0) unlink(getwd(), recursive = TRUE), add=TRUE, after = FALSE)
   meta <- eval(parse(text=functionname))
   

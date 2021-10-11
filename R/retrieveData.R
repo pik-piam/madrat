@@ -41,7 +41,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
   tmp <- intersect(names(inargs), formalArgs(setConfig))
   if (length(tmp) > 0) {
-    do.call(setConfig, inargs[tmp])
+    do.call(setConfig, c(inargs[tmp], list(.local = TRUE)))
   }
 
   # receive function name and function
@@ -130,13 +130,15 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     setConfig(
       regionmapping = paste0(regionscode, ".csv"),
       outputfolder = sourcefolder,
-      diagnostics = "diagnostics"
+      diagnostics = "diagnostics",
+      .local = TRUE
     )
 
     if (cachetype == "rev") {
       setConfig(
         cachefolder = file.path(getConfig("mainfolder"), "cache", paste0("rev", rev, dev)),
-        forcecache = TRUE
+        forcecache = TRUE,
+        .local = TRUE
       )
     }
 

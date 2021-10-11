@@ -79,6 +79,7 @@
 #' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
 #' @importFrom digest digest
+#' @importFrom withr local_dir
 #' @export
 
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
@@ -213,13 +214,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     return(x)
   }
 
-  cwd <- getwd()
-  on.exit(setwd(cwd)) # nolint
   if (is.null(getOption("gdt_nestinglevel"))) vcat(-2, "")
   startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"), add = TRUE)
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
-  setwd(getConfig("outputfolder")) # nolint
+  local_dir(getConfig("outputfolder")) # nolint
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
   extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) # nolint
