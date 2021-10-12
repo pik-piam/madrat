@@ -32,9 +32,12 @@ toolstartmessage <- function(argumentValues, level = NULL) {
   nonDefaultArguments <- getNonDefaultArguments(eval(theFunction), argumentValues)
   theFunction <- as.character(theFunction)
   if (length(theFunction) > 1) {
-    stopifnot(identical(theFunction[1], "::"), identical(length(theFunction), 3L))
-    # c("::", "madrat", "downloadSource") is transformed to "madrat::downloadSource"
-    theFunction <- paste(theFunction[c(2, 1, 3)], collapse = "")
+    if (identical(theFunction[1], "::") && identical(length(theFunction), 3L)) {
+      # c("::", "madrat", "downloadSource") is transformed to "madrat::downloadSource"
+      theFunction <- paste(theFunction[c(2, 1, 3)], collapse = "")
+    } else {
+      warning("Unexpected function symbol: ", str(theFunction))
+    }
   }
 
   argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output

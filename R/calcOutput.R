@@ -218,7 +218,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"), add = TRUE)
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
-  local_dir(getConfig("outputfolder")) # nolint
+  local_dir(getConfig("outputfolder"))
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
   extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) # nolint
