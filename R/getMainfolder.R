@@ -24,6 +24,7 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
     if (.testmode) {
       s <- "y"
     } else {
+      s <- ""
       while (!(s %in% c("y", "n"))) {
         s <- tolower(readline("madrat mainfolder for data storage not set! Do you want to set it now? (y/n) "))
       }
@@ -31,7 +32,7 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
     if (s == "y") {
       repeat {
         if (.testmode) {
-          folder <- paste0(tempdir(), "/testmaindir")
+          folder <- file.path(tempdir(), "testmaindir")
         } else {
           folder <- gsub('"', "", readline("Please enter main folder path: "), fixed = TRUE)
         }
@@ -48,6 +49,7 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
           if (.testmode) {
             s <- "n"
           } else {
+            s <- ""
             while (!(s %in% c("y", "n"))) {
               s <- tolower(readline("Should this path be added to the global .Rprofile to be used permanently? (y/n) "))
             }
@@ -69,7 +71,7 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
 
   # use temporary directory
   if (verbose) message("Temporary main folder will be used..")
-  mainfolder <- paste0(tempdir(), "/madrat")
+  mainfolder <- file.path(tempdir(), "madrat")
   dir.create(mainfolder, showWarnings = !dir.exists(mainfolder))
   return(mainfolder)
 }

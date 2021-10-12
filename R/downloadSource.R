@@ -77,7 +77,7 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
   }
   dir.create(typesubtype, recursive = TRUE)
   local_dir(typesubtype)
-  on.exit(if (length(dir()) == 0) unlink(getwd(), recursive = TRUE), add = TRUE, after = FALSE)
+  on.exit(if (length(dir()) == 0) unlink(typesubtype, recursive = TRUE), add = TRUE, after = FALSE)
   meta <- eval(parse(text = functionname))
 
   # define mandatory elements of meta data and check if they exist
@@ -90,9 +90,9 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
   # define reserved elements of meta data and check if they already exist
   reserved <- c("call", "accessibility")
   if (any(reserved %in% names(meta))) {
-vcat(0, "The following entries in the meta data of the function '", functionname[1],
-     "' are reserved and will be overwritten: ", reserved[reserved %in% names(meta)])
-}
+    vcat(0, "The following entries in the meta data of the function '", functionname[1],
+         "' are reserved and will be overwritten: ", reserved[reserved %in% names(meta)])
+  }
 
   # set reserved meta data elements
   meta$call <- list(origin  = paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()), collapse = "")),
@@ -105,7 +105,7 @@ vcat(0, "The following entries in the meta data of the function '", functionname
 
   # reorder meta entries
   preferredOrder <- c("title", "description", "author", "doi", "url", "accessibility", "license", "version",
-                       "release_date", "unit", "call", "reference")
+                      "release_date", "unit", "call", "reference")
   order <- c(intersect(preferredOrder, names(meta)), setdiff(names(meta), preferredOrder))
 
   write_yaml(meta[order], "DOWNLOAD.yml")
