@@ -5,7 +5,7 @@ globalassign <- function(...) {
 }
 
 test_that("getCode works", {
- setConfig(verbosity = 1, .verbose = FALSE)
+ setConfig(verbosity = 1, .verbose = FALSE, .local = TRUE)
  expect_silent(a <- madrat:::getCode("madrat"))
  flags <- list(monitor = list(`madrat:::readTau` = c("madrat:::sysdata$iso_cell",
                                                      "magclass:::ncells")),

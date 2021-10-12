@@ -7,31 +7,31 @@ globalassign <- function(...) {
 test_that("Caching works", {
   calcCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  setConfig(globalenv = TRUE, ignorecache = FALSE, .verbose = FALSE,
+  setConfig(globalenv = TRUE, ignorecache = FALSE, .verbose = FALSE, .local = TRUE,
             cachefolder = paste0(tempdir(), "/test_caching_works"))
   expect_null(madrat:::cacheGet("calc","CacheExample"))
   expect_message(calcOutput("CacheExample", aggregate = FALSE), "writing cache")
   expect_identical(madrat:::cacheGet("calc","CacheExample")$x, as.magpie(1))
-  setConfig(ignorecache = TRUE, .verbose = FALSE)
+  setConfig(ignorecache = TRUE, .verbose = FALSE, .local = TRUE)
   expect_null(madrat:::cacheGet("calc","CacheExample"))
-  setConfig(ignorecache = FALSE, .verbose = FALSE)
+  setConfig(ignorecache = FALSE, .verbose = FALSE, .local = TRUE)
   
   expect_identical(basename(madrat:::cacheName("calc","CacheExample")), "calcCacheExample-F43888ba0.rds")
   
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   expect_null(madrat:::cacheName("calc","CacheExample", mode = "get"))
-  setConfig(forcecache = TRUE, .verbose = FALSE)
+  setConfig(forcecache = TRUE, .verbose = FALSE, .local = TRUE)
   expect_identical(basename(madrat:::cacheName("calc","CacheExample")), "calcCacheExample.rds")
   expect_message(cf <- madrat:::cacheName("calc","CacheExample", mode = "get"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-F43888ba0.rds")
-  setConfig(forcecache = FALSE, .verbose = FALSE)
+  setConfig(forcecache = FALSE, .verbose = FALSE, .local = TRUE)
   expect_message(a <- calcOutput("CacheExample", aggregate=FALSE), "writing cache")
   expect_identical(basename(madrat:::cacheName("calc","CacheExample", mode = "get")), "calcCacheExample-F4ece4fe6.rds")
   
   calcCacheExample <- function() return(list(x = as.magpie(3), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  setConfig(forcecache = TRUE, .verbose = FALSE)
+  setConfig(forcecache = TRUE, .verbose = FALSE, .local = TRUE)
   expect_message(cf <- madrat:::cacheName("calc","CacheExample", mode = "get"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-F4ece4fe6.rds")
   
@@ -56,7 +56,7 @@ test_that("Argument hashing works", {
 })
 
 test_that("Cache naming and identification works correctly", {
-  setConfig(forcecache = FALSE, .verbose = FALSE)
+  setConfig(globalenv = TRUE, forcecache = FALSE, .verbose = FALSE, .local = TRUE)
   downloadCacheExample <- function() return(list(url = 1, author = 1, title = 1, license = 1,
                                                  description = 1, unit = 1))
   readCacheExample <- function() return(as.magpie(1))

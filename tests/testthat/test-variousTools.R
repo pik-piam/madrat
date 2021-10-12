@@ -82,7 +82,7 @@ test_that("toolTimeSpline works as expected", {
 })
 
 test_that("toolConvertMapping works as expected", {
-  setConfig(mappingfolder = tempdir(), .verbose = FALSE)
+  setConfig(mappingfolder = tempdir(), .verbose = FALSE, .local = TRUE)
   file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))
 
   expect_silent(toolConvertMapping("regionmappingH12.csv"))
@@ -104,7 +104,7 @@ test_that("toolConvertMapping works as expected", {
 
 test_that("toolConditionalReplace works as expected", {
 
-  setConfig(verbosity = 0, .verbose = FALSE)
+  setConfig(verbosity = 0, .verbose = FALSE, .local = TRUE)
   m <- as.magpie(c(1, NA, 0, -1, Inf))
 
   expect_error(toolConditionalReplace(m), "missing, with no default")
@@ -124,7 +124,7 @@ test_that("mad(l)apply function return defunct message", {
 })
 
 test_that("vcat redirect works", {
-  setConfig(verbosity = 1, .verbose = FALSE)
+  setConfig(verbosity = 1, .verbose = FALSE, .local = TRUE)
   expect_message(madrat:::cat("blub"), "NOTE: blub")
   expect_message(suppressWarnings(madrat:::warning("blub")), "WARNING: blub")
 })

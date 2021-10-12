@@ -3,12 +3,12 @@ globalassign <- function(...) {
 }
 
 test_that("getMadratInfo works without error", {
-  setConfig(globalenv = FALSE, .verbose = FALSE)
+  setConfig(globalenv = FALSE, .verbose = FALSE, .local = TRUE)
   expect_message(a <- getMadratInfo(packages = "madrat", cutoff = -1, extended = TRUE), "passed")
 })
 
 test_that("getMadratInfo properly detects problems", {
-  setConfig(globalenv = TRUE, .verbose = FALSE)
+  setConfig(globalenv = TRUE, .verbose = FALSE, .local = TRUE)
   calcBla <- function() {
     type <- "TauTotal"
     calcOutput(type)

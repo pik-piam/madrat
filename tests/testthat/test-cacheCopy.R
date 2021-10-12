@@ -22,7 +22,6 @@ test_that("cacheCopy properly detects cache files", {
   expect_identical(cacheCopy(log, filter = "calc"), files[3])
   expect_warning(x <- cacheCopy(log, target=paste0(tempdir(),"/cachetarget")), "cache files could not be found")
   expect_identical(x,character(0))
-  setConfig(cachefolder = )
   expect_warning(x <- cacheCopy(log[-2]), "No information about cachefolder found")
   expect_identical(basename(x), basename(files))
   expect_warning(x <- cacheCopy(c('cachefolder -> /bla/blub',log)), "More than one cache folder found")

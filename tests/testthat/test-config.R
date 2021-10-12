@@ -1,9 +1,9 @@
 test_that("cache folder can be set properly", {
-  setConfig(cachefolder = getwd(), .verbose = FALSE)
+  setConfig(cachefolder = getwd(), .verbose = FALSE, .local = TRUE)
   expect_identical(getwd(), getConfig("cachefolder"))
 
   # test shortcut formulation
-  setConfig(cachefolder = "rev123", .verbose = FALSE)
+  setConfig(cachefolder = "rev123", .verbose = FALSE, .local = TRUE)
   expect_identical(normalizePath(file.path(getConfig("mainfolder"), "cache", "rev123"), winslash = "/"),
                    getConfig("cachefolder"))
 })

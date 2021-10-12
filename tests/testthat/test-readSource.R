@@ -14,7 +14,7 @@ nce <- function(x) {
 }
 
 test_that("readSource detects common problems", {
-  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, mainfolder = tempdir())
+  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, mainfolder = tempdir(), .local = TRUE)
   readNoDownload <- function() {} # nolint
   globalassign("readNoDownload")
   expect_error(readSource("NoDownload"), "no download script")
@@ -54,7 +54,6 @@ test_that("readSource detects common problems", {
   a <- readRDS(cache)
   getCells(a)[1] <- "BLA"
   saveRDS(a, cache)
-  setConfig(verbosity = 2, .verbose = FALSE)
   expect_message(readSource("Test"), "cache file corrupt")
 
   convertTest <- function(x) return(as.magpie(1))
@@ -75,6 +74,7 @@ test_that("default readSource example works", {
 test_that("downloadSource works", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
+  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, mainfolder = tempdir(), .local = TRUE)
   expect_error(downloadSource("Tau", "paper"), "does already exist!")
   expect_error(downloadSource(1:10), "Invalid type")
   expect_error(downloadSource("Tau", subtype = 1:10), "Invalid subtype")

@@ -66,6 +66,7 @@
 #' @importFrom magclass getDim getSets getSets<- as.magpie getItems collapseNames
 #' @importFrom utils object.size
 #' @importFrom Matrix Matrix t rowSums
+#' @importFrom withr local_options
 #' @seealso \code{\link{calcOutput}}
 #' @examples
 #'
@@ -334,9 +335,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       out <- apply(x, which(1:3 != dim), matrixMultiplication, rel)
       if (length(dim(out)) == 2) out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
     } else {
-      optMatprod <- getOption("matprod")
-      on.exit(options(matprod = optMatprod)) # nolint
-      options(matprod = "blas")              # nolint
+      local_options(matprod = "blas")
       notdim <- setdiff(1:3, dim)
       out <- rel %*% as.array(wrap(x, list(dim, notdim)))
       out <- array(out, dim = c(dim(rel)[1], dim(x)[notdim]))
