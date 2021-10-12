@@ -24,14 +24,13 @@
 #' a <- readSource("Tau", "paper")
 #' }
 #'
-#' @importFrom magclass read.magpie is.magpie getComment<-
+#' @importFrom magclass read.magpie is.magpie getComment<- getItems
 #' @importFrom methods existsFunction is
 #' @importFrom withr local_dir
 #' @export
-readSource <- function(type, subtype = NULL, convert = TRUE) {
+readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
   local_dir(getConfig("mainfolder"))
-  options(reducedHistory = TRUE)
   startinfo <- toolstartmessage(argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"))
 
@@ -73,7 +72,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
     if (!is.null(subtype)) args <- list(subtype = subtype)
     x <- cacheGet(prefix = prefix, type = type, args = args)
     if (!is.null(x) && prefix == "convert") {
-      err <- try(testISO(getRegions(x), functionname = fname), silent = TRUE)
+      err <- try(testISO(getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
       if ("try-error" %in% class(err)) {
         vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
         x <- NULL
@@ -100,7 +99,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
     local_dir(cwd)
     if (!is.magpie(x)) stop("Output of function \"", functionname, "\" is not a MAgPIE object!")
     if (prefix == "convert") {
-      testISO(getRegions(x), functionname = functionname)
+      testISO(getItems(x, dim = 1.1), functionname = functionname)
     }
     args <- NULL
     if (!is.null(subtype)) args <- list(subtype = subtype)

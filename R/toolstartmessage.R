@@ -30,12 +30,18 @@ toolstartmessage <- function(argumentValues, level = NULL) {
   functionAndArgs <- as.list(sys.call(-1))
   theFunction <- functionAndArgs[[1]]
   nonDefaultArguments <- getNonDefaultArguments(eval(theFunction), argumentValues)
+  theFunction <- as.character(theFunction)
+  if (length(theFunction) > 1) {
+    stopifnot(identical(theFunction[1], "::"), identical(length(theFunction), 3L))
+    # c("::", "madrat", "downloadSource") is transformed to "madrat::downloadSource"
+    theFunction <- paste(theFunction[c(2, 1, 3)], collapse = "")
+  }
 
   argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
 
   if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {
-    functionCallString <- paste0(theFunction, "(", argsString, ")", collapse = "")
+    functionCallString <- paste0(theFunction, "(", argsString, ")")
     hint <- ""
   } else {
     functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")

@@ -22,7 +22,7 @@ Download a source. The function is a wrapper for specific functions designed
 for the different possible source types.
 }
 \note{
-The underlying download-functions are required to provide a list of information back to 
+The underlying download-functions are required to provide a list of information back to
 \code{downloadSource}. Following list entries should be provided:
 \itemize{
 \item \bold{url} - full path to the file that should be downloaded
@@ -34,22 +34,22 @@ The underlying download-functions are required to provide a list of information 
 \item \bold{doi} (optional) - a DOI URL to the data source
 \item \bold{version} (optional) - version number of the data set
 \item \bold{release_date} (optional) - release date of the data set
-\item \bold{reference} (optional) - A reference for the data set (e.g. a paper, if the data was derived from it) 
+\item \bold{reference} (optional) - A reference for the data set (e.g. a paper, if the data was derived from it)
 }
 This user-provided data is enriched by automatically derived metadata:
 \itemize{
 \item \bold{call} - Information about the used madrat function call to download the data
 will check whether there are any values below the given threshold and warn in this case
-\item \bold{accessibility} - A measure of quality for the accessibility of the data. Currently it distinguished between
-\bold{iron} (manual access), \bold{silver} (automatic access via URL) and \bold{gold} (automatic access via DOI).
+\item \bold{accessibility} - A measure of quality for the accessibility of the data. Currently it distinguished
+between \bold{iron} (manual access), \bold{silver} (automatic access via URL) and \bold{gold} (automatic access via
+DOI).
 }
-Besides the names above (user-provided and automatically derived) it is possible to add custom metadata entries by extending
-the return list with additional, named entries.
+Besides the names above (user-provided and automatically derived) it is possible to add custom metadata entries by
+extending the return list with additional, named entries.
 }
 \examples{
-
-\dontrun{ 
-a <- downloadSource("Tau", subtype="historical")
+\dontrun{
+a <- downloadSource("Tau", subtype = "historical")
 }
 
 }
