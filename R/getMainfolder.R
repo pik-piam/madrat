@@ -40,7 +40,10 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
           if (.testmode) {
             s <- "y"
           } else {
-            s <- tolower(readline("Directory does not exist. Should it be created? (y/n) "))
+            s <- ""
+            while (!(s %in% c("y", "n"))) {
+              s <- tolower(readline("Directory does not exist. Should it be created? (y/n) "))
+            }
           }
           if (s == "y") dir.create(folder, recursive = TRUE)
         }
