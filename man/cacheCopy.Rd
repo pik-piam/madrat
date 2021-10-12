@@ -7,20 +7,17 @@
 cacheCopy(file, target = NULL, filter = NULL)
 }
 \arguments{
-\item{file}{path to a log file or content of a log as character vector}
+\item{file}{Path to a log file or content of a log as character vector.}
 
-\item{target}{folder to which the files should be copied. If NULL no
-data is copied.}
+\item{target}{Folder to which the files should be copied. If NULL no data is copied.}
 
-\item{filter}{regular expression to filter the cache files shown in the 
-log file.}
+\item{filter}{Regular expression to filter the cache files shown in the log file.}
 }
 \value{
-A vector of cache files which match the given log information 
-and filter
+A vector of cache files which match the given log information and filter.
 }
 \description{
-Copy cache files which were used for a given preprocessing
+Copy cache files which were used for a given preprocessing.
 }
 \author{
 Jan Philipp Dietrich

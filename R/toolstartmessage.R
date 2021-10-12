@@ -12,6 +12,7 @@
 #' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
+#' @importFrom utils str
 #' @examples
 #'
 #' innerFunction <- function() {
