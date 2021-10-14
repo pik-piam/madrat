@@ -1,7 +1,7 @@
 #' Tool: End message
 #'
-#' Function writes a process end message and performs some diagnostics
-#'
+#' This function writes a process end message and performs some diagnostics. It is always called after a corresponding
+#' call to toolstartmessage.
 #'
 #' @param startdata a list containing diagnostic information provided by \code{\link{toolstartmessage}}
 #' @param level This argument allows to establish a hierarchy of print
@@ -11,20 +11,6 @@
 #' hierarchy level by 1).
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolstartmessage}}, \code{\link{vcat}}
-#' @examples
-#' innerFunction <- function() {
-#'   startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
-#'   vcat(1, "inner")
-#'   madrat:::toolendmessage(startinfo, "-")
-#' }
-#' outerFunction <- function() {
-#'   startinfo <- madrat:::toolstartmessage(list(), "+")
-#'   vcat(1, "outer")
-#'   innerFunction()
-#'   madrat:::toolendmessage(startinfo, "-")
-#' }
-#' outerFunction()
-
 toolendmessage <- function(startdata, level = NULL) {
   runtime <- round((proc.time() - startdata$time1)["elapsed"], 2)
   vcat(1, "Exit ", startdata$functionCallString, " in ", runtime, " seconds",

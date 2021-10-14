@@ -1,55 +1,47 @@
 #' Tool: Start message
 #'
-#' Function writes a process start message and performs some diagnostics
+#' This function writes a process start message (what function was called with which arguments) and stores the current
+#' time, so the corresponding call to toolendmessage can calculate the elapsed time.
 #'
-#'
-#' @param level This argument allows to establish a hierarchy of print
-#' statements. The hierarchy is preserved for the next vcat executions.
-#' Currently this setting can have 4 states: NULL (nothing will be changed), 0
-#' (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
-#' hierarchy level by 1).
-#' @param argumentValues list of the evaluated arguments of the calling function
-#' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
+#' @param functionName The name of the calling function as a string.
+#' @param argumentValues A list of the evaluated arguments of the calling function.
+#' @param level This argument allows to establish a hierarchy of print statements. The hierarchy is preserved for the
+#' next vcat executions. Currently this setting can have 4 states: NULL (nothing will be changed), 0 (reset
+#' hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease hierarchy level by 1).
+#' @return A list containing diagnostic information required by \code{\link{toolendmessage}}.
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
 #' @importFrom utils str
 #' @examples
 #'
 #' innerFunction <- function() {
-#'   startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
+#'   startinfo <- madrat:::toolstartmessage("innerFunction", list(argumentsToPrint = 123), "+")
 #'   vcat(1, "inner")
 #'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction <- function() {
-#'   startinfo <- madrat:::toolstartmessage(list(), "+")
+#'   startinfo <- madrat:::toolstartmessage("outerFunction", list(), "+")
 #'   vcat(1, "outer")
 #'   innerFunction()
 #'   madrat:::toolendmessage(startinfo, "-")
 #' }
 #' outerFunction()
-toolstartmessage <- function(argumentValues, level = NULL) {
-  functionAndArgs <- as.list(sys.call(-1))
-  theFunction <- functionAndArgs[[1]]
-  nonDefaultArguments <- getNonDefaultArguments(eval(theFunction), argumentValues)
-  theFunction <- as.character(theFunction)
-  if (length(theFunction) > 1) {
-    if (identical(theFunction[1], "::") && identical(length(theFunction), 3L)) {
-      # c("::", "madrat", "downloadSource") is transformed to "madrat::downloadSource"
-      theFunction <- paste(theFunction[c(2, 1, 3)], collapse = "")
-    } else {
-      warning("Unexpected function symbol: ", str(theFunction))
-    }
-  }
-
+toolstartmessage <- function(functionName, argumentValues, level = NULL) {
+  nonDefaultArguments <- getNonDefaultArguments(functionName, argumentValues)
   argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
 
-  if (nchar(argsString) <= getConfig("maxLengthLogMessage")) {
-    functionCallString <- paste0(theFunction, "(", argsString, ")")
+  callWithEvaluatedArgs <- paste0(functionName, "(", argsString, ")")
+  if (nchar(callWithEvaluatedArgs) <= getConfig("maxLengthLogMessage")) {
+    functionCallString <- callWithEvaluatedArgs
     hint <- ""
   } else {
     functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
-    hint <- paste0(" -- to print evaluated arguments: setConfig(maxLengthLogMessage = ", nchar(argsString), ")")
+    if (nchar(functionCallString) > getConfig("maxLengthLogMessage")) {
+      functionCallString <- paste0(substr(callWithEvaluatedArgs, 1, getConfig("maxLengthLogMessage") - 3), "...")
+    }
+    hint <- paste0(" -- to print all evaluated arguments: setConfig(maxLengthLogMessage = ",
+                   nchar(callWithEvaluatedArgs), ")")
   }
 
   vcat(1, "Run ", functionCallString, hint, level = level, fill = 300, show_prefix = FALSE)

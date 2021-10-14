@@ -148,7 +148,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
 
     # run full* functions
-    startinfo <- toolstartmessage(argumentValues, 0)
+    startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
 
     vcat(2, " - execute function ", functionname, fill = 300, show_prefix = FALSE)
 
@@ -179,7 +179,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     withr::with_dir(sourcefolder, suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip")))
     unlink(sourcefolder, recursive = TRUE)
   } else {
-    startinfo <- toolstartmessage(argumentValues, 0)
+    startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
     vcat(-2, " - data is already available and not calculated again.", fill = 300)
   }
   toolendmessage(startinfo)

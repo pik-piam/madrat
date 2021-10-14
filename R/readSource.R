@@ -31,7 +31,7 @@
 readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
   local_dir(getConfig("mainfolder"))
-  startinfo <- toolstartmessage(argumentValues, "+")
+  startinfo <- toolstartmessage("readSource", argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"))
 
   # check type input
