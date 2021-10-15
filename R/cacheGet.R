@@ -1,11 +1,11 @@
 #' Tool: cacheGet
-#' 
+#'
 #' Load fitting cache data (if available)
-#' 
+#'
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
 #' @param args a list of named arguments used to call the given function
-#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}. 
+#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}.
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
@@ -13,15 +13,15 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
-#' madrat:::cacheGet("calc","TauTotal", packages="madrat")
+#' madrat:::cacheGet("calc", "TauTotal", packages = "madrat")
 #' @importFrom digest digest
-cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
+cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
   .isSet <- function(prefix, type, setting) {
     if (is.null(getConfig(setting))) return(FALSE)
-    return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))
+    return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))
   }
 
-  if (.isSet(prefix,type,"ignorecache") || !getConfig("enablecache")) return(NULL)
+  if (.isSet(prefix, type, "ignorecache") || !getConfig("enablecache")) return(NULL)
 
   fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "get", ...)
 
@@ -29,12 +29,12 @@ cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
 
   stopifnot(isTRUE(getConfig("forcecache")) || !endsWith(fname, "FfingerprintError.rds"))
 
-  vcat(1," - loading cache ", basename(fname), fill = 300, show_prefix = FALSE)
+  vcat(1, " - loading cache ", basename(fname), fill = 300, show_prefix = FALSE)
   x <- try(readRDS(fname), silent = TRUE)
   if ("try-error" %in% class(x)) {
-    vcat(0, " - corrupt cache file ", basename(fname),"! Continue without cache.")
+    vcat(0, " - corrupt cache file ", basename(fname), "! Continue without cache.")
     return(NULL)
   }
-  attr(x,"id") <- fname
+  attr(x, "id") <- fname
   return(x)
 }
