@@ -20,13 +20,15 @@ cacheGet <- function(prefix, type, args=NULL, graph = NULL, ...) {
     if (is.null(getConfig(setting))) return(FALSE)
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix,type)) %in% getConfig(setting)))
   }
-  
+
   if (.isSet(prefix,type,"ignorecache") || !getConfig("enablecache")) return(NULL)
-  
-  fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "get", ...) 
-  
+
+  fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "get", ...)
+
   if (is.null(fname)) return(NULL)
-  
+
+  stopifnot(isTRUE(getConfig("forcecache")) || !endsWith(fname, "FfingerprintError.rds"))
+
   vcat(1," - loading cache ", basename(fname), fill = 300, show_prefix = FALSE)
   x <- try(readRDS(fname), silent = TRUE)
   if ("try-error" %in% class(x)) {

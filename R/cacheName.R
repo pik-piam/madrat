@@ -22,7 +22,7 @@
 #' Sources/Calculations should be returned
 #' @param globalenv	Boolean deciding whether sources/calculations in the global
 #' environment should be included or not
-#' @return cached data, if cache is available, otherwise NULL
+#' @return Name of fitting cache file, if available, otherwise NULL
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
@@ -36,7 +36,7 @@ cacheName <- function(prefix, type, args = NULL,  graph = NULL, mode = "put", pa
 
   fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode == "put"),
                     packages = packages, globalenv = globalenv)
-  if (identical(fp, "fingerprintError") && !isTRUE(getConfig("forcecache"))) {
+  if (fp == "fingerprintError" && !isTRUE(getConfig("forcecache"))) {
     vcat(2, " - cacheName = NULL, because fingerprinting failed", show_prefix = FALSE)
     return(NULL)
   }

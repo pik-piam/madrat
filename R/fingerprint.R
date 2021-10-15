@@ -137,12 +137,18 @@ fingerprintFiles <- function(paths) {
     hashCacheFile <- getHashCacheName(path)
 
     if (!is.null(hashCacheFile) && file.exists(hashCacheFile)) {
-      filesCache <- readRDS(hashCacheFile)
-      # keep only entries which are still up-to-date
-      filesCache <- filesCache[filesCache$key %in% files$key, ]
-      files <- files[!(files$key %in% filesCache$key), ]
-      if (nrow(filesCache) == 0) filesCache <- NULL
-      if (nrow(files) == 0) files <- NULL
+      tryResult <- try({
+        filesCache <- readRDS(hashCacheFile)
+        # keep only entries which are still up-to-date
+        filesCache <- filesCache[filesCache$key %in% files$key, ]
+        files <- files[!(files$key %in% filesCache$key), ]
+        if (nrow(filesCache) == 0) filesCache <- NULL
+        if (nrow(files) == 0) files <- NULL
+      }, silent = TRUE)
+      if (inherits(tryResult, "try-error")) {
+        warning("Ignoring corrupt hashCacheFile: ", as.character(tryResult))
+        filesCache <- NULL
+      }
     } else {
       filesCache <- NULL
     }
