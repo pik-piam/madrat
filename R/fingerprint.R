@@ -26,7 +26,7 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
-#' @return A md5-based fingerprint of all provided sources
+#' @return A md5-based fingerprint of all provided sources, or "fingerprintError"
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{readSource}}
 #' @examples
@@ -87,7 +87,7 @@ fingerprintCall <- function(name) {
     }
     return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
   }
-  return(unlist(sapply(name, .tmp)))
+  return(unlist(sapply(name, .tmp))) # nolint
 }
 
 fingerprintFiles <- function(paths) {
@@ -137,19 +137,25 @@ fingerprintFiles <- function(paths) {
     hashCacheFile <- getHashCacheName(path)
 
     if (!is.null(hashCacheFile) && file.exists(hashCacheFile)) {
-      filesCache <- readRDS(hashCacheFile)
-      # keep only entries which are still up-to-date
-      filesCache <- filesCache[filesCache$key %in% files$key, ]
-      files <- files[!(files$key %in% filesCache$key), ]
-      if (nrow(filesCache) == 0) filesCache <- NULL
-      if (nrow(files) == 0) files <- NULL
+      tryResult <- try({
+        filesCache <- readRDS(hashCacheFile)
+        # keep only entries which are still up-to-date
+        filesCache <- filesCache[filesCache$key %in% files$key, ]
+        files <- files[!(files$key %in% filesCache$key), ]
+        if (nrow(filesCache) == 0) filesCache <- NULL
+        if (nrow(files) == 0) files <- NULL
+      }, silent = TRUE)
+      if (inherits(tryResult, "try-error")) {
+        warning("Ignoring corrupt hashCacheFile: ", as.character(tryResult))
+        filesCache <- NULL
+      }
     } else {
       filesCache <- NULL
     }
 
     if (!is.null(files)) {
       # use the first 300 byte of each file and the file sizes for hashing
-      files$hash <- sapply(files$path, digest, algo = getConfig("hash"), file = TRUE, length = 300)
+      files$hash <- vapply(files$path, digest, character(1), algo = getConfig("hash"), file = TRUE, length = 300)
       files$path <- NULL
       if (!is.null(hashCacheFile)) {
         saveRDS(files, hashCacheFile, version = 2)
@@ -160,5 +166,5 @@ fingerprintFiles <- function(paths) {
     files$key <- NULL
     return(digest(files[robustOrder(files$name), ], algo = getConfig("hash")))
   }
-  return(sapply(paths, .tmp))
+  return(sapply(paths, .tmp)) # nolint
 }

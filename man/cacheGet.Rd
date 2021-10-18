@@ -13,7 +13,7 @@ cacheGet(prefix, type, args = NULL, graph = NULL, ...)
 
 \item{args}{a list of named arguments used to call the given function}
 
-\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}. 
+\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}.
 Will be created with \code{\link{getMadratGraph}} if not provided.}
 
 \item{...}{Additional arguments for \code{\link{getMadratGraph}} in case
@@ -26,7 +26,7 @@ cached data, if cache is available, otherwise NULL
 Load fitting cache data (if available)
 }
 \examples{
-madrat:::cacheGet("calc","TauTotal", packages="madrat")
+madrat:::cacheGet("calc", "TauTotal", packages = "madrat")
 }
 \seealso{
 \code{\link{cachePut}}, \code{\link{cacheName}}

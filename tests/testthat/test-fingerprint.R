@@ -50,6 +50,15 @@ test_that("fingerprinting works for edge cases", {
 
 rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
 
+test_that("empty hash cache file is handled properly", {
+  localTempdir <- withr::local_tempdir()
+  dir.create(file.path(localTempdir, "something"))
+  file.create(file.path(localTempdir, paste0("fileHashCache", basename(localTempdir), ".rds")))
+  setConfig(sourcefolder = localTempdir, cachefolder = localTempdir, .local = TRUE)
+  expect_warning(madrat:::fingerprintFiles(localTempdir),
+                 "Ignoring corrupt hashCacheFile: Error in readRDS(hashCacheFile) : error reading from connection",
+                 fixed = TRUE)
+})
 
 test_that("fingerprinting works with control flags", {
   setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1)
