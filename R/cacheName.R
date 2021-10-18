@@ -36,7 +36,8 @@ cacheName <- function(prefix, type, args = NULL,  graph = NULL, mode = "put", pa
 
   fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = (mode == "put"),
                     packages = packages, globalenv = globalenv)
-  if (fp == "fingerprintError" && !isTRUE(getConfig("forcecache"))) {
+  # as.character to strip attributes from fp
+  if (identical(as.character(fp), "fingerprintError") && !isTRUE(getConfig("forcecache"))) {
     vcat(2, " - cacheName = NULL, because fingerprinting failed", show_prefix = FALSE)
     return(NULL)
   }

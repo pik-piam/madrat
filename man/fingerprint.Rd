@@ -19,7 +19,7 @@ Will be created with \code{\link{getMadratGraph}} if not provided.}
 that no graph is provided (otherwise ignored)}
 }
 \value{
-A md5-based fingerprint of all provided sources
+A md5-based fingerprint of all provided sources, or "fingerprintError"
 }
 \description{
 Function which creates a unique fingerprint for a madrat function based on

@@ -1,5 +1,3 @@
-context("Test caching")
-
 globalassign <- function(...) {
   for (x in c(...)) assign(x,eval.parent(parse(text = x)),.GlobalEnv)
 }
@@ -34,7 +32,6 @@ test_that("Caching works", {
   setConfig(forcecache = TRUE, .verbose = FALSE)
   expect_message(cf <- madrat:::cacheName("calc","CacheExample", mode = "get"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-F4ece4fe6.rds")
-  
 })
 
 test_that("Argument hashing works", {
@@ -79,6 +76,4 @@ test_that("Cache naming and identification works correctly", {
   expect_message(readSource("CacheExample", convert = "onlycorrect"), "correctCacheExample-F[^-]*.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"), "correctCacheExample-F[^-]*-d0d19d80.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"), "correctCacheExample-F[^-]*.rds")
-  
-  
 })

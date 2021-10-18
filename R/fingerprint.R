@@ -26,7 +26,7 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
-#' @return A md5-based fingerprint of all provided sources
+#' @return A md5-based fingerprint of all provided sources, or "fingerprintError"
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{readSource}}
 #' @examples
