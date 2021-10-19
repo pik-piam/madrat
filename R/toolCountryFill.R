@@ -37,7 +37,7 @@
 #' library(magclass)
 #' x <- new.magpie("DEU", 1994, "bla", 0)
 #' y <- toolCountryFill(x, 99)
-#' @importFrom magclass getRegions new.magpie getYears getNames mbind setCells
+#' @importFrom magclass getItems new.magpie getYears getNames mbind setCells
 #' @export
 toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, #nolint
                             countrylist = NULL, ...) {
@@ -46,12 +46,12 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
     countrylist <- as.vector(isoCountry[, "x"])
     names(countrylist) <- isoCountry[, "X"]
   }
-  missingCountries    <- setdiff(countrylist, getRegions(x))
-  additionalCountries <- setdiff(getRegions(x), countrylist)
+  missingCountries    <- setdiff(countrylist, getItems(x, dim = 1.1))
+  additionalCountries <- setdiff(getItems(x, dim = 1.1), countrylist)
 
   # remove irrelevant information
   if (length(additionalCountries) > 0) {
-    x <- x[setdiff(getRegions(x), additionalCountries), , ]
+    x <- x[setdiff(getItems(x, dim = 1.1), additionalCountries), , ]
     # warn only for countries which were not explicitly mentioned in argument "remove"
     countries2warn <- setdiff(additionalCountries, no_remove_warning)
     if (length(countries2warn) > 0) vcat(0, "Data for following unknown country codes removed: ",
@@ -111,6 +111,6 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
   }
 
   # order regions by region name
-  x <- x[robustSort(getRegions(x)), , ]
+  x <- x[robustSort(getItems(x, dim = 1.1)), , ]
   return(x)
 }

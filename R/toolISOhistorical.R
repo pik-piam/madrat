@@ -26,7 +26,7 @@
 #' deleted
 #' @author Lavinia Baumstark
 #'
-#' @importFrom magclass getRegions getYears setYears
+#' @importFrom magclass getItems getYears setYears
 #'
 #' @export
 toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = FALSE) { # nolint
@@ -54,14 +54,15 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
   # sort mapping(transitions) in historical order -> needed for the correct filling of data
   mapping <- mapping[robustOrder(mapping$lastYear), ]
   # delete transitions from mapping which are not in the time horizon of m
-  mapping <- subset(mapping, mapping$lastYear <= max(intersect(mapping$lastYear, getYears(m))) &
-    mapping$lastYear >= min(intersect(mapping$lastYear, getYears(m))))
+  mapping <- subset(mapping,
+                    mapping$lastYear <= max(intersect(mapping$lastYear, getYears(m))) &
+                      mapping$lastYear >= min(intersect(mapping$lastYear, getYears(m))))
 
   # function to identify transitions that are in m
   .identifyTransitions <- function(iM) {
     tr <- list()
     # list of regions that are transition countries and in the data iM
-    fromISOM  <- intersect(mapping$fromISO, getRegions(iM))
+    fromISOM  <- intersect(mapping$fromISO, getItems(iM, dim = 1.1))
     # create matrix of possible transitions
     ptr <- NULL
     for (i in fromISOM) {
@@ -97,7 +98,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     }
 
     # collect information for all transisitons
-    for (i in 1:ntr) {
+    for (i in seq_len(ntr)) {
       fromISO <- fromISOYear[[i]][1, ]
       toISO   <- mapping$toISO[mapping$fromISO == fromISO[1] & mapping$lastYear == fromISOYear[[i]][2]]
       # take the maximum year of m that is lower than the transition year
@@ -115,13 +116,13 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
   # loop over all transitions
   for (a in tr) {
     # check if new regions of transition exists in m
-    toISOmissing   <- !all(is.element(a$toISO, getRegions(m)))
+    toISOmissing   <- !all(is.element(a$toISO, getItems(m, dim = 1.1)))
     if (toISOmissing) stop("there is no data for the following new countrys: ",
-      paste(a$toISO[which(!is.element(a$toISO, getRegions(m)))], collapse = ", "))
+                           paste(a$toISO[which(!is.element(a$toISO, getItems(m, dim = 1.1)))], collapse = ", "))
 
     # create transformation matrix
     ## time span where the data need to be adjusted
-    subTime <- getYears(m[, c(1:which(getYears(m) == a$fromY)), ])
+    subTime <- getYears(m[, seq_len(which(getYears(m) == a$fromY)), ])
     # disaggregation of countries
     if (length(a$fromISO) == 1) {
       weight <- setYears(m[a$toISO, a$toY, ], NULL)
@@ -130,12 +131,12 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
         vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
       }
       mTr <- toolAggregate(m[a$fromISO, subTime, ],
-        mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = weight,
-        negative_weight = "allow")
+                           mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = weight,
+                           negative_weight = "allow")
       ## aggregation of countries
     } else {
       mTr <- toolAggregate(m[a$fromISO, subTime, ],
-        mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = NULL)
+                           mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = NULL)
     }
     # fill data
     if (overwrite == TRUE) {
@@ -147,8 +148,8 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
 
   # delete old lines
   for (b in mapping$fromISO) {
-    if (is.element(b, getRegions(m))) {
-      m <- m[-which(getRegions(m) == b), , ]
+    if (is.element(b, getItems(m, dim = 1.1))) {
+      m <- m[-which(getItems(m, dim = 1.1) == b), , ]
     }
   }
 

@@ -1,5 +1,3 @@
-context("prepFunctionName")
-
 globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }

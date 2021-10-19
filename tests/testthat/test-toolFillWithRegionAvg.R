@@ -1,5 +1,3 @@
-context("toolFillWithRegionAvg")
-
 p <- magclass::maxample("pop")
 
 test_that("Fill with regional average works as expected", {
@@ -17,9 +15,13 @@ test_that("Fill with regional average works as expected", {
 
   x <- new.magpie(c("DEU", "FRA"))
   x[] <- 1:2
-  expect_message(y <- toolFillWithRegionAvg(x, valueToReplace = 1), "Replaced missing values")
+  expect_message({
+    y <- toolFillWithRegionAvg(x, valueToReplace = 1)
+  }, "Replaced missing values")
   expect_identical(as.vector(y), c(2, 2))
-  expect_warning(y <- toolFillWithRegionAvg(x, valueToReplace = 1, callToolCountryFill = TRUE), "More than .* missing")
+  expect_warning({
+    y <- toolFillWithRegionAvg(x, valueToReplace = 1, callToolCountryFill = TRUE)
+  }, "More than .* missing")
   expect_equal(dim(y)[1], 249)
 })
 

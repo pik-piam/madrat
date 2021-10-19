@@ -1,5 +1,3 @@
-context("Data calculation wrapper")
-
 Sys.setenv("LANGUAGE" = "EN")
 
 cfg <- getConfig(verbose = FALSE)

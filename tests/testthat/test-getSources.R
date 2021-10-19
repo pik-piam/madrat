@@ -1,5 +1,3 @@
-context("Test getSources")
-
 test_that("getSources works", {
   setConfig(globalenv = FALSE, .verbose = FALSE, .local = TRUE)
   expect_identical(getSources(name = "calcTauTotal", type = "download", packages = "madrat"), "Tau")

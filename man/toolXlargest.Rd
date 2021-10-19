@@ -24,8 +24,7 @@ vector with ISO country codes
 Selects the countries with the highest values in a magpie object
 }
 \examples{
-toolXlargest(maxample("pop"),range=1:3)
-
+toolXlargest(magclass::maxample("pop"), range = 1:3)
 }
 \author{
 Benjamin Leon Bodirsky, Jan Philipp Dietrich

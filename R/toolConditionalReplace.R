@@ -10,28 +10,29 @@
 #'
 #' @export
 
-toolConditionalReplace <- function(x, conditions, replaceby = 0){
-
-  if(length(replaceby)!=length(conditions)){
-    if(length(replaceby)==1){ replaceby <- rep(replaceby, length(conditions))
-    } else {stop("'replaceby' has to be of length 1 or the same length as 'conditions'")}
+toolConditionalReplace <- function(x, conditions, replaceby = 0) {
+  if (length(replaceby) != length(conditions)) {
+    if (length(replaceby) == 1) {
+      replaceby <- rep(replaceby, length(conditions))
+    } else {
+      stop("'replaceby' has to be of length 1 or the same length as 'conditions'")
+    }
   }
 
-  for(i in 1:length(conditions)){
-
-    if(grepl("\\(\\)",conditions[i])){
-      conditions[i] <- paste0(strsplit(conditions[i],"\\)"),"x)")
+  for (i in seq_along(conditions)) {
+    if (grepl("\\(\\)", conditions[i])) {
+      conditions[i] <- paste0(strsplit(conditions[i], "\\)"), "x)")
     } else {
-      conditions[i] <- paste0("x",conditions[i])
+      conditions[i] <- paste0("x", conditions[i])
     }
-    x_check <- eval(parse(text = conditions[i]))
-    x_check[is.na(x_check)] <- FALSE
-    
-    if(any(x_check)) {
-      percent    <- sum(x_check) / length(x) * 100
+    xCheck <- eval(parse(text = conditions[i]))
+    xCheck[is.na(xCheck)] <- FALSE
+
+    if (any(xCheck)) {
+      percent    <- sum(xCheck) / length(x) * 100
       verbosity  <- ifelse(percent > 1, 1, 2)
-      vcat(verbosity=verbosity, paste(percent, "% of data points with", conditions[i],"set to", replaceby[i],"."))
-      x[x_check] <- replaceby[i]
+      vcat(verbosity = verbosity, paste(percent, "% of data points with", conditions[i], "set to", replaceby[i], "."))
+      x[xCheck] <- replaceby[i]
     }
   }
 

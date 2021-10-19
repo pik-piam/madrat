@@ -8,14 +8,14 @@ regionscode(mapping = NULL, label = FALSE, strict = TRUE)
 }
 \arguments{
 \item{mapping}{Either a path to a mapping or an already read-in mapping as
-data.frame. If set to NULL (default) the regionscode of the region mapping set in the 
+data.frame. If set to NULL (default) the regionscode of the region mapping set in the
 madrat config will be returned.}
 
-\item{label}{logical deciding whether the corresponding label of a regionscode 
+\item{label}{logical deciding whether the corresponding label of a regionscode
 should be returned instead of the regionscode.}
 
-\item{strict}{If set to TRUE region mappings with mapping to ISO countries with exactly 2 columns 
-or more than 2 colums (if the first colum contains irrelevant information which will be deleted automatically) 
+\item{strict}{If set to TRUE region mappings with mapping to ISO countries with exactly 2 columns
+or more than 2 colums (if the first colum contains irrelevant information which will be deleted automatically)
 will be accepted. In this case data will be transformed and even cases with different ordering
 will yield the same regionscode. If set to FALSE all these checks will be ignored and the
 regionscode will be just computed on the object as it is. Please be aware the regionscode will
@@ -35,9 +35,8 @@ regionmapping
 }
 \examples{
 
-file <- system.file("extdata","regionmappingH12.csv",package="madrat")
+file <- system.file("extdata", "regionmappingH12.csv", package = "madrat")
 regionscode(file)
-
 }
 \seealso{
 \code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link[digest]{digest}}

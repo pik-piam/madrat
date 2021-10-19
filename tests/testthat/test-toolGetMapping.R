@@ -1,5 +1,3 @@
-context("toolGetMapping")
-
 test_that("toolGetMapping works", {
   expected <- structure(list(X = c("Aruba", "Afghanistan", "Angola", "Anguilla",
                                    "Aland Islands", "Albania"),
@@ -39,5 +37,4 @@ test_that("toolGetMapping works", {
   writeLines("abc", paste0(getConfig("mappingfolder"), "/test.xyz"))
   expect_error(toolGetMapping("test.rda", where = "mappingfolder"), "did not contain a object")
   expect_error(toolGetMapping("test.xyz"), "Unsupported filetype")
-
 })

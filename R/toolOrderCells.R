@@ -24,7 +24,7 @@ toolOrderCells <- function(x, dim = 1.2, na.rm = FALSE) { #nolint
   order <- robustOrder(cells)
   if (na.rm && anyNA(cells)) {
     # remove NAs
-    order <- order[1:(length(order) - sum(is.na(cells)))]
+    order <- order[seq_len(length(order) - sum(is.na(cells)))]
   }
   out <- x[order, , ]
   getComment(out) <- c(getComment(x), paste0("Data reordered by spatial unit number (toolOrderCells): ", date()))

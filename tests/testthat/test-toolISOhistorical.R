@@ -1,5 +1,3 @@
-context("toolISOhistorical")
-
 test_that("Historic data is properly translated", {
   setConfig(.verbose = FALSE, .local = TRUE)
   newcountries <- c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",

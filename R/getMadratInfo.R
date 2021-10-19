@@ -123,11 +123,11 @@ getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
     no <- max(membership)
     out <- list()
     message("[INFO] ", no, " ", what, " detected")
-    for (i in 1:no) {
+    for (i in seq_len(no)) {
       member <- names(membership)[membership == i]
       message("[INFO]\n[INFO] .: ", elem, " #", i, " (", length(member), " members) :.")
       out[[i]] <- member
-      if (length(member) > cutoff) member <- c(member[1:cutoff], "...")
+      if (length(member) > cutoff) member <- c(member[seq_len(cutoff)], "...")
       message("[INFO]  -> ", paste(member, collapse = "\n[INFO]  -> "))
     }
     return(out)
@@ -173,7 +173,7 @@ getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
     tmp <- tmp[robustOrder(tmp[[2]], tmp[[1]]), ]
     message("[INFO]\n[INFO] .: exclusive calls for ", f, " (", dim(tmp)[1], " members) :.")
     out$exclusive_use[[f]] <- tmp
-    if (dim(tmp)[1] > cutoff) tmp <- rbind(tmp[1:cutoff, ], c("...", "..."))
+    if (dim(tmp)[1] > cutoff) tmp <- rbind(tmp[seq_len(cutoff), ], c("...", "..."))
     if (dim(tmp)[1] > 0) message("[INFO]  -> ", paste(tmp$package, tmp$func, sep = "::", collapse = "\n[INFO]  -> "))
   }
 
@@ -182,7 +182,7 @@ getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
   tmp <- tmp[robustOrder(tmp[[2]], tmp[[1]]), ]
   message("[INFO]\n[INFO] .: functions with no calls in full-functions (", dim(tmp)[1], " members) :.")
   out$exclusive_use$no_use <- tmp # nolint
-  if (dim(tmp)[1] > cutoff) tmp <- rbind(tmp[1:cutoff, ], c("...", "..."))
+  if (dim(tmp)[1] > cutoff) tmp <- rbind(tmp[seq_len(cutoff), ], c("...", "..."))
   if (dim(tmp)[1] > 0) message("[INFO]  -> ", paste(tmp$package, tmp$fname, sep = "::", collapse = "\n[INFO]  -> "))
 
   if (extended) {

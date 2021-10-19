@@ -1,5 +1,3 @@
-context("readSource wrapper")
-
 cfg <- getConfig(verbose = FALSE)
 
 globalassign <- function(...) {
@@ -67,7 +65,9 @@ test_that("readSource detects common problems", {
 test_that("default readSource example works", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
-  expect_silent(suppressMessages(a <- readSource("Tau", "paper")))
+  expect_silent(suppressMessages({
+    a <- readSource("Tau", "paper")
+  }))
   expect_equal(getYears(a, as.integer = TRUE), c(1995, 2000))
 })
 

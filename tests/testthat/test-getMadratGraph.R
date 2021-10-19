@@ -1,5 +1,3 @@
-context("getMadratGraph")
-
 globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
@@ -8,7 +6,9 @@ test_that("getMadratGraph works", {
   calcTest1 <- function() return(1)
   calcTest2 <- function() return(calcOutput("Test1"))
   globalassign("calcTest1", "calcTest2")
-  expect_silent(graph <- getMadratGraph(packages = "madrat", globalenv = TRUE))
+  expect_silent({
+    graph <- getMadratGraph(packages = "madrat", globalenv = TRUE)
+  })
   expect_setequal(graph$from_package, c("madrat", ".GlobalEnv"))
   expect_setequal(graph$to_package, c("madrat", ".GlobalEnv"))
 })

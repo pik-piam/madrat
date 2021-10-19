@@ -1,8 +1,8 @@
-context("Test getCalculations")
-
 test_that("getCalculations works", {
   setConfig(globalenv = FALSE, .verbose = FALSE, .local = TRUE)
-  expect_warning(x <- getCalculations(packages = "blub"), "is not available")
+  expect_warning({
+    x <- getCalculations(packages = "blub")
+  }, "is not available")
   expect_null(x)
 
   xe <- structure(list(type = c("TauTotal", "Tau"), package = c("madrat", "madrat"),
