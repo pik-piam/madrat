@@ -1,6 +1,7 @@
 test_that("cache folder can be set properly", {
-  setConfig(cachefolder = getwd(), .verbose = FALSE)
-  expect_identical(getwd(), getConfig("cachefolder"))
+  workingDirectory <- normalizePath(getwd(), winslash = "/")
+  setConfig(cachefolder = workingDirectory, .verbose = FALSE)
+  expect_identical(workingDirectory, getConfig("cachefolder"))
 
   # test shortcut formulation
   setConfig(cachefolder = "rev123", .verbose = FALSE)
