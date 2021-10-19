@@ -26,7 +26,7 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
-#' @return A md5-based fingerprint of all provided sources
+#' @return A md5-based fingerprint of all provided sources, or "fingerprintError"
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{readSource}}
 #' @examples
@@ -137,12 +137,18 @@ fingerprintFiles <- function(paths) {
     hashCacheFile <- getHashCacheName(path)
 
     if (!is.null(hashCacheFile) && file.exists(hashCacheFile)) {
-      filesCache <- readRDS(hashCacheFile)
-      # keep only entries which are still up-to-date
-      filesCache <- filesCache[filesCache$key %in% files$key, ]
-      files <- files[!(files$key %in% filesCache$key), ]
-      if (nrow(filesCache) == 0) filesCache <- NULL
-      if (nrow(files) == 0) files <- NULL
+      tryResult <- try({
+        filesCache <- readRDS(hashCacheFile)
+        # keep only entries which are still up-to-date
+        filesCache <- filesCache[filesCache$key %in% files$key, ]
+        files <- files[!(files$key %in% filesCache$key), ]
+        if (nrow(filesCache) == 0) filesCache <- NULL
+        if (nrow(files) == 0) files <- NULL
+      }, silent = TRUE)
+      if (inherits(tryResult, "try-error")) {
+        warning("Ignoring corrupt hashCacheFile: ", as.character(tryResult))
+        filesCache <- NULL
+      }
     } else {
       filesCache <- NULL
     }

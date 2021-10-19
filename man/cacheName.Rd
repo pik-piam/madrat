@@ -37,7 +37,7 @@ Sources/Calculations should be returned}
 environment should be included or not}
 }
 \value{
-cached data, if cache is available, otherwise NULL
+Name of fitting cache file, if available, otherwise NULL
 }
 \description{
 Load fitting cache data (if available)
