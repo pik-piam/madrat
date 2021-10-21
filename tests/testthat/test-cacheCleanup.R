@@ -15,8 +15,8 @@ test_that("cacheCleanup deletes old files", {
   expect_length(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE), 0)
 
   cacheCleanup(30, cacheFolder, readlineFunction = function(question) {
-    expect_identical(question, paste0("The following files are older than 30 days:\n",
-                                      cacheFile, "\n",
+    expect_identical(question, paste0("To see the files getting deleted run\n",
+                                      "find '", cacheFolder, "' -atime +30 | xargs ls -l -h --time=atime -t\n",
                                       "Are you sure you want to delete these files? (y/N) "))
     return("") # default is no, should not delete file
   })

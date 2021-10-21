@@ -21,18 +21,12 @@ cacheCleanup <- function(lifespanDays, cacheFolder, ask = TRUE, readlineFunction
          "find ", paste(findArgs, collapse = " "), " -delete")
   }
 
-  oldFiles <- system2("find", findArgs, stdout = TRUE)
   if (ask) {
-    if (length(oldFiles) == 0) {
-      cat("No files older than ", lifespanDays, " days found in ", cacheFolder, ".")
+    question <- paste0("To see the files getting deleted run\n",
+                       "find ", paste(findArgs, collapse = " "), " | xargs ls -l -h --time=atime -t\n",
+                       "Are you sure you want to delete these files? (y/N) ")
+    if (!tolower(readlineFunction(question)) %in% c("y", "yes")) {
       return(invisible(NULL))
-    } else {
-      question <- paste0("The following files are older than ", lifespanDays, " days:\n",
-                         paste(oldFiles, collapse = "\n"), "\n",
-                         "Are you sure you want to delete these files? (y/N) ")
-      if (!tolower(readlineFunction(question)) %in% c("y", "yes")) {
-        return(invisible(NULL))
-      }
     }
   }
   system2("find", c(findArgs, "-delete"))
