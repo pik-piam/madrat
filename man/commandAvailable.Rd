@@ -13,5 +13,5 @@ commandAvailable(command)
 TRUE or FALSE, depending on whether the command is available.
 }
 \description{
-Check if a command line tool is available by trying to execute it without any arguments.
+Check if a command line tool is available by trying to run `which <command>`.
 }

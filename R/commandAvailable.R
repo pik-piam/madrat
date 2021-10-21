@@ -1,14 +1,11 @@
 #' commandAvailable
 #'
-#' Check if a command line tool is available by trying to execute it without any arguments.
+#' Check if a command line tool is available by trying to run `which <command>`.
 #'
 #' @param command The command to check, e.g. ls.
 #' @return TRUE or FALSE, depending on whether the command is available.
-#' @importFrom withr local_dir local_tempdir
 commandAvailable <- function(command) {
-  local_dir(local_tempdir())
   return(tryCatch({
-    system2(command, stdout = NULL, stderr = NULL)
-    TRUE
+    identical(system2("which", command, stdout = NULL, stderr = NULL), 0L)
   }, warning = function(w) FALSE, error = function(e) FALSE))
 }

@@ -9,7 +9,7 @@
 #' @export
 cacheCleanup <- function(lifespanDays, cacheFolder, ask = TRUE, readlineFunction = readline) {
   if (!commandAvailable("find")) {
-    stop("cacheCleanup requires the find command, but it is not available on your system.")
+    stop("cacheCleanup requires the GNU find command, which is not available on on your system.")
   }
   stopifnot(length(lifespanDays) == 1, lifespanDays == as.integer(lifespanDays), lifespanDays >= 0,
             length(cacheFolder) == 1, dir.exists(cacheFolder),
