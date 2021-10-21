@@ -8,14 +8,19 @@
 #' @param readlineFunction A function to get input from the user. Only intended for testing.
 #' @export
 cacheCleanup <- function(lifespanDays, cacheFolder, ask = TRUE, readlineFunction = readline) {
-  if (!commandAvailable("find")) {
-    stop("cacheCleanup requires the GNU find command, which is not available on on your system.")
-  }
   stopifnot(length(lifespanDays) == 1, lifespanDays == as.integer(lifespanDays), lifespanDays >= 0,
             length(cacheFolder) == 1, dir.exists(cacheFolder),
             length(ask) == 1, ask %in% c(TRUE, FALSE))
 
+  cacheFolder <- normalizePath(cacheFolder, winslash = "/")
   findArgs <- c(shQuote(cacheFolder), "-atime", paste0("+", lifespanDays))
+
+  if (!endsWith(Sys.which("find"), "find")) {
+    stop("cacheCleanup requires the GNU find command line tool, which is not available via base::system2. ",
+         "You can try to run the following command in a shell with GNU find:\n",
+         "find ", paste(findArgs, collapse = " "), " -delete")
+  }
+
   oldFiles <- system2("find", findArgs, stdout = TRUE)
   if (ask) {
     if (length(oldFiles) == 0) {

@@ -1,12 +1,12 @@
 test_that("cacheCleanup deletes old files", {
-  skip_if_not(all(vapply(c("find", "touch"), commandAvailable, logical(1))), "this test needs GNU find and touch")
+  skip_if_not(endsWith(Sys.which("find"), "find") && Sys.which("touch") != "",
+              "The GNU find or touch command line tool is not available.")
 
   cacheFolder <- withr::local_tempdir()
   cacheFile <- file.path(cacheFolder, "cacheFile")
   file.create(cacheFile)
   # get all files in cacheFolder accessed (atime = access time) during the last 24 hours (rounded down to 0 days)
-  expect_identical(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE),
-                   cacheFile)
+  expect_identical(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE), cacheFile)
 
   cacheCleanup(30, cacheFolder, ask = FALSE)
   expect_true(file.exists(cacheFile))
