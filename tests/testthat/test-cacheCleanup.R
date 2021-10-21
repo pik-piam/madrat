@@ -15,10 +15,7 @@ test_that("cacheCleanup deletes old files", {
   expect_length(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE), 0)
 
   cacheCleanup(30, cacheFolder, readlineFunction = function(question) {
-    expect_identical(question, paste0("To see the files getting deleted run\n",
-                                      "find ", shQuote(cacheFolder),
-                                      " -atime +30 | xargs ls -l -h --time=atime | less\n",
-                                      "Are you sure you want to delete these files? (y/N) "))
+    expect_identical(question, "Are you sure you want to delete these files? (y/N) ")
     return("") # default is no, should not delete file
   })
   expect_true(file.exists(cacheFile))

@@ -22,10 +22,12 @@ cacheCleanup <- function(lifespanDays, cacheFolder, ask = TRUE, readlineFunction
   }
 
   if (ask) {
-    question <- paste0("To see the files getting deleted run\n",
-                       "find ", paste(findArgs, collapse = " "), " | xargs ls -l -h --time=atime | less\n",
-                       "Are you sure you want to delete these files? (y/N) ")
-    if (!tolower(readlineFunction(question)) %in% c("y", "yes")) {
+    if (interactive()) {
+      readline(paste("Files older than", lifespanDays, "days will be listed, this might take a moment.",
+                     "When you are done checking the files press q. Press enter to see the files."))
+      system(paste0("ls -l -h --time=atime -t `find ", paste(findArgs, collapse = " "), "` | less"))
+    }
+    if (!tolower(readlineFunction("Are you sure you want to delete these files? (y/N) ")) %in% c("y", "yes")) {
       return(invisible(NULL))
     }
   }
