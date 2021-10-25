@@ -1,18 +1,15 @@
 test_that("cacheCleanup deletes old files", {
-  skip_if_not(endsWith(Sys.which("find"), "find") && Sys.which("touch") != "",
-              "The GNU find or touch command line tool is not available.")
+  # skip_on_os("windows") # Sys.setFileTime does not modify atime (only mtime/'last write time') on windows
+  # should also skip on systems where atimes are not available
 
   cacheFolder <- withr::local_tempdir()
   cacheFile <- file.path(cacheFolder, "cacheFile")
   file.create(cacheFile)
-  # get all files in cacheFolder accessed (atime = access time) during the last 24 hours (rounded down to 0 days)
-  expect_identical(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE), cacheFile)
 
   cacheCleanup(30, cacheFolder, ask = FALSE)
   expect_true(file.exists(cacheFile))
 
-  system2("touch", c("--date='31 days ago'", shQuote(cacheFile))) # set atime to 31 days ago
-  expect_length(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE), 0)
+  Sys.setFileTime(cacheFile, Sys.time() - 31 * 24 * 60 * 60) # set atime to 31 days ago
 
   cacheCleanup(30, cacheFolder, readlineFunction = function(question) {
     expect_identical(question, "Are you sure you want to delete these 1 files? (y/N) ")

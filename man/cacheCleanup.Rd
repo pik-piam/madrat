@@ -21,5 +21,7 @@ cacheCleanup(
 \item{readlineFunction}{A function to get input from the user. Only intended for testing.}
 }
 \description{
-Delete cache files older than a specified period of time, based on atime file metadata.
+Delete cache files older than the specified number of days, based on atime/last access time file metadata. This
+metadata is not always available and it is system dependent what atime/last access time actually means, so please
+double check that the files to be deleted are detected properly.
 }

@@ -1,6 +1,8 @@
 #' cacheCleanup
 #'
-#' Delete cache files older than a specified period of time, based on atime file metadata.
+#' Delete cache files older than the specified number of days, based on atime/last access time file metadata. This
+#' metadata is not always available and it is system dependent what atime/last access time actually means, so please
+#' double check that the files to be deleted are detected properly.
 #'
 #' @param lifespanDays Files older than this many days are deleted.
 #' @param cacheFolder Path to the folder to delete files from.
@@ -13,27 +15,18 @@ cacheCleanup <- function(lifespanDays, cacheFolder, ask = TRUE, readlineFunction
             length(ask) == 1, ask %in% c(TRUE, FALSE))
 
   cacheFolder <- normalizePath(cacheFolder, winslash = "/")
-  findArgs <- c(shQuote(cacheFolder), "-atime", paste0("+", lifespanDays))
 
-  if (!endsWith(Sys.which("find"), "find")) {
-    stop("cacheCleanup requires the GNU find command line tool, which is not available via base::system2. ",
-         "You can try to run the following command in a shell with GNU find:\n",
-         "find ", paste(findArgs, collapse = " "), " -delete")
-  }
-
+  filesAccessTimes <- file.info(list.files(cacheFolder, full.names = TRUE), extra_cols = FALSE)["atime"]
+  oldFiles <- rownames(filesAccessTimes)[filesAccessTimes[[1]] < Sys.time() - lifespanDays * 24 * 60 * 60]
   if (ask) {
-    numberOfOldFiles <- length(system2("find", findArgs, stdout = TRUE))
-    if (numberOfOldFiles == 0) {
+    if (length(oldFiles) == 0) {
       message(paste0("No files older than ", lifespanDays, " days found."))
       return(invisible(NULL))
     }
-    if (!requireNamespace("testthat", quietly = TRUE) || !testthat::is_testing()) {
-      system2("find", findArgs)
-    }
-    question <- paste("Are you sure you want to delete these", numberOfOldFiles, "files? (y/N) ")
+    question <- paste("Are you sure you want to delete these", length(oldFiles), "files? (y/N) ")
     if (!tolower(readlineFunction(question)) %in% c("y", "yes")) {
       return(invisible(NULL))
     }
   }
-  system2("find", c(findArgs, "-delete"))
+  file.remove(oldFiles)
 }
