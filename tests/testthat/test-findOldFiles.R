@@ -11,5 +11,5 @@ test_that("findOldFiles finds old files", {
   expect_identical(rownames(findOldFiles(30, cacheFolder, timeType)), cacheFile)
 
   expect_error(findOldFiles(30, cacheFolder, "stime"),
-               "'arg' should be one of \"atime\", \"mtime\", \"ctime\"", fixed = TRUE)
+               "'arg' should be one of .atime., .mtime., .ctime.")
 })

@@ -4,14 +4,17 @@
 \alias{findOldFiles}
 \title{findOldFiles}
 \usage{
-findOldFiles(daysThreshold, path)
+findOldFiles(daysThreshold, path, timeType = c("atime", "mtime", "ctime"))
 }
 \arguments{
 \item{daysThreshold}{Files older than this many days are returned.}
 
 \item{path}{Path to where to look for old files.}
+
+\item{timeType}{Which file metadata time should be used. One of atime (last access time), mtime (last modify time),
+ctime (last metadata change).}
 }
 \description{
-Find files older than the specified number of days, based on atime/last access time file metadata. This
-metadata is not always available and it is system dependent what atime/last access time actually means.
+Find files older than the specified number of days, based on file time metadata. This metadata is not available on
+all systems and the semantics are also system dependent.
 }
