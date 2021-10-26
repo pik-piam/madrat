@@ -17,6 +17,9 @@
 cacheCleanup <- function(daysThreshold, path, timeType = c("atime", "mtime", "ctime"), ask = TRUE,
                          readlineFunction = readline) {
   timeType <- match.arg(timeType)
+  stopifnot(length(daysThreshold) == 1, is.numeric(daysThreshold), daysThreshold >= 0,
+            length(path) == 1, dir.exists(path),
+            length(ask) == 1, ask %in% c(TRUE, FALSE))
 
   filesAccessTimes <- file.info(list.files(normalizePath(path, winslash = "/"), full.names = TRUE))
   dateThreshold <- Sys.time() - daysThreshold * 24 * 60 * 60
