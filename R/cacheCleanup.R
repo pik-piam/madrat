@@ -22,14 +22,17 @@ cacheCleanup <- function(daysThreshold, path = getConfig("cachefolder", verbose 
             length(ask) == 1, ask %in% c(TRUE, FALSE))
 
   path <- normalizePath(path, winslash = "/")
+
+  if (ask && !tolower(readlineFunction(paste("Is the path correct?", path, "(y/N) "))) %in% c("y", "yes")) {
+    stop("Please pass the correct path.")
+  }
+
+  cat("Loading file timestamps...")
   filesAccessTimes <- file.info(list.files(path, full.names = TRUE))
   dateThreshold <- Sys.time() - daysThreshold * 24 * 60 * 60
   oldFiles <- filesAccessTimes[filesAccessTimes[[timeType]] < dateThreshold, ]
 
   if (ask) {
-    if (!tolower(readlineFunction(paste("Is the path correct?", path, "(y/N) "))) %in% c("y", "yes")) {
-      stop("Please pass the correct path.")
-    }
     if (!requireNamespace("testthat", quietly = TRUE) || !testthat::is_testing()) { # do not print when testing
       print(oldFiles)
     }
