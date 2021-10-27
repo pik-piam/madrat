@@ -106,7 +106,9 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       if ("tbl" %in% class(rel)) rel <- data.frame(rel)
       if (!(is.matrix(rel) | is.data.frame(rel))) {
         if (length(rel) > 1) stop("Malformed relation mapping!")
-        if (!file.exists(rel)) stop("Cannot find given region mapping file!")
+        if (!file.exists(rel)) {
+          stop("Cannot find region mapping file: ", rel, " (working directory ", getwd(), ")")
+        }
         rel <- toolGetMapping(rel, where = "local")
       }
       if (is.matrix(rel)) rel <- as.data.frame(rel)
