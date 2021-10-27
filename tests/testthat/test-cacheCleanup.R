@@ -1,7 +1,4 @@
 test_that("cacheCleanup deletes old files", {
-  expect_error(cacheCleanup(30, cacheFolder, "stime"),
-               "'arg' should be one of .atime., .mtime., .ctime.")
-
   # Sys.setFileTime does not modify atime (only mtime/'last write time') on windows
   timeType <- if (identical(Sys.info()[["sysname"]], "Windows")) "mtime" else "atime"
 
@@ -9,21 +6,30 @@ test_that("cacheCleanup deletes old files", {
   cacheFile <- file.path(cacheFolder, "cacheFile")
   file.create(cacheFile)
 
+  expect_error(cacheCleanup(30, cacheFolder, "stime"),
+               "'arg' should be one of .atime., .mtime., .ctime.")
+
   cacheCleanup(30, cacheFolder, timeType, ask = FALSE)
   expect_true(file.exists(cacheFile))
 
   Sys.setFileTime(cacheFile, Sys.time() - 31 * 24 * 60 * 60) # set atime to 31 days ago
 
-  cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) {
-    expect_identical(question,
-                     "Do you want to delete these files? (y/N) ")
-    return("") # default is no, should not delete file
+  expect_error({
+    cacheCleanup(30, cacheFolder, readlineFunction = function(question) "asdf") # cryptic answer = FALSE
+  }, "Please pass the correct path.", fixed = TRUE)
+
+  cacheFileInfo <- cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) {
+    pathQuestion <- paste("Is the path correct?", cacheFolder, "(y/N) ")
+    expect_true(question %in% c(pathQuestion,
+                                "Do you want to delete these files? (y/N) "))
+    if (identical(question, pathQuestion)) {
+      return("YES")
+    } else {
+      return("") # default is no, should not delete file
+    }
   })
   expect_true(file.exists(cacheFile))
-
-  expect_identical(cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) "n"),
-                   file.info(cacheFile))
-  expect_true(file.exists(cacheFile))
+  expect_identical(cacheFileInfo, file.info(cacheFile))
 
   cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) "y")
   expect_false(file.exists(cacheFile))

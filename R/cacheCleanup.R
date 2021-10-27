@@ -14,19 +14,23 @@
 #' @return If the user answers 'n', a data.frame as returned by base::file.info, containing only files older than
 #' <daysThreshold> days, otherwise the result of base::file.remove.
 #' @export
-cacheCleanup <- function(daysThreshold, path, timeType = c("atime", "mtime", "ctime"), ask = TRUE,
-                         readlineFunction = readline) {
+cacheCleanup <- function(daysThreshold, path = getConfig("cachefolder", verbose = FALSE),
+                         timeType = c("atime", "mtime", "ctime"), ask = TRUE, readlineFunction = readline) {
   timeType <- match.arg(timeType)
   stopifnot(length(daysThreshold) == 1, is.numeric(daysThreshold), daysThreshold >= 0,
             length(path) == 1, dir.exists(path),
             length(ask) == 1, ask %in% c(TRUE, FALSE))
 
-  filesAccessTimes <- file.info(list.files(normalizePath(path, winslash = "/"), full.names = TRUE))
+  path <- normalizePath(path, winslash = "/")
+  filesAccessTimes <- file.info(list.files(path, full.names = TRUE))
   dateThreshold <- Sys.time() - daysThreshold * 24 * 60 * 60
   oldFiles <- filesAccessTimes[filesAccessTimes[[timeType]] < dateThreshold, ]
 
   if (ask) {
-    if (!requireNamespace("testthat", quietly = TRUE) || !testthat::is_testing()) {
+    if (!tolower(readlineFunction(paste("Is the path correct?", path, "(y/N) "))) %in% c("y", "yes")) {
+      stop("Please pass the correct path.")
+    }
+    if (!requireNamespace("testthat", quietly = TRUE) || !testthat::is_testing()) { # do not print when testing
       print(oldFiles)
     }
     if (!tolower(readlineFunction("Do you want to delete these files? (y/N) ")) %in% c("y", "yes")) {

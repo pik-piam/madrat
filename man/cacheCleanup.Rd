@@ -6,7 +6,7 @@
 \usage{
 cacheCleanup(
   daysThreshold,
-  path,
+  path = getConfig("cachefolder", verbose = FALSE),
   timeType = c("atime", "mtime", "ctime"),
   ask = TRUE,
   readlineFunction = readline
