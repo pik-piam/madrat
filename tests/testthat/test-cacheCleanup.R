@@ -2,7 +2,7 @@ test_that("cacheCleanup deletes old files", {
   # Sys.setFileTime does not modify atime (only mtime/'last write time') on windows
   timeType <- if (identical(Sys.info()[["sysname"]], "Windows")) "mtime" else "atime"
 
-  cacheFolder <- withr::local_tempdir()
+  cacheFolder <- normalizePath(withr::local_tempdir(), winslash = "/")
   cacheFile <- file.path(cacheFolder, "cacheFile")
   file.create(cacheFile)
 
