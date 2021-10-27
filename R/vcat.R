@@ -5,7 +5,7 @@
 #'
 #' @param verbosity The lowest verbosity level for which this message should be
 #' shown (verbosity = -1 means no information at all, 0 = only warnings, 1 =
-#' warnings and execution informations, 2 = full information). If the verbosity
+#' warnings and execution information, 2 = full information). If the verbosity
 #' is set to 0 the message is written as warning, if the verbosity is set
 #' higher than 0 it is written as a normal cat message.
 #' @param ... The message to be shown
@@ -30,16 +30,17 @@
 #' vcat(2, "Hello world!")
 #' }
 #' @importFrom utils capture.output
-vcat <- function(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE) {
+vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
+                 show_prefix = TRUE) { # nolint
   # write output based on set verbosity level
 
   if (!is.null(level)) {
     if (level == 0) {
-      options(gdt_nestinglevel = NULL)
+      options(gdt_nestinglevel = NULL) # nolint
     } else if (level == "-") {
       # remove empty space
-      options(gdt_nestinglevel = substring(getOption("gdt_nestinglevel"), 2))
-      if (getOption("gdt_nestinglevel") == "") options(gdt_nestinglevel = NULL)
+      options(gdt_nestinglevel = substring(getOption("gdt_nestinglevel"), 2)) #nolint
+      if (getOption("gdt_nestinglevel") == "") options(gdt_nestinglevel = NULL) # nolint
     }
   }
 
@@ -80,7 +81,7 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE) 
 
   if (!is.null(level)) {
     if (level == "+") {
-      options(gdt_nestinglevel = paste0(getConfig("indentationCharacter"), getOption("gdt_nestinglevel")))
+      options(gdt_nestinglevel = paste0(getConfig("indentationCharacter"), getOption("gdt_nestinglevel"))) # nolint
     }
   }
 }

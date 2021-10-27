@@ -9,7 +9,7 @@ vcat(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE)
 \arguments{
 \item{verbosity}{The lowest verbosity level for which this message should be
 shown (verbosity = -1 means no information at all, 0 = only warnings, 1 =
-warnings and execution informations, 2 = full information). If the verbosity
+warnings and execution information, 2 = full information). If the verbosity
 is set to 0 the message is written as warning, if the verbosity is set
 higher than 0 it is written as a normal cat message.}
 

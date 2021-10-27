@@ -1,33 +1,38 @@
 test_that("cacheCleanup deletes old files", {
+  # Sys.setFileTime does not modify atime (only mtime/'last write time') on windows
+  timeType <- if (identical(Sys.info()[["sysname"]], "Windows")) "mtime" else "atime"
+
   cacheFolder <- withr::local_tempdir()
-
-  if (!commandAvailable("find")) {
-    expect_error(cacheCleanup(30, cacheFolder, ask = FALSE),
-                 "cacheCleanup requires the find command, but it is not available on your system.", fixed = TRUE)
-  }
-
-  skip_if_not(commandAvailable("find") && commandAvailable("touch"))
-
   cacheFile <- file.path(cacheFolder, "cacheFile")
   file.create(cacheFile)
-  # get all files in cacheFolder accessed (atime = access time) during the last 24 hours
-  expect_identical(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE),
-                   cacheFile)
 
-  cacheCleanup(30, cacheFolder, ask = FALSE)
+  expect_error(cacheCleanup(30, cacheFolder, "stime"),
+               "'arg' should be one of .atime., .mtime., .ctime.")
+
+  cacheCleanup(30, cacheFolder, timeType, ask = FALSE)
   expect_true(file.exists(cacheFile))
 
-  system2("touch", c("--date='31 days ago'", shQuote(cacheFile))) # set atime to 31 days ago
-  expect_length(system2("find", c(shQuote(cacheFolder), "-type", "f", "-atime", "0"), stdout = TRUE), 0)
+  Sys.setFileTime(cacheFile, Sys.time() - 31 * 24 * 60 * 60) # set atime to 31 days ago
 
-  cacheCleanup(30, cacheFolder, readlineFunction = function(question) {
-    expect_identical(question, paste0("The following files are older than 30 days:\n",
-                                      cacheFile, "\n",
-                                      "Are you sure you want to delete these files? (y/N) "))
-    return("") # default is no, should not delete file
+  expect_error({
+    cacheCleanup(30, cacheFolder, readlineFunction = function(question) "asdf") # cryptic answer = FALSE
+  }, "Please pass the correct path.", fixed = TRUE)
+
+  cacheFileInfo <- cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) {
+    pathQuestion <- paste("Is the path correct?", cacheFolder, "(y/N) ")
+    expect_true(question %in% c(pathQuestion,
+                                "Do you want to delete these files? (y/N) "))
+    if (identical(question, pathQuestion)) {
+      return("YES")
+    } else {
+      return("") # default is no, should not delete file
+    }
   })
   expect_true(file.exists(cacheFile))
+  expectedFileInfo <- file.info(cacheFile)
+  rownames(expectedFileInfo) <- basename(rownames(expectedFileInfo))
+  expect_identical(cacheFileInfo, expectedFileInfo)
 
-  cacheCleanup(30, cacheFolder, readlineFunction = function(question) "y")
+  cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) "y")
   expect_false(file.exists(cacheFile))
 })

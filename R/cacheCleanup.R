@@ -1,34 +1,52 @@
 #' cacheCleanup
 #'
-#' Delete cache files older than a specified period of time, based on atime file metadata.
+#' Delete files older than the specified number of days, based on file time metadata (per default atime = last access
+#' time).
 #'
-#' @param lifespanDays Files older than this many days are deleted.
-#' @param cacheFolder Path to the folder to delete files from.
-#' @param ask If TRUE (the default) the user is asked before deleting.
-#' @param readlineFunction A function to get input from the user. Only intended for testing.
+#' File time metadata is not available on all systems and the semantics are also system dependent, so please be
+#' careful and check that the correct files are deleted. This function will return a data.frame containing all
+#' files that would be deleted if the user answers 'n' to the question. If deleting files fails a warning is created.
+#'
+#' @param daysThreshold Files older than this many days are deleted/returned.
+#' @param path Path to where to look for old files.
+#' @param timeType Which file metadata time should be used. One of atime (last access time, default),
+#' mtime (last modify time), ctime (last metadata change).
+#' @param ask Whether to ask before deleting.
+#' @param readlineFunction Only needed for testing. A function to prompt the user for input.
+#' @return If the user answers 'n', a data.frame as returned by base::file.info, containing only files older than
+#' <daysThreshold> days.
+#' @importFrom withr local_dir
 #' @export
-cacheCleanup <- function(lifespanDays, cacheFolder, ask = TRUE, readlineFunction = readline) {
-  if (!commandAvailable("find")) {
-    stop("cacheCleanup requires the find command, but it is not available on your system.")
-  }
-  stopifnot(length(lifespanDays) == 1, lifespanDays == as.integer(lifespanDays), lifespanDays >= 0,
-            length(cacheFolder) == 1, dir.exists(cacheFolder),
+cacheCleanup <- function(daysThreshold, path = getConfig("cachefolder", verbose = FALSE),
+                         timeType = c("atime", "mtime", "ctime"), ask = TRUE, readlineFunction = readline) {
+  timeType <- match.arg(timeType)
+  stopifnot(length(daysThreshold) == 1, is.numeric(daysThreshold), daysThreshold >= 0,
+            length(path) == 1, dir.exists(path),
             length(ask) == 1, ask %in% c(TRUE, FALSE))
 
-  findArgs <- c(shQuote(cacheFolder), "-atime", paste0("+", lifespanDays))
-  oldFiles <- system2("find", findArgs, stdout = TRUE)
+  path <- normalizePath(path, winslash = "/")
+
+  if (ask && !tolower(readlineFunction(paste("Is the path correct?", path, "(y/N) "))) %in% c("y", "yes")) {
+    stop("Please pass the correct path.")
+  }
+  local_dir(path)
+
+  cat("Loading file timestamps...")
+  filesAccessTimes <- file.info(list.files())
+  dateThreshold <- Sys.time() - daysThreshold * 24 * 60 * 60
+  oldFiles <- filesAccessTimes[filesAccessTimes[[timeType]] < dateThreshold, ]
+
   if (ask) {
-    if (length(oldFiles) == 0) {
-      cat("No files older than ", lifespanDays, " days found in ", cacheFolder, ".")
-      return(invisible(NULL))
-    } else {
-      question <- paste0("The following files are older than ", lifespanDays, " days:\n",
-                         paste(oldFiles, collapse = "\n"), "\n",
-                         "Are you sure you want to delete these files? (y/N) ")
-      if (!tolower(readlineFunction(question)) %in% c("y", "yes")) {
-        return(invisible(NULL))
-      }
+    if (!requireNamespace("testthat", quietly = TRUE) || !testthat::is_testing()) { # do not print when testing
+      print(oldFiles)
+    }
+    if (!tolower(readlineFunction("Do you want to delete these files? (y/N) ")) %in% c("y", "yes")) {
+      return(oldFiles)
     }
   }
-  system2("find", c(findArgs, "-delete"))
+
+  notDeleted <- rownames(oldFiles)[!file.remove(rownames(oldFiles))]
+  if (length(notDeleted) > 0) {
+    warning("Could not delete the following files: ", paste(notDeleted, collapse = ", "))
+  }
 }

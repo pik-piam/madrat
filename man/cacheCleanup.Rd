@@ -5,21 +5,35 @@
 \title{cacheCleanup}
 \usage{
 cacheCleanup(
-  lifespanDays,
-  cacheFolder,
+  daysThreshold,
+  path = getConfig("cachefolder", verbose = FALSE),
+  timeType = c("atime", "mtime", "ctime"),
   ask = TRUE,
   readlineFunction = readline
 )
 }
 \arguments{
-\item{lifespanDays}{Files older than this many days are deleted.}
+\item{daysThreshold}{Files older than this many days are deleted/returned.}
 
-\item{cacheFolder}{Path to the folder to delete files from.}
+\item{path}{Path to where to look for old files.}
 
-\item{ask}{If TRUE (the default) the user is asked before deleting.}
+\item{timeType}{Which file metadata time should be used. One of atime (last access time, default),
+mtime (last modify time), ctime (last metadata change).}
 
-\item{readlineFunction}{A function to get input from the user. Only intended for testing.}
+\item{ask}{Whether to ask before deleting.}
+
+\item{readlineFunction}{Only needed for testing. A function to prompt the user for input.}
+}
+\value{
+If the user answers 'n', a data.frame as returned by base::file.info, containing only files older than
+<daysThreshold> days.
 }
 \description{
-Delete cache files older than a specified period of time, based on atime file metadata.
+Delete files older than the specified number of days, based on file time metadata (per default atime = last access
+time).
+}
+\details{
+File time metadata is not available on all systems and the semantics are also system dependent, so please be
+careful and check that the correct files are deleted. This function will return a data.frame containing all
+files that would be deleted if the user answers 'n' to the question. If deleting files fails a warning is created.
 }
