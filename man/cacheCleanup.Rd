@@ -26,11 +26,14 @@ mtime (last modify time), ctime (last metadata change).}
 }
 \value{
 If the user answers 'n', a data.frame as returned by base::file.info, containing only files older than
-<daysThreshold> days, otherwise the result of base::file.remove.
+<daysThreshold> days.
 }
 \description{
 Delete files older than the specified number of days, based on file time metadata (per default atime = last access
-time). This metadata is not available on all systems and the semantics are also system dependent, so please be
+time).
+}
+\details{
+File time metadata is not available on all systems and the semantics are also system dependent, so please be
 careful and check that the correct files are deleted. This function will return a data.frame containing all
-files that would be deleted if the user answers 'n' to the question.
+files that would be deleted if the user answers 'n' to the question. If deleting files fails a warning is created.
 }

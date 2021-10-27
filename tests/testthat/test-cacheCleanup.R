@@ -29,7 +29,9 @@ test_that("cacheCleanup deletes old files", {
     }
   })
   expect_true(file.exists(cacheFile))
-  expect_identical(cacheFileInfo, file.info(cacheFile))
+  expectedFileInfo <- file.info(cacheFile)
+  rownames(expectedFileInfo) <- basename(rownames(expectedFileInfo))
+  expect_identical(cacheFileInfo, expectedFileInfo)
 
   cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) "y")
   expect_false(file.exists(cacheFile))
