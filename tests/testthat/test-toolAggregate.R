@@ -1,16 +1,16 @@
-context("Data aggregation")
-
 pm <- magclass::maxample("pop")
 w <- pm
 w[, , ] <- NA
-map <- data.frame(from = getRegions(pm), reg = rep(c("REG1", "REG2"), 5), glo = "GLO")
-map2 <- data.frame(from = getRegions(pm), to = getRegions(pm))
+map <- data.frame(from = getItems(pm, dim = 1.1), reg = rep(c("REG1", "REG2"), 5), glo = "GLO")
+map2 <- data.frame(from = getItems(pm, dim = 1.1), to = getItems(pm, dim = 1.1))
 # Spatial subdimension (trade data) objects
-td <- new.magpie(paste(rep(getRegions(pm), nregions(pm)), rep(getRegions(pm), each = nregions(pm)), sep = "."),
+td <- new.magpie(paste(rep(getItems(pm, dim = 1.1), nregions(pm)), rep(getItems(pm, dim = 1.1), each = nregions(pm)),
+                       sep = "."),
                  getYears(pm), getNames(pm), pm)
-tdeach <- new.magpie(paste(rep(getRegions(pm), each = nregions(pm)), rep(getRegions(pm), nregions(pm)), sep = "."),
+tdeach <- new.magpie(paste(rep(getItems(pm, dim = 1.1), each = nregions(pm)),
+                           rep(getItems(pm, dim = 1.1), nregions(pm)), sep = "."),
                      getYears(pm), getNames(pm), pm)
-rel <- data.frame(from = getRegions(pm), to = rep(c("REG1", "REG2"), each = 5))
+rel <- data.frame(from = getItems(pm, dim = 1.1), to = rep(c("REG1", "REG2"), each = 5))
 
 cfg <- getConfig(verbose = FALSE)
 
@@ -97,14 +97,14 @@ test_that("partrel=TRUE works in combination with weights", {
 })
 
 test_that("aggregation in dim=1.2 with regions-only mapping is the same as in dim=1 with region.cell mapping", {
-  reltest <- data.frame(from = getCells(td), to = paste(rep(getRegions(td), 10),
+  reltest <- data.frame(from = getCells(td), to = paste(rep(getItems(td, dim = 1.1), 10),
                                                         rep(c("REG1", "REG2"), each = 50), sep = "."))
   expect_equivalent(magpiesort(toolAggregate(td, rel, dim = 1.2)), magpiesort(toolAggregate(td, reltest, dim = 1)))
 })
 
 test_that("aggregation in dim=1.1 with regions-only mapping is the same as in dim=1 with region.cell mapping", {
   reltest <- data.frame(from = getCells(tdeach), to = paste(rep(c("REG1", "REG2"), each = 50),
-                                                            rep(getRegions(td), 10), sep = "."))
+                                                            rep(getItems(td, dim = 1.1), 10), sep = "."))
   expect_equivalent(magpiesort(toolAggregate(tdeach, rel, dim = 1.1)),
                     magpiesort(toolAggregate(tdeach, reltest, dim = 1)))
 })
@@ -169,7 +169,8 @@ test_that("aggregation for subdimensions works properly", {
 test_that("Malformed inputs are properly detected", {
   expect_error(toolAggregate(1, 2), "Input is not a MAgPIE object")
   expect_error(toolAggregate(pm, map, weight = 1), "Weight is not a MAgPIE object")
-  expect_error(toolAggregate(as.magpie(1), rel = "notthere.csv"), "Cannot find given region mapping file")
+  expect_error(toolAggregate(as.magpie(1), rel = "notthere.csv"),
+               paste0("Cannot find region mapping file: notthere.csv (working directory ", getwd(), ")"), fixed = TRUE)
   expect_error(toolAggregate(pm, map[, 1, drop = FALSE]), "has only 1 column")
   expect_error(toolAggregate(pm, map[, 1]), "Malformed relation mapping")
   expect_error(toolAggregate(pm, map, weight = pm[1:2, , ]), "no match")
