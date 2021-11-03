@@ -75,9 +75,15 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
            "\" does already exist! Delete folder or activate overwrite to proceed!")
     }
   }
+
   dir.create(typesubtype, recursive = TRUE)
-  local_dir(typesubtype)
-  on.exit(if (length(dir()) == 0) unlink(typesubtype, recursive = TRUE), add = TRUE, after = FALSE)
+  absolutePathTypesubtype <- normalizePath(typesubtype)
+  local_dir(absolutePathTypesubtype)
+  on.exit({
+    if (length(dir(absolutePathTypesubtype)) == 0) {
+      unlink(absolutePathTypesubtype, recursive = TRUE)
+    }
+  }, add = TRUE, after = FALSE)
   meta <- eval(parse(text = functionname))
 
   # define mandatory elements of meta data and check if they exist
