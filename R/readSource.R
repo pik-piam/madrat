@@ -30,6 +30,7 @@
 #' @export
 readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
+  cwd <- getwd()
   local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
   on.exit(toolendmessage(startinfo, "-"))
@@ -145,5 +146,6 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   x <- .getData(type, subtype, prefix)
   on.exit(toolendmessage(startinfo, "-"))
   x <- clean_magpie(x)
+  local_dir(cwd)
   return(x)
 }
