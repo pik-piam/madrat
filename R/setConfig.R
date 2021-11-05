@@ -152,7 +152,13 @@ setConfig <- function(regionmapping = NULL,
           value <-  sub("/$", "", normalizePath(value, winslash = "/"))
         }
       }
-      if (firstsetting) info <- "Configuration update:"
+      if (firstsetting) {
+        if (.local) {
+          info <- "Local configuration update:"
+        } else {
+          info <- "Global configuration update:"
+        }
+      }
       firstsetting <- FALSE
       info <- c(info, paste0("  ", x, ": ", paste(cfg[[x]], collapse = ", "), " -> ", paste(value, collapse = ", ")))
       cfg[[x]] <- value

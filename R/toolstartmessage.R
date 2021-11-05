@@ -1,7 +1,7 @@
 #' Tool: Start message
 #'
 #' This function writes a process start message (what function was called with which arguments) and stores the current
-#' time, so the corresponding call to toolendmessage can calculate the elapsed time.
+#' time, so the corresponding call to \code{\link{toolendmessage}} can calculate the elapsed time.
 #'
 #' @param functionName The name of the calling function as a string.
 #' @param argumentValues A list of the evaluated arguments of the calling function.

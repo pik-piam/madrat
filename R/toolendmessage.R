@@ -1,7 +1,7 @@
 #' Tool: End message
 #'
 #' This function writes a process end message and performs some diagnostics. It is always called after a corresponding
-#' call to toolstartmessage.
+#' call to \code{\link{toolstartmessage}}.
 #'
 #' @param startdata a list containing diagnostic information provided by \code{\link{toolstartmessage}}
 #' @param level This argument allows to establish a hierarchy of print
