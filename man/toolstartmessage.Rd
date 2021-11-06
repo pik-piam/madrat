@@ -20,7 +20,7 @@ A list containing diagnostic information required by \code{\link{toolendmessage}
 }
 \description{
 This function writes a process start message (what function was called with which arguments) and stores the current
-time, so the corresponding call to toolendmessage can calculate the elapsed time.
+time, so the corresponding call to \code{\link{toolendmessage}} can calculate the elapsed time.
 }
 \examples{
 

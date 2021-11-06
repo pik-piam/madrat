@@ -26,14 +26,16 @@
 #'
 #' @importFrom magclass read.magpie is.magpie getComment<- getItems
 #' @importFrom methods existsFunction is
-#' @importFrom withr local_dir
+#' @importFrom withr local_dir defer
 #' @export
 readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
   cwd <- getwd()
   local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
-  on.exit(toolendmessage(startinfo, "-"))
+  defer({
+    toolendmessage(startinfo, "-")
+  })
 
   # check type input
   if (!is.character(type) || length(type) != 1) stop("Invalid type (must be a single character string)!")
@@ -142,10 +144,6 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   } else {
     prefix <- "read"
   }
-
-  x <- .getData(type, subtype, prefix)
-  on.exit(toolendmessage(startinfo, "-"))
-  x <- clean_magpie(x)
-  local_dir(cwd)
+  x <- clean_magpie(.getData(type, subtype, prefix))
   return(x)
 }

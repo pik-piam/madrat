@@ -17,7 +17,7 @@ hierarchy level by 1).}
 }
 \description{
 This function writes a process end message and performs some diagnostics. It is always called after a corresponding
-call to toolstartmessage.
+call to \code{\link{toolstartmessage}}.
 }
 \seealso{
 \code{\link{toolstartmessage}}, \code{\link{vcat}}
