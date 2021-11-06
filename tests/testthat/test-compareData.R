@@ -2,7 +2,9 @@ test_that("compareData works", {
   td <- tempdir()
   testdir <- file.path(td, "test")
   dir.create(testdir)
-  on.exit(unlink(testdir, recursive = TRUE))
+  withr::defer({
+    unlink(testdir, recursive = TRUE)
+  })
   write.magpie(magclass::maxample("pop"), file.path(testdir, "pop.cs4"))
   write.magpie(magclass::maxample("animal"), file.path(testdir, "animal.mz"))
   writeLines("Test", file.path(testdir, "test.txt"))

@@ -36,7 +36,7 @@
 #' Besides the names above (user-provided and automatically derived) it is possible to add custom metadata entries by
 #' extending the return list with additional, named entries.
 #' @importFrom yaml write_yaml
-#' @importFrom withr local_dir
+#' @importFrom withr local_dir defer
 #' @author Jan Philipp Dietrich, David Klein
 #' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
 #' @examples
@@ -48,7 +48,9 @@
 downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
   startinfo <- toolstartmessage("downloadSource", argumentValues, "+")
-  on.exit(toolendmessage(startinfo, "-"))
+  defer({
+    toolendmessage(startinfo, "-")
+  })
 
   # check type input
   if (!all(is.character(type)) || length(type) != 1) stop("Invalid type (must be a single character string)!")
@@ -79,11 +81,11 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
   dir.create(typesubtype, recursive = TRUE)
   absolutePathTypesubtype <- normalizePath(typesubtype)
   local_dir(absolutePathTypesubtype)
-  on.exit({
+  defer({
     if (length(dir(absolutePathTypesubtype)) == 0) {
       unlink(absolutePathTypesubtype, recursive = TRUE)
     }
-  }, add = TRUE, after = FALSE)
+  })
   meta <- eval(parse(text = functionname))
 
   # define mandatory elements of meta data and check if they exist

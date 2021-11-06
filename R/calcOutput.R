@@ -79,7 +79,7 @@
 #' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
 #' @importFrom digest digest
-#' @importFrom withr local_dir
+#' @importFrom withr local_dir defer
 #' @export
 
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
@@ -216,7 +216,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
 
   if (is.null(getOption("gdt_nestinglevel"))) vcat(-2, "")
   startinfo <- toolstartmessage("calcOutput", argumentValues, "+")
-  on.exit(toolendmessage(startinfo, "-"), add = TRUE)
+  defer({
+    toolendmessage(startinfo, "-")
+  })
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
   local_dir(getConfig("outputfolder"))
 

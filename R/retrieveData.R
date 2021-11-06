@@ -92,10 +92,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   }
   regionscode <- regionscode(regionmapping, label = uselabels)
 
-  # save current settings to set back if needed
-  cfgBackup <- getOption("madrat_cfg")
-  on.exit(options("madrat_cfg" = cfgBackup)) # nolint
-
   rev <- numeric_version(rev)
 
   collectionname <- paste0(
@@ -176,7 +172,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
-    withr::with_dir(sourcefolder, suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip")))
+    with_dir(sourcefolder, {
+      suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip"))
+    })
     unlink(sourcefolder, recursive = TRUE)
   } else {
     startinfo <- toolstartmessage("retrieveData", argumentValues, 0)

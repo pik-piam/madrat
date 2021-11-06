@@ -19,8 +19,8 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
   mainfolder <- Sys.getenv("MADRAT_MAINFOLDER", unset = NA)
   if (!is.na(mainfolder)) return(mainfolder)
 
-  questionLoop <- function(question, testModeAnswer = "y", .testmode = .testmode) {
-    if (.testmode) {
+  questionLoop <- function(question, testModeAnswer = "y", testmode = .testmode) {
+    if (testmode) {
       return(testModeAnswer)
     }
     answer <- ""

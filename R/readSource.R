@@ -26,11 +26,10 @@
 #'
 #' @importFrom magclass read.magpie is.magpie getComment<- getItems
 #' @importFrom methods existsFunction is
-#' @importFrom withr local_dir defer
+#' @importFrom withr local_dir with_dir defer
 #' @export
 readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
-  cwd <- getwd()
   local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
   defer({
@@ -95,11 +94,10 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
       }
     }
 
-    cwd <- getwd()
-    local_dir(sourcefolder)
-    functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
-    x <- eval(parse(text = functionname))
-    local_dir(cwd)
+    with_dir(sourcefolder, {
+      functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
+      x <- eval(parse(text = functionname))
+    })
     if (!is.magpie(x)) stop("Output of function \"", functionname, "\" is not a MAgPIE object!")
     if (prefix == "convert") {
       testISO(getItems(x, dim = 1.1), functionname = functionname)
