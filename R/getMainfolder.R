@@ -19,7 +19,7 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
   mainfolder <- Sys.getenv("MADRAT_MAINFOLDER", unset = NA)
   if (!is.na(mainfolder)) return(mainfolder)
 
-  questionLoop <- function(question, testModeAnswer) {
+  questionLoop <- function(question, testModeAnswer = "y", .testmode = .testmode) {
     if (.testmode) {
       return(testModeAnswer)
     }
@@ -32,20 +32,20 @@ getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
 
   # ask for folder to use
   if (interactive() || .testmode) {
-    if (questionLoop("madrat mainfolder for data storage not set! Do you want to set it now? (y/n) ", "y") == "y") {
+    if (questionLoop("madrat mainfolder for data storage not set! Do you want to set it now? (y/n) ") == "y") {
       repeat {
         if (.testmode) {
           folder <- file.path(tempdir(), "testmaindir")
         } else {
           folder <- gsub('"', "", readline("Please enter main folder path: "), fixed = TRUE)
         }
-        if (!dir.exists(folder) && questionLoop("Directory does not exist. Should it be created? (y/n) ", "y") == "y") {
+        if (!dir.exists(folder) && questionLoop("Directory does not exist. Should it be created? (y/n) ") == "y") {
           dir.create(folder, recursive = TRUE)
         }
         if (dir.exists(folder)) {
           mainfolder <- normalizePath(folder, winslash = "/")
           question <- "Should this path be added to the global .Rprofile to be used permanently? (y/n) "
-          if (questionLoop(question, "n") == "y") {
+          if (questionLoop(question, testModeAnswer = "n") == "y") {
             write(c("", "# Set mainfolder for madrat package",
                     paste0('options(MADRAT_MAINFOLDER="', mainfolder, '")'), ""),
                   file = "~/.Rprofile", # nolint
