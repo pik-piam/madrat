@@ -11,7 +11,7 @@ on:
 env:
   USE_BSPM: "true"
   _R_CHECK_FORCE_SUGGESTS_: "false"
-  NO_BINARY_INSTALL_R_PACKAGES: 'c("madrat", "magclass", "citation", "gms", "goxygen")'
+  NO_BINARY_INSTALL_R_PACKAGES: 'c("madrat", "magclass", "citation", "gms", "goxygen", "raster")'
 
 jobs:
   lucode2-check:
@@ -55,7 +55,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ./run.sh install_aptget libhdf5-dev
+          ./run.sh install_aptget libhdf5-dev libgdal-dev
           ./run.sh install_all
           ./run.sh install_r lucode2 covr
 
