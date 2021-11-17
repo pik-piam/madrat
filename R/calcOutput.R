@@ -23,6 +23,8 @@
 #' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
 #' case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 #' always interpreted as TRUE.
+#' @param regionmapping alternative regionmapping to use for the given calculation. It will temporarily
+#' overwrite the global setting just for this calculation.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -77,13 +79,20 @@
 #'
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
 #' getCells getYears<- is.magpie dimSums
-#' @importFrom utils packageDescription read.csv2 read.csv
+#' @importFrom utils packageDescription read.csv2 read.csv askYesNo
 #' @importFrom digest digest
 #' @export
 
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
-                       append = FALSE, na_warning = TRUE, try = FALSE, ...) { # nolint
+                       append = FALSE, na_warning = TRUE, try = FALSE, regionmapping = NULL, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
+
+  if (!dir.exists(getConfig("cachefolder")) &&
+     askYesNo(paste0("Cachefolder ", getConfig("cachefolder"), " does not exist. Should it be created?"))) {
+    dir.create(getConfig("cachefolder"), recursive = TRUE)
+  }
+
+  if (!is.null(regionmapping)) setConfig(regionmapping = regionmapping, .local = TRUE)
 
   # read region mappings check settings for aggregate
   if (aggregate != FALSE) {
@@ -217,7 +226,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   on.exit(setwd(cwd)) # nolint
   if (is.null(getOption("gdt_nestinglevel"))) vcat(-2, "")
   startinfo <- toolstartmessage(argumentValues, "+")
-  on.exit(toolendmessage(startinfo, "-"), add = TRUE)
+  on.exit(toolendmessage(startinfo, "-"), add = TRUE) # nolint
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
   setwd(getConfig("outputfolder")) # nolint
 
