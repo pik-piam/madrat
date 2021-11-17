@@ -79,17 +79,17 @@
 #'
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
 #' getCells getYears<- is.magpie dimSums
-#' @importFrom utils packageDescription read.csv2 read.csv askYesNo
+#' @importFrom utils packageDescription read.csv2 read.csv
 #' @importFrom digest digest
+#' @importFrom withr defer local_dir
 #' @export
 
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
                        append = FALSE, na_warning = TRUE, try = FALSE, regionmapping = NULL, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
-  if (!dir.exists(getConfig("cachefolder")) &&
-     askYesNo(paste0("Cachefolder ", getConfig("cachefolder"), " does not exist. Should it be created?"))) {
-    dir.create(getConfig("cachefolder"), recursive = TRUE)
+  if (!dir.exists(getConfig("cachefolder"))) {
+      dir.create(getConfig("cachefolder"), recursive = TRUE)
   }
 
   if (!is.null(regionmapping)) setConfig(regionmapping = regionmapping, .local = TRUE)
@@ -222,13 +222,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     return(x)
   }
 
-  cwd <- getwd()
-  on.exit(setwd(cwd)) # nolint
   if (is.null(getOption("gdt_nestinglevel"))) vcat(-2, "")
   startinfo <- toolstartmessage(argumentValues, "+")
-  on.exit(toolendmessage(startinfo, "-"), add = TRUE) # nolint
+  defer(toolendmessage(startinfo, "-"))
   if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
-  setwd(getConfig("outputfolder")) # nolint
+  local_dir(getConfig("outputfolder"))
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
   extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) # nolint
