@@ -41,7 +41,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
   tmp <- intersect(names(inargs), formalArgs(setConfig))
   if (length(tmp) > 0) {
-    do.call(setConfig, inargs[tmp])
+    do.call(setConfig, c(inargs[tmp], list(.local = TRUE)))
   }
 
   # receive function name and function
@@ -92,10 +92,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   }
   regionscode <- regionscode(regionmapping, label = uselabels)
 
-  # save current settings to set back if needed
-  cfgBackup <- getOption("madrat_cfg")
-  on.exit(options("madrat_cfg" = cfgBackup)) # nolint
-
   rev <- numeric_version(rev)
 
   collectionname <- paste0(
@@ -130,13 +126,15 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     setConfig(
       regionmapping = paste0(regionscode, ".csv"),
       outputfolder = sourcefolder,
-      diagnostics = "diagnostics"
+      diagnostics = "diagnostics",
+      .local = TRUE
     )
 
     if (cachetype == "rev") {
       setConfig(
         cachefolder = file.path(getConfig("mainfolder"), "cache", paste0("rev", rev, dev)),
-        forcecache = TRUE
+        forcecache = TRUE,
+        .local = TRUE
       )
     }
 
@@ -146,7 +144,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
 
     # run full* functions
-    startinfo <- toolstartmessage(argumentValues, 0)
+    startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
 
     vcat(2, " - execute function ", functionname, fill = 300, show_prefix = FALSE)
 
@@ -174,10 +172,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
-    withr::with_dir(sourcefolder, suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip")))
+    with_dir(sourcefolder, {
+      suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip"))
+    })
     unlink(sourcefolder, recursive = TRUE)
   } else {
-    startinfo <- toolstartmessage(argumentValues, 0)
+    startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
     vcat(-2, " - data is already available and not calculated again.", fill = 300)
   }
   toolendmessage(startinfo)

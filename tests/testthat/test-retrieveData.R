@@ -21,10 +21,12 @@ test_that("argument handling works", {
     return()
   }
   globalassign("fullTEST")
-  setConfig(globalenv = FALSE, .verbose = FALSE)
+  setConfig(globalenv = FALSE, .verbose = FALSE, .local = TRUE)
   expect_error(retrieveData("Test"), "is not a valid output type")
   expect_warning(retrieveData("Test", globalenv = TRUE), "Overlapping arguments")
-  expect_message(suppressWarnings(retrieveData("Test", myargument = "hello")), "myargument = \"hello\"")
+  expect_error(retrieveData("Test"), "is not a valid output type") # globalenv is only set temporarily, so this fails
+  expect_message(suppressWarnings(retrieveData("Test", myargument = "hello", globalenv = TRUE)),
+                 "myargument = \"hello\"")
 })
 
 test_that("a tag can be appended to filename", {

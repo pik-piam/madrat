@@ -1,7 +1,5 @@
-context("Test various tool functions")
-
 test_that("toolFillYears works", {
-  p <- maxample("pop")[1, , 1]
+  p <- magclass::maxample("pop")[1, , 1]
   expected <- new("magpie",
                   .Data = structure(c(696, 696, 735, 774, 812, 851,
                                       889, 889), .Dim = c(1L, 8L, 1L),
@@ -15,7 +13,7 @@ test_that("toolFillYears works", {
 
 test_that("toolXlargest works", {
   expect_error(toolXlargest(1), "must be a MAgPIE object")
-  expect_identical(toolXlargest(maxample("pop"), range = 1:3, years = c(1995, 2005),
+  expect_identical(toolXlargest(magclass::maxample("pop"), range = 1:3, years = c(1995, 2005),
                                 elements = "A2"), c("SAS", "CPA", "AFR"))
 })
 
@@ -75,14 +73,18 @@ test_that("toolTimeSpline works as expected", {
   expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 5)) - o5)), 0.11)
   expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 3)) - o3)), 0.11)
 
-  expect_warning(p5 <- ncr(toolTimeSpline(p, dof = 0)), "dof values < 1 not allowed!")
+  expect_warning({
+    p5 <- ncr(toolTimeSpline(p, dof = 0))
+  }, "dof values < 1 not allowed!")
   expect_lt(max(abs(p5 - o5)), 0.11)
-  expect_warning(p100 <- ncr(toolTimeSpline(p, dof = 100)), "Degrees of freedom too high")
+  expect_warning({
+    p100 <- ncr(toolTimeSpline(p, dof = 100))
+  }, "Degrees of freedom too high")
   expect_identical(p100, ncr(p))
 })
 
 test_that("toolConvertMapping works as expected", {
-  setConfig(mappingfolder = tempdir(), .verbose = FALSE)
+  setConfig(mappingfolder = tempdir(), .verbose = FALSE, .local = TRUE)
   file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))
 
   expect_silent(toolConvertMapping("regionmappingH12.csv"))
@@ -104,7 +106,7 @@ test_that("toolConvertMapping works as expected", {
 
 test_that("toolConditionalReplace works as expected", {
 
-  setConfig(verbosity = 0, .verbose = FALSE)
+  setConfig(verbosity = 0, .verbose = FALSE, .local = TRUE)
   m <- as.magpie(c(1, NA, 0, -1, Inf))
 
   expect_error(toolConditionalReplace(m), "missing, with no default")
@@ -124,7 +126,7 @@ test_that("mad(l)apply function return defunct message", {
 })
 
 test_that("vcat redirect works", {
-  setConfig(verbosity = 1, .verbose = FALSE)
+  setConfig(verbosity = 1, .verbose = FALSE, .local = TRUE)
   expect_message(madrat:::cat("blub"), "NOTE: blub")
   expect_message(suppressWarnings(madrat:::warning("blub")), "WARNING: blub")
 })

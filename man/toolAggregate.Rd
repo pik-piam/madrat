@@ -96,7 +96,7 @@ weighting column to NA and mixed_aggregation to TRUE.
 
 # create example mapping
 p <- magclass::maxample("pop")
-mapping <- data.frame(from   = getRegions(p),
+mapping <- data.frame(from = magclass::getItems(p, dim = 1.1),
   region = rep(c("REG1", "REG2"), 5),
   global = "GLO")
 mapping

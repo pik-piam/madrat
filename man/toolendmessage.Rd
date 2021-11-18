@@ -16,21 +16,8 @@ Currently this setting can have 4 states: NULL (nothing will be changed), 0
 hierarchy level by 1).}
 }
 \description{
-Function writes a process end message and performs some diagnostics
-}
-\examples{
-innerFunction <- function() {
-  startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
-  vcat(1, "inner")
-  madrat:::toolendmessage(startinfo, "-")
-}
-outerFunction <- function() {
-  startinfo <- madrat:::toolstartmessage(list(), "+")
-  vcat(1, "outer")
-  innerFunction()
-  madrat:::toolendmessage(startinfo, "-")
-}
-outerFunction()
+This function writes a process end message and performs some diagnostics. It is always called after a corresponding
+call to \code{\link{toolstartmessage}}.
 }
 \seealso{
 \code{\link{toolstartmessage}}, \code{\link{vcat}}

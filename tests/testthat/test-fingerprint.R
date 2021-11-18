@@ -1,5 +1,3 @@
-context("fingerprinting")
-
 globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
@@ -21,20 +19,16 @@ test_that("fingerprinting works as expected", {
 })
 
 test_that("fingerprintFiles works as expected", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1)
-  cwd <- getwd()
-  setwd(tempdir())
-  on.exit(setwd(cwd))
+  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1, .local = TRUE)
+  withr::local_dir(tempdir())
   writeLines("this is a test", "test.txt", sep = "")
   fp <- madrat:::fingerprintFiles("test.txt")
   expect_identical(fp, c(test.txt = "e495aa95"))
 })
 
 test_that("fingerprinting works for edge cases", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1)
-  cwd <- getwd()
-  setwd(tempdir())
-  on.exit(setwd(cwd))
+  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1, .local = TRUE)
+  withr::local_dir(tempdir())
   writeLines("this is a test", "map.csv", sep = "")
   readFingerprintTest <- function() {
     map <- toolGetMapping("map.csv", where = "local")
@@ -61,8 +55,7 @@ test_that("empty hash cache file is handled properly", {
 })
 
 test_that("fingerprinting works with control flags", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1)
-  setConfig(globalenv = TRUE)
+  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1, .local = TRUE)
   readData <- function() {
     return(1)
   }

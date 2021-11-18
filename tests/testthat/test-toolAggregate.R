@@ -33,10 +33,10 @@ test_that("NAs and Infs in input data are treated correctly", {
   pm2[1, 1, 1] <- Inf
   pm2[2, 2, 2] <- NA
 
-  ref <- new("magpie", .Data = structure(c(Inf, 1837, 1559, NA), .Dim = c(1L, 2L, 2L),
-         .Dimnames = list(i = "REG1", t = c("y1995", "y2005"), scenario = c("A2", "B1"))))
+  ref <- new("magpie",
+             .Data = structure(c(Inf, 1837, 1559, NA), .Dim = c(1L, 2L, 2L),
+                               .Dimnames = list(i = "REG1", t = c("y1995", "y2005"), scenario = c("A2", "B1"))))
   expect_identical(noC(round(toolAggregate(pm2, map, partrel = TRUE))), ref)
-
 })
 
 test_that("Mappings work in various formats identical", {

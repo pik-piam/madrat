@@ -1,9 +1,6 @@
 test_that("robustOrder sorts locale independent", {
-  lcCollate <- Sys.getlocale("LC_COLLATE")
-  on.exit(Sys.setlocale("LC_COLLATE", lcCollate))
-
   x <- c("a", "b", "C")
-  Sys.setlocale("LC_COLLATE", "C")
+  withr::local_locale(LC_COLLATE = "C")
   expect_equal(order(x), c(3, 1, 2))
   expect_equal(madrat:::robustOrder(x), c(3, 1, 2))
 
@@ -11,7 +8,7 @@ test_that("robustOrder sorts locale independent", {
     expect_true(all(vapply(
       system("locale -a", intern = TRUE),
       function(availableLocale) {
-        Sys.setlocale("LC_COLLATE", availableLocale)
+        withr::local_locale(LC_COLLATE = availableLocale)
         return(isTRUE(all.equal(madrat:::robustOrder(x), c(3, 1, 2))))
       },
       logical(1)

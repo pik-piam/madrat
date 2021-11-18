@@ -4,32 +4,33 @@
 \alias{toolstartmessage}
 \title{Tool: Start message}
 \usage{
-toolstartmessage(argumentValues, level = NULL)
+toolstartmessage(functionName, argumentValues, level = NULL)
 }
 \arguments{
-\item{argumentValues}{list of the evaluated arguments of the calling function}
+\item{functionName}{The name of the calling function as a string.}
 
-\item{level}{This argument allows to establish a hierarchy of print
-statements. The hierarchy is preserved for the next vcat executions.
-Currently this setting can have 4 states: NULL (nothing will be changed), 0
-(reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
-hierarchy level by 1).}
+\item{argumentValues}{A list of the evaluated arguments of the calling function.}
+
+\item{level}{This argument allows to establish a hierarchy of print statements. The hierarchy is preserved for the
+next vcat executions. Currently this setting can have 4 states: NULL (nothing will be changed), 0 (reset
+hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease hierarchy level by 1).}
 }
 \value{
-a list containing diagnostic information required by \code{\link{toolendmessage}}
+A list containing diagnostic information required by \code{\link{toolendmessage}}.
 }
 \description{
-Function writes a process start message and performs some diagnostics
+This function writes a process start message (what function was called with which arguments) and stores the current
+time, so the corresponding call to \code{\link{toolendmessage}} can calculate the elapsed time.
 }
 \examples{
 
 innerFunction <- function() {
-  startinfo <- madrat:::toolstartmessage(list(argumentsToPrint = 123), "+")
+  startinfo <- madrat:::toolstartmessage("innerFunction", list(argumentsToPrint = 123), "+")
   vcat(1, "inner")
   madrat:::toolendmessage(startinfo, "-")
 }
 outerFunction <- function() {
-  startinfo <- madrat:::toolstartmessage(list(), "+")
+  startinfo <- madrat:::toolstartmessage("outerFunction", list(), "+")
   vcat(1, "outer")
   innerFunction()
   madrat:::toolendmessage(startinfo, "-")

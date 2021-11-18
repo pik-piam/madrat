@@ -66,12 +66,13 @@
 #' @importFrom magclass getDim getSets getSets<- as.magpie getItems collapseNames
 #' @importFrom utils object.size
 #' @importFrom Matrix Matrix t rowSums
+#' @importFrom withr local_options
 #' @seealso \code{\link{calcOutput}}
 #' @examples
 #'
 #' # create example mapping
 #' p <- magclass::maxample("pop")
-#' mapping <- data.frame(from   = getRegions(p),
+#' mapping <- data.frame(from = magclass::getItems(p, dim = 1.1),
 #'   region = rep(c("REG1", "REG2"), 5),
 #'   global = "GLO")
 #' mapping
@@ -182,7 +183,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
     if (length(noagg) > 0) {
-      if (length(noagg) > 1) noagg[1:(length(noagg) - 1)] <- paste0(noagg[1:(length(noagg) - 1)], ", ")
+      if (length(noagg) > 1) noagg[seq_len(length(noagg) - 1)] <- paste0(noagg[seq_len(length(noagg) - 1)], ", ")
       vcat(verbosity, noagg, " not mapped in aggregation!")
     }
     rel <- rel[, common, drop = FALSE]
@@ -336,9 +337,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       out <- apply(x, which(1:3 != dim), matrixMultiplication, rel)
       if (length(dim(out)) == 2) out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
     } else {
-      optMatprod <- getOption("matprod")
-      on.exit(options(matprod = optMatprod)) # nolint
-      options(matprod = "blas")              # nolint
+      local_options(matprod = "blas")
       notdim <- setdiff(1:3, dim)
       out <- rel %*% as.array(wrap(x, list(dim, notdim)))
       out <- array(out, dim = c(dim(rel)[1], dim(x)[notdim]))
@@ -357,7 +356,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       levels(regOut) <- levels(regionList)
     } else stop("Missing dimnames for aggregated dimension")
 
-    if (!any(grepl("\\.", regOut)) && anyDuplicated(regOut)) regOut <- paste(regOut, 1:dim(out)[1], sep = ".")
+    if (!any(grepl("\\.", regOut)) && anyDuplicated(regOut)) regOut <- paste(regOut, seq_len(dim(out)[1]), sep = ".")
 
     dimnames(out)[[1]] <- regOut
 

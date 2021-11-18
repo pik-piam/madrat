@@ -9,11 +9,11 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @importFrom utils untar
+#' @importFrom withr local_tempdir
 #' @export
 
 compareData <- function(x, y, tolerance = 10^-5) {
-  tDir <- tempdir()
-  on.exit(unlink(tDir, recursive = TRUE, force = TRUE))
+  tDir <- local_tempdir()
 
   .rmag <- function(f) {
     x <- try(read.magpie(f), silent = TRUE)

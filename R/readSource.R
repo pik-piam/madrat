@@ -24,16 +24,17 @@
 #' a <- readSource("Tau", "paper")
 #' }
 #'
-#' @importFrom magclass read.magpie is.magpie getComment<-
+#' @importFrom magclass read.magpie is.magpie getComment<- getItems
 #' @importFrom methods existsFunction is
+#' @importFrom withr local_dir with_dir defer
 #' @export
-readSource <- function(type, subtype = NULL, convert = TRUE) {
+readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
-  cwd <- getwd()
-  setwd(getConfig("mainfolder"))
-  options(reducedHistory = TRUE)
-  startinfo <- toolstartmessage(argumentValues, "+")
-  on.exit(toolendmessage(startinfo, "-"))
+  local_dir(getConfig("mainfolder"))
+  startinfo <- toolstartmessage("readSource", argumentValues, "+")
+  defer({
+    toolendmessage(startinfo, "-")
+  })
 
   # check type input
   if (!is.character(type) || length(type) != 1) stop("Invalid type (must be a single character string)!")
@@ -73,7 +74,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
     if (!is.null(subtype)) args <- list(subtype = subtype)
     x <- cacheGet(prefix = prefix, type = type, args = args)
     if (!is.null(x) && prefix == "convert") {
-      err <- try(testISO(getRegions(x), functionname = fname), silent = TRUE)
+      err <- try(testISO(getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
       if ("try-error" %in% class(err)) {
         vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
         x <- NULL
@@ -93,14 +94,13 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
       }
     }
 
-    cwd <- getwd()
-    setwd(sourcefolder)
-    functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
-    x <- eval(parse(text = functionname))
-    setwd(cwd)
+    with_dir(sourcefolder, {
+      functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
+      x <- eval(parse(text = functionname))
+    })
     if (!is.magpie(x)) stop("Output of function \"", functionname, "\" is not a MAgPIE object!")
     if (prefix == "convert") {
-      testISO(getRegions(x), functionname = functionname)
+      testISO(getItems(x, dim = 1.1), functionname = functionname)
     }
     args <- NULL
     if (!is.null(subtype)) args <- list(subtype = subtype)
@@ -142,10 +142,6 @@ readSource <- function(type, subtype = NULL, convert = TRUE) {
   } else {
     prefix <- "read"
   }
-
-  x <- .getData(type, subtype, prefix)
-  on.exit(toolendmessage(startinfo, "-"))
-  x <- clean_magpie(x)
-  setwd(cwd)
+  x <- clean_magpie(.getData(type, subtype, prefix))
   return(x)
 }

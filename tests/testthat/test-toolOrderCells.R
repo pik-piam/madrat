@@ -1,5 +1,3 @@
-context("Data temporal averaging")
-
 p <- magclass::maxample("pop")
 
 test_that("Equivalence of data", {
@@ -15,7 +13,7 @@ test_that("Ordering works properly for trivial case", {
 })
 
 test_that("NA handling works", {
-  a <- maxample("animal")
+  a <- magclass::maxample("animal")
   getItems(a, dim = 1.4)
   getItems(a, dim = 1.4)[5:8] <- c("A", "B", "C", "D")
   expect_identical(a, toolOrderCells(a, dim = 1.4))

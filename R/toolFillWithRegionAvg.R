@@ -30,7 +30,7 @@
 #' @return A MAgPIE object with the missing values filled.
 #' @author Bjoern Soergel, Lavinia Baumstark
 #'
-#' @importFrom magclass as.magpie is.magpie getRegions getYears dimSums
+#' @importFrom magclass as.magpie is.magpie getItems getYears dimSums
 #' @export
 #'
 #' @examples
@@ -53,9 +53,13 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   } else {
     if (ndata(weight) != 1) stop("Weight must have exactly one element in data dimension!")
     # ensure that all countries have weights
-    if (length(setdiff(getRegions(x), getRegions(weight))) > 0) stop("Regions in x and weight do not match!")
-    if (length(setdiff(getYears(x), getYears(weight))) > 0) stop("Years in x and weight do not match!")
-    weight <- weight[getRegions(x), getYears(x), ]
+    if (length(setdiff(getItems(x, dim = 1.1), getItems(weight, dim = 1.1))) > 0) {
+      stop("Regions in x and weight do not match!")
+    }
+    if (length(setdiff(getYears(x), getYears(weight))) > 0) {
+      stop("Years in x and weight do not match!")
+    }
+    weight <- weight[getItems(x, dim = 1.1), getYears(x), ]
   }
 
   # fill missing countries
@@ -84,9 +88,9 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   # computation of regional averages and replacing
   for (regi in unique(map$RegionCode)) {
     cRegi <- map$CountryCode[map$RegionCode == regi]
-    cRegi <- intersect(cRegi, getRegions(x))
+    cRegi <- intersect(cRegi, getItems(x, dim = 1.1))
     if (length(cRegi) == 0) next
-    for (yr in 1:nyears(x)) {
+    for (yr in seq_len(nyears(x))) {
       # filter out the countries that are NA
       naVals <- is.na(x[cRegi, yr, ])
       # if no NAs -> jump to next iteration
@@ -96,7 +100,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
 
       # weighted aggregation. convert to numeric to avoid issue with single country avg
       fillVal <- as.numeric(dimSums(x[cVals, yr, ] * weight[cVals, yr, ], dim = 1) / dimSums(weight[cVals, yr, ],
-        dim = 1))
+                                                                                             dim = 1))
       if (length(fillVal) == 0) fillVal <- NA
       xNew[cNA, yr, ] <- fillVal
 
