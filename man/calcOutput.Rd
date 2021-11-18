@@ -14,6 +14,7 @@ calcOutput(
   append = FALSE,
   na_warning = TRUE,
   try = FALSE,
+  regionmapping = NULL,
   ...
 )
 }
@@ -45,6 +46,9 @@ Works only when a file name is given in the function call.}
 the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
 case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 always interpreted as TRUE.}
+
+\item{regionmapping}{alternative regionmapping to use for the given calculation. It will temporarily
+overwrite the global setting just for this calculation.}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}
