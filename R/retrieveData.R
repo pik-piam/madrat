@@ -162,7 +162,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
         args[[n]] <- inargs[[n]]
       }
     }
-    returnedValue <- do.call(functiononly, args)
+    with_dir(sourcefolder, {
+      returnedValue <- do.call(functiononly, args)
+    })
     if ("tag" %in% names(returnedValue)) {
       if (grepl(pattern = "debug", returnedValue$tag)) {
         warning("The tag returned in a fullXYZ function should not include the word 'debug'")

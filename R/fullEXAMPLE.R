@@ -20,7 +20,7 @@
 fullEXAMPLE <- function(rev = 0, dev = "") {
   # ATTENTION: name of the model in function name must be in capital letters!
 
-  writeLines("This is a test", paste0(getConfig("outputfolder"), "/test.txt"))
+  writeLines("This is a test", "test.txt")
 
   if (rev >= 1) {
     calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")
