@@ -4,7 +4,7 @@
 \alias{compareData}
 \title{compareData}
 \usage{
-compareData(x, y, tolerance = 10^-5)
+compareData(x, y, tolerance = 10^-5, yearLim = NULL)
 }
 \arguments{
 \item{x}{Either a tgz file or a folder containing data sets}
@@ -13,6 +13,9 @@ compareData(x, y, tolerance = 10^-5)
 
 \item{tolerance}{tolerance level below which differences will
 get ignored}
+
+\item{yearLim}{year until when the comparison should be performed.
+Useful to check if data is identical until a certain year.}
 }
 \description{
 Compares the content of two data archives and looks for similarities and differences
@@ -21,5 +24,5 @@ Compares the content of two data archives and looks for similarities and differe
 \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Florian Humpenoeder
 }
