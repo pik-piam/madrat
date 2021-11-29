@@ -6,21 +6,16 @@
 #' @param y Either a tgz file or a folder containing data sets
 #' @param tolerance tolerance level below which differences will
 #' get ignored
-#' @author Jan Philipp Dietrich
+#' @param yearLim year until when the comparison should be performed.
+#' Useful to check if data is identical until a certain year.
+#' @author Jan Philipp Dietrich, Florian Humpenoeder
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @importFrom utils untar
 #' @importFrom withr local_tempdir
 #' @export
 
-compareData <- function(x, y, tolerance = 10^-5) {
+compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
   tDir <- local_tempdir()
-
-  .rmag <- function(f) {
-    x <- try(read.magpie(f), silent = TRUE)
-    if (!is.magpie(x)) return(NULL)
-    attr(x, "comment") <- NULL
-    return(x)
-  }
 
   .getDir <- function(tDir, file, name) {
     if (dir.exists(file)) return(file)
@@ -61,8 +56,8 @@ compareData <- function(x, y, tolerance = 10^-5) {
     counter <- format(paste0("(", i, "/", length(out$files$inBoth), ") "), width = 10)
     message(counter, format(f, width = maxchar), " ... ", appendLF = FALSE)
     i <- i + 1
-    x <- .rmag(file.path(xDir, f))
-    y <- .rmag(file.path(yDir, f))
+    x <- .rmag(file.path(xDir, f), yearLim)
+    y <- .rmag(file.path(yDir, f), yearLim)
     if (is.null(x) && is.null(y)) {
       message("skipped")
       out$skip <- out$skip + 1
@@ -86,4 +81,13 @@ compareData <- function(x, y, tolerance = 10^-5) {
     }
   }
   message("[OK ", out$ok, " | DIFF ", out$diff, " | SKIP ", out$skip, " | MISS ", out$miss, "]")
+}
+
+.rmag <- function(f, yearLim) {
+  x <- try(read.magpie(f), silent = TRUE)
+  if (!is.magpie(x)) return(NULL) else {
+    if (!is.null(yearLim)) x[, getYears(x, as.integer = TRUE) <= yearLim, ]
+  }
+  attr(x, "comment") <- NULL
+  return(x)
 }
