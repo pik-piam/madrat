@@ -4,7 +4,6 @@
 #' wrapper for specific functions designed for the different possible source
 #' types.
 #'
-#'
 #' @param type source type, e.g. "IEA". A list of all available source types
 #' can be retrieved with function \code{\link{getSources}}.
 #' @param subtype For some sources there are subtypes of the source, for these
@@ -13,6 +12,9 @@
 #' @param convert Boolean indicating whether input data conversion to
 #' ISO countries should be done or not. In addition it can be set to "onlycorrect"
 #' for sources with a separate correctXXX-function.
+#' @param numberOfTries Integer determining how often readSource will check whether a running download is finished
+#' before exiting with an error. Between checks readSource will wait 30 seconds. Has no effect if the sources that
+#' should be read are not currently being downloaded.
 #' @return magpie object with the temporal and data dimensionality of the
 #' source data. Spatial will either agree with the source data or will be on
 #' ISO code country level depending on your choice for the argument "convert".
@@ -28,13 +30,14 @@
 #' @importFrom methods existsFunction is
 #' @importFrom withr local_dir with_dir defer
 #' @export
-readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
+readSource <- function(type, subtype = NULL, convert = TRUE, numberOfTries = 300) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
   local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
   defer({
     toolendmessage(startinfo, "-")
   })
+  stopifnot(as.integer(numberOfTries) == numberOfTries, length(numberOfTries) == 1, numberOfTries >= 1)
 
   # check type input
   if (!is.character(type) || length(type) != 1) {
@@ -53,7 +56,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
     convert <- FALSE
   }
 
-  testISO <- function(x, functionname = "function") {
+  .testISO <- function(x, functionname = "function") {
     isoCountry  <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
     isoCountry1 <- as.vector(isoCountry[, "x"])
     names(isoCountry1) <- isoCountry[, "X"]
@@ -79,9 +82,11 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
     if (!is.null(subtype)) {
       args <- list(subtype = subtype)
     }
+
+    # try to get from cache and check
     x <- cacheGet(prefix = prefix, type = type, args = args)
     if (!is.null(x) && prefix == "convert") {
-      err <- try(testISO(getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
+      err <- try(.testISO(getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
       if ("try-error" %in% class(err)) {
         vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
         x <- NULL
@@ -91,6 +96,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
       return(x)
     }
 
+    # cache miss, read from source file
     if (prefix == "correct") {
       x <- .getData(type, subtype, "read")
     } else if (prefix == "convert") {
@@ -109,7 +115,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
       stop('Output of function "', functionname, '" is not a MAgPIE object!')
     }
     if (prefix == "convert") {
-      testISO(getItems(x, dim = 1.1), functionname = functionname)
+      .testISO(getItems(x, dim = 1.1), functionname = functionname)
     }
     args <- NULL
     if (!is.null(subtype)) {
@@ -120,21 +126,36 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   }
 
   # Check whether source folder exists and try do download source data if it is missing
-  sourcefolder <- file.path(getConfig("sourcefolder"), type)
+  sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
+  if (dir.exists(sourcefolder) && dir.exists(paste0(sourcefolder, "-download_in_progress"))) {
+    warning("The folders ", sourcefolder, " and ", sourcefolder, "-download_in_progress",
+            " should not exist at the same time.")
+  }
   # if any DOWNLOAD.yml exists use these files as reference,
   # otherwise just check whether the sourcefolder exists
-  df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
-  if (length(df) == 0) {
-    sourceMissing <- !file.exists(sourcefolder)
-  } else {
-    sourcefile <- file.path(getConfig("sourcefolder"), make.names(type), "DOWNLOAD.yml")
-    sourcesubfile <- file.path(getConfig("sourcefolder"), make.names(type), make.names(subtype), "DOWNLOAD.yml")
-    sourceMissing <- (!file.exists(sourcefile) && !file.exists(sourcesubfile))
+  .sourceAvailable <- function(sourcefolder, type, subtype) {
+    df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
+    if (length(df) == 0) {
+      return(dir.exists(sourcefolder))
+    } else {
+      sourcefile <- file.path(getConfig("sourcefolder"), make.names(type), "DOWNLOAD.yml")
+      sourcesubfile <- file.path(getConfig("sourcefolder"), make.names(type), make.names(subtype), "DOWNLOAD.yml")
+      return(file.exists(sourcefile) || file.exists(sourcesubfile))
+    }
   }
 
-  if (sourceMissing) {
-    # does a routine exist to download the source data?
-    if (type %in% getSources(type = "download")) {
+  if (!.sourceAvailable(sourcefolder, type, subtype)) {
+    if (dir.exists(paste0(sourcefolder, "-download_in_progress"))) { # the download is already running
+      for (i in seq_len(numberOfTries - 1)) { # -1 because one try was already done before
+        Sys.sleep(30) # wait 30 seconds
+        if (.sourceAvailable(sourcefolder, type, subtype)) {
+          break
+        }
+      }
+      if (!.sourceAvailable(sourcefolder, type, subtype)) {
+        stop("The download of ", type, " did not finish in time.")
+      }
+    } else if (type %in% getSources(type = "download")) { # does a routine exist to download the source data?
       downloadSource(type = type, subtype = subtype)
     } else {
       typesubtype <- paste0(paste(c(paste0('type = "', type), subtype), collapse = '" subtype = "'), '"')

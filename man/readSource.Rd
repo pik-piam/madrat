@@ -4,7 +4,7 @@
 \alias{readSource}
 \title{readSource}
 \usage{
-readSource(type, subtype = NULL, convert = TRUE)
+readSource(type, subtype = NULL, convert = TRUE, numberOfTries = 300)
 }
 \arguments{
 \item{type}{source type, e.g. "IEA". A list of all available source types
@@ -17,6 +17,10 @@ have subtypes, subtypes should not be set.}
 \item{convert}{Boolean indicating whether input data conversion to
 ISO countries should be done or not. In addition it can be set to "onlycorrect"
 for sources with a separate correctXXX-function.}
+
+\item{numberOfTries}{Integer determining how often readSource will check whether a running download is finished
+before exiting with an error. Between checks readSource will wait 30 seconds. Has no effect if the sources that
+should be read are not currently being downloaded.}
 }
 \value{
 magpie object with the temporal and data dimensionality of the
