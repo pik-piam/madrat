@@ -140,20 +140,23 @@ readSource <- function(type, subtype = NULL, convert = TRUE, numberOfTries = 300
     } else {
       sourcefile <- file.path(getConfig("sourcefolder"), make.names(type), "DOWNLOAD.yml")
       sourcesubfile <- file.path(getConfig("sourcefolder"), make.names(type), make.names(subtype), "DOWNLOAD.yml")
-      return(file.exists(sourcefile) || file.exists(sourcesubfile))
+      return(isTRUE(file.exists(sourcefile)) || isTRUE(file.exists(sourcesubfile)))
     }
   }
 
   if (!.sourceAvailable(sourcefolder, type, subtype)) {
     if (dir.exists(paste0(sourcefolder, "-downloadInProgress"))) { # the download is already running
       for (i in seq_len(numberOfTries - 1)) { # -1 because one try was already done before
-        Sys.sleep(30) # wait 30 seconds
+        argsString <- paste(list(list(type = type, subtype = subtype))) # use paste + list for nicer string output
+        argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
+        cat("downloadSource(", argsString, ") is already in progress, waiting 30 seconds...")
+        Sys.sleep(30)
         if (.sourceAvailable(sourcefolder, type, subtype)) {
           break
         }
       }
       if (!.sourceAvailable(sourcefolder, type, subtype)) {
-        stop("The download of ", type, " did not finish in time.")
+        stop("The download did not finish in time.")
       }
     } else if (type %in% getSources(type = "download")) { # does a routine exist to download the source data?
       downloadSource(type = type, subtype = subtype)

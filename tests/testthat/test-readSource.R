@@ -15,7 +15,7 @@ test_that("readSource waits until download is finished", {
   mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
   setConfig(mainfolder = mainfolder, .local = TRUE)
   dir.create(file.path(mainfolder, "sources", "Tau-downloadInProgress"), recursive = TRUE)
-  expect_error(readSource("Tau", numberOfTries = 1), "The download of Tau did not finish in time.", fixed = TRUE)
+  expect_error(readSource("Tau", numberOfTries = 1), "The download did not finish in time.", fixed = TRUE)
   dir.create(file.path(mainfolder, "sources", "Tau"), recursive = TRUE)
   expect_error(readSource("Tau", numberOfTries = 1.45),
                "as.integer(numberOfTries) == numberOfTries is not TRUE", fixed = TRUE)
