@@ -3,16 +3,13 @@
 #' Download a source. The function is a wrapper for specific functions designed
 #' for the different possible source types.
 #'
-#'
-#' @param type source type, e.g. "IEA". A list of all available source types
-#' can be retrieved with function \code{\link{getSources}("download")}.
-#' @param subtype For some sources there are subtypes of the source, for these
-#' source the subtype can be specified with this argument. If a source does not
-#' have subtypes, subtypes should not be set.
-#' @param overwrite Boolean deciding whether existing data should be
-#' overwritten or not.
-#' @note The underlying download-functions are required to provide a list of information back to
-#' \code{downloadSource}. Following list entries should be provided:
+#' @param type source type, e.g. "IEA". A list of all available source types can be retrieved with
+#' function \code{\link{getSources}("download")}.
+#' @param subtype For some sources there are subtypes of the source, for these source the subtype can be specified
+#' with this argument. If a source does not have subtypes, subtypes should not be set.
+#' @param overwrite Boolean deciding whether existing data should be overwritten or not.
+#' @note The underlying download-functions are required to provide a list of information
+#' back to \code{downloadSource}. Following list entries should be provided:
 #' \itemize{
 #' \item \bold{url} - full path to the file that should be downloaded
 #' \item \bold{title} - title of the data source
@@ -35,15 +32,14 @@
 #' }
 #' Besides the names above (user-provided and automatically derived) it is possible to add custom metadata entries by
 #' extending the return list with additional, named entries.
-#' @importFrom yaml write_yaml
-#' @importFrom withr local_dir defer
-#' @author Jan Philipp Dietrich, David Klein
-#' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
+#' @author Jan Philipp Dietrich, David Klein, Pascal Führlich
 #' @examples
 #' \dontrun{
 #' a <- downloadSource("Tau", subtype = "historical")
 #' }
-#'
+#' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
+#' @importFrom yaml write_yaml
+#' @importFrom withr local_dir defer with_dir
 #' @export
 downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
@@ -53,18 +49,22 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
   })
 
   # check type input
-  if (!all(is.character(type)) || length(type) != 1) stop("Invalid type (must be a single character string)!")
+  if (!all(is.character(type)) || length(type) != 1) {
+    stop("Invalid type (must be a single character string)!")
+  }
   if (!is.null(subtype) && (!all(is.character(subtype)) || length(subtype) != 1)) {
     stop("Invalid subtype (must be a single character string)!")
   }
 
-  functionname <- prepFunctionName(type = type,
-                                   prefix = "download",
-                                   ignore = ifelse(is.null(subtype), "subtype", NA))
+  functionname <- prepFunctionName(type = type, prefix = "download", ignore = ifelse(is.null(subtype), "subtype", NA))
 
-  if (!grepl("subtype=subtype", functionname, fixed = TRUE)) subtype <- NULL
+  if (!grepl("subtype=subtype", functionname, fixed = TRUE)) {
+    subtype <- NULL
+  }
 
-  if (!file.exists(getConfig("sourcefolder"))) dir.create(getConfig("sourcefolder"), recursive = TRUE)
+  if (!file.exists(getConfig("sourcefolder"))) {
+    dir.create(getConfig("sourcefolder"), recursive = TRUE)
+  }
 
   typesubtype <- paste(c(make.names(type), make.names(subtype)), collapse = "/")
 
@@ -73,48 +73,50 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
     if (overwrite) {
       unlink(typesubtype, recursive = TRUE)
     } else {
-      stop("Source folder for source \"", typesubtype,
-           "\" does already exist! Delete folder or activate overwrite to proceed!")
+      stop('Source folder for source "', typesubtype,
+           '" does already exist! Delete folder or activate overwrite to proceed!')
     }
   }
 
-  dir.create(typesubtype, recursive = TRUE)
-  absolutePathTypesubtype <- normalizePath(typesubtype)
-  local_dir(absolutePathTypesubtype)
+  downloadInProgressDirectory <- paste0(typesubtype, "-downloadInProgress")
+  dir.create(downloadInProgressDirectory, recursive = TRUE)
+  absolutePath <- normalizePath(downloadInProgressDirectory)
   defer({
-    if (length(dir(absolutePathTypesubtype)) == 0) {
-      unlink(absolutePathTypesubtype, recursive = TRUE)
-    }
+    unlink(absolutePath, recursive = TRUE)
   })
-  meta <- eval(parse(text = functionname))
+  with_dir(downloadInProgressDirectory, {
+    meta <- eval(parse(text = functionname))
 
-  # define mandatory elements of meta data and check if they exist
-  mandatory <- c("url", "author", "title", "license", "description", "unit")
-  if (!all(mandatory %in% names(meta))) {
-    vcat(0, "Missing entries in the meta data of function '", functionname[1], "': ",
-         toString(mandatory[!mandatory %in% names(meta)]))
-  }
+    # define mandatory elements of meta data and check if they exist
+    mandatory <- c("url", "author", "title", "license", "description", "unit")
+    if (!all(mandatory %in% names(meta))) {
+      vcat(0, "Missing entries in the meta data of function '", functionname[1], "': ",
+           toString(mandatory[!mandatory %in% names(meta)]))
+    }
 
-  # define reserved elements of meta data and check if they already exist
-  reserved <- c("call", "accessibility")
-  if (any(reserved %in% names(meta))) {
-    vcat(0, "The following entries in the meta data of the function '", functionname[1],
-         "' are reserved and will be overwritten: ", reserved[reserved %in% names(meta)])
-  }
+    # define reserved elements of meta data and check if they already exist
+    reserved <- c("call", "accessibility")
+    if (any(reserved %in% names(meta))) {
+      vcat(0, "The following entries in the meta data of the function '", functionname[1],
+           "' are reserved and will be overwritten: ", reserved[reserved %in% names(meta)])
+    }
 
-  # set reserved meta data elements
-  meta$call <- list(origin  = paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()), collapse = "")),
-                                     " -> ", functionname, " (madrat ", unname(getNamespaceVersion("madrat")),
-                                     " | ", attr(functionname, "pkgcomment"), ")"),
-                    type    = type,
-                    subtype = ifelse(is.null(subtype), "none", subtype),
-                    time    = format(Sys.time(), "%F %T %Z"))
-  meta$accessibility <- ifelse(!is.null(meta$doi), "gold", "silver")
+    # set reserved meta data elements
+    meta$call <- list(origin  = paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()), collapse = "")),
+                                       " -> ", functionname, " (madrat ", unname(getNamespaceVersion("madrat")),
+                                       " | ", attr(functionname, "pkgcomment"), ")"),
+                      type    = type,
+                      subtype = ifelse(is.null(subtype), "none", subtype),
+                      time    = format(Sys.time(), "%F %T %Z"))
+    meta$accessibility <- ifelse(!is.null(meta$doi), "gold", "silver")
 
-  # reorder meta entries
-  preferredOrder <- c("title", "description", "author", "doi", "url", "accessibility", "license", "version",
-                      "release_date", "unit", "call", "reference")
-  order <- c(intersect(preferredOrder, names(meta)), setdiff(names(meta), preferredOrder))
+    # reorder meta entries
+    preferredOrder <- c("title", "description", "author", "doi", "url", "accessibility", "license", "version",
+                        "release_date", "unit", "call", "reference")
+    order <- c(intersect(preferredOrder, names(meta)), setdiff(names(meta), preferredOrder))
 
-  write_yaml(meta[order], "DOWNLOAD.yml")
+    write_yaml(meta[order], "DOWNLOAD.yml")
+  })
+
+  file.rename(downloadInProgressDirectory, typesubtype)
 }

@@ -43,5 +43,5 @@ a <- readSource("Tau", "paper")
 \code{\link{readTau}}
 }
 \author{
-Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark
+Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
 }

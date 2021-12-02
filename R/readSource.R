@@ -18,7 +18,7 @@
 #' @return magpie object with the temporal and data dimensionality of the
 #' source data. Spatial will either agree with the source data or will be on
 #' ISO code country level depending on your choice for the argument "convert".
-#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark
+#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
 #' @seealso \code{\link{setConfig}}, ' \code{\link{downloadSource}},
 #' \code{\link{readTau}}
 #' @examples
@@ -127,8 +127,8 @@ readSource <- function(type, subtype = NULL, convert = TRUE, numberOfTries = 300
 
   # Check whether source folder exists and try do download source data if it is missing
   sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-  if (dir.exists(sourcefolder) && dir.exists(paste0(sourcefolder, "-download_in_progress"))) {
-    warning("The folders ", sourcefolder, " and ", sourcefolder, "-download_in_progress",
+  if (dir.exists(sourcefolder) && dir.exists(paste0(sourcefolder, "-downloadInProgress"))) {
+    warning("The folders ", sourcefolder, " and ", sourcefolder, "-downloadInProgress",
             " should not exist at the same time.")
   }
   # if any DOWNLOAD.yml exists use these files as reference,
@@ -145,7 +145,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE, numberOfTries = 300
   }
 
   if (!.sourceAvailable(sourcefolder, type, subtype)) {
-    if (dir.exists(paste0(sourcefolder, "-download_in_progress"))) { # the download is already running
+    if (dir.exists(paste0(sourcefolder, "-downloadInProgress"))) { # the download is already running
       for (i in seq_len(numberOfTries - 1)) { # -1 because one try was already done before
         Sys.sleep(30) # wait 30 seconds
         if (.sourceAvailable(sourcefolder, type, subtype)) {

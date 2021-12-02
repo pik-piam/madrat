@@ -14,7 +14,7 @@ nce <- function(x) {
 test_that("readSource waits until download is finished", {
   mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
   setConfig(mainfolder = mainfolder, .local = TRUE)
-  dir.create(file.path(mainfolder, "sources", "Tau-download_in_progress"), recursive = TRUE)
+  dir.create(file.path(mainfolder, "sources", "Tau-downloadInProgress"), recursive = TRUE)
   expect_error(readSource("Tau", numberOfTries = 1), "The download of Tau did not finish in time.", fixed = TRUE)
   dir.create(file.path(mainfolder, "sources", "Tau"), recursive = TRUE)
   expect_error(readSource("Tau", numberOfTries = 1.45),
@@ -24,7 +24,7 @@ test_that("readSource waits until download is finished", {
   withr::with_options(list(warn = 2), {# turn warning into error so execution is stopped after warning
     expect_error(readSource("Tau", numberOfTries = 1),
                  paste0("The folders ", file.path(mainfolder, "sources", "Tau"), " and ",
-                        file.path(mainfolder, "sources", "Tau-download_in_progress"),
+                        file.path(mainfolder, "sources", "Tau-downloadInProgress"),
                         " should not exist at the same time."),
                  fixed = TRUE)
   })
