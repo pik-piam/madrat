@@ -55,7 +55,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ./run.sh install_aptget libhdf5-dev libgdal-dev
+          ./run.sh install_aptget libgdal-dev
           ./run.sh install_all
           ./run.sh install_r lucode2 covr
 
