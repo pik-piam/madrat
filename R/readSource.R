@@ -12,13 +12,10 @@
 #' @param convert Boolean indicating whether input data conversion to
 #' ISO countries should be done or not. In addition it can be set to "onlycorrect"
 #' for sources with a separate correctXXX-function.
-#' @param numberOfTries Integer determining how often readSource will check whether a running download is finished
-#' before exiting with an error. Between checks readSource will wait 30 seconds. Has no effect if the sources that
-#' should be read are not currently being downloaded.
 #' @return magpie object with the temporal and data dimensionality of the
 #' source data. Spatial will either agree with the source data or will be on
 #' ISO code country level depending on your choice for the argument "convert".
-#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
+#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark
 #' @seealso \code{\link{setConfig}}, ' \code{\link{downloadSource}},
 #' \code{\link{readTau}}
 #' @examples
@@ -30,14 +27,13 @@
 #' @importFrom methods existsFunction is
 #' @importFrom withr local_dir with_dir defer
 #' @export
-readSource <- function(type, subtype = NULL, convert = TRUE, numberOfTries = 300) { # nolint
+readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
   local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
   defer({
     toolendmessage(startinfo, "-")
   })
-  stopifnot(as.integer(numberOfTries) == numberOfTries, length(numberOfTries) == 1, numberOfTries >= 1)
 
   # check type input
   if (!is.character(type) || length(type) != 1) {
@@ -127,38 +123,20 @@ readSource <- function(type, subtype = NULL, convert = TRUE, numberOfTries = 300
 
   # Check whether source folder exists and try do download source data if it is missing
   sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-  if (dir.exists(sourcefolder) && dir.exists(paste0(sourcefolder, "-downloadInProgress"))) {
-    warning("The folders ", sourcefolder, " and ", sourcefolder, "-downloadInProgress",
-            " should not exist at the same time.")
-  }
   # if any DOWNLOAD.yml exists use these files as reference,
   # otherwise just check whether the sourcefolder exists
-  .sourceAvailable <- function(sourcefolder, type, subtype) {
-    df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
-    if (length(df) == 0) {
-      return(dir.exists(sourcefolder))
-    } else {
-      sourcefile <- file.path(getConfig("sourcefolder"), make.names(type), "DOWNLOAD.yml")
-      sourcesubfile <- file.path(getConfig("sourcefolder"), make.names(type), make.names(subtype), "DOWNLOAD.yml")
-      return(isTRUE(file.exists(sourcefile)) || isTRUE(file.exists(sourcesubfile)))
-    }
+  df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
+  if (length(df) == 0) {
+    sourceAvailable <- dir.exists(sourcefolder)
+  } else {
+    sourcefile <- file.path(sourcefolder, "DOWNLOAD.yml")
+    sourcesubfile <- file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml")
+    sourceAvailable <- isTRUE(file.exists(sourcefile)) || isTRUE(file.exists(sourcesubfile))
   }
 
-  if (!.sourceAvailable(sourcefolder, type, subtype)) {
-    if (dir.exists(paste0(sourcefolder, "-downloadInProgress"))) { # the download is already running
-      for (i in seq_len(numberOfTries - 1)) { # -1 because one try was already done before
-        argsString <- paste(list(list(type = type, subtype = subtype))) # use paste + list for nicer string output
-        argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
-        cat("downloadSource(", argsString, ") is already in progress, waiting 30 seconds...")
-        Sys.sleep(30)
-        if (.sourceAvailable(sourcefolder, type, subtype)) {
-          break
-        }
-      }
-      if (!.sourceAvailable(sourcefolder, type, subtype)) {
-        stop("The download did not finish in time.")
-      }
-    } else if (type %in% getSources(type = "download")) { # does a routine exist to download the source data?
+  if (!sourceAvailable) {
+    # does a routine exist to download the source data?
+    if (type %in% getSources(type = "download")) {
       downloadSource(type = type, subtype = subtype)
     } else {
       typesubtype <- paste0(paste(c(paste0('type = "', type), subtype), collapse = '" subtype = "'), '"')
