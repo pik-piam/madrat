@@ -32,6 +32,8 @@
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
+  setWrapperActive("retrieveData", TRUE)
+  
   if (!(cachetype %in% c("rev", "def"))) {
     stop("Unknown cachetype \"", cachetype, "\"!")
   }

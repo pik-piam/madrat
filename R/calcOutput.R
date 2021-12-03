@@ -88,6 +88,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
                        append = FALSE, na_warning = TRUE, try = FALSE, regionmapping = NULL, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
+  setWrapperActive("calcOutput")
+  
   if (!dir.exists(getConfig("cachefolder"))) {
       dir.create(getConfig("cachefolder"), recursive = TRUE)
   }

@@ -113,6 +113,11 @@ setConfig <- function(regionmapping = NULL,
                       .cfgchecks = TRUE,
                       .verbose = TRUE,
                       .local = FALSE) {
+  
+  for(w in c("downloadSource", "readSource", "calcOutput")) {
+    if( isWrapperActive(w)) warning("setConfig must not be used from within ", w, "!")
+  }
+  
   cfg <- getConfig(raw = TRUE, verbose = .verbose)
 
   firstsetting <- TRUE

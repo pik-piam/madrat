@@ -47,6 +47,9 @@
 #' @export
 downloadSource <- function(type, subtype = NULL, overwrite = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
+  
+  setWrapperActive("downloadSource")
+  
   startinfo <- toolstartmessage("downloadSource", argumentValues, "+")
   defer({
     toolendmessage(startinfo, "-")
