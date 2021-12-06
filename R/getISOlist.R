@@ -9,6 +9,9 @@
 #' countries, "important" returns all countries which are above the population
 #' threshold set in the configuration and "dispensable" returns all countries
 #' which are below the threshold.
+#' @param threshold Population threshold in million capita which determines whether
+#' the country is put into the "important" or "dispensable" class 
+#' (default = 1 mio. people)
 #' @return vector of default ISO country codes.
 #' @note Please always use this function instead of directly referring to the data
 #' object as the format in this data list might change in the future!
@@ -21,20 +24,20 @@
 #' 
 #' @importFrom magclass ncells
 #' @export
-getISOlist <- function(type="all") {
+getISOlist <- function(type="all", threshold = 1) {
   iso_country <- read.csv2(system.file("extdata","iso_country.csv",package = "madrat"), row.names = NULL)
   iso_country1 <- as.vector(iso_country[,"x"])
   names(iso_country1) <- iso_country[,"X"]
   ref <- robustSort(iso_country1)
   if (type == "all") return(ref)
   
-  pop2015 <- read.magpie(system.file("extdata","pop2015.csv",package = "madrat"))
+  pop2015 <- readRDS(system.file("extdata","pop2015.rds",package = "madrat"))
   names(dimnames(pop2015)) <- c("ISO2_WB_CODE","Year","data")
   
   if (type == "important") {
-    return(ref[as.vector(pop2015[,1,1] >= getConfig("pop_threshold")/10^6)])
+    return(ref[as.vector(pop2015[,1,1] >= threshold)])
   } else if (type == "dispensable") {
-    return(ref[as.vector(pop2015[,1,1] < getConfig("pop_threshold")/10^6)])
+    return(ref[as.vector(pop2015[,1,1] < threshold)])
   } else {
     stop("Unknown type ",type)
   }

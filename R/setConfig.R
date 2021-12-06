@@ -38,11 +38,6 @@
 #' @param outputfolder The folder all outputs should be written to. In the
 #' default case this argument is set to NA meaning that the default folder
 #' should be used which is <mainfolder>/output
-#' @param pop_threshold Population threshold in capita which determines whether
-#' the country is put into the "important" or "dispensable" class in
-#' \code{\link{getISOlist}}. This distinction is used for different treatment
-#' of countries in notifications to set a focus on rather critical issues
-#' instead of flooding the user with information.
 #' @param nolabels vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 #' which should NOT apply a replacement of known hashes with given code labels
 #' @param forcecache Argument that allows to force madrat to read data from
@@ -98,7 +93,6 @@ setConfig <- function(regionmapping = NULL,
                       cachefolder = NULL,
                       mappingfolder = NULL,
                       outputfolder = NULL,
-                      pop_threshold = NULL, # nolint
                       nolabels = NULL,
                       forcecache = NULL,
                       ignorecache = NULL,
