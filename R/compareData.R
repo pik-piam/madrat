@@ -86,7 +86,7 @@ compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
 .rmag <- function(f, yearLim) {
   x <- try(read.magpie(f), silent = TRUE)
   if (!is.magpie(x)) return(NULL) else {
-    if (!is.null(yearLim)) x[, getYears(x, as.integer = TRUE) <= yearLim, ]
+    if (!is.null(yearLim)) x <- x[, getYears(x, as.integer = TRUE) <= yearLim, ]
   }
   attr(x, "comment") <- NULL
   return(x)
