@@ -1,37 +1,39 @@
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
-
-skip("Not yet ready")
 
 test_that("wrapper activity setting and detection works", {
   
-  
-  
-  calcTest <- function() {
+  pseudoCalc <- function() {
+    madrat:::setWrapperActive("calcOutput")
     expect_false(isWrapperActive("readSource"))
     expect_true(isWrapperActive("calcOutput"))
-    
-    readSource("Test2", convert=FALSE)
-    
+  }
+  
+  expect_false(isWrapperActive("readSource"))
+  expect_false(isWrapperActive("calcOutput"))
+  
+  pseudoCalc()
+  
+  expect_false(isWrapperActive("readSource"))
+  expect_false(isWrapperActive("calcOutput"))
+  
+  pseudoRead <- function() {
+    madrat:::setWrapperActive("readSource")
+    return(c(isWrapperActive("readSource"), isWrapperActive("calcOutput")))
+  }
+
+  expect_identical(pseudoRead(), c(TRUE,FALSE))
+  
+  pseudoCalc2 <- function() {
+    madrat:::setWrapperActive("calcOutput")
     expect_false(isWrapperActive("readSource"))
     expect_true(isWrapperActive("calcOutput"))
-    
-  }
-  
-  readTest2 <- function() {
-    
-    expect_true(isWrapperActive("readSource"))
+    expect_identical(pseudoRead(), c(TRUE,TRUE))
+    expect_false(isWrapperActive("readSource"))
     expect_true(isWrapperActive("calcOutput"))
-    
-    return(as.magpie(12))
   }
+  pseudoCalc2()
+
+  expect_error(madrat:::setWrapperActive("blablub"), "Unknown wrapper")
+  expect_error(madrat:::setWrapperActive("calcOutput", 12), "Value must be a boolean")
   
-  downloadTest2 <- function() {
-    expect_true(isWrapperActive("readSource"))
-    expect_true(isWrapperActive("calcOutput"))
-    expect_true(isWrapperActive("downloadSource"))
-  }
-  
-  
+  expect_error(madrat:::isWrapperActive("blablub"), "Unknown wrapper")
 })
