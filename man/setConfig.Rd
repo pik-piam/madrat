@@ -25,6 +25,7 @@ setConfig(
   debug = NULL,
   maxLengthLogMessage = NULL,
   .cfgchecks = TRUE,
+  .wrappercheck = TRUE,
   .verbose = TRUE,
   .local = FALSE
 )
@@ -109,6 +110,10 @@ is shorter than this value, otherwise arguments are shown as passed, potentially
 \item{.cfgchecks}{boolean deciding whether the given inputs to setConfig should be checked for
 consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 in regular cases)}
+
+\item{.wrappercheck}{boolean (de)activating a check whether the function is called from within one of the
+madrat wrapper (\code{readSource}, \code{calcOutput}, ...) or not. Do not use this setting except you know
+exactly what you are doing! Should be kept TRUE in nearly all cases!}
 
 \item{.verbose}{boolean deciding whether status information/updates should be shown or not}
 

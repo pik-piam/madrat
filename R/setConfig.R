@@ -67,6 +67,9 @@
 #' @param .cfgchecks boolean deciding whether the given inputs to setConfig should be checked for
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)
+#' @param .wrappercheck boolean (de)activating a check whether the function is called from within one of the
+#' madrat wrapper (\code{readSource}, \code{calcOutput}, ...) or not. Do not use this setting except you know
+#' exactly what you are doing! Should be kept TRUE in nearly all cases!
 #' @param .verbose boolean deciding whether status information/updates should be shown or not
 #' @param .local boolean deciding whether options are only changed until the end of the current function execution
 #' @author Jan Philipp Dietrich
@@ -98,11 +101,28 @@ setConfig <- function(regionmapping = NULL,
                       debug = NULL,
                       maxLengthLogMessage = NULL,
                       .cfgchecks = TRUE,
+                      .wrappercheck = TRUE, 
                       .verbose = TRUE,
                       .local = FALSE) {
   
-  for(w in c("downloadSource", "readSource", "calcOutput")) {
-    if( isWrapperActive(w)) warning("setConfig must not be used from within ", w, "!")
+  if(.wrappercheck) {
+    for(w in c("downloadSource", "readSource", "calcOutput")) {
+      if( isWrapperActive(w)) {
+        warning("setConfig must not be used from within ", w, "!")
+        break
+      }
+    }
+    if(isWrapperActive("retrieveData")) {
+      allowedArgs <- c("extramappings")
+      args <- as.list(match.call())[-1]
+      args <- args[!grepl("^\\.", names(args)) & !vapply(args, is.null, logical(1))]
+      updatedArgs <- names(args)
+      forbiddenUpdates <- setdiff(updatedArgs, allowedArgs)
+      if(length(forbiddenUpdates) > 0) {
+        warning("setConfig must not change \"", paste(forbiddenUpdates, collapse="\", \""),
+                "\" from within retrieveData!")
+      }
+    }
   }
   
   cfg <- getConfig(raw = TRUE, verbose = .verbose)
