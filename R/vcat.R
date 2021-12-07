@@ -81,7 +81,7 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
 
   if (!is.null(level)) {
     if (level == "+") {
-      options(gdt_nestinglevel = paste0(getConfig("indentationCharacter"), getOption("gdt_nestinglevel"))) # nolint
+      options(gdt_nestinglevel = paste0("~", getOption("gdt_nestinglevel"))) # nolint
     }
   }
 }

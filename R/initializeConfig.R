@@ -18,7 +18,6 @@ initializeConfig <- function(verbose=TRUE) {
                 packages             = "madrat",
                 globalenv            = FALSE,
                 verbosity            = 1,
-                enablecache          = TRUE,
                 mainfolder           = getMainfolder(verbose = verbose),
                 sourcefolder         = NA,
                 cachefolder          = NA,
@@ -29,11 +28,8 @@ initializeConfig <- function(verbose=TRUE) {
                 ignorecache          = NULL,
                 cachecompression     = "gzip",
                 hash                 = "xxhash32",
-                delete_cache         = TRUE,
                 diagnostics          = FALSE,
-                nocores              = 1,
                 debug                = FALSE,
-                indentationCharacter = "~",
                 maxLengthLogMessage = 200)
      options(madrat_cfg = cfg)
      if (verbose) {

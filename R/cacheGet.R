@@ -21,7 +21,7 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))
   }
 
-  if (.isSet(prefix, type, "ignorecache") || !getConfig("enablecache")) return(NULL)
+  if (.isSet(prefix, type, "ignorecache")) return(NULL)
 
   fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "get", ...)
 

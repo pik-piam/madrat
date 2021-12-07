@@ -16,9 +16,8 @@
 #' read and calc functions should be searched for
 #' @param globalenv Boolean deciding whether sources/calculations in the global
 #' environment should be included or not
-#' @param enablecache Boolean deciding whether data should be read from cache
-#' if data is available and the up-to-date (data will always be written to the
-#' cache regardless of this setting)
+#' @param enablecache Is deprecated and will be ignored. Please use
+#' \code{ignorecache} instead.
 #' @param verbosity an integer value describing the verbosity of the functions
 #' (2 = full information, 1 = only warnings and execution information, 0 = only
 #' warnings, -1 = no information)
@@ -53,19 +52,16 @@
 #' "bzip2" or "xz" specify the type of compression.
 #' @param hash specifies the used hashing algorithm. Default is "xxhash32" and
 #' all algorithms supported by \code{\link[digest]{digest}} can be used.
-#' @param delete_cache Boolean deciding whether a temporary cache folder (as
-#' created by retrieveInput) should be deleted after completion or not.
-#' @param diagnostics file name for additional diagnostics information (without file ending).
+#' @param diagnostics Either FALSE (default) to avoid the creation of additional
+#' log files or a file name for additional diagnostics information (without file ending).
 #' 2 log files are written if a file name is provided (a compact version with the most
 #' relevant information and a full version with all available details).
-#' @param nocores integer number of cores to use
 #' @param debug Boolean which activates a debug mode. In debug mode all calculations will
 #' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
 #' This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
 #' debug=TRUE will add the suffix "debug" to the files created to avoid there use in productive runs.
 #' Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file
 #' already exists.
-#' @param indentationCharacter character used for indenting the output of nested function calls
 #' @param maxLengthLogMessage in log messages evaluated arguments are printed if the resulting message
 #' is shorter than this value, otherwise arguments are shown as passed, potentially  with unevaluated variable names
 #' @param .cfgchecks boolean deciding whether the given inputs to setConfig should be checked for
@@ -98,11 +94,8 @@ setConfig <- function(regionmapping = NULL,
                       ignorecache = NULL,
                       cachecompression = NULL,
                       hash = NULL,
-                      delete_cache = NULL, # nolint
                       diagnostics = NULL,
-                      nocores = NULL,
                       debug = NULL,
-                      indentationCharacter = NULL,
                       maxLengthLogMessage = NULL,
                       .cfgchecks = TRUE,
                       .verbose = TRUE,
@@ -116,6 +109,11 @@ setConfig <- function(regionmapping = NULL,
 
   firstsetting <- TRUE
   info <- NULL
+  
+  if(!is.null(enablecache)) {
+    warning('Argument "enablecache" is deprecated and will be ignored, use "ignorecache" instead!')
+    enablecache <- NULL
+  }
 
   if (!is.null(packages)) {
     packages <- unique(packages, fromLast = TRUE)
