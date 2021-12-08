@@ -75,7 +75,9 @@ test_that("downloadSource works", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
   setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, mainfolder = tempdir(), .local = TRUE)
-  expect_error(downloadSource("Tau", "paper"), "does already exist!")
+  expect_error(downloadSource("Tau", "paper"),
+               paste('Source folder for source "Tau/paper" does already exist. Delete that folder or call',
+                     "downloadSource(..., overwrite = TRUE) if you want to re-download."), fixed = TRUE)
   expect_error(downloadSource(1:10), "Invalid type")
   expect_error(downloadSource("Tau", subtype = 1:10), "Invalid subtype")
   downloadTest <- function() return(list(url = 1, author = 1, title = 1, license = 1,

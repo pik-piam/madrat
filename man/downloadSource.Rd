@@ -4,26 +4,28 @@
 \alias{downloadSource}
 \title{downloadSource}
 \usage{
-downloadSource(type, subtype = NULL, overwrite = FALSE)
+downloadSource(type, subtype = NULL, overwrite = FALSE, numberOfTries = 300)
 }
 \arguments{
-\item{type}{source type, e.g. "IEA". A list of all available source types
-can be retrieved with function \code{\link{getSources}("download")}.}
+\item{type}{source type, e.g. "IEA". A list of all available source types can be retrieved with
+function \code{\link{getSources}("download")}.}
 
-\item{subtype}{For some sources there are subtypes of the source, for these
-source the subtype can be specified with this argument. If a source does not
-have subtypes, subtypes should not be set.}
+\item{subtype}{For some sources there are subtypes of the source, for these source the subtype can be specified
+with this argument. If a source does not have subtypes, subtypes should not be set.}
 
-\item{overwrite}{Boolean deciding whether existing data should be
-overwritten or not.}
+\item{overwrite}{Boolean deciding whether existing data should be overwritten or not.}
+
+\item{numberOfTries}{Integer determining how often readSource will check whether a running download is finished
+before exiting with an error. Between checks readSource will wait 30 seconds. Has no effect if the sources that
+should be read are not currently being downloaded.}
 }
 \description{
 Download a source. The function is a wrapper for specific functions designed
 for the different possible source types.
 }
 \note{
-The underlying download-functions are required to provide a list of information back to
-\code{downloadSource}. Following list entries should be provided:
+The underlying download-functions are required to provide a list of information
+back to \code{downloadSource}. Following list entries should be provided:
 \itemize{
 \item \bold{url} - full path to the file that should be downloaded
 \item \bold{title} - title of the data source
@@ -51,11 +53,10 @@ extending the return list with additional, named entries.
 \dontrun{
 a <- downloadSource("Tau", subtype = "historical")
 }
-
 }
 \seealso{
 \code{\link{setConfig}}, \code{\link{readSource}}
 }
 \author{
-Jan Philipp Dietrich, David Klein
+Jan Philipp Dietrich, David Klein, Pascal Führlich
 }
