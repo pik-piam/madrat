@@ -125,7 +125,7 @@ setConfig <- function(regionmapping = NULL,
     }
   }
   
-  cfg <- getConfig(raw = TRUE, verbose = .verbose)
+  cfg <- getConfig(raw = TRUE, verbose = .verbose, wrappercheck = FALSE)
 
   firstsetting <- TRUE
   info <- NULL

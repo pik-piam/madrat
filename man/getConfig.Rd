@@ -4,7 +4,13 @@
 \alias{getConfig}
 \title{getConfig}
 \usage{
-getConfig(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
+getConfig(
+  option = NULL,
+  raw = FALSE,
+  verbose = TRUE,
+  print = FALSE,
+  wrappercheck = TRUE
+)
 }
 \arguments{
 \item{option}{The option for which the setting should be returned. If set to
@@ -19,6 +25,10 @@ stored.}
 \item{verbose}{boolean deciding whether status information/updates should be shown or not}
 
 \item{print}{if TRUE and verbose is TRUE a configuration overview will also get printed}
+
+\item{wrappercheck}{boolean (de)activating a check whether the function is called from within one of the
+madrat wrapper (\code{readSource}, \code{calcOutput}, ...) or not. Do not use this setting except you know
+exactly what you are doing! Should be kept TRUE in nearly all cases!}
 }
 \value{
 A config list with all settings currently set for the madrat package

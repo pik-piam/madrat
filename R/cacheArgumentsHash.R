@@ -24,5 +24,5 @@ cacheArgumentsHash <- function(call, args = NULL) {
   if (length(nonDefaultArguments) == 0) {
     return(NULL)
   }
-  return(paste0("-", digest(nonDefaultArguments, algo = getConfig("hash"))))
+  return(paste0("-", digest(nonDefaultArguments, algo = getConfig("hash", wrappercheck = FALSE))))
 }

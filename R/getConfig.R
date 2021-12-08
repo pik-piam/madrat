@@ -14,12 +14,24 @@
 #' stored.
 #' @param verbose boolean deciding whether status information/updates should be shown or not
 #' @param print if TRUE and verbose is TRUE a configuration overview will also get printed
+#' @param wrappercheck boolean (de)activating a check whether the function is called from within one of the
+#' madrat wrapper (\code{readSource}, \code{calcOutput}, ...) or not. Do not use this setting except you know
+#' exactly what you are doing! Should be kept TRUE in nearly all cases!
 #' @return A config list with all settings currently set for the madrat package
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{initializeConfig}}
 #' @export
-getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE, print=FALSE) {
+getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE, print=FALSE, wrappercheck=TRUE) {
   initializeConfig(verbose=verbose)
+  
+  if(wrappercheck) {
+    for(w in c("downloadSource", "readSource", "calcOutput")) {
+      if (isWrapperActive(w)) {
+        warning("getConfig for option \"",option,"\" must not be used from within ", w, "!")
+        break
+      }
+    }
+  }
   
   cfg <- getOption("madrat_cfg")
   cfg$mainfolder <- sub("/$", "", cfg$mainfolder)
