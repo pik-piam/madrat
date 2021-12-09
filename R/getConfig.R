@@ -24,7 +24,7 @@
 getConfig <- function(option=NULL, raw=FALSE, verbose=TRUE, print=FALSE, wrappercheck=TRUE) {
   initializeConfig(verbose=verbose)
   
-  if(wrappercheck) {
+  if(wrappercheck && !isWrapperActive("wrapper")) {
     for(w in c("downloadSource", "readSource", "calcOutput")) {
       if (isWrapperActive(w)) {
         warning("getConfig for option \"",option,"\" must not be used from within ", w, "!")

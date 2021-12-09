@@ -21,7 +21,7 @@ setWrapperActive <- function(name, value = TRUE) {
 }
 
 .readWrapperStatus <- function() {
-  wrapper <- c("downloadSource", "readSource", "calcOutput", "retrieveData")
+  wrapper <- c("downloadSource", "readSource", "calcOutput", "retrieveData", "wrapper")
   wrapperActive <- getOption("madrat_wrapperActive")
   if(is.null(wrapperActive)) {
     wrapperActive <- as.list(rep(FALSE, length(wrapper)))

@@ -44,11 +44,11 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
     }
   }
 
-  d <- getConfig("diagnostics")
+  d <- getConfig("diagnostics", wrappercheck = FALSE)
   if (is.character(d)) {
     writelog <- TRUE
-    logfile <- paste0(getConfig("outputfolder"), "/", d, ".log")
-    fulllogfile <- paste0(getConfig("outputfolder"), "/", d, "_full.log")
+    logfile <- paste0(getConfig("outputfolder", wrappercheck = FALSE), "/", d, ".log")
+    fulllogfile <- paste0(getConfig("outputfolder", wrappercheck = FALSE), "/", d, "_full.log")
   } else {
     writelog <- FALSE
   }
@@ -58,7 +58,7 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
     base::cat(c(prefix, ...), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
               file = fulllogfile, append = TRUE)
   }
-  if (getConfig("verbosity") >= verbosity) {
+  if (getConfig("verbosity", wrappercheck = FALSE) >= verbosity) {
     if (writelog && dir.exists(dirname(logfile))) {
       base::cat(c(prefix, ...), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
                 file = logfile, append = TRUE)

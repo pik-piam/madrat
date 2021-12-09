@@ -105,9 +105,9 @@ setConfig <- function(regionmapping = NULL,
                       .verbose = TRUE,
                       .local = FALSE) {
   
-  if(.wrappercheck) {
+  if(.wrappercheck && !isWrapperActive("wrapper")) {
     for(w in c("downloadSource", "readSource", "calcOutput")) {
-      if( isWrapperActive(w)) {
+      if(isWrapperActive(w)) {
         warning("setConfig must not be used from within ", w, "!")
         break
       }
