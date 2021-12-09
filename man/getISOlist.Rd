@@ -13,7 +13,7 @@ threshold set in the configuration and "dispensable" returns all countries
 which are below the threshold.}
 
 \item{threshold}{Population threshold in million capita which determines whether
-the country is put into the "important" or "dispensable" class 
+the country is put into the "important" or "dispensable" class
 (default = 1 mio. people)}
 }
 \value{
@@ -32,7 +32,6 @@ object as the format in this data list might change in the future!
 
 head(getISOlist())
 head(getISOlist("dispensable"))
-
 }
 \seealso{
 \code{\link{getSources}}, \code{\link{getCalculations}}

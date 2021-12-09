@@ -90,7 +90,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
 
   setWrapperActive("calcOutput")
   setWrapperActive("wrapper")
-  
+
   if (!dir.exists(getConfig("cachefolder"))) {
       dir.create(getConfig("cachefolder"), recursive = TRUE)
   }

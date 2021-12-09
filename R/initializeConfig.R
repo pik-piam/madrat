@@ -7,7 +7,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMainfolder}}, \code{\link{getConfig}}, \code{\link{setConfig}}
 #'
-initializeConfig <- function(verbose=TRUE) {
+initializeConfig <- function(verbose = TRUE) {
   # check whether config has not been initialized yet
   # and initialize it (otherwise do nothing)
   if (is.null(getOption("madrat_cfg"))) {
@@ -31,7 +31,7 @@ initializeConfig <- function(verbose=TRUE) {
                 diagnostics          = FALSE,
                 debug                = FALSE,
                 maxLengthLogMessage = 200)
-     options(madrat_cfg = cfg)
+     options(madrat_cfg = cfg) # nolint
      if (verbose) {
       message(paste(paste0("    ", names(cfg)), cfg, sep = " = ", collapse = "\n"))
       message("..done!\n")

@@ -101,36 +101,18 @@ setConfig <- function(regionmapping = NULL,
                       debug = NULL,
                       maxLengthLogMessage = NULL,
                       .cfgchecks = TRUE,
-                      .wrappercheck = TRUE, 
+                      .wrappercheck = TRUE,
                       .verbose = TRUE,
                       .local = FALSE) {
-  
-  if(.wrappercheck && !isWrapperActive("wrapper")) {
-    for(w in c("downloadSource", "readSource", "calcOutput")) {
-      if(isWrapperActive(w)) {
-        warning("setConfig must not be used from within ", w, "!")
-        break
-      }
-    }
-    if(isWrapperActive("retrieveData")) {
-      allowedArgs <- c("extramappings")
-      args <- as.list(match.call())[-1]
-      args <- args[!grepl("^\\.", names(args)) & !vapply(args, is.null, logical(1))]
-      updatedArgs <- names(args)
-      forbiddenUpdates <- setdiff(updatedArgs, allowedArgs)
-      if(length(forbiddenUpdates) > 0) {
-        warning("setConfig must not change \"", paste(forbiddenUpdates, collapse="\", \""),
-                "\" from within retrieveData!")
-      }
-    }
-  }
-  
+
+  .wrapperCheck(check = .wrappercheck, args = as.list(match.call())[-1])
+
   cfg <- getConfig(raw = TRUE, verbose = .verbose, wrappercheck = FALSE)
 
   firstsetting <- TRUE
   info <- NULL
-  
-  if(!is.null(enablecache)) {
+
+  if (!is.null(enablecache)) {
     warning('Argument "enablecache" is deprecated and will be ignored, use "ignorecache" instead!')
     enablecache <- NULL
   }
@@ -190,5 +172,25 @@ setConfig <- function(regionmapping = NULL,
 
   if (!is.null(info) & .verbose) {
     for (i in info) vcat(-2, i)
+  }
+}
+
+.wrapperCheck <- function(check, args) {
+  if (!check || isWrapperActive("wrapper")) return()
+  for (w in c("downloadSource", "readSource", "calcOutput")) {
+    if (isWrapperActive(w)) {
+      warning("setConfig must not be used from within ", w, "!")
+      break
+    }
+  }
+  if (isWrapperActive("retrieveData")) {
+    allowedArgs <- c("extramappings")
+    args <- args[!grepl("^\\.", names(args)) & !vapply(args, is.null, logical(1))]
+    updatedArgs <- names(args)
+    forbiddenUpdates <- setdiff(updatedArgs, allowedArgs)
+    if (length(forbiddenUpdates) > 0) {
+      warning("setConfig must not change \"", paste(forbiddenUpdates, collapse = "\", \""),
+              "\" from within retrieveData!")
+    }
   }
 }
