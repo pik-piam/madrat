@@ -176,7 +176,7 @@ setConfig <- function(regionmapping = NULL,
 }
 
 .wrapperCheck <- function(check, args) {
-  if (!check || isWrapperActive("wrapper")) return()
+  if (!check || !isWrapperActive("wrapperChecks")) return()
   for (w in c("downloadSource", "readSource", "calcOutput")) {
     if (isWrapperActive(w)) {
       warning("setConfig must not be used from within ", w, "!")

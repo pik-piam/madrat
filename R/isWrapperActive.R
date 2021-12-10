@@ -6,26 +6,38 @@
 #' @param name name of the wrapper in question (e.g. "calcOutput")
 #' @author Jan Philipp Dietrich
 isWrapperActive <- function(name) {
-  wrapperActive <- .readWrapperStatus()
-  if (!(name %in% names(wrapperActive))) stop("Unknown wrapper \"", name, "\"!")
+  wrapperActive <- .readWrapperStatus(name)
   return(wrapperActive[[name]])
 }
 
-#' @describeIn setWrapperActive set wrapper activity status
-setWrapperActive <- function(name, value = TRUE) {
-  if (!is.logical(value)) stop("Value must be a boolean!")
-  wrapperActive <- .readWrapperStatus()
-  if (!(name %in% names(wrapperActive))) stop("Unknown wrapper \"", name, "\"!")
-  wrapperActive[[name]] <- value
+#' @describeIn setWrapperActive set wrapper activity status to on
+setWrapperActive <- function(name) {
+  wrapperActive <- .readWrapperStatus(name)
+  wrapperActive[[name]] <- TRUE
   local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
 }
 
-.readWrapperStatus <- function() {
-  wrapper <- c("downloadSource", "readSource", "calcOutput", "retrieveData", "wrapper")
+#' @describeIn setWrapperInactive set wrapper activity status to off
+setWrapperInactive <- function(name) {
+  wrapperActive <- .readWrapperStatus(name)
+  wrapperActive[[name]] <- FALSE
+  local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
+}
+
+.readWrapperStatus <- function(name = NULL) {
+  wrapper <- list(downloadSource = FALSE,
+                      readSource = FALSE,
+                      calcOutput = FALSE,
+                    retrieveData = FALSE,
+                   wrapperChecks = TRUE)
   wrapperActive <- getOption("madrat_wrapperActive")
   if (is.null(wrapperActive)) {
-    wrapperActive <- as.list(rep(FALSE, length(wrapper)))
-    names(wrapperActive) <- wrapper
+    wrapperActive <- wrapper
+  } else {
+    for(n in names(wrapper)) {
+      if(!is.logical(wrapperActive[[n]])) wrapperActive[[n]] <- wrapper[[n]]
+    }
   }
+  if (!is.null(name) && !(name %in% names(wrapperActive))) stop("Unknown wrapper \"", name, "\"!")
   return(wrapperActive)
 }

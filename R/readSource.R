@@ -31,7 +31,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("readSource")
-  setWrapperActive("wrapper")
+  setWrapperInactive("wrapperChecks")
 
   local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
@@ -109,9 +109,9 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
 
     with_dir(sourcefolder, {
       functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
-      setWrapperActive("wrapper", FALSE)
+      setWrapperActive("wrapperChecks")
       x <- eval(parse(text = functionname))
-      setWrapperActive("wrapper")
+      setWrapperInactive("wrapperChecks")
     })
 
     if (!is.magpie(x)) {

@@ -48,7 +48,7 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("downloadSource")
-  setWrapperActive("wrapper")
+  setWrapperInactive("wrapperChecks")
 
   startinfo <- toolstartmessage("downloadSource", argumentValues, "+")
   defer({
@@ -114,9 +114,9 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
     unlink(absolutePath, recursive = TRUE)
   })
   with_dir(downloadInProgressDirectory, {
-    setWrapperActive("wrapper", FALSE)
+    setWrapperActive("wrapperChecks")
     meta <- eval(parse(text = functionname))
-    setWrapperActive("wrapper")
+    setWrapperInactive("wrapperChecks")
 
     # define mandatory elements of meta data and check if they exist
     mandatory <- c("url", "author", "title", "license", "description", "unit")
