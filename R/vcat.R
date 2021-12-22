@@ -32,15 +32,15 @@
 #' @importFrom utils capture.output
 vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
                  show_prefix = TRUE) { # nolint
-  
+
   setWrapperInactive("wrapperChecks")
-  
+
   if (!is.null(level)) {
     if (level == 0) {
       options(gdt_nestinglevel = NULL) # nolint
     } else if (level == "-") {
       # remove empty space
-      options(gdt_nestinglevel = substring(getOption("gdt_nestinglevel"), 2)) #nolint
+      options(gdt_nestinglevel = substring(getOption("gdt_nestinglevel"), 2)) # nolint
       if (getOption("gdt_nestinglevel") == "") options(gdt_nestinglevel = NULL) # nolint
     }
   }

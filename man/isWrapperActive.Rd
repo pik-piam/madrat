@@ -2,9 +2,12 @@
 % Please edit documentation in R/isWrapperActive.R
 \name{isWrapperActive}
 \alias{isWrapperActive}
+\alias{setWrapperActive}
 \title{isWrapperActive}
 \usage{
 isWrapperActive(name)
+
+setWrapperActive(name)
 }
 \arguments{
 \item{name}{name of the wrapper in question (e.g. "calcOutput")}
@@ -14,6 +17,11 @@ Support functions which checks whether a given wrapper function is currently in-
 or not or which locally activate or deactivate a wrapper (setting will be
 automatically resetted when a function finishes).
 }
+\section{Functions}{
+\itemize{
+\item \code{setWrapperActive}: set wrapper activity status to on
+}}
+
 \author{
 Jan Philipp Dietrich
 }

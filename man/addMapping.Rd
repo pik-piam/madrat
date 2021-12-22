@@ -12,7 +12,7 @@ file ending (e.g. "regionmappingREMIND.csv"). Supported formats are currently
 ".csv" and ".rds".}
 
 \item{mapping}{Mapping provided as magpie object, or NULL. If a mapping is
-provided the data will be written in the mapping file of the given file. If 
+provided the data will be written in the mapping file of the given file. If
 not provided (set to NULL) and existing mapping file with the given name is
 being looked for and used.}
 }

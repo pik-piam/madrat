@@ -31,7 +31,7 @@ test_that("wrapper activity setting and detection works", {
     expect_true(isWrapperActive("calcOutput"))
   }
   pseudoCalc2()
-  
+
   pseudoCalc3 <- function() {
     madrat:::setWrapperActive("calcOutput")
     expect_true(isWrapperActive("calcOutput"))

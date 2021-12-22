@@ -11,14 +11,14 @@ isWrapperActive <- function(name) {
   return(wrapperActive[[name]])
 }
 
-#' @describeIn setWrapperActive set wrapper activity status to on
+#' @describeIn isWrapperActive set wrapper activity status to on
 setWrapperActive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   wrapperActive[[name]] <- TRUE
   local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
 }
 
-#' @describeIn setWrapperInactive set wrapper activity status to off
+#' @describeIn isWrapperInactive set wrapper activity status to off
 setWrapperInactive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   wrapperActive[[name]] <- FALSE
@@ -35,8 +35,8 @@ setWrapperInactive <- function(name) {
   if (is.null(wrapperActive)) {
     wrapperActive <- wrapper
   } else {
-    for(n in names(wrapper)) {
-      if(!is.logical(wrapperActive[[n]])) wrapperActive[[n]] <- wrapper[[n]]
+    for (n in names(wrapper)) {
+      if (!is.logical(wrapperActive[[n]])) wrapperActive[[n]] <- wrapper[[n]]
     }
   }
   if (!is.null(name) && !(name %in% names(wrapperActive))) stop("Unknown wrapper \"", name, "\"!")

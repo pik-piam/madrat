@@ -24,13 +24,13 @@
 #' algorithm for other calculations in which hashing is being used).
 #' Besides that "regionmapping" and "extramappings" can also be read from within
 #' calc- and full-functions but their use is at least for the calc-functions
-#' discouraged as it has negative implications for the caching (cache files might 
+#' discouraged as it has negative implications for the caching (cache files might
 #' get unusable) and might significantly slow down overall calculations.
 #' All other settings are currently still accessible but trigger a warning that
-#' this option will soon be removed. So, please make sure that your code runs 
+#' this option will soon be removed. So, please make sure that your code runs
 #' without reading these options!
 #' As a background note: Read access to these settings will be restricted as they
-#' otherwise would allow access to code elements or data in a form which is 
+#' otherwise would allow access to code elements or data in a form which is
 #' violating the overall madrat logic and thereby can lead to erroneous results.
 #' @return A config list with all settings currently set for the madrat package
 #' @author Jan Philipp Dietrich
@@ -38,25 +38,25 @@
 #' @export
 getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE) {
   initializeConfig(verbose = verbose)
-  
-  allowedOptions <- list(downloadSource="debug",
-                         readSource="debug",
-                         calcOutput=c("regionmapping", "extramappings", "debug"),
-                         retrieveData=c("regionmapping", "extramappings", "debug", "hash"))
-  
-  discouragedOptions <- list(calcOutput=c("regionmapping", "extramappings"))
-  
+
+  allowedOptions <- list(downloadSource = "debug",
+                         readSource = "debug",
+                         calcOutput = c("regionmapping", "extramappings", "debug"),
+                         retrieveData = c("regionmapping", "extramappings", "debug", "hash"))
+
+  discouragedOptions <- list(calcOutput = c("regionmapping", "extramappings"))
+
   if (isWrapperActive("wrapperChecks")) {
     for (w in c("downloadSource", "readSource", "calcOutput", "retrieveData")) {
       if (isWrapperActive(w)) {
-        if(is.null(option)) {
+        if (is.null(option)) {
           warning("getConfig must not be used from within ", w, "! Access will be disabled soon!")
           break
         } else if (!(option %in% allowedOptions[[w]])) {
           warning("getConfig for option \"", option, "\" must not be used from within ", w,
                   "! Access will be disabled soon!")
           break
-        } else if(option %in% discouragedOptions[[w]]) {
+        } else if (option %in% discouragedOptions[[w]]) {
           message("getConfig for option \"", option, "\" should - if possible - be avoided from within ", w, "!")
           break
         }

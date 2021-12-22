@@ -39,7 +39,7 @@ regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
     }
     mapping <- toolGetMapping(mapping, "regional")
   }
-  
+
   row.names(mapping) <- NULL
 
   if (strict) {

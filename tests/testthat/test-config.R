@@ -42,8 +42,8 @@ test_that("addMapping works", {
   expect_identical(map, map2)
   expect_error(addMapping("test.blablub", map), "Unsupported filetype")
   expect_error(addMapping("blablub.csv", TRUE), "Cannot handle this mapping format")
-  
-  
-  
-  
+
+
+
+
 })

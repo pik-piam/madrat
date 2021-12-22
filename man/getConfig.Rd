@@ -39,13 +39,13 @@ from within a full function and can there be used to apply the identical hash
 algorithm for other calculations in which hashing is being used).
 Besides that "regionmapping" and "extramappings" can also be read from within
 calc- and full-functions but their use is at least for the calc-functions
-discouraged as it has negative implications for the caching (cache files might 
+discouraged as it has negative implications for the caching (cache files might
 get unusable) and might significantly slow down overall calculations.
 All other settings are currently still accessible but trigger a warning that
-this option will soon be removed. So, please make sure that your code runs 
+this option will soon be removed. So, please make sure that your code runs
 without reading these options!
 As a background note: Read access to these settings will be restricted as they
-otherwise would allow access to code elements or data in a form which is 
+otherwise would allow access to code elements or data in a form which is
 violating the overall madrat logic and thereby can lead to erroneous results.
 }
 \seealso{

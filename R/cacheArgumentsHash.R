@@ -19,7 +19,7 @@
 #' @importFrom digest digest
 cacheArgumentsHash <- function(call, args = NULL) {
   setWrapperInactive("wrapperChecks")
-  
+
   nonDefaultArguments <- getNonDefaultArguments(call, args)
   nonDefaultArguments <- nonDefaultArguments[robustOrder(names(nonDefaultArguments))]
 

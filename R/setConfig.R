@@ -84,7 +84,7 @@
 #' @importFrom utils installed.packages
 #' @importFrom withr local_options
 #' @export
-setConfig <- function(regionmapping = NULL,
+setConfig <- function(regionmapping = NULL, # nolint
                       extramappings = NULL,
                       packages = NULL,
                       globalenv = NULL,
@@ -107,7 +107,7 @@ setConfig <- function(regionmapping = NULL,
                       .verbose = TRUE,
                       .local = FALSE) {
 
-  if(isWrapperActive("wrapperChecks")) {
+  if (isWrapperActive("wrapperChecks")) {
     for (w in c("downloadSource", "readSource", "calcOutput", "retrieveData")) {
       if (isWrapperActive(w)) {
         warning("setConfig must not be used from within ", w, "!")
@@ -119,11 +119,11 @@ setConfig <- function(regionmapping = NULL,
 
   cfg <- getConfig(raw = TRUE, verbose = .verbose)
 
-  if(is.environment(.local)) {
-    .local_envir <- .local
+  if (is.environment(.local)) {
+    .localEnvir <- .local
     .local <- TRUE
   } else {
-    .local_envir <- parent.frame()
+    .localEnvir <- parent.frame()
   }
 
   firstsetting <- TRUE
@@ -182,7 +182,7 @@ setConfig <- function(regionmapping = NULL,
   }
   if (.local) {
     # change options until the function calling this function exits
-    local_options(madrat_cfg = cfg, .local_envir = .local_envir)
+    local_options(madrat_cfg = cfg, .local_envir = .localEnvir)
   } else {
     options(madrat_cfg = cfg) # nolint
   }
@@ -191,4 +191,3 @@ setConfig <- function(regionmapping = NULL,
     for (i in info) vcat(-2, i)
   }
 }
-

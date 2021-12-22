@@ -27,9 +27,9 @@
 #' }
 #' outerFunction()
 toolstartmessage <- function(functionName, argumentValues, level = NULL) {
-  
+
   setWrapperInactive("wrapperChecks")
-  
+
   nonDefaultArguments <- getNonDefaultArguments(functionName, argumentValues)
   argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
