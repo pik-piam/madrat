@@ -18,7 +18,7 @@ setWrapperActive <- function(name) {
   local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
 }
 
-#' @describeIn isWrapperInactive set wrapper activity status to off
+#' @describeIn isWrapperActive set wrapper activity status to off
 setWrapperInactive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   wrapperActive[[name]] <- FALSE

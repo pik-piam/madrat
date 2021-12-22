@@ -3,11 +3,14 @@
 \name{isWrapperActive}
 \alias{isWrapperActive}
 \alias{setWrapperActive}
+\alias{setWrapperInactive}
 \title{isWrapperActive}
 \usage{
 isWrapperActive(name)
 
 setWrapperActive(name)
+
+setWrapperInactive(name)
 }
 \arguments{
 \item{name}{name of the wrapper in question (e.g. "calcOutput")}
@@ -20,6 +23,8 @@ automatically resetted when a function finishes).
 \section{Functions}{
 \itemize{
 \item \code{setWrapperActive}: set wrapper activity status to on
+
+\item \code{setWrapperInactive}: set wrapper activity status to off
 }}
 
 \author{
