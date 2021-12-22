@@ -67,11 +67,14 @@
 #' @param .cfgchecks boolean deciding whether the given inputs to setConfig should be checked for
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)
-#' @param .wrappercheck boolean (de)activating a check whether the function is called from within one of the
-#' madrat wrapper (\code{readSource}, \code{calcOutput}, ...) or not. Do not use this setting except you know
-#' exactly what you are doing! Should be kept TRUE in nearly all cases!
 #' @param .verbose boolean deciding whether status information/updates should be shown or not
 #' @param .local boolean deciding whether options are only changed until the end of the current function execution
+#' OR environment for which the options should get changed.
+#' @note \code{setConfig} must only be used before the data processing is started and changes in the configuration
+#' from within a download-, read-, correct-, convert-, calc-, or full-function are not allowed! Only allowed
+#' configuration update is to add another \code{extramapping} via \code{\link{addMapping}}.
+#' Currently use of \code{setConfig} within any of these functions will trigger a warning, which is planned
+#' to be converted into an error message in one of the next package updates!
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{getISOlist}}
 #' @examples
@@ -101,13 +104,27 @@ setConfig <- function(regionmapping = NULL,
                       debug = NULL,
                       maxLengthLogMessage = NULL,
                       .cfgchecks = TRUE,
-                      .wrappercheck = TRUE,
                       .verbose = TRUE,
                       .local = FALSE) {
 
-  .wrapperCheck(check = .wrappercheck, args = as.list(match.call())[-1])
+  if(isWrapperActive("wrapperChecks")) {
+    for (w in c("downloadSource", "readSource", "calcOutput", "retrieveData")) {
+      if (isWrapperActive(w)) {
+        warning("setConfig must not be used from within ", w, "!")
+        break
+      }
+    }
+  }
+  setWrapperInactive("wrapperChecks")
 
-  cfg <- getConfig(raw = TRUE, verbose = .verbose, wrappercheck = FALSE)
+  cfg <- getConfig(raw = TRUE, verbose = .verbose)
+
+  if(is.environment(.local)) {
+    .local_envir <- .local
+    .local <- TRUE
+  } else {
+    .local_envir <- parent.frame()
+  }
 
   firstsetting <- TRUE
   info <- NULL
@@ -165,7 +182,7 @@ setConfig <- function(regionmapping = NULL,
   }
   if (.local) {
     # change options until the function calling this function exits
-    local_options(madrat_cfg = cfg, .local_envir = parent.frame())
+    local_options(madrat_cfg = cfg, .local_envir = .local_envir)
   } else {
     options(madrat_cfg = cfg) # nolint
   }
@@ -175,22 +192,3 @@ setConfig <- function(regionmapping = NULL,
   }
 }
 
-.wrapperCheck <- function(check, args) {
-  if (!check || !isWrapperActive("wrapperChecks")) return()
-  for (w in c("downloadSource", "readSource", "calcOutput")) {
-    if (isWrapperActive(w)) {
-      warning("setConfig must not be used from within ", w, "!")
-      break
-    }
-  }
-  if (isWrapperActive("retrieveData")) {
-    allowedArgs <- c("extramappings")
-    args <- args[!grepl("^\\.", names(args)) & !vapply(args, is.null, logical(1))]
-    updatedArgs <- names(args)
-    forbiddenUpdates <- setdiff(updatedArgs, allowedArgs)
-    if (length(forbiddenUpdates) > 0) {
-      warning("setConfig must not change \"", paste(forbiddenUpdates, collapse = "\", \""),
-              "\" from within retrieveData!")
-    }
-  }
-}

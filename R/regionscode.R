@@ -39,6 +39,8 @@ regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
     }
     mapping <- toolGetMapping(mapping, "regional")
   }
+  
+  row.names(mapping) <- NULL
 
   if (strict) {
     # remove first column if data has 3 or more columns

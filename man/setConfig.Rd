@@ -25,7 +25,6 @@ setConfig(
   debug = NULL,
   maxLengthLogMessage = NULL,
   .cfgchecks = TRUE,
-  .wrappercheck = TRUE,
   .verbose = TRUE,
   .local = FALSE
 )
@@ -111,13 +110,10 @@ is shorter than this value, otherwise arguments are shown as passed, potentially
 consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 in regular cases)}
 
-\item{.wrappercheck}{boolean (de)activating a check whether the function is called from within one of the
-madrat wrapper (\code{readSource}, \code{calcOutput}, ...) or not. Do not use this setting except you know
-exactly what you are doing! Should be kept TRUE in nearly all cases!}
-
 \item{.verbose}{boolean deciding whether status information/updates should be shown or not}
 
-\item{.local}{boolean deciding whether options are only changed until the end of the current function execution}
+\item{.local}{boolean deciding whether options are only changed until the end of the current function execution
+OR environment for which the options should get changed.}
 }
 \description{
 This function manipulates the current madrat configuration.
@@ -125,6 +121,13 @@ In general, NULL means that the argument remains as it is whereas
 all other inputs will overwrite the current setting.
 For values which can be reset to NULL (currently only "extramappings")
 you can achieve a reset by setting the value to "".
+}
+\note{
+\code{setConfig} must only be used before the data processing is started and changes in the configuration
+from within a download-, read-, correct-, convert-, calc-, or full-function are not allowed! Only allowed
+configuration update is to add another \code{extramapping} via \code{\link{addMapping}}.
+Currently use of \code{setConfig} within any of these functions will trigger a warning, which is planned
+to be converted into an error message in one of the next package updates!
 }
 \examples{
 \dontrun{

@@ -4,13 +4,7 @@
 \alias{getConfig}
 \title{getConfig}
 \usage{
-getConfig(
-  option = NULL,
-  raw = FALSE,
-  verbose = TRUE,
-  print = FALSE,
-  wrappercheck = TRUE
-)
+getConfig(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
 }
 \arguments{
 \item{option}{The option for which the setting should be returned. If set to
@@ -25,10 +19,6 @@ stored.}
 \item{verbose}{boolean deciding whether status information/updates should be shown or not}
 
 \item{print}{if TRUE and verbose is TRUE a configuration overview will also get printed}
-
-\item{wrappercheck}{boolean (de)activating a check whether the function is called from within one of the
-madrat wrapper (\code{readSource}, \code{calcOutput}, ...) or not. Do not use this setting except you know
-exactly what you are doing! Should be kept TRUE in nearly all cases!}
 }
 \value{
 A config list with all settings currently set for the madrat package
@@ -37,6 +27,26 @@ A config list with all settings currently set for the madrat package
 This function returns the madrat config which is currently loaded. If no
 configuration has been loaded so far the configuration will be initialized
 with default settings or system settings (if available).
+}
+\note{
+\code{getConfig} is primarily designed to make the overall madrat
+configuration available to system tools of the madrat framework. There are
+only a few exceptions for which configuration settings are also readable
+from within a download-, read-, convert-, correct-, calc- or full-function.
+These expections are the setting "debug" (which can be used to add additional
+debug messages when active), the the setting "hash" (which can only be accessed
+from within a full function and can there be used to apply the identical hash
+algorithm for other calculations in which hashing is being used).
+Besides that "regionmapping" and "extramappings" can also be read from within
+calc- and full-functions but their use is at least for the calc-functions
+discouraged as it has negative implications for the caching (cache files might 
+get unusable) and might significantly slow down overall calculations.
+All other settings are currently still accessible but trigger a warning that
+this option will soon be removed. So, please make sure that your code runs 
+without reading these options!
+As a background note: Read access to these settings will be restricted as they
+otherwise would allow access to code elements or data in a form which is 
+violating the overall madrat logic and thereby can lead to erroneous results.
 }
 \seealso{
 \code{\link{setConfig}}, \code{\link{initializeConfig}}

@@ -27,19 +27,22 @@
 #' }
 #' outerFunction()
 toolstartmessage <- function(functionName, argumentValues, level = NULL) {
+  
+  setWrapperInactive("wrapperChecks")
+  
   nonDefaultArguments <- getNonDefaultArguments(functionName, argumentValues)
   argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
 
   callWithEvaluatedArgs <- paste0(functionName, "(", argsString, ")")
-  if (nchar(callWithEvaluatedArgs) <= getConfig("maxLengthLogMessage", wrappercheck = FALSE)) {
+  if (nchar(callWithEvaluatedArgs) <= getConfig("maxLengthLogMessage")) {
     functionCallString <- callWithEvaluatedArgs
     hint <- ""
   } else {
     functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
-    if (nchar(functionCallString) > getConfig("maxLengthLogMessage", wrappercheck = FALSE)) {
+    if (nchar(functionCallString) > getConfig("maxLengthLogMessage")) {
       functionCallString <- paste0(substr(callWithEvaluatedArgs, 1,
-                                          getConfig("maxLengthLogMessage", wrappercheck = FALSE) - 3), "...")
+                                          getConfig("maxLengthLogMessage") - 3), "...")
     }
     hint <- paste0(" -- to print all evaluated arguments: setConfig(maxLengthLogMessage = ",
                    nchar(callWithEvaluatedArgs), ")")

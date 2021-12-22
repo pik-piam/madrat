@@ -1,7 +1,8 @@
 #' isWrapperActive
 #'
-#' Support function which checks whether a given wrapper function is currently in-use
-#' or not.
+#' Support functions which checks whether a given wrapper function is currently in-use
+#' or not or which locally activate or deactivate a wrapper (setting will be
+#' automatically resetted when a function finishes).
 #'
 #' @param name name of the wrapper in question (e.g. "calcOutput")
 #' @author Jan Philipp Dietrich

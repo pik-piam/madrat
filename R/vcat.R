@@ -32,8 +32,9 @@
 #' @importFrom utils capture.output
 vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
                  show_prefix = TRUE) { # nolint
-  # write output based on set verbosity level
-
+  
+  setWrapperInactive("wrapperChecks")
+  
   if (!is.null(level)) {
     if (level == 0) {
       options(gdt_nestinglevel = NULL) # nolint
@@ -44,11 +45,11 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
     }
   }
 
-  d <- getConfig("diagnostics", wrappercheck = FALSE)
+  d <- getConfig("diagnostics")
   if (is.character(d)) {
     writelog <- TRUE
-    logfile <- paste0(getConfig("outputfolder", wrappercheck = FALSE), "/", d, ".log")
-    fulllogfile <- paste0(getConfig("outputfolder", wrappercheck = FALSE), "/", d, "_full.log")
+    logfile <- paste0(getConfig("outputfolder"), "/", d, ".log")
+    fulllogfile <- paste0(getConfig("outputfolder"), "/", d, "_full.log")
   } else {
     writelog <- FALSE
   }
@@ -58,7 +59,7 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
     base::cat(c(prefix, ...), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
               file = fulllogfile, append = TRUE)
   }
-  if (getConfig("verbosity", wrappercheck = FALSE) >= verbosity) {
+  if (getConfig("verbosity") >= verbosity) {
     if (writelog && dir.exists(dirname(logfile))) {
       base::cat(c(prefix, ...), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
                 file = logfile, append = TRUE)

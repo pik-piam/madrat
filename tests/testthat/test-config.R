@@ -30,3 +30,20 @@ test_that("main folder setting works", {
   expect_identical(basename(madrat:::getMainfolder(.testmode = TRUE)), "testmaindir")
   expect_identical(basename(madrat:::getMainfolder()), "testmaindir")
 })
+
+test_that("addMapping works", {
+  expect_null(getConfig("extramappings"))
+  addMapping("regionmappingH12.csv")
+  expect_identical(getConfig("extramappings"), "regionmappingH12.csv")
+  map <- toolGetMapping("regionmappingH12.csv")
+  addMapping("test.rds", map)
+  expect_identical(getConfig("extramappings"), c("regionmappingH12.csv", "test.rds"))
+  expect_silent(map2 <- toolGetMapping("test.rds", type = "regional"))
+  expect_identical(map, map2)
+  expect_error(addMapping("test.blablub", map), "Unsupported filetype")
+  expect_error(addMapping("blablub.csv", TRUE), "Cannot handle this mapping format")
+  
+  
+  
+  
+})

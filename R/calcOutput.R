@@ -95,7 +95,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
       dir.create(getConfig("cachefolder"), recursive = TRUE)
   }
 
-  if (!is.null(regionmapping)) setConfig(regionmapping = regionmapping, .local = TRUE, .wrappercheck = FALSE)
+  if (!is.null(regionmapping)) setConfig(regionmapping = regionmapping, .local = TRUE)
 
   # read region mappings check settings for aggregate
   if (aggregate != FALSE) {
@@ -251,9 +251,10 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     }
   }
   if (is.null(x)) {
+    debugMode <- getConfig("debug")
     setWrapperActive("wrapperChecks")
     vcat(2, " - execute function ", functionname, show_prefix = FALSE)
-    if (try || getConfig("debug", wrappercheck = FALSE) == TRUE) {
+    if (try || debugMode == TRUE) {
       x <- try(eval(parse(text = functionname)), silent = TRUE)
       if ("try-error" %in% class(x)) {
         vcat(0, as.character(attr(x, "condition")))

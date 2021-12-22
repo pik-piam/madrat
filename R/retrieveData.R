@@ -132,7 +132,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
       regionmapping = paste0(regionscode, ".csv"),
       outputfolder = sourcefolder,
       diagnostics = "diagnostics",
-      .wrappercheck = FALSE,
       .local = TRUE
     )
 
@@ -140,7 +139,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
       setConfig(
         cachefolder = file.path(getConfig("mainfolder"), "cache", paste0("rev", rev, dev)),
         forcecache = TRUE,
-        .wrappercheck = FALSE,
         .local = TRUE
       )
     }

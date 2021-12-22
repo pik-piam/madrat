@@ -18,11 +18,13 @@
 #' madrat:::cacheArgumentsHash(calls, args = list(subtype = "historical"))
 #' @importFrom digest digest
 cacheArgumentsHash <- function(call, args = NULL) {
+  setWrapperInactive("wrapperChecks")
+  
   nonDefaultArguments <- getNonDefaultArguments(call, args)
   nonDefaultArguments <- nonDefaultArguments[robustOrder(names(nonDefaultArguments))]
 
   if (length(nonDefaultArguments) == 0) {
     return(NULL)
   }
-  return(paste0("-", digest(nonDefaultArguments, algo = getConfig("hash", wrappercheck = FALSE))))
+  return(paste0("-", digest(nonDefaultArguments, algo = getConfig("hash"))))
 }
