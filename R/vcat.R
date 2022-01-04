@@ -68,12 +68,12 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
       base::stop(..., call. = FALSE)
     } else if (verbosity == 0) {
       base::warning(..., call. = FALSE)
-      message(paste(capture.output(base::cat(c(prefix, ...),
+      base::message(paste(capture.output(base::cat(c(prefix, ...),
         fill = fill, sep = "",
         labels = getOption("gdt_nestinglevel")
       )), collapse = "\n"))
     } else {
-      message(paste(capture.output(base::cat(c(prefix, ...),
+      base::message(paste(capture.output(base::cat(c(prefix, ...),
         fill = fill, sep = "",
         labels = getOption("gdt_nestinglevel")
       )), collapse = "\n"))
@@ -87,18 +87,7 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
   }
 }
 
-# create an own warning function which redirects calls to vcat (package internal)
-warning <- function(...) {
-  vcat(0, ...)
-}
-
-# create an own stop function which redirects calls to stop (package internal)
-stop <- function(...) {
-  vcat(-1, ...)
-}
-
-
-# create an own cat function which redirects calls to cat (package internal)
-cat <- function(...) {
-  vcat(1, ...)
-}
+# redirect standard messaging functions to vcat
+cat     <- function(...) vcat(1, ...)
+warning <- function(...) vcat(0, ...)
+stop    <- function(...) vcat(-1, ...)
