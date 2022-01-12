@@ -4,22 +4,22 @@
 \alias{addMapping}
 \title{addMapping}
 \usage{
-addMapping(name, mapping = NULL)
+addMapping(filename, mapping = NULL)
 }
 \arguments{
-\item{name}{The name of the the region mapping that should added including
+\item{filename}{The name of the the region mapping that should added including
 file ending (e.g. "regionmappingREMIND.csv"). Supported formats are currently
 ".csv" and ".rds".}
 
-\item{mapping}{Mapping provided as magpie object, or NULL. If a mapping is
-provided the data will be written in the mapping file of the given file. If
-not provided (set to NULL) and existing mapping file with the given name is
-being looked for and used.}
+\item{mapping}{Mapping provided as data.frame, or NULL. If a mapping is
+provided the data will be written in the mapping file of the given file
+(potentially replacing existing data). If NULL the mapping from the given
+file is used.}
 }
 \description{
 Function whichs adds another mapping to the current list of extramappings
 in the madrat configuration (see \code{\link{setConfig}}) and stores
-the mapping in the mapping as well as output folder.
+the mapping in the mapping folder as well as output folder.
 }
 \examples{
 \dontrun{

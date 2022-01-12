@@ -26,17 +26,17 @@ setWrapperInactive <- function(name) {
 }
 
 .readWrapperStatus <- function(name = NULL) {
-  wrapper <- list(downloadSource = FALSE,
+  wrapperStatus <- list(downloadSource = FALSE,
                       readSource = FALSE,
                       calcOutput = FALSE,
                     retrieveData = FALSE,
                    wrapperChecks = TRUE)
   wrapperActive <- getOption("madrat_wrapperActive")
   if (is.null(wrapperActive)) {
-    wrapperActive <- wrapper
+    wrapperActive <- wrapperStatus
   } else {
-    for (n in names(wrapper)) {
-      if (!is.logical(wrapperActive[[n]])) wrapperActive[[n]] <- wrapper[[n]]
+    for (n in names(wrapperStatus)) {
+      if (!is.logical(wrapperActive[[n]])) wrapperActive[[n]] <- wrapperStatus[[n]]
     }
   }
   if (!is.null(name) && !(name %in% names(wrapperActive))) stop("Unknown wrapper \"", name, "\"!")

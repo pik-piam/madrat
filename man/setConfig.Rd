@@ -126,7 +126,7 @@ you can achieve a reset by setting the value to "".
 \code{setConfig} must only be used before the data processing is started and changes in the configuration
 from within a download-, read-, correct-, convert-, calc-, or full-function are not allowed! Only allowed
 configuration update is to add another \code{extramapping} via \code{\link{addMapping}}.
-Currently use of \code{setConfig} within any of these functions will trigger a warning, which is planned
+Currently the use of \code{setConfig} within any of these functions will trigger a warning, which is planned
 to be converted into an error message in one of the next package updates!
 }
 \examples{

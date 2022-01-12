@@ -2,15 +2,15 @@
 #'
 #' Function whichs adds another mapping to the current list of extramappings
 #' in the madrat configuration (see \code{\link{setConfig}}) and stores
-#' the mapping in the mapping as well as output folder.
+#' the mapping in the mapping folder as well as output folder.
 #'
-#' @param name The name of the the region mapping that should added including
+#' @param filename The name of the the region mapping that should added including
 #' file ending (e.g. "regionmappingREMIND.csv"). Supported formats are currently
 #' ".csv" and ".rds".
-#' @param mapping Mapping provided as magpie object, or NULL. If a mapping is
-#' provided the data will be written in the mapping file of the given file. If
-#' not provided (set to NULL) and existing mapping file with the given name is
-#' being looked for and used.
+#' @param mapping Mapping provided as data.frame, or NULL. If a mapping is
+#' provided the data will be written in the mapping file of the given file
+#' (potentially replacing existing data). If NULL the mapping from the given
+#' file is used.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}
 #' @examples
@@ -18,20 +18,20 @@
 #' addMapping("regionmappingH12.csv")
 #' }
 #' @export
-addMapping <- function(name, mapping = NULL) {
+addMapping <- function(filename, mapping = NULL) {
 
  setWrapperInactive("wrapperChecks")
 
  if (is.null(mapping)) {
-   mapping <- toolGetMapping(name, type = "regional")
+   mapping <- toolGetMapping(filename, type = "regional")
  } else if (!is.data.frame(mapping)) {
    stop("Cannot handle this mapping format!")
  }
 
- fnames <- c(file.path(getConfig("mappingfolder"), "regional", name),
-             file.path(getConfig("outputfolder"), name))
+ fnames <- c(file.path(getConfig("mappingfolder"), "regional", filename),
+             file.path(getConfig("outputfolder"), filename))
 
- filetype <- tolower(file_ext(name))
+ filetype <- tolower(file_ext(filename))
 
  for (fname in fnames) {
    d <- dirname(fname)
@@ -44,5 +44,5 @@ addMapping <- function(name, mapping = NULL) {
      stop("Unsupported filetype \"", filetype, "\"")
    }
  }
- setConfig(extramappings = unique(c(getConfig("extramappings"), name)), .local = parent.frame(2))
+ setConfig(extramappings = unique(c(getConfig("extramappings"), filename)), .local = parent.frame(2))
 }
