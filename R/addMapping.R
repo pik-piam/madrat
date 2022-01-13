@@ -44,5 +44,6 @@ addMapping <- function(filename, mapping = NULL) {
      stop("Unsupported filetype \"", filetype, "\"")
    }
  }
- setConfig(extramappings = unique(c(getConfig("extramappings"), filename)), .local = parent.frame(2))
+ setConfig(extramappings = unique(c(getConfig("extramappings"), filename)), .local = parent.frame())
+
 }
