@@ -74,7 +74,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
 
   # get default mapping if no mapping is defined
   if (is.null(regionmapping)) {
-    map <- toolGetMapping(getConfig("regionmapping"), "regional")
+    map <- toolGetMapping("regionmappingH12.csv", where = "madrat")
   } else {
     map <- regionmapping
   }

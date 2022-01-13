@@ -31,6 +31,16 @@
 #' @export
 regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
 
+  if (isWrapperActive("wrapperChecks")) {
+    for (w in c("downloadSource", "readSource", "calcOutput")) {
+      if (isWrapperActive(w)) {
+        warning("'regionscode' must not be used from within ", w, "!")
+        break
+      }
+    }
+  }
+  setWrapperInactive("wrapperChecks")
+
   if (is.null(mapping)) mapping <- getConfig("regionmapping")
 
   if (is.character(mapping)) {
@@ -39,6 +49,8 @@ regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
     }
     mapping <- toolGetMapping(mapping, "regional")
   }
+
+  row.names(mapping) <- NULL
 
   if (strict) {
     # remove first column if data has 3 or more columns

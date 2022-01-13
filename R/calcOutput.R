@@ -88,6 +88,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
                        append = FALSE, na_warning = TRUE, try = FALSE, regionmapping = NULL, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
+  setWrapperActive("calcOutput")
+  setWrapperInactive("wrapperChecks")
+
   if (!dir.exists(getConfig("cachefolder"))) {
       dir.create(getConfig("cachefolder"), recursive = TRUE)
   }
@@ -248,8 +251,10 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     }
   }
   if (is.null(x)) {
+    debugMode <- getConfig("debug")
+    setWrapperActive("wrapperChecks")
     vcat(2, " - execute function ", functionname, show_prefix = FALSE)
-    if (try || getConfig("debug") == TRUE) {
+    if (try || debugMode) {
       x <- try(eval(parse(text = functionname)), silent = TRUE)
       if ("try-error" %in% class(x)) {
         vcat(0, as.character(attr(x, "condition")))
@@ -258,6 +263,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     } else {
       x <- eval(parse(text = functionname))
     }
+    setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname)
     cachePut(x, prefix = "calc", type = type, args = args)
   }

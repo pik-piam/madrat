@@ -28,6 +28,9 @@
 toolGetMapping <- function(name, type = NULL, where = NULL,
                            error.missing = TRUE, # nolint
                            returnPathOnly = FALSE, activecalc = NULL) {
+
+  setWrapperInactive("wrapperChecks")
+
   if (is.null(where)) {
     mf <- getConfig("mappingfolder")
     fname <- paste0(mf, "/", type, "/", name)

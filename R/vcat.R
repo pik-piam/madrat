@@ -32,14 +32,15 @@
 #' @importFrom utils capture.output
 vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
                  show_prefix = TRUE) { # nolint
-  # write output based on set verbosity level
+
+  setWrapperInactive("wrapperChecks")
 
   if (!is.null(level)) {
     if (level == 0) {
       options(gdt_nestinglevel = NULL) # nolint
     } else if (level == "-") {
       # remove empty space
-      options(gdt_nestinglevel = substring(getOption("gdt_nestinglevel"), 2)) #nolint
+      options(gdt_nestinglevel = substring(getOption("gdt_nestinglevel"), 2)) # nolint
       if (getOption("gdt_nestinglevel") == "") options(gdt_nestinglevel = NULL) # nolint
     }
   }
@@ -67,12 +68,12 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
       base::stop(..., call. = FALSE)
     } else if (verbosity == 0) {
       base::warning(..., call. = FALSE)
-      message(paste(capture.output(base::cat(c(prefix, ...),
+      base::message(paste(capture.output(base::cat(c(prefix, ...),
         fill = fill, sep = "",
         labels = getOption("gdt_nestinglevel")
       )), collapse = "\n"))
     } else {
-      message(paste(capture.output(base::cat(c(prefix, ...),
+      base::message(paste(capture.output(base::cat(c(prefix, ...),
         fill = fill, sep = "",
         labels = getOption("gdt_nestinglevel")
       )), collapse = "\n"))
@@ -81,23 +82,12 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
 
   if (!is.null(level)) {
     if (level == "+") {
-      options(gdt_nestinglevel = paste0(getConfig("indentationCharacter"), getOption("gdt_nestinglevel"))) # nolint
+      options(gdt_nestinglevel = paste0("~", getOption("gdt_nestinglevel"))) # nolint
     }
   }
 }
 
-# create an own warning function which redirects calls to vcat (package internal)
-warning <- function(...) {
-  vcat(0, ...)
-}
-
-# create an own stop function which redirects calls to stop (package internal)
-stop <- function(...) {
-  vcat(-1, ...)
-}
-
-
-# create an own cat function which redirects calls to cat (package internal)
-cat <- function(...) {
-  vcat(1, ...)
-}
+# redirect standard messaging functions to vcat
+cat     <- function(...) vcat(1, ...)
+warning <- function(...) vcat(0, ...)
+stop    <- function(...) vcat(-1, ...)

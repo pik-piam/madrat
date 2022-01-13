@@ -16,17 +16,13 @@ setConfig(
   cachefolder = NULL,
   mappingfolder = NULL,
   outputfolder = NULL,
-  pop_threshold = NULL,
   nolabels = NULL,
   forcecache = NULL,
   ignorecache = NULL,
   cachecompression = NULL,
   hash = NULL,
-  delete_cache = NULL,
   diagnostics = NULL,
-  nocores = NULL,
   debug = NULL,
-  indentationCharacter = NULL,
   maxLengthLogMessage = NULL,
   .cfgchecks = TRUE,
   .verbose = TRUE,
@@ -47,9 +43,8 @@ read and calc functions should be searched for}
 \item{globalenv}{Boolean deciding whether sources/calculations in the global
 environment should be included or not}
 
-\item{enablecache}{Boolean deciding whether data should be read from cache
-if data is available and the up-to-date (data will always be written to the
-cache regardless of this setting)}
+\item{enablecache}{Is deprecated and will be ignored. Please use
+\code{ignorecache} instead.}
 
 \item{verbosity}{an integer value describing the verbosity of the functions
 (2 = full information, 1 = only warnings and execution information, 0 = only
@@ -76,12 +71,6 @@ meaning that the default folder should be used which is
 default case this argument is set to NA meaning that the default folder
 should be used which is <mainfolder>/output}
 
-\item{pop_threshold}{Population threshold in capita which determines whether
-the country is put into the "important" or "dispensable" class in
-\code{\link{getISOlist}}. This distinction is used for different treatment
-of countries in notifications to set a focus on rather critical issues
-instead of flooding the user with information.}
-
 \item{nolabels}{vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 which should NOT apply a replacement of known hashes with given code labels}
 
@@ -102,14 +91,10 @@ use compression. TRUE corresponds to gzip compression, and character strings "gz
 \item{hash}{specifies the used hashing algorithm. Default is "xxhash32" and
 all algorithms supported by \code{\link[digest]{digest}} can be used.}
 
-\item{delete_cache}{Boolean deciding whether a temporary cache folder (as
-created by retrieveInput) should be deleted after completion or not.}
-
-\item{diagnostics}{file name for additional diagnostics information (without file ending).
+\item{diagnostics}{Either FALSE (default) to avoid the creation of additional
+log files or a file name for additional diagnostics information (without file ending).
 2 log files are written if a file name is provided (a compact version with the most
 relevant information and a full version with all available details).}
-
-\item{nocores}{integer number of cores to use}
 
 \item{debug}{Boolean which activates a debug mode. In debug mode all calculations will
 be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
@@ -117,8 +102,6 @@ This can be helpful to get a full picture of errors rather than only seeing the 
 debug=TRUE will add the suffix "debug" to the files created to avoid there use in productive runs.
 Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file
 already exists.}
-
-\item{indentationCharacter}{character used for indenting the output of nested function calls}
 
 \item{maxLengthLogMessage}{in log messages evaluated arguments are printed if the resulting message
 is shorter than this value, otherwise arguments are shown as passed, potentially  with unevaluated variable names}
@@ -129,7 +112,8 @@ in regular cases)}
 
 \item{.verbose}{boolean deciding whether status information/updates should be shown or not}
 
-\item{.local}{boolean deciding whether options are only changed until the end of the current function execution}
+\item{.local}{boolean deciding whether options are only changed until the end of the current function execution
+OR environment for which the options should get changed.}
 }
 \description{
 This function manipulates the current madrat configuration.
@@ -137,6 +121,13 @@ In general, NULL means that the argument remains as it is whereas
 all other inputs will overwrite the current setting.
 For values which can be reset to NULL (currently only "extramappings")
 you can achieve a reset by setting the value to "".
+}
+\note{
+\code{setConfig} must only be used before the data processing is started and changes in the configuration
+from within a download-, read-, correct-, convert-, calc-, or full-function are not allowed! Only allowed
+configuration update is to add another \code{extramapping} via \code{\link{addMapping}}.
+Currently the use of \code{setConfig} within any of these functions will trigger a warning, which is planned
+to be converted into an error message in one of the next package updates!
 }
 \examples{
 \dontrun{

@@ -44,9 +44,14 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     do.call(setConfig, c(inargs[tmp], list(.local = TRUE)))
   }
 
+  setWrapperActive("retrieveData")
+  setWrapperInactive("wrapperChecks")
+
   # receive function name and function
   functionname <- prepFunctionName(type = toupper(model), prefix = "full")
+  setWrapperActive("wrapperChecks")
   functiononly <- eval(parse(text = sub("\\(.*$", "", functionname)))
+  setWrapperInactive("wrapperChecks")
 
   # are all arguments used somewhere? -> error
   tmp <- (names(inargs) %in% union(formalArgs(setConfig), formalArgs(functiononly)))

@@ -4,13 +4,17 @@
 \alias{getISOlist}
 \title{get official ISO list}
 \usage{
-getISOlist(type = "all")
+getISOlist(type = "all", threshold = 1)
 }
 \arguments{
 \item{type}{Determines what countries should be returned. "all" returns all
 countries, "important" returns all countries which are above the population
 threshold set in the configuration and "dispensable" returns all countries
 which are below the threshold.}
+
+\item{threshold}{Population threshold in million capita which determines whether
+the country is put into the "important" or "dispensable" class
+(default = 1 mio. people)}
 }
 \value{
 vector of default ISO country codes.
@@ -28,7 +32,6 @@ object as the format in this data list might change in the future!
 
 head(getISOlist())
 head(getISOlist("dispensable"))
-
 }
 \seealso{
 \code{\link{getSources}}, \code{\link{getCalculations}}

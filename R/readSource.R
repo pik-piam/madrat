@@ -29,6 +29,10 @@
 #' @export
 readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
+
+  setWrapperActive("readSource")
+  setWrapperInactive("wrapperChecks")
+
   local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
   defer({
@@ -105,8 +109,11 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
 
     with_dir(sourcefolder, {
       functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
+      setWrapperActive("wrapperChecks")
       x <- eval(parse(text = functionname))
+      setWrapperInactive("wrapperChecks")
     })
+
     if (!is.magpie(x)) {
       stop('Output of function "', functionname, '" is not a MAgPIE object!')
     }

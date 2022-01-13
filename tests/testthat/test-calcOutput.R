@@ -111,7 +111,7 @@ test_that("Calculation for tau example data set works", {
   skip_if_offline("zenodo.org")
   sink(tempfile())
   require(magclass)
-  setConfig(enablecache = TRUE, forcecache = FALSE, verbosity = 2, mainfolder = tempdir(), .local = TRUE)
+  setConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2, mainfolder = tempdir(), .local = TRUE)
   expectedResult <- new("magpie",
                          .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
                                            .Dim = c(12L, 1L, 1L),
