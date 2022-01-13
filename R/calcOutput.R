@@ -254,7 +254,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     debugMode <- getConfig("debug")
     setWrapperActive("wrapperChecks")
     vcat(2, " - execute function ", functionname, show_prefix = FALSE)
-    if (try || debugMode == TRUE) {
+    if (try || debugMode) {
       x <- try(eval(parse(text = functionname)), silent = TRUE)
       if ("try-error" %in% class(x)) {
         vcat(0, as.character(attr(x, "condition")))
