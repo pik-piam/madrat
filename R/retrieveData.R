@@ -45,6 +45,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   }
 
   setWrapperActive("retrieveData")
+  setWrapperActive("saveCache")
   setWrapperInactive("wrapperChecks")
 
   # receive function name and function
