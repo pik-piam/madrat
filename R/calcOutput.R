@@ -91,6 +91,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   setWrapperActive("calcOutput")
   setWrapperInactive("wrapperChecks")
 
+  
+  if (isWrapperActive("saveCache")) {
+    # ARGS NOT YET AVAILABLE
+    cacheName(prefix = "calc", type = type, args = args)
+    setWrapperInactive("saveCache")
+  }
+  
   if (!dir.exists(getConfig("cachefolder"))) {
       dir.create(getConfig("cachefolder"), recursive = TRUE)
   }
