@@ -27,7 +27,8 @@
 #' }
 #' @importFrom methods formalArgs
 #' @importFrom utils sessionInfo tar
-#' @importFrom withr with_dir
+#' @importFrom withr with_dir with_tempdir
+#' @importFrom yaml write_yaml
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
@@ -129,6 +130,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     }
     # copy mapping to output folder
     try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
+    try(write_yaml(argumentValues, file.path(sourcefolder, "config.yml")))
     setConfig(
       regionmapping = paste0(regionscode, ".csv"),
       outputfolder = sourcefolder,
@@ -179,6 +181,22 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
     }
 
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
+
+    if(file.exists(file.path(sourcefolder,"files2save"))) {
+      bundleName <- paste0(
+        "rev", rev, dev, "_bundle_", argsHash, tolower(model),
+        ifelse(getConfig("debug") == TRUE, "_debug", ""), ".tgz"
+      )
+  
+      with_tempdir({
+        cacheFiles <- readLines(file.path(sourcefolder, "files2save"))
+        unlink(file.path(sourcefolder, "files2save"))
+        file.copy(cacheFiles, ".")
+        otherFiles <- c("config.yml", "diagnostics.log", "diagnostics_full.log")
+        file.copy(file.path(sourcefolder, otherFiles), ".")
+        suppressWarnings(tar(file.path(sourcefolder, "..", bundleName), compression = "gzip"))
+      })
+    }
 
     with_dir(sourcefolder, {
       suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip"))
