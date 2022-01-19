@@ -275,7 +275,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
 
   if (saveCache) {
    write(cacheName(prefix = "calc", type = type, args = args),
-         file = "files2save", append = TRUE)
+         file = "bundleFiles", append = TRUE)
   }
 
 

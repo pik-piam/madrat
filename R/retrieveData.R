@@ -30,7 +30,7 @@
 #' @importFrom withr with_dir with_tempdir
 #' @importFrom yaml write_yaml
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   if (!(cachetype %in% c("rev", "def"))) {
@@ -182,20 +182,27 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
 
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
-    if(file.exists(file.path(sourcefolder,"files2save"))) {
+    vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
+    bundleFiles <- file.path(sourcefolder, "bundleFiles")
+    if (file.exists(bundleFiles)) {
+      vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
       bundleName <- paste0(
         "rev", rev, dev, "_bundle_", argsHash, tolower(model),
         ifelse(getConfig("debug") == TRUE, "_debug", ""), ".tgz"
       )
-  
-      with_tempdir({
-        cacheFiles <- readLines(file.path(sourcefolder, "files2save"))
-        unlink(file.path(sourcefolder, "files2save"))
-        file.copy(cacheFiles, ".")
-        otherFiles <- c("config.yml", "diagnostics.log", "diagnostics_full.log")
-        file.copy(file.path(sourcefolder, otherFiles), ".")
-        suppressWarnings(tar(file.path(sourcefolder, "..", bundleName), compression = "gzip"))
-      })
+      bundlePath <- file.path(sourcefolder, "..", bundleName)
+      if (!file.exists(bundlePath)) {
+        vcat(2, " - create bundle (", bundlePath, ")", fill = 300, show_prefix = FALSE)
+        with_tempdir({
+          cacheFiles <- readLines(bundleFiles)
+          file.copy(cacheFiles, ".")
+          otherFiles <- c("config.yml", "diagnostics.log", "diagnostics_full.log")
+          file.copy(file.path(sourcefolder, otherFiles), ".")
+          suppressWarnings(tar(bundlePath, compression = "gzip"))
+        })
+      }
+    } else {
+      vcat(1, "Could not find list of files to be bundled")
     }
 
     with_dir(sourcefolder, {
