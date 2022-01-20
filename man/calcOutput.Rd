@@ -101,6 +101,12 @@ must return the data as magpie object in the spatial resolution as defined in re
 to the aggregation function. In addition to the arguments set here, the function will be
 supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
 also \code{weight} and \code{mixed_aggregation}.
+\item \bold{bundle} (optional) boolean which decides whether this calculation should be added to the data bundle
+which contains non-aggregated data and can be used to later on aggregate the data to resolutions of own choice.
+If not set \code{calcOutput} will try to determine automatically, whether a file is being required for the bundle
+or not, but in more complex cases (e.g. if calculations below top-level have to be run as well) this setting can
+be used to manually tweak the bundle file list. CAUTION: Incorrect settings will cause corrupt bundle packages,
+so use this setting with extreme care and only if necessary.
 }
 }
 \examples{

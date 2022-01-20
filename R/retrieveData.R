@@ -130,7 +130,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) { # n
     }
     # copy mapping to output folder
     try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-    try(write_yaml(argumentValues, file.path(sourcefolder, "config.yml")))
+    try(write_yaml(c(package = attr(functionname, "package"), argumentValues),
+                   file.path(sourcefolder, "config.yml")))
     setConfig(
       regionmapping = paste0(regionscode, ".csv"),
       outputfolder = sourcefolder,

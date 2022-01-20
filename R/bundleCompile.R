@@ -6,7 +6,7 @@
 #'
 #'
 #' @param bundle path to a bundle file
-#' @param regionmapping region mapping to be used for aggregation. If not 
+#' @param regionmapping region mapping to be used for aggregation. If not
 #' specified the current default will be used.
 #' @param ... (Optional) Settings that should be changed in addition. NOTE:
 #' which settings can be modified varies from bundle to bundle and unsupported
@@ -22,22 +22,23 @@
 #' @importFrom utils untar
 #' @importFrom yaml read_yaml
 #' @export
-bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ...) { 
+bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ...) {
   extraArgs <- list(...)
   if (length(extraArgs) > 0) stop("Not yet supported!")
 
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
   startinfo <- toolstartmessage("bundleCompile", argumentValues, 0)
-  
+
   setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
   bundle <- normalizePath(bundle)
-  
+
   with_tempdir({
-    untar(bundle, exdir="bundle")
+    untar(bundle, exdir = "bundle")
     cfg <- read_yaml("bundle/config.yml")
-    retrieveData(model = cfg$model, rev = cfg$rev, dev = cfg$dev, 
+    if (!is.null(cfg$package)) do.call("require", list(cfg$package))
+    retrieveData(model = cfg$model, rev = cfg$rev, dev = cfg$dev,
                  cachetype = "def", cachefolder = "./bundle")
   })
-  
+
   toolendmessage(startinfo)
 }

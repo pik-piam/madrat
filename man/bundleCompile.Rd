@@ -9,7 +9,7 @@ bundleCompile(bundle, regionmapping = getConfig("regionmapping"), ...)
 \arguments{
 \item{bundle}{path to a bundle file}
 
-\item{regionmapping}{region mapping to be used for aggregation. If not 
+\item{regionmapping}{region mapping to be used for aggregation. If not
 specified the current default will be used.}
 
 \item{...}{(Optional) Settings that should be changed in addition. NOTE:
