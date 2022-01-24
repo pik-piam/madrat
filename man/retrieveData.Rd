@@ -4,7 +4,7 @@
 \alias{retrieveData}
 \title{retrieveData}
 \usage{
-retrieveData(model, rev = 0, dev = "", cachetype = "rev", ...)
+retrieveData(model, rev = 0, dev = "", cachetype = "rev", bundle = TRUE, ...)
 }
 \arguments{
 \item{model}{The names of the model for which the data should be provided
@@ -20,6 +20,8 @@ revision. This can be useful to distinguish parallel lines of development.}
 shared by all calculations for the given revision and sets forcecache to TRUE,
 "def" points to the cache as defined in the current settings and does not change
 forcecache setting.}
+
+\item{bundle}{Boolean deciding whether a bundle tgz should be created or not}
 
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding

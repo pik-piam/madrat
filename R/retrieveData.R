@@ -14,6 +14,7 @@
 #' shared by all calculations for the given revision and sets forcecache to TRUE,
 #' "def" points to the cache as defined in the current settings and does not change
 #' forcecache setting.
+#' @param bundle Boolean deciding whether a bundle tgz should be created or not
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -28,9 +29,8 @@
 #' @importFrom methods formalArgs
 #' @importFrom utils sessionInfo tar
 #' @importFrom withr with_dir with_tempdir
-#' @importFrom yaml write_yaml
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) { # nolint
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = TRUE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   if (!(cachetype %in% c("rev", "def"))) {
@@ -130,8 +130,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) { # n
     }
     # copy mapping to output folder
     try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-    try(write_yaml(c(package = attr(functionname, "package"), argumentValues),
-                   file.path(sourcefolder, "config.yml")))
+    try(saveRDS(list(package = attr(functionname, "package"), args = argumentValues,
+                     sessionInfo = sessionInfo()),
+                   file.path(sourcefolder, "config.rds"), version = 2))
     setConfig(
       regionmapping = paste0(regionscode, ".csv"),
       outputfolder = sourcefolder,
@@ -183,27 +184,29 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) { # n
 
     vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
 
-    vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
-    bundleFiles <- file.path(sourcefolder, "bundleFiles")
-    if (file.exists(bundleFiles)) {
-      vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
-      bundleName <- paste0(
-        "rev", rev, dev, "_bundle_", argsHash, tolower(model),
-        ifelse(getConfig("debug") == TRUE, "_debug", ""), ".tgz"
-      )
-      bundlePath <- file.path(sourcefolder, "..", bundleName)
-      if (!file.exists(bundlePath)) {
-        vcat(2, " - create bundle (", bundlePath, ")", fill = 300, show_prefix = FALSE)
-        with_tempdir({
-          cacheFiles <- readLines(bundleFiles)
-          file.copy(cacheFiles, ".")
-          otherFiles <- c("config.yml", "diagnostics.log", "diagnostics_full.log")
-          file.copy(file.path(sourcefolder, otherFiles), ".")
-          suppressWarnings(tar(bundlePath, compression = "gzip"))
-        })
-      }
-    } else {
-      vcat(1, "Could not find list of files to be bundled")
+    if (bundle) {
+       vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
+       bundleFiles <- file.path(sourcefolder, "bundleFiles")
+       if (file.exists(bundleFiles)) {
+         vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
+         bundleName <- paste0(
+           "rev", rev, dev, "_bundle_", argsHash, tolower(model),
+           ifelse(getConfig("debug") == TRUE, "_debug", ""), ".tgz"
+         )
+         bundlePath <- file.path(sourcefolder, "..", bundleName)
+         if (!file.exists(bundlePath)) {
+           vcat(2, " - create bundle (", bundlePath, ")", fill = 300, show_prefix = FALSE)
+           with_tempdir({
+             cacheFiles <- readLines(bundleFiles)
+             file.copy(cacheFiles, ".")
+             otherFiles <- c("config.yml", "diagnostics.log", "diagnostics_full.log")
+             file.copy(file.path(sourcefolder, otherFiles), ".")
+             suppressWarnings(tar(bundlePath, compression = "gzip"))
+           })
+         }
+       } else {
+         vcat(1, "Could not find list of files to be bundled")
+       }
     }
 
     with_dir(sourcefolder, {

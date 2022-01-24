@@ -20,7 +20,6 @@
 #' }
 #' @importFrom withr with_tempdir
 #' @importFrom utils untar
-#' @importFrom yaml read_yaml
 #' @export
 bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ...) {
   extraArgs <- list(...)
@@ -34,9 +33,9 @@ bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ..
 
   with_tempdir({
     untar(bundle, exdir = "bundle")
-    cfg <- read_yaml("bundle/config.yml")
+    cfg <- readRDS("bundle/config.rds")
     if (!is.null(cfg$package)) do.call("require", list(cfg$package))
-    retrieveData(model = cfg$model, rev = cfg$rev, dev = cfg$dev,
+    retrieveData(model = cfg$args$model, rev = cfg$args$rev, dev = cfg$args$dev,
                  cachetype = "def", cachefolder = "./bundle")
   })
 
