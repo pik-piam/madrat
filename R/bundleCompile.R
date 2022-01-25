@@ -28,15 +28,16 @@ bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ..
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
   startinfo <- toolstartmessage("bundleCompile", argumentValues, 0)
 
-  setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
+  setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = FALSE)
   bundle <- normalizePath(bundle)
 
   with_tempdir({
     untar(bundle, exdir = "bundle")
     cfg <- readRDS("bundle/config.rds")
     if (!is.null(cfg$package)) do.call("require", list(cfg$package))
-    retrieveData(model = cfg$args$model, rev = cfg$args$rev, dev = cfg$args$dev,
-                 cachetype = "def", cachefolder = "./bundle")
+    cfg$args$cachetype <- "def"
+    cfg$args$cachefolder <- "./bundle"
+    do.call(retrieveData, cfg$args)
   })
 
   toolendmessage(startinfo)

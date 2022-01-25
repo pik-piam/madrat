@@ -190,8 +190,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
        if (file.exists(bundleFiles)) {
          vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
          bundleName <- paste0(
-           "rev", rev, dev, "_bundle_", argsHash, tolower(model),
-           ifelse(getConfig("debug") == TRUE, "_debug", ""), ".tgz"
+           "rev", rev, dev, "_", argsHash, tolower(model),
+           ifelse(getConfig("debug") == TRUE, "_debug", ""), ".bdl"
          )
          bundlePath <- file.path(sourcefolder, "..", bundleName)
          if (!file.exists(bundlePath)) {
@@ -199,7 +199,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
            with_tempdir({
              cacheFiles <- readLines(bundleFiles)
              file.copy(cacheFiles, ".")
-             otherFiles <- c("config.yml", "diagnostics.log", "diagnostics_full.log")
+             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
              file.copy(file.path(sourcefolder, otherFiles), ".")
              suppressWarnings(tar(bundlePath, compression = "gzip"))
            })
