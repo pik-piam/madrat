@@ -27,93 +27,33 @@
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #' @importFrom methods formalArgs
-#' @importFrom utils sessionInfo tar
+#' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = TRUE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
-
-  if (!(cachetype %in% c("rev", "def"))) {
-    stop("Unknown cachetype \"", cachetype, "\"!")
-  }
-
-  # extract setConfig settings and apply via setConfig
-  inargs <- list(...)
-
-  tmp <- intersect(names(inargs), formalArgs(setConfig))
-  if (length(tmp) > 0) {
-    do.call(setConfig, c(inargs[tmp], list(.local = TRUE)))
-  }
-
+  
   setWrapperActive("retrieveData")
   setWrapperActive("saveCache")
   setWrapperInactive("wrapperChecks")
-
-  # receive function name and function
-  functionname <- prepFunctionName(type = toupper(model), prefix = "full")
-  setWrapperActive("wrapperChecks")
-  functiononly <- eval(parse(text = sub("\\(.*$", "", functionname)))
-  setWrapperInactive("wrapperChecks")
-
-  # are all arguments used somewhere? -> error
-  tmp <- (names(inargs) %in% union(formalArgs(setConfig), formalArgs(functiononly)))
-  if (!all(tmp)) {
-    stop("Unknown argument(s) \"", paste(names(inargs)[!tmp], collapse = "\", \""), "\"")
+  
+  if (!(cachetype %in% c("rev", "def"))) {
+    stop("Unknown cachetype \"", cachetype, "\"!")
   }
-
-  # are arguments used in both - setConfig and the fullFunction? -> warning
-  tmp <- intersect(formalArgs(setConfig), formalArgs(functiononly))
-  if (length(tmp) > 0) {
-    warning(
-      "Overlapping arguments between setConfig and retrieve function (\"",
-      paste(tmp, collapse = "\", \""), "\")"
-    )
-  }
-
-  uselabels <- !(isTRUE(getConfig("nolabels")) || model %in% getConfig("nolabels"))
-
-  # reduce inargs to arguments sent to full function and create hash from it
-  inargs <- inargs[names(inargs) %in% formalArgs(functiononly)]
-  # insert default arguments, if not set explicitly to ensure identical args_hash
-  defargs <- formals(functiononly)
-  # remove dev and rev arguments as they are being treated separately
-  defargs$dev <- NULL
-  defargs$rev <- NULL
-  toadd <- names(defargs)[!(names(defargs) %in% names(inargs))]
-  if (length(toadd) > 0) {
-    inargs[toadd] <- defargs[toadd]
-  }
-  if (length(inargs) > 0) {
-    hashs <- digest(inargs, algo = getConfig("hash"))
-    if (uselabels) {
-      hashs <- toolCodeLabels(hashs)
-    }
-    argsHash <- paste0(hashs, "_")
-  } else {
-    argsHash <- NULL
-  }
-
-  regionmapping <- getConfig("regionmapping")
-  if (!file.exists(regionmapping)) {
-    regionmapping <- toolGetMapping(regionmapping, type = "regional", returnPathOnly = TRUE)
-  }
-  regionscode <- regionscode(regionmapping, label = uselabels)
-
+  
   rev <- numeric_version(rev)
 
-  collectionname <- paste0(
-    "rev", rev, dev, "_", regionscode, "_", argsHash, tolower(model),
-    ifelse(getConfig("debug") == TRUE, "_debug", "")
-  )
-
+  # check and structure settings
+  cfg <- .prepConfig(model, rev, dev, ...)
+ 
   matchingCacheFiles <- dir(path = getConfig("outputfolder"), pattern = ".*\\.tgz")
-  matchingCacheFiles <- matchingCacheFiles[startsWith(matchingCacheFiles, collectionname)]
+  matchingCacheFiles <- matchingCacheFiles[startsWith(matchingCacheFiles, cfg$collectionname)]
   if (!isTRUE(getConfig("debug"))) { # do not use debug files if not in debug mode
-    matchingCacheFiles <- matchingCacheFiles[!startsWith(matchingCacheFiles, paste0(collectionname, "_debug"))]
+    matchingCacheFiles <- matchingCacheFiles[!startsWith(matchingCacheFiles, paste0(cfg$collectionname, "_debug"))]
   }
   if (length(matchingCacheFiles) == 0 || getConfig("debug") == TRUE) {
     # data not yet ready and has to be prepared first
-    sourcefolder <- paste0(getConfig("outputfolder"), "/", collectionname)
+    sourcefolder <- paste0(getConfig("outputfolder"), "/", cfg$collectionname)
 
     # create folder if required
     if (!file.exists(sourcefolder)) {
@@ -121,7 +61,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     }
 
     # copy mapping to mapping folder and set config accordingly
-    mappath <- toolGetMapping(paste0(regionscode, ".csv"), "regional", error.missing = FALSE, returnPathOnly = TRUE)
+    regionmapping <- toolGetMapping(getConfig("regionmapping"), type = "regional", returnPathOnly = TRUE)
+    mappath <- toolGetMapping(paste0(cfg$regionscode, ".csv"), "regional", error.missing = FALSE, returnPathOnly = TRUE)
     if (!file.exists(mappath)) {
       if (!dir.exists(dirname(mappath))) {
         dir.create(dirname(mappath), recursive = TRUE)
@@ -130,11 +71,11 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     }
     # copy mapping to output folder
     try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-    try(saveRDS(list(package = attr(functionname, "package"), args = argumentValues,
+    try(saveRDS(list(package = attr(cfg$functionName, "package"), args = argumentValues,
                      sessionInfo = sessionInfo()),
                    file.path(sourcefolder, "config.rds"), version = 2))
     setConfig(
-      regionmapping = paste0(regionscode, ".csv"),
+      regionmapping = paste0(cfg$regionscode, ".csv"),
       outputfolder = sourcefolder,
       diagnostics = "diagnostics",
       .local = TRUE
@@ -156,33 +97,25 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     # run full* functions
     startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
 
-    vcat(2, " - execute function ", functionname, fill = 300, show_prefix = FALSE)
+    vcat(2, " - execute function ", cfg$functionName, fill = 300, show_prefix = FALSE)
 
     # get madrat graph to check for possible problems
     getMadratGraph(packages = getConfig("packages"),
                    globalenv = getConfig("globalenv"))
 
-    # add rev and dev arguments
-    inargs$rev <- rev
-    inargs$dev <- dev
-
-    args <- as.list(formals(functiononly))
-    for (n in names(args)) {
-      if (n %in% names(inargs)) {
-        args[[n]] <- inargs[[n]]
-      }
-    }
     with_dir(sourcefolder, {
-      returnedValue <- do.call(functiononly, args)
+      setWrapperActive("wrapperChecks")
+      returnedValue <- do.call(cfg$functionCode, cfg$fullNow)
+      setWrapperInactive("wrapperChecks")
     })
     if ("tag" %in% names(returnedValue)) {
       if (grepl(pattern = "debug", returnedValue$tag)) {
         warning("The tag returned in a fullXYZ function should not include the word 'debug'")
       }
-      collectionname <- paste0(collectionname, paste0("_", returnedValue$tag))
+      cfg$collectionname <- paste0(cfg$collectionname, paste0("_", returnedValue$tag))
     }
 
-    vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
+    vcat(2, " - function ", cfg$functionName, " finished", fill = 300, show_prefix = FALSE)
 
     if (bundle) {
        vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
@@ -190,7 +123,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
        if (file.exists(bundleFiles)) {
          vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
          bundleName <- paste0(
-           "rev", rev, dev, "_", argsHash, tolower(model),
+           "rev", rev, dev, "_", cfg$argsHash, tolower(model),
            ifelse(getConfig("debug") == TRUE, "_debug", ""), ".bdl"
          )
          bundlePath <- file.path(sourcefolder, "..", bundleName)
@@ -210,7 +143,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     }
 
     with_dir(sourcefolder, {
-      suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip"))
+      suppressWarnings(tar(paste0("../", cfg$collectionname, ".tgz"), compression = "gzip"))
     })
     unlink(sourcefolder, recursive = TRUE)
   } else {
@@ -218,4 +151,72 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     vcat(-2, " - data is already available and not calculated again.", fill = 300)
   }
   toolendmessage(startinfo)
+}
+
+
+.prepConfig <- function(model, rev, dev, ...) {
+  cfg  <- list(input = c(list(dev=dev, rev=rev), list(...)))
+  
+  # get setConfig arguments
+  tmp <- intersect(names(cfg$input), formalArgs(setConfig))
+  if(length(tmp) > 0) {
+    cfg$setConfig <- cfg$input[tmp]
+  }
+  
+  if (!is.null(cfg$setConfig)) {
+    do.call(setConfig, c(cfg$setConfig, list(.local = parent.frame())))
+  }
+  
+  # receive function name and code
+  cfg$functionName <- prepFunctionName(type = toupper(model), prefix = "full")
+  cfg$functionCode <- eval(parse(text = sub("\\(.*$", "", cfg$functionName)))
+  
+  cfg$fullDefault = formals(cfg$functionCode)
+  
+  # compute arguments which will be sent to fullXYZ function
+  if(!is.null(cfg$fullDefault)) {
+    cfg$fullNow <- modifyList(cfg$fullDefault, cfg$input, keep.null = TRUE)
+    cfg$fullNow <- cfg$fullNow[names(cfg$fullDefault)]
+  } else {
+    cfg$fullNow <- list()
+  }
+  
+  # are all arguments used somewhere? -> error
+  tmp <- (names(cfg$input) %in% c(formalArgs(setConfig), names(cfg$fullDefault), "rev", "dev"))
+  if (!all(tmp)) {
+    stop("Unknown argument(s) \"", paste(names(cfg$input)[!tmp], collapse = "\", \""), "\" in retrieveData")
+  }
+  
+  # are arguments used in both - setConfig and the fullFunction? -> warning
+  tmp <- intersect(formalArgs(setConfig), names(cfg$fullDefault))
+  if (length(tmp) > 0) {
+    warning(
+      "Overlapping arguments between setConfig and retrieve function (\"",
+      paste(tmp, collapse = "\", \""), "\")")
+  }
+  
+  # create argument hash
+  formalsReduced <- cfg$fullNow
+  formalsReduced$dev <- NULL
+  formalsReduced$rev <- NULL
+  
+  useLabels <- !(isTRUE(getConfig("nolabels")) || model %in% getConfig("nolabels"))
+  
+  if (length(formalsReduced) > 0) {
+    hashs <- digest(formalsReduced, algo = getConfig("hash"))
+    if (useLabels) {
+      hashs <- toolCodeLabels(hashs)
+    }
+    argsHash <- paste0(hashs, "_")
+  } else {
+    argsHash <- NULL
+  }
+  
+  cfg$regionscode <- regionscode(label = useLabels)
+  
+  cfg$collectionname <- paste0("rev", rev, dev, "_", cfg$regionscode, "_", 
+                               argsHash, tolower(model),
+                               ifelse(getConfig("debug") == TRUE, "_debug", ""))
+
+  return(cfg)
 }
