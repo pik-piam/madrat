@@ -47,13 +47,13 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   cfg <- .prepConfig(model, rev, dev, ...)
  
   matchingCacheFiles <- dir(path = getConfig("outputfolder"), pattern = ".*\\.tgz")
-  matchingCacheFiles <- matchingCacheFiles[startsWith(matchingCacheFiles, cfg$collectionname)]
+  matchingCacheFiles <- matchingCacheFiles[startsWith(matchingCacheFiles, cfg$collectionName)]
   if (!isTRUE(getConfig("debug"))) { # do not use debug files if not in debug mode
-    matchingCacheFiles <- matchingCacheFiles[!startsWith(matchingCacheFiles, paste0(cfg$collectionname, "_debug"))]
+    matchingCacheFiles <- matchingCacheFiles[!startsWith(matchingCacheFiles, paste0(cfg$collectionName, "_debug"))]
   }
   if (length(matchingCacheFiles) == 0 || getConfig("debug") == TRUE) {
     # data not yet ready and has to be prepared first
-    sourcefolder <- paste0(getConfig("outputfolder"), "/", cfg$collectionname)
+    sourcefolder <- paste0(getConfig("outputfolder"), "/", cfg$collectionName)
 
     # create folder if required
     if (!file.exists(sourcefolder)) {
@@ -112,7 +112,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
       if (grepl(pattern = "debug", returnedValue$tag)) {
         warning("The tag returned in a fullXYZ function should not include the word 'debug'")
       }
-      cfg$collectionname <- paste0(cfg$collectionname, paste0("_", returnedValue$tag))
+      cfg$collectionName <- paste0(cfg$collectionName, paste0("_", returnedValue$tag))
     }
 
     vcat(2, " - function ", cfg$functionName, " finished", fill = 300, show_prefix = FALSE)
@@ -122,10 +122,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
        bundleFiles <- file.path(sourcefolder, "bundleFiles")
        if (file.exists(bundleFiles)) {
          vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
-         bundleName <- paste0(
-           "rev", rev, dev, "_", cfg$argsHash, tolower(model),
-           ifelse(getConfig("debug") == TRUE, "_debug", ""), ".bdl"
-         )
+         bundleName <- paste0(cfg$bundleName, ".bdl")
          bundlePath <- file.path(sourcefolder, "..", bundleName)
          if (!file.exists(bundlePath)) {
            vcat(2, " - create bundle (", bundlePath, ")", fill = 300, show_prefix = FALSE)
@@ -143,7 +140,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     }
 
     with_dir(sourcefolder, {
-      suppressWarnings(tar(paste0("../", cfg$collectionname, ".tgz"), compression = "gzip"))
+      suppressWarnings(tar(paste0("../", cfg$collectionName, ".tgz"), compression = "gzip"))
     })
     unlink(sourcefolder, recursive = TRUE)
   } else {
@@ -214,9 +211,13 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   
   cfg$regionscode <- regionscode(label = useLabels)
   
-  cfg$collectionname <- paste0("rev", rev, dev, "_", cfg$regionscode, "_", 
+  cfg$collectionName <- paste0("rev", rev, dev, "_", cfg$regionscode, "_", 
                                argsHash, tolower(model),
                                ifelse(getConfig("debug") == TRUE, "_debug", ""))
+  
+  cfg$bundleName     <- paste0("rev", rev, dev, "_", argsHash, tolower(model),
+                               ifelse(getConfig("debug") == TRUE, "_debug", ""))
+  
 
   return(cfg)
 }
