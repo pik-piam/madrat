@@ -21,7 +21,7 @@ shared by all calculations for the given revision and sets forcecache to TRUE,
 "def" points to the cache as defined in the current settings and does not change
 forcecache setting.}
 
-\item{bundle}{Boolean deciding whether a bundle tgz should be created or not}
+\item{bundle}{Boolean deciding whether a bundle tgz should be considered and/or created, or not.}
 
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding

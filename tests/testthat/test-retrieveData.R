@@ -5,7 +5,7 @@ globalassign <- function(...) {
 
 test_that("retrieveData works as expected", {
   expect_message(retrieveData("example", rev = 0, dev = "test"), "Run retrieveData")
-  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0test_h12_example_customizable_tag.tgz")))
+  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0test_h12_5c275ce3_example_customizable_tag.tgz")))
   expect_message(retrieveData("example", rev = 0, dev = "test"), "data is already available")
 })
 

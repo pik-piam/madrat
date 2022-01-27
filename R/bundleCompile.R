@@ -19,11 +19,10 @@
 #' bundleCompile("rev1_bundle_example.tgz", regionmapping = "regionmappingH12.csv")
 #' }
 #' @importFrom withr with_tempdir
-#' @importFrom utils untar
+#' @importFrom utils untar modifyList
 #' @export
 bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ...) {
   extraArgs <- list(...)
-  if (length(extraArgs) > 0) stop("Not yet supported!")
 
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
   startinfo <- toolstartmessage("bundleCompile", argumentValues, 0)
@@ -34,9 +33,14 @@ bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ..
   with_tempdir({
     untar(bundle, exdir = "bundle")
     cfg <- readRDS("bundle/config.rds")
+    if (!all(names(extraArgs) %in% cfg$bundleArguments)) {
+      stop("arguments provided that cannot be changed in the given bundle!")
+    }
+    cfg$args <- modifyList(cfg$args, extraArgs)
     if (!is.null(cfg$package)) do.call("require", list(cfg$package))
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./bundle"
+    cfg$args$bundle <- FALSE
     do.call(retrieveData, cfg$args)
   })
 

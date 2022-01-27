@@ -4,14 +4,17 @@
 \alias{fullEXAMPLE}
 \title{fullExample}
 \usage{
-fullEXAMPLE(rev = 0, dev = "")
+fullEXAMPLE(rev = 0, dev = "", extra = "Example argument")
 }
 \arguments{
 \item{rev}{data revision which should be used/produced. Format must be compatible to
 \code{\link[base]{numeric_version}}.}
 
 \item{dev}{development suffix to distinguish development versions for the same data
-revision. This can be useful to distinguish parallel lines of development.
+revision. This can be useful to distinguish parallel lines of development.}
+
+\item{extra}{additional argument which - when changed - does not require a recomputation
+of the data bundle.
 \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 properly).}
 }
