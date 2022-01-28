@@ -70,7 +70,7 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
   n <- c(sourcefolder = "sources", cachefolder = "cache/default",
          mappingfolder = "mappings", outputfolder = "output", bundlefolder = "bundle")
   for (p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder", "bundlefolder")) {
-    if (is.na(cfg[[p]]) & !raw) cfg[[p]] <- file.path(cfg$mainfolder, n[p])
+    if (!raw && (is.null(cfg[[p]]) || is.na(cfg[[p]]))) cfg[[p]] <- file.path(cfg$mainfolder, n[p])
   }
   if (verbose && print) {
     nmax <- max(nchar(names(cfg)))
