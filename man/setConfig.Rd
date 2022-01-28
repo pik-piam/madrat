@@ -16,6 +16,7 @@ setConfig(
   cachefolder = NULL,
   mappingfolder = NULL,
   outputfolder = NULL,
+  bundlefolder = NULL,
   nolabels = NULL,
   forcecache = NULL,
   ignorecache = NULL,
@@ -70,6 +71,10 @@ meaning that the default folder should be used which is
 \item{outputfolder}{The folder all outputs should be written to. In the
 default case this argument is set to NA meaning that the default folder
 should be used which is <mainfolder>/output}
+
+\item{bundlefolder}{The folder all output bundle should be written to. In the
+default case this argument is set to NA meaning that the default folder
+should be used which is <mainfolder>/bundle}
 
 \item{nolabels}{vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 which should NOT apply a replacement of known hashes with given code labels}

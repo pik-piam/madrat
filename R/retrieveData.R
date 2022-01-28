@@ -64,11 +64,11 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     }
 
     if (bundle) {
-      matchingBundles <- .match(getConfig("outputfolder"), "bdl", cfg$bundleName)
+      matchingBundles <- .match(getConfig("bundlefolder"), "bdl", cfg$bundleName)
 
       if (length(matchingBundles) == 1) {
         vcat(-2, " - data will be created from existing bundle (", matchingBundles, ").", fill = 300)
-        do.call(bundleCompile, c(list(bundle = file.path(getConfig("outputfolder"), matchingBundles)),
+        do.call(bundleCompile, c(list(bundle = file.path(getConfig("bundlefolder"), matchingBundles)),
                                  cfg$input[cfg$bundleArguments]))
         return()
       }
@@ -147,9 +147,10 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
     if (file.exists(bundleFiles)) {
       vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
       bundleName <- paste0(cfg$bundleName, ".bdl")
-      bundlePath <- file.path(sourcefolder, "..", bundleName)
+      bundlePath <- file.path(getConfig("bundlefolder"), bundleName)
+      if (!dir.exists(getConfig("bundlefolder"))) dir.create(getConfig("bundlefolder"), recursive = TRUE)
       if (!file.exists(bundlePath)) {
-        vcat(2, " - create bundle (", bundlePath, ")", fill = 300, show_prefix = FALSE)
+        vcat(1, " - create bundle (", bundlePath, ")", fill = 300, show_prefix = FALSE)
         with_tempdir({
           cacheFiles <- readLines(bundleFiles)
           file.copy(cacheFiles, ".")

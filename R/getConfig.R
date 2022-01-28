@@ -68,8 +68,8 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
   cfg$mainfolder <- sub("/$", "", cfg$mainfolder)
 
   n <- c(sourcefolder = "sources", cachefolder = "cache/default",
-         mappingfolder = "mappings", outputfolder = "output")
-  for (p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder")) {
+         mappingfolder = "mappings", outputfolder = "output", bundlefolder = "bundle")
+  for (p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder", "bundlefolder")) {
     if (is.na(cfg[[p]]) & !raw) cfg[[p]] <- file.path(cfg$mainfolder, n[p])
   }
   if (verbose && print) {
