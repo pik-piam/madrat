@@ -95,7 +95,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   }
   # copy mapping to output folder
   try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-  try(saveRDS(list(package = attr(cfg$functionName, "package"), args = argumentValues,
+  try(saveRDS(list(package = attr(cfg$functionName, "package"),
+                   args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
                    bundleArguments = cfg$bundleArguments, sessionInfo = sessionInfo()),
               file.path(sourcefolder, "config.rds"), version = 2))
   setConfig(
@@ -219,6 +220,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   cfg$formalsReduced$dev <- NULL
   cfg$formalsReduced$rev <- NULL
 
+  # compute which arguments can be selected when compiling a bundle
   cfg$bundleArguments <- getFlags(cfg$functionCode)$bundleArguments$code
   cfg$formalsBundle <- cfg$formalsReduced[!(names(cfg$formalsReduced) %in% cfg$bundleArguments)]
 

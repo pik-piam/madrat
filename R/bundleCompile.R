@@ -22,9 +22,8 @@
 #' @importFrom utils untar modifyList
 #' @export
 bundleCompile <- function(bundle, regionmapping = getConfig("regionmapping"), ...) {
-  extraArgs <- list(...)
-
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
+  extraArgs <- list(...)
   startinfo <- toolstartmessage("bundleCompile", argumentValues, 0)
 
   setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = FALSE)

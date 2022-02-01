@@ -36,7 +36,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{initializeConfig}}
 #' @export
-getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE) {
+getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE) { # nolint
   initializeConfig(verbose = verbose)
 
   allowedOptions <- list(downloadSource = "debug",
