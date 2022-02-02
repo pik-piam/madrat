@@ -31,17 +31,9 @@
 #' @export
 regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
 
-  if (isWrapperActive("wrapperChecks")) {
-    for (w in c("downloadSource", "readSource", "calcOutput")) {
-      if (isWrapperActive(w)) {
-        warning("'regionscode' must not be used from within ", w, "!")
-        break
-      }
-    }
-  }
-  setWrapperInactive("wrapperChecks")
-
   if (is.null(mapping)) mapping <- getConfig("regionmapping")
+
+  setWrapperInactive("wrapperChecks")
 
   if (is.character(mapping)) {
     if (length(mapping) > 1) {
@@ -92,6 +84,9 @@ regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
     tmp <- mapping
   }
   out <- digest(tmp, algo = getConfig("hash"))
+
+  setWrapperActive("wrapperChecks")
+
   if (label) {
     return(toolCodeLabels(out))
   }
