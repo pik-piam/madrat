@@ -35,8 +35,7 @@ a <- readSource("Tau", "paper")
 
 }
 \seealso{
-\code{\link{setConfig}}, ' \code{\link{downloadSource}},
-\code{\link{readTau}}
+\code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 }
 \author{
 Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark

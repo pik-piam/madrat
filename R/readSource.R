@@ -16,8 +16,7 @@
 #' source data. Spatial will either agree with the source data or will be on
 #' ISO code country level depending on your choice for the argument "convert".
 #' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark
-#' @seealso \code{\link{setConfig}}, ' \code{\link{downloadSource}},
-#' \code{\link{readTau}}
+#' @seealso \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 #' @examples
 #' \dontrun{
 #' a <- readSource("Tau", "paper")
