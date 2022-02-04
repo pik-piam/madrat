@@ -12,6 +12,7 @@ env:
   USE_BSPM: "true"
   _R_CHECK_FORCE_SUGGESTS_: "false"
   NO_BINARY_INSTALL_R_PACKAGES: 'c("madrat", "magclass", "citation", "gms", "goxygen")'
+  NOT_CRAN: "true"
 
 jobs:
   lucode2-check:
