@@ -133,6 +133,10 @@ setConfig <- function(regionmapping = NULL, # nolint
   firstsetting <- TRUE
   info <- NULL
 
+  if (!is.null(regionmapping)) {
+    if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
+  }
+
   if (!is.null(enablecache)) {
     warning('Argument "enablecache" is deprecated and will be ignored, use "ignorecache" instead!')
     enablecache <- NULL

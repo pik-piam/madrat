@@ -138,7 +138,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE
     if (grepl(pattern = "debug", returnedValue$tag)) {
       warning("The tag returned in a fullXYZ function should not include the word 'debug'")
     }
-    cfg$collectionName <- paste0(cfg$collectionName, paste0("_", returnedValue$tag))
+    cfg$collectionName <- paste0(cfg$collectionName, "_", returnedValue$tag)
   }
 
   vcat(2, " - function ", cfg$functionName, " finished", fill = 300, show_prefix = FALSE)
@@ -148,6 +148,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE
     pucFiles <- file.path(sourcefolder, "pucFiles")
     if (file.exists(pucFiles)) {
       vcat(2, " - list of files for puc identified", fill = 300, show_prefix = FALSE)
+      if ("pucTag" %in% names(returnedValue)) {
+        cfg$pucName <- paste0(cfg$pucName, "_", returnedValue$pucTag)
+      }
       pucName <- paste0(cfg$pucName, ".puc")
       pucPath <- file.path(getConfig("pucfolder"), pucName)
       if (!dir.exists(getConfig("pucfolder"))) dir.create(getConfig("pucfolder"), recursive = TRUE)

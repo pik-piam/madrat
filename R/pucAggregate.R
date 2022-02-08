@@ -26,7 +26,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
   extraArgs <- list(...)
   startinfo <- toolstartmessage("pucAggregate", argumentValues, 0)
 
-  setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
+  setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = FALSE)
   puc <- normalizePath(puc)
 
   with_tempdir({
