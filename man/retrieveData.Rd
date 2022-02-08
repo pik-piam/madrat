@@ -4,7 +4,7 @@
 \alias{retrieveData}
 \title{retrieveData}
 \usage{
-retrieveData(model, rev = 0, dev = "", cachetype = "rev", bundle = TRUE, ...)
+retrieveData(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE, ...)
 }
 \arguments{
 \item{model}{The names of the model for which the data should be provided
@@ -21,7 +21,8 @@ shared by all calculations for the given revision and sets forcecache to TRUE,
 "def" points to the cache as defined in the current settings and does not change
 forcecache setting.}
 
-\item{bundle}{Boolean deciding whether a bundle tgz should be considered and/or created, or not.}
+\item{puc}{Boolean deciding whether a fitting puc file (if existing) should be
+read in and if a puc file (if not already existing) should be created.}
 
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding

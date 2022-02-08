@@ -7,7 +7,7 @@ test_that("getCode works", {
  expect_silent({
    a <- madrat:::getCode("madrat")
   })
- flags <- list(bundleArguments = list(`madrat:::fullEXAMPLE` = "extra"),
+ flags <- list(pucArguments = list(`madrat:::fullEXAMPLE` = "extra"),
                monitor = list(`madrat:::readTau` = c("madrat:::sysdata$iso_cell",
                                                      "magclass:::ncells")),
                ignore = list(`madrat:::readTau` = "madrat:::toolAggregate"))

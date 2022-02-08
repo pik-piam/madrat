@@ -16,7 +16,7 @@ setConfig(
   cachefolder = NULL,
   mappingfolder = NULL,
   outputfolder = NULL,
-  bundlefolder = NULL,
+  pucfolder = NULL,
   nolabels = NULL,
   forcecache = NULL,
   ignorecache = NULL,
@@ -72,9 +72,9 @@ meaning that the default folder should be used which is
 default case this argument is set to NA meaning that the default folder
 should be used which is <mainfolder>/output}
 
-\item{bundlefolder}{The folder all output bundle should be written to. In the
-default case this argument is set to NA meaning that the default folder
-should be used which is <mainfolder>/bundle}
+\item{pucfolder}{The folder all portable unaggregated collections (puc) files
+should be written to. In the default case this argument is set to NA meaning
+that the default folder should be used which is <mainfolder>/puc}
 
 \item{nolabels}{vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 which should NOT apply a replacement of known hashes with given code labels}

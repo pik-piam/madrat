@@ -1,6 +1,7 @@
 #' getFlags
 #'
-#' Support function which extracts flags from code
+#' Support function which extracts flags from code. Flags are string literals
+#' in a function body, for example `"!# @pucArguments extra"`.
 #'
 #' @param code A character vector with code from functions to be analyzed
 #' @return A list of found flag entries
@@ -26,8 +27,9 @@ getFlags <- function(code) {
     out[[t]] <- tmp[type == t]
     if (anyDuplicated(names(out[[t]]))) {
       tmp2 <- list()
-      for (n in unique(names(out[[t]]))) tmp2[[n]] <- unique(unlist(out[[t]][names(out[[t]]) == n],
-                                                                    use.names = FALSE))
+      for (n in unique(names(out[[t]]))) {
+        tmp2[[n]] <- unique(unlist(out[[t]][names(out[[t]]) == n], use.names = FALSE))
+      }
       out[[t]] <- tmp2
     } else {
       out[[t]] <- lapply(out[[t]], unique)

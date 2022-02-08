@@ -14,7 +14,8 @@
 #' shared by all calculations for the given revision and sets forcecache to TRUE,
 #' "def" points to the cache as defined in the current settings and does not change
 #' forcecache setting.
-#' @param bundle Boolean deciding whether a bundle tgz should be considered and/or created, or not.
+#' @param puc Boolean deciding whether a fitting puc file (if existing) should be
+#' read in and if a puc file (if not already existing) should be created.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -30,7 +31,7 @@
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = TRUE, ...) { # nolint
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   setWrapperActive("retrieveData")
@@ -63,13 +64,13 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
       return()
     }
 
-    if (bundle) {
-      matchingBundles <- .match(getConfig("bundlefolder"), "bdl", cfg$bundleName)
+    if (puc) {
+      matchingPUCs <- .match(getConfig("pucfolder"), "puc", cfg$pucName)
 
-      if (length(matchingBundles) == 1) {
-        vcat(-2, " - data will be created from existing bundle (", matchingBundles, ").", fill = 300)
-        do.call(bundleCompile, c(list(bundle = file.path(getConfig("bundlefolder"), matchingBundles)),
-                                 cfg$input[cfg$bundleArguments]))
+      if (length(matchingPUCs) == 1) {
+        vcat(-2, " - data will be created from existing puc (", matchingPUCs, ").", fill = 300)
+        do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)),
+                                 cfg$input[cfg$pucArguments]))
         return()
       }
     }
@@ -77,7 +78,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   }
 
   # data not yet ready and has to be prepared first
-  sourcefolder <- paste0(getConfig("outputfolder"), "/", cfg$collectionName)
+  sourcefolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
 
   # create folder if required
   if (!file.exists(sourcefolder)) {
@@ -97,7 +98,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
   try(saveRDS(list(package = attr(cfg$functionName, "package"),
                    args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
-                   bundleArguments = cfg$bundleArguments, sessionInfo = sessionInfo()),
+                   pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
               file.path(sourcefolder, "config.rds"), version = 2))
   setConfig(
     regionmapping = paste0(cfg$regionscode, ".csv"),
@@ -142,31 +143,31 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
 
   vcat(2, " - function ", cfg$functionName, " finished", fill = 300, show_prefix = FALSE)
 
-  if (bundle) {
+  if (puc) {
     vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
-    bundleFiles <- file.path(sourcefolder, "bundleFiles")
-    if (file.exists(bundleFiles)) {
-      vcat(2, " - list of files for bundle identified", fill = 300, show_prefix = FALSE)
-      bundleName <- paste0(cfg$bundleName, ".bdl")
-      bundlePath <- file.path(getConfig("bundlefolder"), bundleName)
-      if (!dir.exists(getConfig("bundlefolder"))) dir.create(getConfig("bundlefolder"), recursive = TRUE)
-      if (!file.exists(bundlePath)) {
-        vcat(1, " - create bundle (", bundlePath, ")", fill = 300, show_prefix = FALSE)
+    pucFiles <- file.path(sourcefolder, "pucFiles")
+    if (file.exists(pucFiles)) {
+      vcat(2, " - list of files for puc identified", fill = 300, show_prefix = FALSE)
+      pucName <- paste0(cfg$pucName, ".puc")
+      pucPath <- file.path(getConfig("pucfolder"), pucName)
+      if (!dir.exists(getConfig("pucfolder"))) dir.create(getConfig("pucfolder"), recursive = TRUE)
+      if (!file.exists(pucPath)) {
+        vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
         with_tempdir({
-          cacheFiles <- readLines(bundleFiles)
+          cacheFiles <- readLines(pucFiles)
           file.copy(cacheFiles, ".")
           otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
           file.copy(file.path(sourcefolder, otherFiles), ".")
-          suppressWarnings(tar(bundlePath, compression = "gzip"))
+          suppressWarnings(tar(pucPath, compression = "gzip"))
         })
       }
     } else {
-      vcat(1, "Could not find list of files to be bundled")
+      vcat(1, "Could not find list of files to be added to the puc file")
     }
   }
 
   with_dir(sourcefolder, {
-    suppressWarnings(tar(paste0("../", cfg$collectionName, ".tgz"), compression = "gzip"))
+    suppressWarnings(tar(file.path("..", paste0(cfg$collectionName, ".tgz")), compression = "gzip"))
   })
   unlink(sourcefolder, recursive = TRUE)
 
@@ -212,7 +213,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   if (length(tmp) > 0) {
     warning(
       "Overlapping arguments between setConfig and retrieve function (\"",
-      paste(tmp, collapse = "\", \""), "\")")
+      paste(tmp, collapse = '", "'), '")')
   }
 
   # create argument hash
@@ -220,9 +221,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   cfg$formalsReduced$dev <- NULL
   cfg$formalsReduced$rev <- NULL
 
-  # compute which arguments can be selected when compiling a bundle
-  cfg$bundleArguments <- getFlags(cfg$functionCode)$bundleArguments$code
-  cfg$formalsBundle <- cfg$formalsReduced[!(names(cfg$formalsReduced) %in% cfg$bundleArguments)]
+  # compute which arguments can be selected when compiling a puc
+  cfg$pucArguments <- getFlags(cfg$functionCode)$pucArguments$code
+  cfg$formalsPUC <- cfg$formalsReduced[!(names(cfg$formalsReduced) %in% cfg$pucArguments)]
 
   useLabels <- !(isTRUE(getConfig("nolabels")) || model %in% getConfig("nolabels"))
 
@@ -244,12 +245,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", bundle = T
   cfg$collectionName <- paste0("rev", rev, dev, "_", cfg$regionscode, "_",
                                .argsHash(cfg$formalsReduced, useLabels), tolower(model),
                                ifelse(getConfig("debug") == TRUE, "_debug", ""))
-  if (is.null(cfg$bundleArguments)) {
+  if (is.null(cfg$pucArguments)) {
     extraArgs <- ""
   } else {
-    extraArgs <- paste0(paste(cfg$bundleArguments, collapse = "_"), "_")
+    extraArgs <- paste0(paste(cfg$pucArguments, collapse = "_"), "_")
   }
-  cfg$bundleName     <- paste0("rev", rev, dev, "_", extraArgs, .argsHash(cfg$formalsBundle, useLabels),
+  cfg$pucName     <- paste0("rev", rev, dev, "_", extraArgs, .argsHash(cfg$formalsPUC, useLabels),
                                tolower(model), ifelse(getConfig("debug") == TRUE, "_debug", ""))
 
   return(cfg)

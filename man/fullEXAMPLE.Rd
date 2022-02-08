@@ -13,8 +13,8 @@ fullEXAMPLE(rev = 0, dev = "", extra = "Example argument")
 \item{dev}{development suffix to distinguish development versions for the same data
 revision. This can be useful to distinguish parallel lines of development.}
 
-\item{extra}{additional argument which - when changed - does not require a recomputation
-of the data bundle.
+\item{extra}{additional argument which - when changed - does not require a re-computation
+of the portable unaggegrated collection (puc) file.
 \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 properly).}
 }

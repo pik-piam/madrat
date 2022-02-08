@@ -13,7 +13,8 @@ getFlags(code)
 A list of found flag entries
 }
 \description{
-Support function which extracts flags from code
+Support function which extracts flags from code. Flags are string literals
+in a function body, for example `"!# @pucArguments extra"`.
 }
 \seealso{
 \code{\link{getCode}}
