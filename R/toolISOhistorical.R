@@ -21,6 +21,8 @@
 #' years that are calculated in this function they will not be overwritten by
 #' default. To overwrite all data (e.g. if there are meaningless "0") choose
 #' overwrite=TRUE
+#' @param additional_weight optional weight to be used for regional disaggregation,
+#' if not provided, the values of m in the "lastYear" are used as weight
 #' @return A MAgPIE object with spatial entries for each country of the
 #' official ISO code country list. Historical time is filled up, old countries
 #' deleted
@@ -29,14 +31,14 @@
 #' @importFrom magclass getItems getYears setYears
 #'
 #' @export
-toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = FALSE) { # nolint
+toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = FALSE, additional_weight = NULL) { # nolint
 
   # m is magpie object, has to contain absolute values
 
   # mapping of historical countries and regions to the standard ISO-Country-List
   #            and last year of existence of the historical countries
   if (is.null(mapping)) {
-    mapping <- read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"), stringsAsFactors = F)
+    mapping <- read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"), stringsAsFactors = FALSE)
   } else if (is.character(mapping)) {
     mapping <- read.csv(mapping, sep = ";", as.is = TRUE)
   }
@@ -125,11 +127,23 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     subTime <- getYears(m[, seq_len(which(getYears(m) == a$fromY)), ])
     # disaggregation of countries
     if (length(a$fromISO) == 1) {
-      weight <- setYears(m[a$toISO, a$toY, ], NULL)
-      if (anyNA(weight)) {
-        weight[is.na(weight)] <- 0
-        vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
+
+      if (is.null(additional_weight)) {
+        weight <- setYears(m[a$toISO, a$toY, ], NULL)
+        if (anyNA(weight)) {
+          weight[is.na(weight)] <- 0
+          vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
+        }
+      } else {
+        if (!all(a$toISO %in% getItems(additional_weight, dim = 1))) {
+          stop(paste0(
+            "Invalid additional weight, missing countries: ",
+            paste0(setdiff(a$toISO, getItems(additional_weight, dim = 1)), collapse = ", ")
+          ))
+        }
+        weight <- additional_weight[a$toISO, , ]
       }
+
       mTr <- toolAggregate(m[a$fromISO, subTime, ],
                            mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = weight,
                            negative_weight = "allow")

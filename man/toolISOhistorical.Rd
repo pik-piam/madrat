@@ -8,7 +8,8 @@ toolISOhistorical(
   m,
   mapping = NULL,
   additional_mapping = NULL,
-  overwrite = FALSE
+  overwrite = FALSE,
+  additional_weight = NULL
 )
 }
 \arguments{
@@ -29,6 +30,9 @@ list(c("TTT","TTX","y1111"),c("TTT","TTY","y1111"))}
 years that are calculated in this function they will not be overwritten by
 default. To overwrite all data (e.g. if there are meaningless "0") choose
 overwrite=TRUE}
+
+\item{additional_weight}{optional weight to be used for regional disaggregation,
+if not provided, the values of m in the "lastYear" are used as weight}
 }
 \value{
 A MAgPIE object with spatial entries for each country of the
