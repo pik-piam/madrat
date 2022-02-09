@@ -80,3 +80,5 @@ jobs:
       - name: Test coverage
         shell: Rscript {0}
         run: covr::codecov(quiet = FALSE)
+        env:
+          NOT_CRAN: "true"
