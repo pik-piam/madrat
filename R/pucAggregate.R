@@ -26,6 +26,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
   extraArgs <- list(...)
   startinfo <- toolstartmessage("pucAggregate", argumentValues, 0)
   puc <- normalizePath(puc)
+  if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
   with_tempdir({
     untar(puc, exdir = "puc")
