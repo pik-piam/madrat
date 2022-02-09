@@ -35,7 +35,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
       stop("arguments provided that cannot be changed in the given puc!")
     }
     cfg$args <- modifyList(cfg$args, extraArgs)
-    if (!is.null(cfg$package)) local_package(cfg$package)
+    if (!is.null(cfg$package) && cfg$package != "madrat") local_package(cfg$package)
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE

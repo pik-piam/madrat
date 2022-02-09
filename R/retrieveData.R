@@ -20,6 +20,15 @@
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
 #' match settings in \code{setConfig}!)
+#' @note The underlying full-functions can optionally provide a list of information back to
+#' \code{retrieveData}. Following list entries are currently supported:
+#' \itemize{
+#' \item \bold{tag} (optional) - additional name tag which will be included in the file
+#' name of the aggregated collection (resulting tgz-file). This can be useful to highlight
+#' information in the file name which otherwise would not be visible.
+#' \item \bold{pucTag} (optional) - identical purpose as \bold{tag} but for the resulting
+#' unaggregated collections (puc-files).
+#' }
 #' @author Jan Philipp Dietrich, Lavinia Baumstark
 #' @seealso
 #' \code{\link{calcOutput}},\code{\link{setConfig}}

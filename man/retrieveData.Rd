@@ -33,6 +33,17 @@ match settings in \code{setConfig}!)}
 Function to retrieve a predefined collection of calculations for a specific
 regionmapping.
 }
+\note{
+The underlying full-functions can optionally provide a list of information back to
+\code{retrieveData}. Following list entries are currently supported:
+\itemize{
+\item \bold{tag} (optional) - additional name tag which will be included in the file
+name of the aggregated collection (resulting tgz-file). This can be useful to highlight
+information in the file name which otherwise would not be visible.
+\item \bold{pucTag} (optional) - identical purpose as \bold{tag} but for the resulting
+unaggregated collections (puc-files).
+}
+}
 \examples{
 \dontrun{
 retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
