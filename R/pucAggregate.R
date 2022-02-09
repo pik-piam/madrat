@@ -18,15 +18,13 @@
 #' \dontrun{
 #' pucAggregate("rev1_example.puc", regionmapping = "regionmappingH12.csv")
 #' }
-#' @importFrom withr with_tempdir
+#' @importFrom withr with_tempdir local_package
 #' @importFrom utils untar modifyList
 #' @export
 pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
   extraArgs <- list(...)
   startinfo <- toolstartmessage("pucAggregate", argumentValues, 0)
-
-  setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = FALSE)
   puc <- normalizePath(puc)
 
   with_tempdir({
@@ -36,10 +34,11 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
       stop("arguments provided that cannot be changed in the given puc!")
     }
     cfg$args <- modifyList(cfg$args, extraArgs)
-    if (!is.null(cfg$package)) do.call("require", list(cfg$package))
+    if (!is.null(cfg$package)) local_package(cfg$package)
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE
+    setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
     do.call(retrieveData, cfg$args)
   })
 
