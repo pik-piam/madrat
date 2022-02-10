@@ -161,7 +161,7 @@ fingerprintFiles <- function(paths) {
         if (!dir.exists(dirname(hashCacheFile))) {
           dir.create(dirname(hashCacheFile), recursive = TRUE)
         }
-        saveRDS(files, hashCacheFile, version = 2)
+        try(saveRDS(files, hashCacheFile, version = 2))
       }
     }
     files <- rbind(filesCache, files)
