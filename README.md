@@ -37,6 +37,7 @@ The package comes with vignettes describing the basic functionality of the packa
 
 ```r
 vignette("madrat-caching") # Data caching in madrat
+vignette("madrat-puc")     # Portable unagreggated collections (PUCs) in MADRaT
 vignette("madrat")         # Data preparation with madrat
 ```
 
