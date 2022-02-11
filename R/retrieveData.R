@@ -104,11 +104,19 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE
     file.copy(regionmapping, mappath)
   }
   # copy mapping to output folder
-  try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-  try(saveRDS(list(package = attr(cfg$functionName, "package"),
-                   args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
-                   pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
-              file.path(sourcefolder, "config.rds"), version = 2))
+  tryCatch({
+    file.copy(regionmapping, sourcefolder, overwrite = TRUE)
+  }, error = function(error) {
+    warning("Copying regionmapping to output folder failed: ", error)
+  })
+  tryCatch({
+    saveRDS(list(package = attr(cfg$functionName, "package"),
+                 args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
+                 pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
+            file.path(sourcefolder, "config.rds"), version = 2)
+  }, error = function(error) {
+    warning("Creation of config.rds failed: ", error)
+  })
   setConfig(
     regionmapping = paste0(cfg$regionscode, ".csv"),
     outputfolder = sourcefolder,
