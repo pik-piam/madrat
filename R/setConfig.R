@@ -37,9 +37,8 @@
 #' @param outputfolder The folder all outputs should be written to. In the
 #' default case this argument is set to NA meaning that the default folder
 #' should be used which is <mainfolder>/output
-#' @param pucfolder The folder all portable unaggregated collections (puc) files
-#' should be written to. In the default case this argument is set to NA meaning
-#' that the default folder should be used which is <mainfolder>/puc
+#' @param pucfolder The path where portable unaggregated collection (puc) files
+#' are located. NA by default, which means <mainfolder>/puc
 #' @param nolabels vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 #' which should NOT apply a replacement of known hashes with given code labels
 #' @param forcecache Argument that allows to force madrat to read data from

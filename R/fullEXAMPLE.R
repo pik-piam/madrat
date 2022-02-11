@@ -32,7 +32,7 @@ fullEXAMPLE <- function(rev = 0, dev = "", extra = "Example argument") {
   if (dev == "test") {
     message("Here you could execute code for a hypothetical development version called \"test\"")
   }
-  # return is not required, but can be used to append a tag to the resulting filename
+  # return is optional, tag is appended to the tgz filename, pucTag is appended to the puc filename
   return(list(tag = "customizable_tag",
               pucTag = "tag"))
 }

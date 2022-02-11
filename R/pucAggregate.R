@@ -32,7 +32,8 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
     untar(puc, exdir = "puc")
     cfg <- readRDS("puc/config.rds")
     if (!all(names(extraArgs) %in% cfg$pucArguments)) {
-      stop("arguments provided that cannot be changed in the given puc!")
+      stop("arguments provided that cannot be changed in the given puc! Allowed arguments are: ",
+           paste(cfg$pucArguments, collapse = ", "))
     }
     cfg$args <- modifyList(cfg$args, extraArgs)
     if (!is.null(cfg$package) && cfg$package != "madrat") local_package(cfg$package)
