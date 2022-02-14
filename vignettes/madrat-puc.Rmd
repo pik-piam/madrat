@@ -13,18 +13,18 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
-In some use-cases it can be useful to be able to share a unaggrgated version of the data collections by madrat, e.g if a partner want to be able to compute the data collection with a custom aggregation without the need to rerun the whole data processing, or if a snapshot of a data collection should be taken in a form in which it can be later re-used in other aggregations. Portable Unaggregated Collections (PUCs) are the tool to do so. 
+In some use-cases it can be useful to be able to share an unaggregated version of the data collections created by madrat::retrieveData, e.g. if a partner wants to be able to compute the data collection with a custom aggregation without the need to rerun the whole data processing, or if a snapshot of a data collection should be taken in a form in which it can be later re-used in other aggregations. Portable Unaggregated Collections (PUCs) are the tool to do so. 
 
 
 ## Basics
 
 The core idea of madrat is to create data processing workflow in a format in which it can be shared and re-used by others. Theoretically that means that a user should just need to have a madrat-package in order to recompute the resulting data collection. In practice this does not always work (e.g. because of problems accessing the source data) or might be impratical for certain applications (e.g. because of high runtimes and/or hardware requirements of the preprocessing). 
 
-In these instances a solution is to share the code (for transparency reason) along with the computed data collection. A drawback of that solution is that the data is already aggregated to a specified regional aggregation, limiting the range of application of such an approach. PUCs represent an intermediate product in which most of the computations have already been performed in advanced but the data still needs to be aggregated to its final aggregation and (potentially) some less time consuming computation steps still have to be done. This can be great for portability of the data collection while maintaining some degree of freedom when it comes to parametrization of the data processing. 
+In these instances a solution is to share the code (for transparency reasons) along with the computed data collection. A drawback of that solution is that the data is already aggregated to a specified regional aggregation, limiting the range of application of such an approach. PUCs represent an intermediate product in which most of the computations have already been performed in advance but the data still needs to be aggregated to its final aggregation and (potentially) some less time consuming computation steps still have to be done. This can be great for portability of the data collection while maintaining some degree of freedom when it comes to parametrization of the data processing. 
 
 ## A typical workflow
 
-By default a PUC is created automatically when a daa processing is launched:
+By default a PUC is created automatically when a data processing is launched:
 
 
 ```{r, echo = TRUE, eval=FALSE}
@@ -34,24 +34,24 @@ retrieveData("EXAMPLE", rev = 42, puc = TRUE, extra = "Extra Argument")
 
 In this example the example collection from this package is computed in revision 42. The argument `puc` hereby controls whether the processing should also create a puc-file or not. As `puc = TRUE` is the default setting it does not have to be mentioned here specifically in order to be computed. The `extra` argument is an additional parameter forwarded to the example data collection.
 
-Running this code will create the aggregated collection in the output folder (`getConfig("outputfolder)`) as well as the portable, unaggregated collection in the puc-folder (`getConfig(puc)`).
+Running this code will create the aggregated collection in the output folder (`getConfig("outputfolder)`) as well as the portable, unaggregated collection in the puc-folder (`getConfig("pucfolder")`).
 
-In this example the puc file has the name `rev42_extra_example_tag.puc` and consists of different components. Every puc-file has the same name structure, which is `rev<revisionNumber>_<selectableArguments>_<collectionName>_<tag>.puc` in which `<revisionNumber>` stands for the revision number, `<selectableArguments>` stands for arguments additional to the regional aggregated which can be selected when aggregating a collection from a puc-file (other arguments cannot be changed as they would require a new puc-file), `<collectionName>` stands for the name of the data collection and `<tag>` stands for a optional name tag, which can be specified in the corresponding `full`-function but which also can be left out.
+In this example the puc file name is `rev42_extra_example_tag.puc` and it consists of different components. Every puc-file has the same name structure, which is `rev<revisionNumber>_<selectableArguments>_<collectionName>_<tag>.puc` in which `<revisionNumber>` stands for the revision number, `<selectableArguments>` stands for additional arguments (in addition to the regional aggregation) that can be selected when aggregating a collection from a puc-file (other arguments cannot be changed as they would require a new puc-file), `<collectionName>` stands for the name of the data collection and `<tag>` stands for an optional name tag, which can be specified in the corresponding `full`-function.
 
-In our example we have the puc for the data collection "example" in revision 42 and can select the argument "extra" when we aggregate data from the puc file. 
+In our example we have the puc for the data collection "example" in revision 42 and users can select the argument "extra" when aggregating data from the puc file.
 
 Aggregating from a puc-file can now happen in two ways:
 
 * on the system where the puc-file has been created it will serve as a snapshot and will be re-used as soon as `retrieveData` is run again with same settings except of the ones which can be changed in the puc-File (e.g. `retrieveData("EXAMPLE", rev=42, puc = TRUE, extra = "Other Argument")`)
 
-* when pushing the puc to someone else one can aggregate the puc-file using the function `pucAggregate` (e.g. `pucAggregate("rev42_extra_example_tag.puc"), extra = "Other Argument")`)
+* when giving the puc to someone else they can aggregate the puc-file using the function `pucAggregate` (e.g. `pucAggregate("rev42_extra_example_tag.puc"), extra = "Other Argument")`)
 
 In both cases a new aggregated collection will be written into the outputfolder based on the given puc-file.
 
-## Making a madrat preprocessing read for puc-files
+## Making a madrat preprocessing ready for puc-files
 
-While many parts of the puc-file creation happen automatically, some specific cases require manual tweaking. By default the cache files of the calc-functions called directly by the corresponding full-function are being put into the puc-file. Doing so will later only require to rerun the full-function itself but now underlying calculations as all data of these calculations is already part of the puc-file. However, in some instances
-these top-level cache-files are not the ones which should be put into the puc-file (e.g. if these calculations should be recomputed every time a puc-file is being aggregated). Whether a file should be considered for a puc-file or not can be controlled by the return values of a calc-function:
+While many parts of the puc-file creation happen automatically, some specific cases require manual tweaking. By default the cache files of the calc-functions called directly by the corresponding full-function are being put into the puc-file. This way only the full-function itself needs to be re-run without running the underlying calculations as all the data of these calculations is already part of the puc-file. However, in some instances
+these top-level cache-files are not the ones which should be put into the puc-file (e.g. if these calculations should be recomputed every time a puc-file is being aggregated). Whether a file should be included in a puc-file can be controlled by the return value of a calc-function:
 
 ```{r, echo = TRUE, eval=FALSE}
 calcExample <- function() {
@@ -60,7 +60,7 @@ return(list(x = data,
 }
 ```
 
-the calc-function in the shown example uses the return value `putInPUC = FALSE` to overwrite the automatic puc-detection and prevent the cache file from being stored in a puc-file. In a similar fashion `putInPUC = TRUE` would make sure that the file becomes a part of the resulting puc-file.
+The calc-function in the shown example uses the return value `putInPUC = FALSE` to overwrite the automatic puc-detection and prevent the cache file from being stored in a puc-file. In a similar fashion `putInPUC = TRUE` would make sure that the file becomes a part of the resulting puc-file.
 
 Besides the decision which data should be stored in the puc file it is also important to know which arguments can be changed later when aggregating the puc-file. This can be controlled via control flags in the full-function:
 
