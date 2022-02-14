@@ -68,6 +68,12 @@
 #' to the aggregation function. In addition to the arguments set here, the function will be
 #' supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
 #' also \code{weight} and \code{mixed_aggregation}.
+#' \item \bold{putInPUC} (optional) boolean which decides whether this calculation should be added to a puc file
+#' which contains non-aggregated data and can be used to later on aggregate the data to resolutions of own choice.
+#' If not set \code{calcOutput} will try to determine automatically, whether a file is being required for the puc file
+#' or not, but in more complex cases (e.g. if calculations below top-level have to be run as well) this setting can
+#' be used to manually tweak the puc file list. CAUTION: Incorrect settings will cause corrupt puc files,
+#' so use this setting with extreme care and only if necessary.
 #' }
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
@@ -90,6 +96,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
 
   setWrapperActive("calcOutput")
   setWrapperInactive("wrapperChecks")
+
+  # extract saveCache statement and deactivate wrapper
+  saveCache <- isWrapperActive("saveCache")
+  setWrapperInactive("saveCache")
+
 
   if (!dir.exists(getConfig("cachefolder"))) {
       dir.create(getConfig("cachefolder"), recursive = TRUE)
@@ -266,6 +277,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname)
     cachePut(x, prefix = "calc", type = type, args = args)
+  }
+
+  if (is.logical(x$putInPUC)) saveCache <- x$putInPUC
+
+  if (saveCache) {
+   write(cacheName(prefix = "calc", type = type, args = args),
+         file = "pucFiles", append = TRUE)
   }
 
 

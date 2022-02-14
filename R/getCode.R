@@ -76,34 +76,9 @@ getCode <- function(packages = installedMadratUniverse(), globalenv = getConfig(
     return(getMappings)
   }
 
-  .getFlags <- function(code) {
-    flags <- stri_extract_all(code, regex = '"\\!#.*?[^\\\\]\\"', omit_no_match = TRUE)
-    names(flags) <- names(code)
-    flags <- flags[vapply(flags, length, integer(1)) > 0]
-    if (length(flags) == 0) return(NULL)
-
-    x <- unlist(flags, use.names = FALSE)
-    tmp   <- stri_split(gsub('\\"(!#)? *(@[a-z]* *)?', "", x), regex = " +")
-    type <- substring(stri_extract(x, regex = "@[^ ]*"), 2)
-    names(tmp) <- rep(names(flags), vapply(flags, length, integer(1)))
-    out <- list()
-    for (t in unique(type)) {
-      out[[t]] <- tmp[type == t]
-      if (anyDuplicated(names(out[[t]]))) {
-        tmp2 <- list()
-        for (n in unique(names(out[[t]]))) tmp2[[n]] <- unique(unlist(out[[t]][names(out[[t]]) == n],
-                                                                      use.names = FALSE))
-        out[[t]] <- tmp2
-      } else {
-        out[[t]] <- lapply(out[[t]], unique)
-      }
-    }
-    return(out)
-  }
-
   attr(code, "fpool")     <- fpool
   attr(code, "hash")      <- sapply(code, digest, algo = getConfig("hash")) # nolint
   attr(code, "mappings")  <- .getMappingFiles(code)
-  attr(code, "flags")     <- .getFlags(code)
+  attr(code, "flags")     <- getFlags(code)
   return(code)
 }

@@ -14,10 +14,21 @@
 #' shared by all calculations for the given revision and sets forcecache to TRUE,
 #' "def" points to the cache as defined in the current settings and does not change
 #' forcecache setting.
+#' @param puc Boolean deciding whether a fitting puc file (if existing) should be
+#' read in and if a puc file (if not already existing) should be created.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
 #' match settings in \code{setConfig}!)
+#' @note The underlying full-functions can optionally provide a list of information back to
+#' \code{retrieveData}. Following list entries are currently supported:
+#' \itemize{
+#' \item \bold{tag} (optional) - additional name tag which will be included in the file
+#' name of the aggregated collection (resulting tgz-file). This can be useful to highlight
+#' information in the file name which otherwise would not be visible.
+#' \item \bold{pucTag} (optional) - identical purpose as \bold{tag} but for the resulting
+#' unaggregated collections (puc-files).
+#' }
 #' @author Jan Philipp Dietrich, Lavinia Baumstark
 #' @seealso
 #' \code{\link{calcOutput}},\code{\link{setConfig}}
@@ -26,166 +37,241 @@
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #' @importFrom methods formalArgs
-#' @importFrom utils sessionInfo tar
-#' @importFrom withr with_dir
+#' @importFrom utils sessionInfo tar modifyList
+#' @importFrom withr with_dir with_tempdir
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", ...) {
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
+
+  setWrapperActive("retrieveData")
+  setWrapperActive("saveCache")
+  setWrapperInactive("wrapperChecks")
 
   if (!(cachetype %in% c("rev", "def"))) {
     stop("Unknown cachetype \"", cachetype, "\"!")
   }
 
-  # extract setConfig settings and apply via setConfig
-  inargs <- list(...)
+  rev <- numeric_version(rev)
 
-  tmp <- intersect(names(inargs), formalArgs(setConfig))
-  if (length(tmp) > 0) {
-    do.call(setConfig, c(inargs[tmp], list(.local = TRUE)))
+  # check and structure settings
+  cfg <- .prepConfig(model, rev, dev, ...)
+
+  if (getConfig("debug") != TRUE) {
+
+    .match <- function(folder, fileType, pattern) {
+      match <- dir(path = folder, pattern = paste0(".*\\.", fileType))
+      match <- match[startsWith(match, pattern) & !startsWith(match, paste0(pattern, "_debug"))]
+      return(match)
+    }
+
+    matchingCollections <- .match(getConfig("outputfolder"), "tgz", cfg$collectionName)
+
+    if (length(matchingCollections) > 0) {
+      startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
+      vcat(-2, " - data is already available and not calculated again.", fill = 300)
+      toolendmessage(startinfo)
+      return()
+    }
+
+    if (puc) {
+      matchingPUCs <- .match(getConfig("pucfolder"), "puc", cfg$pucName)
+
+      if (length(matchingPUCs) == 1) {
+        vcat(-2, " - data will be created from existing puc (", matchingPUCs, ").", fill = 300)
+        do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)),
+                                 cfg$input[cfg$pucArguments]))
+        return()
+      }
+    }
+
   }
 
-  setWrapperActive("retrieveData")
-  setWrapperInactive("wrapperChecks")
+  # data not yet ready and has to be prepared first
+  sourcefolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
 
-  # receive function name and function
-  functionname <- prepFunctionName(type = toupper(model), prefix = "full")
-  setWrapperActive("wrapperChecks")
-  functiononly <- eval(parse(text = sub("\\(.*$", "", functionname)))
-  setWrapperInactive("wrapperChecks")
+  # create folder if required
+  if (!file.exists(sourcefolder)) {
+    dir.create(sourcefolder, recursive = TRUE)
+  }
+
+  # copy mapping to mapping folder and set config accordingly
+  regionmapping <- toolGetMapping(getConfig("regionmapping"), type = "regional", returnPathOnly = TRUE)
+  mappath <- toolGetMapping(paste0(cfg$regionscode, ".csv"), "regional", error.missing = FALSE, returnPathOnly = TRUE)
+  if (!file.exists(mappath)) {
+    if (!dir.exists(dirname(mappath))) {
+      dir.create(dirname(mappath), recursive = TRUE)
+    }
+    file.copy(regionmapping, mappath)
+  }
+  # copy mapping to output folder
+  tryCatch({
+    file.copy(regionmapping, sourcefolder, overwrite = TRUE)
+  }, error = function(error) {
+    warning("Copying regionmapping to output folder failed: ", error)
+  })
+  tryCatch({
+    saveRDS(list(package = attr(cfg$functionName, "package"),
+                 args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
+                 pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
+            file.path(sourcefolder, "config.rds"), version = 2)
+  }, error = function(error) {
+    warning("Creation of config.rds failed: ", error)
+  })
+  setConfig(
+    regionmapping = paste0(cfg$regionscode, ".csv"),
+    outputfolder = sourcefolder,
+    diagnostics = "diagnostics",
+    .local = TRUE
+  )
+
+  if (cachetype == "rev") {
+    setConfig(
+      cachefolder = file.path(getConfig("mainfolder"), "cache", paste0("rev", rev, dev)),
+      forcecache = TRUE,
+      .local = TRUE
+    )
+  }
+
+  getConfig(print = TRUE)
+
+  # log sessionInfo
+  vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
+
+  # run full* functions
+  startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
+
+  vcat(2, " - execute function ", cfg$functionName, fill = 300, show_prefix = FALSE)
+
+  # get madrat graph to check for possible problems
+  getMadratGraph(packages = getConfig("packages"),
+                 globalenv = getConfig("globalenv"))
+
+  with_dir(sourcefolder, {
+    setWrapperActive("wrapperChecks")
+    returnedValue <- do.call(cfg$functionCode, cfg$fullNow)
+    setWrapperInactive("wrapperChecks")
+  })
+  if ("tag" %in% names(returnedValue)) {
+    if (grepl(pattern = "debug", returnedValue$tag)) {
+      warning("The tag returned in a fullXYZ function should not include the word 'debug'")
+    }
+    cfg$collectionName <- paste0(cfg$collectionName, "_", returnedValue$tag)
+  }
+
+  vcat(2, " - function ", cfg$functionName, " finished", fill = 300, show_prefix = FALSE)
+
+  if (puc) {
+    vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
+    pucFiles <- file.path(sourcefolder, "pucFiles")
+    if (file.exists(pucFiles)) {
+      vcat(2, " - list of files for puc identified", fill = 300, show_prefix = FALSE)
+      if ("pucTag" %in% names(returnedValue)) {
+        cfg$pucName <- paste0(cfg$pucName, "_", returnedValue$pucTag)
+      }
+      pucName <- paste0(cfg$pucName, ".puc")
+      pucPath <- file.path(getConfig("pucfolder"), pucName)
+      if (!dir.exists(getConfig("pucfolder"))) dir.create(getConfig("pucfolder"), recursive = TRUE)
+      if (!file.exists(pucPath)) {
+        vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
+        with_tempdir({
+          cacheFiles <- readLines(pucFiles)
+          file.copy(cacheFiles, ".")
+          otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
+          file.copy(file.path(sourcefolder, otherFiles), ".")
+          suppressWarnings(tar(pucPath, compression = "gzip"))
+        })
+      }
+    } else {
+      vcat(1, "Could not find list of files to be added to the puc file")
+    }
+  }
+
+  with_dir(sourcefolder, {
+    suppressWarnings(tar(file.path("..", paste0(cfg$collectionName, ".tgz")), compression = "gzip"))
+  })
+  unlink(sourcefolder, recursive = TRUE)
+
+  toolendmessage(startinfo)
+}
+
+
+.prepConfig <- function(model, rev, dev, ...) {
+  cfg  <- list(input = c(list(dev = dev, rev = rev), list(...)))
+
+  # get setConfig arguments
+  tmp <- intersect(names(cfg$input), formalArgs(setConfig))
+  if (length(tmp) > 0) {
+    cfg$setConfig <- cfg$input[tmp]
+  }
+
+  if (!is.null(cfg$setConfig)) {
+    do.call(setConfig, c(cfg$setConfig, list(.local = parent.frame())))
+  }
+
+  # receive function name and code
+  cfg$functionName <- prepFunctionName(type = toupper(model), prefix = "full")
+  cfg$functionCode <- eval(parse(text = sub("\\(.*$", "", cfg$functionName)))
+
+  cfg$fullDefault <- formals(cfg$functionCode)
+
+  # compute arguments which will be sent to fullXYZ function
+  if (!is.null(cfg$fullDefault)) {
+    cfg$fullNow <- modifyList(cfg$fullDefault, cfg$input, keep.null = TRUE)
+    cfg$fullNow <- cfg$fullNow[names(cfg$fullDefault)]
+  } else {
+    cfg$fullNow <- list()
+  }
 
   # are all arguments used somewhere? -> error
-  tmp <- (names(inargs) %in% union(formalArgs(setConfig), formalArgs(functiononly)))
+  tmp <- (names(cfg$input) %in% c(formalArgs(setConfig), names(cfg$fullDefault), "rev", "dev"))
   if (!all(tmp)) {
-    stop("Unknown argument(s) \"", paste(names(inargs)[!tmp], collapse = "\", \""), "\"")
+    stop("Unknown argument(s) \"", paste(names(cfg$input)[!tmp], collapse = "\", \""), "\" in retrieveData")
   }
 
   # are arguments used in both - setConfig and the fullFunction? -> warning
-  tmp <- intersect(formalArgs(setConfig), formalArgs(functiononly))
+  tmp <- intersect(formalArgs(setConfig), names(cfg$fullDefault))
   if (length(tmp) > 0) {
     warning(
       "Overlapping arguments between setConfig and retrieve function (\"",
-      paste(tmp, collapse = "\", \""), "\")"
-    )
+      paste(tmp, collapse = '", "'), '")')
   }
 
-  uselabels <- !(isTRUE(getConfig("nolabels")) || model %in% getConfig("nolabels"))
+  # create argument hash
+  cfg$formalsReduced <- cfg$fullNow
+  cfg$formalsReduced$dev <- NULL
+  cfg$formalsReduced$rev <- NULL
 
-  # reduce inargs to arguments sent to full function and create hash from it
-  inargs <- inargs[names(inargs) %in% formalArgs(functiononly)]
-  # insert default arguments, if not set explicitly to ensure identical args_hash
-  defargs <- formals(functiononly)
-  # remove dev and rev arguments as they are being treated separately
-  defargs$dev <- NULL
-  defargs$rev <- NULL
-  toadd <- names(defargs)[!(names(defargs) %in% names(inargs))]
-  if (length(toadd) > 0) {
-    inargs[toadd] <- defargs[toadd]
-  }
-  if (length(inargs) > 0) {
-    hashs <- digest(inargs, algo = getConfig("hash"))
-    if (uselabels) {
-      hashs <- toolCodeLabels(hashs)
+  # compute which arguments can be selected when compiling a puc
+  cfg$pucArguments <- getFlags(cfg$functionCode)$pucArguments$code
+  cfg$formalsPUC <- cfg$formalsReduced[!(names(cfg$formalsReduced) %in% cfg$pucArguments)]
+
+  useLabels <- !(isTRUE(getConfig("nolabels")) || model %in% getConfig("nolabels"))
+
+  .argsHash <- function(formals, useLabels) {
+    if (length(formals) > 0) {
+      hashs <- digest(formals, algo = getConfig("hash"))
+      if (useLabels) {
+        hashs <- toolCodeLabels(hashs)
+      }
+      argsHash <- paste0(hashs, "_")
+    } else {
+      argsHash <- NULL
     }
-    argsHash <- paste0(hashs, "_")
+    return(argsHash)
+  }
+
+  cfg$regionscode <- regionscode(label = useLabels)
+
+  cfg$collectionName <- paste0("rev", rev, dev, "_", cfg$regionscode, "_",
+                               .argsHash(cfg$formalsReduced, useLabels), tolower(model),
+                               ifelse(getConfig("debug") == TRUE, "_debug", ""))
+  if (is.null(cfg$pucArguments)) {
+    extraArgs <- ""
   } else {
-    argsHash <- NULL
+    extraArgs <- paste0(paste(cfg$pucArguments, collapse = "_"), "_")
   }
+  cfg$pucName     <- paste0("rev", rev, dev, "_", extraArgs, .argsHash(cfg$formalsPUC, useLabels),
+                               tolower(model), ifelse(getConfig("debug") == TRUE, "_debug", ""))
 
-  regionmapping <- getConfig("regionmapping")
-  if (!file.exists(regionmapping)) {
-    regionmapping <- toolGetMapping(regionmapping, type = "regional", returnPathOnly = TRUE)
-  }
-  regionscode <- regionscode(regionmapping, label = uselabels)
-
-  rev <- numeric_version(rev)
-
-  collectionname <- paste0(
-    "rev", rev, dev, "_", regionscode, "_", argsHash, tolower(model),
-    ifelse(getConfig("debug") == TRUE, "_debug", "")
-  )
-
-  matchingCacheFiles <- dir(path = getConfig("outputfolder"), pattern = ".*\\.tgz")
-  matchingCacheFiles <- matchingCacheFiles[startsWith(matchingCacheFiles, collectionname)]
-  if (!isTRUE(getConfig("debug"))) { # do not use debug files if not in debug mode
-    matchingCacheFiles <- matchingCacheFiles[!startsWith(matchingCacheFiles, paste0(collectionname, "_debug"))]
-  }
-  if (length(matchingCacheFiles) == 0 || getConfig("debug") == TRUE) {
-    # data not yet ready and has to be prepared first
-    sourcefolder <- paste0(getConfig("outputfolder"), "/", collectionname)
-
-    # create folder if required
-    if (!file.exists(sourcefolder)) {
-      dir.create(sourcefolder, recursive = TRUE)
-    }
-
-    # copy mapping to mapping folder and set config accordingly
-    mappath <- toolGetMapping(paste0(regionscode, ".csv"), "regional", error.missing = FALSE, returnPathOnly = TRUE)
-    if (!file.exists(mappath)) {
-      if (!dir.exists(dirname(mappath))) {
-        dir.create(dirname(mappath), recursive = TRUE)
-      }
-      file.copy(regionmapping, mappath)
-    }
-    # copy mapping to output folder
-    try(file.copy(regionmapping, sourcefolder, overwrite = TRUE))
-    setConfig(
-      regionmapping = paste0(regionscode, ".csv"),
-      outputfolder = sourcefolder,
-      diagnostics = "diagnostics",
-      .local = TRUE
-    )
-
-    if (cachetype == "rev") {
-      setConfig(
-        cachefolder = file.path(getConfig("mainfolder"), "cache", paste0("rev", rev, dev)),
-        forcecache = TRUE,
-        .local = TRUE
-      )
-    }
-
-    getConfig(print = TRUE)
-
-    # log sessionInfo
-    vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
-
-    # run full* functions
-    startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
-
-    vcat(2, " - execute function ", functionname, fill = 300, show_prefix = FALSE)
-
-    # get madrat graph to check for possible problems
-    getMadratGraph(packages = getConfig("packages"),
-                   globalenv = getConfig("globalenv"))
-
-    # add rev and dev arguments
-    inargs$rev <- rev
-    inargs$dev <- dev
-
-    args <- as.list(formals(functiononly))
-    for (n in names(args)) {
-      if (n %in% names(inargs)) {
-        args[[n]] <- inargs[[n]]
-      }
-    }
-    with_dir(sourcefolder, {
-      returnedValue <- do.call(functiononly, args)
-    })
-    if ("tag" %in% names(returnedValue)) {
-      if (grepl(pattern = "debug", returnedValue$tag)) {
-        warning("The tag returned in a fullXYZ function should not include the word 'debug'")
-      }
-      collectionname <- paste0(collectionname, paste0("_", returnedValue$tag))
-    }
-
-    vcat(2, " - function ", functionname, " finished", fill = 300, show_prefix = FALSE)
-
-    with_dir(sourcefolder, {
-      suppressWarnings(tar(paste0("../", collectionname, ".tgz"), compression = "gzip"))
-    })
-    unlink(sourcefolder, recursive = TRUE)
-  } else {
-    startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
-    vcat(-2, " - data is already available and not calculated again.", fill = 300)
-  }
-  toolendmessage(startinfo)
+  return(cfg)
 }

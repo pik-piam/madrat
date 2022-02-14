@@ -130,3 +130,10 @@ test_that("vcat redirect works", {
   expect_message(madrat:::cat("blub"), "NOTE: blub")
   expect_message(suppressWarnings(madrat:::warning("blub")), "WARNING: blub")
 })
+
+test_that("madrat attach/detach work", {
+  expect_silent(madratAttach("mrfancypackage"))
+  expect_true("mrfancypackage" %in% getConfig("packages"))
+  expect_silent(madratDetach("mrfancypackage"))
+  expect_false("mrfancypackage" %in% getConfig("packages"))
+})

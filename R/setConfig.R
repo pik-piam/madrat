@@ -37,6 +37,8 @@
 #' @param outputfolder The folder all outputs should be written to. In the
 #' default case this argument is set to NA meaning that the default folder
 #' should be used which is <mainfolder>/output
+#' @param pucfolder The path where portable unaggregated collection (puc) files
+#' are located. NA by default, which means <mainfolder>/puc
 #' @param nolabels vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 #' which should NOT apply a replacement of known hashes with given code labels
 #' @param forcecache Argument that allows to force madrat to read data from
@@ -95,6 +97,7 @@ setConfig <- function(regionmapping = NULL, # nolint
                       cachefolder = NULL,
                       mappingfolder = NULL,
                       outputfolder = NULL,
+                      pucfolder = NULL,
                       nolabels = NULL,
                       forcecache = NULL,
                       ignorecache = NULL,
@@ -128,6 +131,10 @@ setConfig <- function(regionmapping = NULL, # nolint
 
   firstsetting <- TRUE
   info <- NULL
+
+  if (!is.null(regionmapping) && file.exists(regionmapping)) {
+    regionmapping <- normalizePath(regionmapping)
+  }
 
   if (!is.null(enablecache)) {
     warning('Argument "enablecache" is deprecated and will be ignored, use "ignorecache" instead!')

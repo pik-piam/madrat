@@ -7,6 +7,8 @@
 #' \code{\link[base]{numeric_version}}.
 #' @param dev development suffix to distinguish development versions for the same data
 #' revision. This can be useful to distinguish parallel lines of development.
+#' @param extra additional argument which - when changed - does not require a re-computation
+#' of the portable unaggegrated collection (puc) file.
 #' \code{\link{setConfig}} (e.g. for setting the mainfolder if not already set
 #' properly).
 #' @author Jan Philipp Dietrich
@@ -17,10 +19,12 @@
 #' retrieveData("example", rev = "2.1.2", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #'
-fullEXAMPLE <- function(rev = 0, dev = "") {
+fullEXAMPLE <- function(rev = 0, dev = "", extra = "Example argument") {
   # ATTENTION: name of the model in function name must be in capital letters!
 
-  writeLines("This is a test", "test.txt")
+  "!# @pucArguments extra"
+
+  writeLines(extra, "test.txt")
 
   if (rev >= 1) {
     calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")
@@ -28,6 +32,7 @@ fullEXAMPLE <- function(rev = 0, dev = "") {
   if (dev == "test") {
     message("Here you could execute code for a hypothetical development version called \"test\"")
   }
-  # return is not required, but can be used to append a tag to the resulting filename
-  return(list(tag = "customizable_tag"))
+  # return is optional, tag is appended to the tgz filename, pucTag is appended to the puc filename
+  return(list(tag = "customizable_tag",
+              pucTag = "tag"))
 }

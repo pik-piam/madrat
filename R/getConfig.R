@@ -18,14 +18,14 @@
 #' configuration available to system tools of the madrat framework. There are
 #' only a few exceptions for which configuration settings are also readable
 #' from within a download-, read-, convert-, correct-, calc- or full-function.
-#' These expections are the setting "debug" (which can be used to add additional
+#' These exceptions are the setting "debug" (which can be used to add additional
 #' debug messages when active), the the setting "hash" (which can only be accessed
 #' from within a full function and can there be used to apply the identical hash
 #' algorithm for other calculations in which hashing is being used).
 #' Besides that "regionmapping" and "extramappings" can also be read from within
 #' calc- and full-functions but their use is at least for the calc-functions
-#' discouraged as it has negative implications for the caching (cache files might
-#' get unusable) and might significantly slow down overall calculations.
+#' discouraged as it either might lead to incorrect caching behavior, or - if
+#' implemented correctly - lead to significant slow-downs of overall calculations.
 #' All other settings are currently still accessible but trigger a warning that
 #' this option will soon be removed. So, please make sure that your code runs
 #' without reading these options!
@@ -36,7 +36,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{initializeConfig}}
 #' @export
-getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE) {
+getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE) { # nolint
   initializeConfig(verbose = verbose)
 
   allowedOptions <- list(downloadSource = "debug",
@@ -68,9 +68,9 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
   cfg$mainfolder <- sub("/$", "", cfg$mainfolder)
 
   n <- c(sourcefolder = "sources", cachefolder = "cache/default",
-         mappingfolder = "mappings", outputfolder = "output")
-  for (p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder")) {
-    if (is.na(cfg[[p]]) & !raw) cfg[[p]] <- file.path(cfg$mainfolder, n[p])
+         mappingfolder = "mappings", outputfolder = "output", pucfolder = "puc")
+  for (p in c("sourcefolder", "cachefolder", "mappingfolder", "outputfolder", "pucfolder")) {
+    if (!raw && (is.null(cfg[[p]]) || is.na(cfg[[p]]))) cfg[[p]] <- file.path(cfg$mainfolder, n[p])
   }
   if (verbose && print) {
     nmax <- max(nchar(names(cfg)))
