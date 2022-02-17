@@ -4,7 +4,14 @@
 \alias{retrieveData}
 \title{retrieveData}
 \usage{
-retrieveData(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE, ...)
+retrieveData(
+  model,
+  rev = 0,
+  dev = "",
+  cachetype = "rev",
+  puc = identical(dev, ""),
+  ...
+)
 }
 \arguments{
 \item{model}{The names of the model for which the data should be provided

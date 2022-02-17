@@ -40,7 +40,7 @@
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE, ...) { # nolint
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   setWrapperActive("retrieveData")
@@ -106,7 +106,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE
   # copy mapping to output folder
   tryCatch({
     file.copy(regionmapping, sourcefolder, overwrite = TRUE)
-  }, error = function(error) {
+  },
+ error = function(error) {
     warning("Copying regionmapping to output folder failed: ", error)
   })
   tryCatch({
@@ -114,7 +115,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE
                  args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
                  pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
             file.path(sourcefolder, "config.rds"), version = 2)
-  }, error = function(error) {
+  },
+ error = function(error) {
     warning("Creation of config.rds failed: ", error)
   })
   setConfig(
