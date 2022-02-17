@@ -106,8 +106,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   # copy mapping to output folder
   tryCatch({
     file.copy(regionmapping, sourcefolder, overwrite = TRUE)
-  },
- error = function(error) {
+  }, error = function(error) {
     warning("Copying regionmapping to output folder failed: ", error)
   })
   tryCatch({
@@ -115,8 +114,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
                  args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
                  pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
             file.path(sourcefolder, "config.rds"), version = 2)
-  },
- error = function(error) {
+  }, error = function(error) {
     warning("Creation of config.rds failed: ", error)
   })
   setConfig(
