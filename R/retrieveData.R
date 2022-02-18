@@ -40,7 +40,7 @@
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = TRUE, ...) { # nolint
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   setWrapperActive("retrieveData")

@@ -63,7 +63,7 @@ test_that("different kinds of arguments are logged correctly", {
   var3 <- as.magpie(1)
   expect_message(retrieveData("Test", globalenv = TRUE, arg1 = var1, arg2 = var2, arg3 = var3),
     paste(
-      'Run retrieveData(model = "Test", globalenv = TRUE, arg1 = c("bla", "blub"),',
+      'Run retrieveData(model = "Test", puc = TRUE, globalenv = TRUE, arg1 = c("bla", "blub"),',
       'arg2 = list(bla = "blub", ble = 12), arg3 = new("magpie", .Data = 1))'
     ),
     fixed = TRUE
