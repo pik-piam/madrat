@@ -28,7 +28,6 @@ toolCountry2isocode <- function(country, warn = TRUE, ignoreCountries = NULL, ty
                            row.names = NULL, encoding = "UTF-8")
   country2iso1 <- as.vector(country2iso[, "x"])
   names(country2iso1) <- country2iso[, "X"]
-  
   mapping <- c(country2iso1, mapping)
   names(mapping) <- tolower(names(mapping))
   country <- as.factor(country)
