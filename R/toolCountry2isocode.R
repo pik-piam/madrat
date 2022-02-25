@@ -7,7 +7,7 @@
 #' @param country A vector of country names
 #' @param warn whether warnings should be printed now or in the end of the
 #' whole process as notes
-#' @param ignoreCountries A vector of non-ISO country codes that exist in the
+#' @param ignoreCountries A vector of country names/codes that exist in the
 #' data and that should be removed but without creating a
 #' warning (they will be removed in any case). You should use that argument if
 #' you are certain that the given entries should be actually removed from the
