@@ -11,7 +11,8 @@ toolFillWithRegionAvg(
   callToolCountryFill = FALSE,
   regionmapping = NULL,
   verbose = TRUE,
-  warningThreshold = 0.5
+  warningThreshold = 0.5,
+  noteThreshold = 1
 )
 }
 \arguments{
@@ -37,6 +38,9 @@ Can generate a lot of output for a large object.}
 
 \item{warningThreshold}{If more than this fraction of the countries in a given region and
 timestep have a missing value, throw a warning.}
+
+\item{noteThreshold}{If more than this fraction of the countries in a given region and
+timestep have a missing value, a note will be written.}
 }
 \value{
 A MAgPIE object with the missing values filled.
@@ -61,5 +65,5 @@ rel <- data.frame(CountryCode = c("A", "B", "C", "D"), RegionCode = c("R1", "R1"
 xfilled <- toolFillWithRegionAvg(x, regionmapping = rel)
 }
 \author{
-Bjoern Soergel, Lavinia Baumstark
+Bjoern Soergel, Lavinia Baumstark, Jan Philipp Dietrich
 }

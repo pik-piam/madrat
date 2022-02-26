@@ -27,8 +27,10 @@
 #' Can generate a lot of output for a large object.
 #' @param warningThreshold If more than this fraction of the countries in a given region and
 #' timestep have a missing value, throw a warning.
+#' @param noteThreshold If more than this fraction of the countries in a given region and
+#' timestep have a missing value, a note will be written.
 #' @return A MAgPIE object with the missing values filled.
-#' @author Bjoern Soergel, Lavinia Baumstark
+#' @author Bjoern Soergel, Lavinia Baumstark, Jan Philipp Dietrich
 #'
 #' @importFrom magclass as.magpie is.magpie getItems getYears dimSums
 #' @export
@@ -39,8 +41,8 @@
 #'   fill = c(1, NA, 3, 4, 5, 6, NA, 8))
 #' rel <- data.frame(CountryCode = c("A", "B", "C", "D"), RegionCode = c("R1", "R1", "R1", "R2"))
 #' xfilled <- toolFillWithRegionAvg(x, regionmapping = rel)
-toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToolCountryFill = FALSE,
-                                  regionmapping = NULL, verbose = TRUE, warningThreshold = 0.5) {
+toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToolCountryFill = FALSE, # nolint
+                                  regionmapping = NULL, verbose = TRUE, warningThreshold = 0.5, noteThreshold = 1) {
 
   if (!is.magpie(x)) stop("Input x has to be a MAgPIE object!")
   # limit to one data dimension at a time (avoids potential pitfalls with weight dimensions)
@@ -82,7 +84,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   # container for new values
   xNew <- as.magpie(x)
 
-  aboveThreshold <- NULL
+  aboveThreshold <- list(warning = list(), note = list())
   replace <- NULL
 
   # computation of regional averages and replacing
@@ -106,7 +108,10 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
 
       replace <- c(replace, paste0(regi, "|", yr, " (", length(cNA), "x) -> ", round(fillVal, 2)))
       if (length(cNA) / length(cRegi) > warningThreshold) {
-        aboveThreshold <- c(aboveThreshold, paste0(regi, "|", yr))
+        aboveThreshold$warning[[regi]] <- c(aboveThreshold$warning[[regi]], yr)
+      }
+      if (length(cNA) / length(cRegi) > noteThreshold) {
+        aboveThreshold$note[[regi]] <- c(aboveThreshold$note[[regi]], yr)
       }
 
     }
@@ -114,8 +119,12 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
   if (verbose) {
     vcat(1, "Replaced missing values with regional average for: ", paste(replace, collapse = ", "))
   }
-  if (length(aboveThreshold) > 0) {
-    warning("More than ", 100 * warningThreshold, "% missing values for: ", paste(aboveThreshold, collapse = ", "))
+  if (length(aboveThreshold$warning) > 0) {
+    warning("More than ", 100 * warningThreshold, "% missing values for: ",
+            paste(names(aboveThreshold$warning), collapse = ", "))
+  } else if (length(aboveThreshold$note) > 0) {
+    vcat(1, "More than ", 100 * noteThreshold, "% missing values for: ",
+         paste(names(aboveThreshold$note), collapse = ", "))
   }
 
   return(xNew)
