@@ -81,18 +81,22 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
 
   # add missing data
   if (length(missingCountries) > 0) {
-
+    if (length(fill) <= 1) {
+      fillMessage <- fill
+    } else {
+      fillMessage <- "a given vector of values"
+    }
     missingImportantCountries <- setdiff(intersect(missingCountries, getISOlist("important")), names(map))
     if (length(missingImportantCountries) > 0) {
       namesCountries <- names(countrylist)[countrylist %in% missingImportantCountries]
-      vcat(verbosity, " - toolCountryFill set missing values for IMPORTANT countries to ", fill, ":")
+      vcat(verbosity, " - toolCountryFill set missing values for IMPORTANT countries to ", fillMessage, ":")
       vcat(verbosity, " --- ", paste0(namesCountries, " (", countrylist[namesCountries], ") "), show_prefix = FALSE)
     }
 
     missingDispensableCountries <- setdiff(intersect(missingCountries, getISOlist("dispensable")), names(map))
     if (length(missingImportantCountries) > 0) {
       namesCountries <- names(countrylist)[countrylist %in% missingDispensableCountries]
-      vcat(2, " - toolCountryFill set missing values for DISPENSABLE countries to ", fill, ":")
+      vcat(2, " - toolCountryFill set missing values for DISPENSABLE countries to ", fillMessage, ":")
       vcat(2, " --- ", paste0(namesCountries, " (", countrylist[namesCountries], ") "), show_prefix = FALSE)
     }
 
