@@ -4,13 +4,25 @@
 \alias{toolCountry2isocode}
 \title{toolCountry2isocode}
 \usage{
-toolCountry2isocode(country, warn = TRUE, type = NULL, mapping = NULL)
+toolCountry2isocode(
+  country,
+  warn = TRUE,
+  ignoreCountries = NULL,
+  type = NULL,
+  mapping = NULL
+)
 }
 \arguments{
 \item{country}{A vector of country names}
 
 \item{warn}{whether warnings should be printed now or in the end of the
 whole process as notes}
+
+\item{ignoreCountries}{A vector of country names/codes that exist in the
+data and that should be removed but without creating a
+warning (they will be removed in any case). You should use that argument if
+you are certain that the given entries should be actually removed from the
+data.}
 
 \item{type}{deprecated and will be removed soon!}
 
