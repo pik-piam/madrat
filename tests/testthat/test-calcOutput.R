@@ -257,8 +257,9 @@ test_that("Aggregation works", {
   xtramap <- file.path(tempdir(), "blub.csv")
   file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
   setConfig(extramappings = xtramap, .local = TRUE)
-  expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "glo")), paste("Ignoring column\(s\) X, region, global from .* as the column\(s\) already exist in another mapping\."))
-  
+  expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "glo")),
+    paste("Ignoring column\\(s\\) X, region, global from .* as the column\\(s\\) already exist in another mapping\\."))
+
   expect_identical(a, glo)
 })
 
