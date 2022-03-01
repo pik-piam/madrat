@@ -9,9 +9,14 @@ compareMadratOutputs(package, functionName, subtypes)
 \arguments{
 \item{package}{[character(1)] The package where the given function is located. It will be attached via `library`.}
 
-\item{functionName}{[character(1)] The name of the function from which you want to compare outputs.}
+\item{functionName}{[character(1)] The name of the function from which you want to compare outputs. Must be a madrat
+function whose name starts with read, correct, convert, or calc.}
 
 \item{subtypes}{[character(n)] The subtypes you want to check. For calc functions this must be NULL.}
+}
+\value{
+Invisibly the result of `waldo::compare` or `all.equal` if a comparison was made, otherwise a named list of
+the outputs for each subtype.
 }
 \description{
 With `compareMadratOutputs` you can easily compare the output of a madrat function (read, calc, ...) with and without

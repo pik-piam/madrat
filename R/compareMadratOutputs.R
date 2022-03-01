@@ -8,9 +8,10 @@
 #' containing the new output is saved for closer inspection. All files are created in the current working directory.
 #'
 #' @param package [character(1)] The package where the given function is located. It will be attached via `library`.
-#' @param functionName [character(1)] The name of the function from which you want to compare outputs.
+#' @param functionName [character(1)] The name of the function from which you want to compare outputs. Must be a madrat
+#' function whose name starts with read, correct, convert, or calc.
 #' @param subtypes [character(n)] The subtypes you want to check. For calc functions this must be NULL.
-#' @value Invisibly the result of `waldo::compare` or `all.equal` if a comparison was made, otherwise a named list of
+#' @return Invisibly the result of `waldo::compare` or `all.equal` if a comparison was made, otherwise a named list of
 #' the outputs for each subtype.
 #'
 #' @examples
@@ -30,7 +31,7 @@
 #' @importFrom utils askYesNo
 #' @export
 compareMadratOutputs <- function(package, functionName, subtypes) {
-  functionHash <- digest(eval(str2expression(functionName)), "xxhash32") # fingerprint does not support downloadX
+  functionHash <- digest(eval(str2expression(paste0(package, ":::", functionName))), "xxhash32")
   oldRds <- Sys.glob(paste0(functionName, "-old-*.rds"))
   stopifnot(length(oldRds) %in% 0:1)
   if (length(oldRds) == 0 && !askYesNo(paste0("Are you using the original, unchanged ", functionName, " right now?"))) {
@@ -49,9 +50,7 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
   message("Running library(", package, ")")
   library(package, character.only = TRUE) # nolint
   output <- lapply(subtypes, function(subtype) {
-    if (startsWith(functionName, "download")) {
-      return(downloadSource(sub("^download", "", functionName), subtype = subtype))
-    } else if (startsWith(functionName, "read")) {
+    if (startsWith(functionName, "read")) {
       return(readSource(sub("^read", "", functionName), subtype = subtype, convert = FALSE))
     } else if (startsWith(functionName, "correct")) {
       return(readSource(sub("^correct", "", functionName), subtype = subtype, convert = "onlycorrect"))
@@ -60,6 +59,8 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
     } else if (startsWith(functionName, "calc")) {
       stopifnot(is.null(subtype))
       return(calcOutput(sub("^calc", "", functionName), aggregate = FALSE))
+    } else {
+      stop(functionName, " does not start with read, correct, convert, or calc.")
     }
   })
   names(output) <- subtypes
