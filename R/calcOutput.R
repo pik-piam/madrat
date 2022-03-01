@@ -366,9 +366,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
         # merge two region mappings by their 'country' column and append '-remove' to the names
         # of columns in the second mapping that also exist in the first mapping.
         tmp <- merge(tmp,rel[[i]], by = "country", suffixes = c("","-remove"))
-        # find index of columns that are ignored
+        # find index of columns that will be removed from the merge result
         ignoredColumnsID <- grep("-remove",colnames(tmp))
-        # make list of names of columns that are ignored
+        # list names of columns that will be removed
         ignoredColumnsName <- paste(gsub("-remove","",colnames(tmp)[ignoredColumnsID]), collapse = ", ")
         vcat(verbosity = 0, "Ignoring column(s) ", ignoredColumnsName, " from ", names(rel[i]),
              " as the column(s) already exist in another mapping.", sep = " ")

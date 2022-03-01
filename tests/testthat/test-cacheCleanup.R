@@ -7,7 +7,7 @@ test_that("cacheCleanup deletes old files", {
   file.create(cacheFile)
 
   expect_error(cacheCleanup(30, cacheFolder, "stime"),
-               "'arg' should be one of .*atime.*, .*mtime.*, .*ctime.*")
+               "'arg' .*atime.*, .*mtime.*, .*ctime.*")
 
   cacheCleanup(30, cacheFolder, timeType, ask = FALSE)
   expect_true(file.exists(cacheFile))
