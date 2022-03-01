@@ -12,7 +12,8 @@ calcOutput(
   round = NULL,
   supplementary = FALSE,
   append = FALSE,
-  na_warning = TRUE,
+  warnNA = TRUE,
+  na_warning = NULL,
   try = FALSE,
   regionmapping = NULL,
   ...
@@ -40,7 +41,9 @@ returned or not. If set to TRUE a list of elements will be returned!}
 \item{append}{boolean deciding whether the output data should be appended in the existing file.
 Works only when a file name is given in the function call.}
 
-\item{na_warning}{boolean deciding whether NAs in the data set should create a warning or not}
+\item{warnNA}{boolean deciding whether NAs in the data set should create a warning or not}
+
+\item{na_warning}{deprecated, please use \code{warnNA} instead}
 
 \item{try}{if set to TRUE the calculation will only be tried and the script will continue even if
 the underlying calculation failed. If set to TRUE calculation will stop with an error in such a

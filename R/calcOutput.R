@@ -18,7 +18,8 @@
 #' returned or not. If set to TRUE a list of elements will be returned!
 #' @param append boolean deciding whether the output data should be appended in the existing file.
 #' Works only when a file name is given in the function call.
-#' @param na_warning boolean deciding whether NAs in the data set should create a warning or not
+#' @param warnNA boolean deciding whether NAs in the data set should create a warning or not
+#' @param na_warning deprecated, please use \code{warnNA} instead
 #' @param try if set to TRUE the calculation will only be tried and the script will continue even if
 #' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
 #' case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
@@ -91,7 +92,7 @@
 #' @export
 
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
-                       append = FALSE, na_warning = TRUE, try = FALSE, regionmapping = NULL, ...) { # nolint
+                       append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, regionmapping = NULL, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
@@ -101,6 +102,10 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   saveCache <- isWrapperActive("saveCache")
   setWrapperInactive("saveCache")
 
+  if (!is.null(na_warning)) {
+    warning('Argument "na_warning" is deprecated. Please use "warnNA" instead!')
+    warnNA <- na_warning
+  }
 
   if (!dir.exists(getConfig("cachefolder"))) {
       dir.create(getConfig("cachefolder"), recursive = TRUE)
@@ -230,7 +235,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     checkNameStructure(x$x, x$structure.data, 3, x$class)
 
     if (x$class == "magpie") {
-      if (na_warning) if (anyNA(x$x)) vcat(0, "Data returned by ", functionname, " contains NAs")
+      if (warnNA && anyNA(x$x))  vcat(0, "Data returned by ", functionname, " contains NAs")
       if (any(is.infinite(x$x))) vcat(0, "Data returned by ", functionname, " contains infinite values")
     }
     return(x)
