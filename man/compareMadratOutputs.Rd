@@ -7,11 +7,11 @@
 compareMadratOutputs(package, functionName, subtypes)
 }
 \arguments{
-\item{package}{[character(1)] The package where the given function is located.}
+\item{package}{[character(1)] The package where the given function is located. It will be attached via `library`.}
 
-\item{functionName}{The name of the function from which you want to compare outputs.}
+\item{functionName}{[character(1)] The name of the function from which you want to compare outputs.}
 
-\item{subtypes}{The subtypes you want to check. For calc functions this must be NULL.}
+\item{subtypes}{[character(n)] The subtypes you want to check. For calc functions this must be NULL.}
 }
 \description{
 With `compareMadratOutputs` you can easily compare the output of a madrat function (read, calc, ...) with and without
@@ -24,13 +24,13 @@ containing the new output is saved for closer inspection. All files are created 
 }
 \examples{
 \dontrun{
-# save readFRA2020-old.rds
-compareMadratOutputs("mrcommons", "readFRA2020", c("forest_area", "deforestation")
+# save original output to readTau-old.rds
+compareMadratOutputs("madrat", "readTau", c("paper", "historical"))
 
-# now apply your changes to mrcommons:::readFRA2020, reinstall mrcommons, restart the R session
+# now apply your changes to madrat:::readTau, reinstall madrat, restart the R session
 
-# compare to readFRA2020-old.rds
-compareMadratOutputs("mrcommons", "readFRA2020", c("forest_area", "deforestation")
+# compare new output to original output from readTau-old.rds
+compareMadratOutputs("madrat", "readTau", c("paper", "historical"))
 }
 
 }

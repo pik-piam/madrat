@@ -7,40 +7,48 @@
 #' For comparing `waldo::compare` is used if available, otherwise `all.equal`. If there are differences a `*-new.rds`
 #' containing the new output is saved for closer inspection. All files are created in the current working directory.
 #'
-#' @param package [character(1)] The package where the given function is located.
-#' @param functionName The name of the function from which you want to compare outputs.
-#' @param subtypes The subtypes you want to check. For calc functions this must be NULL.
+#' @param package [character(1)] The package where the given function is located. It will be attached via `library`.
+#' @param functionName [character(1)] The name of the function from which you want to compare outputs.
+#' @param subtypes [character(n)] The subtypes you want to check. For calc functions this must be NULL.
+#' @value Invisibly the result of `waldo::compare` or `all.equal` if a comparison was made, otherwise a named list of
+#' the outputs for each subtype.
 #'
 #' @examples
 #' \dontrun{
-#' # save readFRA2020-old.rds
-#' compareMadratOutputs("mrcommons", "readFRA2020", c("forest_area", "deforestation")
+#' # save original output to readTau-old.rds
+#' compareMadratOutputs("madrat", "readTau", c("paper", "historical"))
 #'
-#' # now apply your changes to mrcommons:::readFRA2020, reinstall mrcommons, restart the R session
+#' # now apply your changes to madrat:::readTau, reinstall madrat, restart the R session
 #'
-#' # compare to readFRA2020-old.rds
-#' compareMadratOutputs("mrcommons", "readFRA2020", c("forest_area", "deforestation")
+#' # compare new output to original output from readTau-old.rds
+#' compareMadratOutputs("madrat", "readTau", c("paper", "historical"))
 #' }
 #'
 #' @author Pascal Führlich
 #'
+#' @importFrom digest digest
 #' @importFrom utils askYesNo
-#' @importFrom withr with_package
 #' @export
 compareMadratOutputs <- function(package, functionName, subtypes) {
-  oldRds <- paste0(functionName, "-old.rds")
-  if (!file.exists(oldRds) && !askYesNo(paste0("Are you using the original/pre-refactoring/unchanged ",
-                                               functionName, " right now?"))) {
-    stop("You need to run compareMadratOutputs with the original/pre-refactoring/unchanged ", functionName,
+  functionHash <- digest(eval(str2expression(functionName)), "xxhash32") # fingerprint does not support downloadX
+  oldRds <- Sys.glob(paste0(functionName, "-old-*.rds"))
+  stopifnot(length(oldRds) %in% 0:1)
+  if (length(oldRds) == 0 && !askYesNo(paste0("Are you using the original, unchanged ", functionName, " right now?"))) {
+    stop("You need to run compareMadratOutputs with the original, unchanged ", functionName,
          " first, so you can compare the output of your changed version with the original output.")
+  }
+  if (length(oldRds) == 1 && sub(paste0("^", functionName, "-old-(.+)[.]rds$"), "\\1", oldRds) == functionHash) {
+    stop("Your are using the same version of ", functionName, " that ", oldRds, " was created with. ",
+         "Please apply your changes, re-install ", package, " with your changes, and restart the R session.")
   }
 
   setConfig(ignorecache = functionName, .local = TRUE)
   if (is.null(subtypes)) {
     subtypes <- list(NULL)
   }
+  message("Running library(", package, ")")
+  library(package, character.only = TRUE) # nolint
   output <- lapply(subtypes, function(subtype) {
-    local_package(package)
     if (startsWith(functionName, "download")) {
       return(downloadSource(sub("^download", "", functionName), subtype = subtype))
     } else if (startsWith(functionName, "read")) {
@@ -54,8 +62,9 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
       return(calcOutput(sub("^calc", "", functionName), aggregate = FALSE))
     }
   })
+  names(output) <- subtypes
 
-  if (file.exists(oldRds)) {
+  if (length(oldRds) == 1) {
     oldOutput <- readRDS(oldRds)
     if (identical(oldOutput, output)) {
       message("no differences")
@@ -63,16 +72,20 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
       saveRDS(output, paste0(functionName, "-new.rds"))
       message("Saved '", functionName, "-new.rds'. Found some differences:")
       if (requireNamespace("waldo", quietly = TRUE)) {
-        print(waldo::compare(oldOutput, output))
+        comparison <- waldo::compare(oldOutput, output)
       } else {
         message("To get nicer differences output you can run\n",
                 "install.packages('waldo')")
-        print(all.equal(oldOutput, output))
+        comparison <- all.equal(oldOutput, output)
       }
+      print(comparison)
+      return(invisible(comparison))
     }
   } else {
+    oldRds <- paste0(functionName, "-old-", functionHash, ".rds")
     saveRDS(output, oldRds)
-    message("Saved '", oldRds, "'. Now apply your changes to ", functionName,
-            " and re-run compareMadratOutputs to compare the output of your changed version to the original output.")
+    message("Saved '", oldRds, "'. Now apply your changes to ", functionName, ", re-install ", package, ", restart R, ",
+            "and re-run compareMadratOutputs to compare the output of your changed version to the original output.")
+    return(invisible(output))
   }
 }
