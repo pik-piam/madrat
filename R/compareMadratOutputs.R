@@ -4,8 +4,8 @@
 #' your changes. First, run `compareMadratOutputs` without your changes, so a `.rds` file with the original output is
 #' saved. Then apply your changes and run `compareMadratOutputs` again to compare the new output to the original output.
 #'
-#' For comparing `waldo::compare` is used if available, otherwise `all.equal`. If there are differences a `*-new.rds`
-#' containing the new output is saved for closer inspection. All files are created in the current working directory.
+#' If there are differences a `<functionName>-new.rds` containing the new output is saved for closer inspection. All
+#' files are created in the current working directory.
 #'
 #' @param package [character(1)] The package where the given function is located. It will be attached via `library`.
 #' @param functionName [character(1)] The name of the function from which you want to compare outputs. Must be a madrat
@@ -43,12 +43,12 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
          "Please apply your changes, re-install ", package, " with your changes, and restart the R session.")
   }
 
+  message("Running library(", package, ")")
+  library(package, character.only = TRUE) # nolint
   setConfig(ignorecache = functionName, .local = TRUE)
   if (is.null(subtypes)) {
     subtypes <- list(NULL)
   }
-  message("Running library(", package, ")")
-  library(package, character.only = TRUE) # nolint
   output <- lapply(subtypes, function(subtype) {
     if (startsWith(functionName, "read")) {
       return(readSource(sub("^read", "", functionName), subtype = subtype, convert = FALSE))
@@ -72,13 +72,7 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
     } else {
       saveRDS(output, paste0(functionName, "-new.rds"))
       message("Saved '", functionName, "-new.rds'. Found some differences:")
-      if (requireNamespace("waldo", quietly = TRUE)) {
-        comparison <- waldo::compare(oldOutput, output)
-      } else {
-        message("To get nicer differences output you can run\n",
-                "install.packages('waldo')")
-        comparison <- all.equal(oldOutput, output)
-      }
+      comparison <- all.equal(oldOutput, output)
       print(comparison)
       return(invisible(comparison))
     }
