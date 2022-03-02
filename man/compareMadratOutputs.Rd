@@ -24,8 +24,8 @@ your changes. First, run `compareMadratOutputs` without your changes, so a `.rds
 saved. Then apply your changes and run `compareMadratOutputs` again to compare the new output to the original output.
 }
 \details{
-For comparing `waldo::compare` is used if available, otherwise `all.equal`. If there are differences a `*-new.rds`
-containing the new output is saved for closer inspection. All files are created in the current working directory.
+If there are differences a `<functionName>-new.rds` containing the new output is saved for closer inspection. All
+files are created in the current working directory.
 }
 \examples{
 \dontrun{
