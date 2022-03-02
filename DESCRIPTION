@@ -1,7 +1,7 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 2.12.0
+Version: 2.12.1
 Date: 2022-03-01
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
@@ -15,29 +15,29 @@ Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de"
 Description: Provides a framework which should improve reproducibility and transparency in data processing. It provides functionality such as automatic meta data creation and management, rudimentary quality management, data caching, work-flow management and data aggregation.
     * The title is a wish not a promise. By no means we expect this package to deliver everything what is needed to achieve full reproducibility and transparency, but we believe that it supports efforts in this direction.
 Depends:
-    R(>= 2.10.0),
-    magclass(>= 5.7.0)
+    magclass(>= 5.7.0),
+    R(>= 2.10.0)
 Imports:
+    digest,
     igraph (>= 1.0.1),
     Matrix,
-    tools,
-    utils,
-    digest,
     methods,
     stringi,
-    yaml,
-    withr
+    tools,
+    utils,
+    withr,
+    yaml
 Suggests:
+    covr,
+    ggplot2,
     knitr,
     rmarkdown,
     testthat,
-    tibble,
-    ggplot2,
-    covr
+    tibble
 URL: https://github.com/pik-piam/madrat, https://doi.org/10.5281/zenodo.1115490
 BugReports: https://github.com/pik-piam/madrat/issues
 License: BSD_2_clause + file LICENSE
-LazyData: no
-Encoding: UTF-8
-RoxygenNote: 7.1.2
 VignetteBuilder: knitr
+Encoding: UTF-8
+LazyData: no
+RoxygenNote: 7.1.2
