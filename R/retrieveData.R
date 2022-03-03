@@ -172,17 +172,21 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
       pucPath <- file.path(getConfig("pucfolder"), pucName)
       if (!dir.exists(getConfig("pucfolder"))) dir.create(getConfig("pucfolder"), recursive = TRUE)
       if (!file.exists(pucPath)) {
-        vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
-        with_tempdir({
-          cacheFiles <- readLines(pucFiles)
-          file.copy(cacheFiles, ".")
-          otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
-          file.copy(file.path(sourcefolder, otherFiles), ".")
-          suppressWarnings(tar(pucPath, compression = "gzip"))
-        })
+        cacheFiles <- readLines(pucFiles)
+        if (all(file.exists(cacheFiles))) {
+          vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
+          with_tempdir({
+            file.copy(cacheFiles, ".")
+            otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
+            file.copy(file.path(sourcefolder, otherFiles), ".")
+            suppressWarnings(tar(pucPath, compression = "gzip"))
+          })
+        } else {
+          vcat(1, "puc file not created: could not find all relevant files.")
+        }
       }
     } else {
-      vcat(1, "Could not find list of files to be added to the puc file")
+      vcat(1, "puc file not created: could not find list of files to be added.")
     }
   }
 

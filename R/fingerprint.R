@@ -163,6 +163,7 @@ fingerprintFiles <- function(paths) {
         }
         tryCatch({
           saveRDS(files, hashCacheFile, version = 2)
+          Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
         }, error = function(error) {
           warning("Saving hashCacheFile failed: ", error)
         })
