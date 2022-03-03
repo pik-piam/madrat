@@ -48,7 +48,7 @@ getCode <- function(packages = installedMadratUniverse(), globalenv = getConfig(
   .getMappingFiles <- function(code) {
     # remove "toolGetMapping", "toolConvertMapping", "toolAggregate" and all full* functions from the code
     code <- code[!(names(code) %in% paste0("madrat:::", c("toolGetMapping", "toolConvertMapping", "toolAggregate"))) &
-                   !grepl("::full",names(code)) ]
+                   !grepl("::full", names(code))]
     getMappings <- stri_extract_all(code, regex = "toolGetMapping\\(([^()]*|[^(]*\\([^)]*\\)[^)]*)\\)",
                                     omit_no_match = TRUE)
     names(getMappings) <- names(code)
