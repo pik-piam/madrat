@@ -342,10 +342,16 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   if (aggregate != FALSE) {
     if (x$class != "magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
     items <- getItems(x$x, dim = 1)
+    
+    # find mappings that have the same (setequal) items (often ISO countries) in any column as data (items)
+    # lapply loops over the mappings, vapply loops over the columns of a mapping
+    columnHasItems <- lapply(rel, vapply, setequal, items, FUN.VALUE = logical(1))
+    # extract the names of columns that have the same items as data
+    columnNameWithItems <- lapply(columnHasItems, function(x) names(which(x)))
 
-    # mappings must have the same length as data AND all mappings must have the same ISO country column
+    # mappings must have the same length AND the same items as data
     relFitting <- which(vapply(rel, nrow, FUN.VALUE = integer(1)) == length(items) &
-                        vapply(rel, function(a){ identical(sort(a$country), sort(rel[[1]]$country))}, FUN.VALUE = logical(1))) # nolint
+                        !vapply(columnNameWithItems, identical, character(0), FUN.VALUE = logical(1)))
 
     if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
       " contain a mapping compatible to the provided data!")
@@ -353,8 +359,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     # inform about mappings that don't fit and will be omitted
     omit <- setdiff(names(rel), names(relFitting))
     if (length(omit) > 0)
-      vcat(verbosity = 0, "Ignoring region mapping ", omit, " because it does not fit the data",
-            " or shows differences in ISO countries compared to getConfig(\"regionmapping\").")
+      vcat(verbosity = 0, "Ignoring region mapping ", omit, " because it does not fit the data")
 
     # keep mappings only that fit the data
     rel <- rel[relFitting]
@@ -367,11 +372,12 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     # 'regionmapping') also exist in further mappings (provided via 'extramappings') keep only the columns from
     # the first mapping
     if (length(relFitting) > 1) {
+      ItemCol <- columnNameWithItems[relFitting]
       tmp <- rel[[1]]
       for (i in 2:length(rel)) {
         # merge two region mappings by their 'country' column and append '-remove' to the names
         # of columns in the second mapping that also exist in the first mapping.
-        tmp <- merge(tmp, rel[[i]], by = "country", suffixes = c("", "-remove"))
+        tmp <- merge(tmp, rel[[i]], by.x = ItemCol[[1]], by.y = ItemCol[[i]], suffixes = c("", "-remove"))
         # find index of columns that will be removed from the merge result
         ignoredColumnsID <- grep("-remove", colnames(tmp))
         # list names of columns that will be removed
