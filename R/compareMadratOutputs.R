@@ -31,13 +31,13 @@
 #' @importFrom utils askYesNo
 #' @export
 compareMadratOutputs <- function(package, functionName, subtypes) {
-  functionHash <- digest(eval(str2expression(paste0(package, ":::", functionName))), "xxhash32")
   oldRds <- Sys.glob(paste0(functionName, "-old-*.rds"))
   stopifnot(length(oldRds) %in% 0:1)
   if (length(oldRds) == 0 && !askYesNo(paste0("Are you using the original, unchanged ", functionName, " right now?"))) {
     stop("You need to run compareMadratOutputs with the original, unchanged ", functionName,
          " first, so you can compare the output of your changed version with the original output.")
   }
+  functionHash <- digest(eval(str2expression(paste0(package, ":::", functionName))), "xxhash32")
   if (length(oldRds) == 1 && sub(paste0("^", functionName, "-old-(.+)[.]rds$"), "\\1", oldRds) == functionHash) {
     stop("Your are using the same version of ", functionName, " that ", oldRds, " was created with. ",
          "Please apply your changes, re-install ", package, " with your changes, and restart the R session.")

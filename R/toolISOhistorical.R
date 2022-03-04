@@ -31,7 +31,8 @@
 #' @importFrom magclass getItems getYears setYears
 #'
 #' @export
-toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = FALSE, additional_weight = NULL) { # nolint
+toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = FALSE, # nolint
+                              additional_weight = NULL) { # nolint
 
   # m is magpie object, has to contain absolute values
 
@@ -56,6 +57,11 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
   # sort mapping(transitions) in historical order -> needed for the correct filling of data
   mapping <- mapping[robustOrder(mapping$lastYear), ]
   # delete transitions from mapping which are not in the time horizon of m
+  if (length(intersect(mapping$lastYear, getYears(m))) == 0) {
+    warning("toolISOhistorical cannot find reference data before/after the union/split of countries, ",
+            "returning unchanged data")
+    return(m)
+  }
   mapping <- subset(mapping,
                     mapping$lastYear <= max(intersect(mapping$lastYear, getYears(m))) &
                       mapping$lastYear >= min(intersect(mapping$lastYear, getYears(m))))
