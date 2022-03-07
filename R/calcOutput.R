@@ -359,7 +359,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     # inform about mappings that don't fit and will be omitted
     omit <- setdiff(names(rel), names(relFitting))
     if (length(omit) > 0)
-      vcat(verbosity = 0, "Ignoring region mapping ", omit, " because it does not fit the data")
+      vcat(verbosity = 2, "Ignoring region mapping ", omit, " because it does not fit the data")
 
     # keep mappings only that fit the data
     rel <- rel[relFitting]
@@ -382,7 +382,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
         ignoredColumnsID <- grep("-remove", colnames(tmp))
         # list names of columns that will be removed
         ignoredColumnsName <- paste(gsub("-remove", "", colnames(tmp)[ignoredColumnsID]), collapse = ", ")
-        vcat(verbosity = 0, "Ignoring column(s) ", ignoredColumnsName, " from ", names(rel[i]),
+        vcat(verbosity = 1, "Ignoring column(s) ", ignoredColumnsName, " from ", names(rel[i]),
              " as the column(s) already exist in another mapping.", sep = " ")
         # remove columns from the merge result tagged with '-remove'
         tmp <- tmp[, -ignoredColumnsID]
