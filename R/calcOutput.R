@@ -342,8 +342,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
   if (aggregate != FALSE) {
     if (x$class != "magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
     items <- getItems(x$x, dim = 1)
-    
-    # find mappings that have the same (setequal) items (often ISO countries) in any column as data (items)
+
+    # find mappings that have the same (setequal) items (usually ISO countries) in any column as data (items)
     # lapply loops over the mappings, vapply loops over the columns of a mapping
     columnHasItems <- lapply(rel, vapply, setequal, items, FUN.VALUE = logical(1))
     # extract the names of columns that have the same items as data
@@ -372,12 +372,12 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     # 'regionmapping') also exist in further mappings (provided via 'extramappings') keep only the columns from
     # the first mapping
     if (length(relFitting) > 1) {
-      ItemCol <- columnNameWithItems[relFitting]
+      itemCol <- columnNameWithItems[relFitting]
       tmp <- rel[[1]]
       for (i in 2:length(rel)) {
-        # merge two region mappings by their 'country' column and append '-remove' to the names
-        # of columns in the second mapping that also exist in the first mapping.
-        tmp <- merge(tmp, rel[[i]], by.x = ItemCol[[1]], by.y = ItemCol[[i]], suffixes = c("", "-remove"))
+        # merge two mappings by their column that matched the data (see above; usually the ISO countries) and
+        # append '-remove' to the names of columns in the second mapping that also exist in the first mapping.
+        tmp <- merge(tmp, rel[[i]], by.x = itemCol[[1]], by.y = itemCol[[i]], suffixes = c("", "-remove"))
         # find index of columns that will be removed from the merge result
         ignoredColumnsID <- grep("-remove", colnames(tmp))
         # list names of columns that will be removed
