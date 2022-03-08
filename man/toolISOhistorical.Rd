@@ -8,7 +8,7 @@ toolISOhistorical(
   m,
   mapping = NULL,
   additional_mapping = NULL,
-  overwrite = FALSE,
+  overwrite = NA,
   additional_weight = NULL
 )
 }

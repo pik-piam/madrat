@@ -166,7 +166,9 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     if (overwrite) {
       m[transition$toISO, subTime, ] <- mTr
     } else {
-      m[transition$toISO, subTime, ][is.na(m[transition$toISO, subTime, ])] <- mTr[is.na(m[transition$toISO, subTime, ])]
+      # only overwrite NAs
+      selectNAs <- is.na(m[transition$toISO, subTime, ])
+      m[transition$toISO, subTime, ][selectNAs] <- mTr[selectNAs]
     }
   }
 
