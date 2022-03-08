@@ -2,12 +2,25 @@ test_that("Historic data is properly translated", {
   setConfig(.verbose = FALSE, .local = TRUE)
   newcountries <- c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",
                     "LVA", "LTU", "MDA", "RUS", "TJK", "TKM", "UKR", "UZB")
-  a <- new.magpie(c("SUN", newcountries), 1990:1992)
-  a["SUN", 1990, ] <- 240
-  a[-1, 1991:1992, ] <- rep(1:15, 2)
-  a <- toolISOhistorical(a)
-  expect_identical(as.vector(a[, 1990, ]), 2 * (1:15))
-  expect_identical(magclass::getItems(a, dim = 1.1), newcountries)
+  testData <- new.magpie(c("SUN", newcountries), 1990:1992)
+  testData["SUN", 1990, ] <- 240
+  testData[-1, 1991:1992, ] <- rep(1:15, 2)
+  result <- toolISOhistorical(testData)
+  expect_identical(as.vector(result[, 1990, ]), 2 * (1:15))
+  expect_identical(magclass::getItems(result, dim = 1.1), newcountries)
+
+  testData[-1, 1990, ] <- 0
+  expect_warning(toolISOhistorical(testData),
+                 paste("Not replacing data for",
+                       "[ARM, AZE, BLR, EST, GEO, KAZ, KGZ, LVA, LTU, MDA, RUS, TJK, TKM, UKR, UZB]",
+                       "for the years [y1990] although it is all zeros. Call toolISOhistorical with",
+                       "overwrite = TRUE/FALSE to get the desired behavior without this warning."), fixed = TRUE)
+
+  result <- toolISOhistorical(testData, overwrite = FALSE)
+  expect_identical(as.vector(result[, 1990, ]), rep(0, 15))
+
+  result <- toolISOhistorical(testData, overwrite = TRUE)
+  expect_identical(as.vector(result[, 1990, ]), 2 * (1:15))
 })
 
 test_that("Given mapping data is properly translated", {
@@ -49,7 +62,9 @@ test_that("Given mapping data is properly translated", {
   expect_identical(toolISOhistorical(b, mapping = m, overwrite = FALSE), ref2)
 
   a["B1", 13, ] <- NA
-  expect_warning(o <- toolISOhistorical(a, mapping = m), "Weight in toolISOhistorical contained NAs")
+  expect_warning({
+    o <- toolISOhistorical(a, mapping = m)
+  }, "Weight in toolISOhistorical contained NAs")
   ref3 <- new("magpie", .Data = structure(c(2, 0, 1.5, 1.5, 2, 0, 1.5,
                                             1.5, 2, 0, 1.5, 1.5, 2, 0, 1.5, 1.5, 2, NA, 1, 1),
                                          .Dim = c(4L, 5L, 1L), .Dimnames = list(region = c("A", "B1", "B2", "B3"),
