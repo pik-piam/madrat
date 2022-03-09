@@ -1,6 +1,6 @@
 # May All Data be Reproducible and Transparent (MADRaT) *
 
-R package **madrat**, version **2.13.1**
+R package **madrat**, version **2.13.0**
 
 [![CRAN status](https://www.r-pkg.org/badges/version/madrat)](https://cran.r-project.org/package=madrat) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1115490.svg)](https://doi.org/10.5281/zenodo.1115490) [![R build status](https://github.com/pik-piam/madrat/workflows/check/badge.svg)](https://github.com/pik-piam/madrat/actions) [![codecov](https://codecov.io/gh/pik-piam/madrat/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/madrat) [![r-universe](https://pik-piam.r-universe.dev/badges/madrat)](https://pik-piam.r-universe.dev/ui#builds)
 
@@ -31,6 +31,16 @@ Package updates can be installed using `update.packages` (make sure that the add
 update.packages()
 ```
 
+## Tutorial
+
+The package comes with vignettes describing the basic functionality of the package and how to use it. You can load them with the following command (the package needs to be installed):
+
+```r
+vignette("madrat-caching") # Data caching in madrat
+vignette("madrat-puc")     # Portable unagreggated collections (PUCs) in MADRaT
+vignette("madrat")         # Data preparation with madrat
+```
+
 ## Questions / Problems
 
 In case of questions / problems please contact Jan Philipp Dietrich <dietrich@pik-potsdam.de>.
@@ -39,7 +49,7 @@ In case of questions / problems please contact Jan Philipp Dietrich <dietrich@pi
 
 To cite package **madrat** in publications use:
 
-Dietrich J, Baumstark L, Wirth S, Giannousakis A, Rodrigues R, Bodirsky B, Kreidenweis U, Klein D, Führlich P (2022). _madrat: May All Data be Reproducible and Transparent (MADRaT)_. doi: 10.5281/zenodo.1115490 (URL: https://doi.org/10.5281/zenodo.1115490), R package version 2.13.1, <URL: https://github.com/pik-piam/madrat>.
+Dietrich J, Baumstark L, Wirth S, Giannousakis A, Rodrigues R, Bodirsky B, Kreidenweis U, Klein D, Führlich P (2022). _madrat: May All Data be Reproducible and Transparent (MADRaT)_. doi: 10.5281/zenodo.1115490 (URL: https://doi.org/10.5281/zenodo.1115490), R package version 2.13.0, <URL: https://github.com/pik-piam/madrat>.
 
 A BibTeX entry for LaTeX users is
 
@@ -48,7 +58,7 @@ A BibTeX entry for LaTeX users is
   title = {madrat: May All Data be Reproducible and Transparent (MADRaT)},
   author = {Jan Philipp Dietrich and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Ulrich Kreidenweis and David Klein and Pascal Führlich},
   year = {2022},
-  note = {R package version 2.13.1},
+  note = {R package version 2.13.0},
   doi = {10.5281/zenodo.1115490},
   url = {https://github.com/pik-piam/madrat},
 }
