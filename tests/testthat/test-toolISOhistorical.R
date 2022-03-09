@@ -71,3 +71,16 @@ test_that("Given mapping data is properly translated", {
                                           year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
   expect_identical(o, ref3)
 })
+
+test_that("toolISOhistorical recognizes fractional data", {
+  testData <- new.magpie(c("SCG", "SRB", "MNE"), 2004:2006, c("a", "b"))
+  testData["SCG", 2004, ] <- 0.4
+  testData["SCG", 2005, ] <- 0.2
+  testData[c("SRB", "MNE"), 2005, ] <- rep(0.1, 4)
+  testData[c("SRB", "MNE"), 2006, ] <- rep(0.2, 4)
+  expect_warning(toolISOhistorical(testData),
+                 paste0("All data for x[, , c(1, 2)] is <= 1 or NA. ",
+                        "If that data is fractional toolISOhistorical must not be used on it. ",
+                        "If the data is not fractional, pass checkFractional = FALSE when calling toolISOhistorical."),
+                 fixed = TRUE)
+})

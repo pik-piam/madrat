@@ -32,8 +32,14 @@
 #'
 #' @export
 toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = NA, # nolint
-                              additional_weight = NULL) { # nolint
+                              additional_weight = NULL, checkFractional = TRUE) { # nolint
   # m is magpie object, has to contain absolute values
+  maybeFractionalData <- Filter(x = seq_len(dim(m)[[3]]), function(i) all(m[, , i] <= 1, na.rm = TRUE))
+  if (checkFractional && length(maybeFractionalData) > 0) {
+    warning("All data for x[, , c(", paste(maybeFractionalData, collapse = ", "), ")] is <= 1 or NA. ",
+            "If that data is fractional toolISOhistorical must not be used on it. ",
+            "If the data is not fractional, pass checkFractional = FALSE when calling toolISOhistorical.")
+  }
 
   # mapping of historical countries and regions to the standard ISO-Country-List
   #            and last year of existence of the historical countries
