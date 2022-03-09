@@ -28,6 +28,7 @@
 #' @author Pascal Führlich
 #'
 #' @importFrom digest digest
+#' @importFrom magclass where
 #' @importFrom utils askYesNo
 #' @export
 compareMadratOutputs <- function(package, functionName, subtypes) {
@@ -72,7 +73,10 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
     } else {
       saveRDS(output, paste0(functionName, "-new.rds"))
       message("Saved '", functionName, "-new.rds'. Found some differences:")
-      comparison <- all.equal(oldOutput, output)
+      comparison <- lapply(seq_along(output), function(i) {
+        return(where(oldOutput[[1]] != output[[1]])[["true"]])
+      })
+      names(comparison) <- subtypes
       print(comparison)
       return(invisible(comparison))
     }
