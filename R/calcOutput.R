@@ -358,15 +358,17 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
 
     # inform about mappings that don't fit and will be omitted
     omit <- setdiff(names(rel), names(relFitting))
-    if (length(omit) > 0)
+    if (length(omit) > 0) {
       vcat(verbosity = 2, "Ignoring region mapping ", omit, " because it does not fit the data")
+    }
 
     # keep mappings only that fit the data
     rel <- rel[relFitting]
 
     # if there is only one fitting mapping make rel a data frame
-    if (length(rel) == 1)
+    if (length(rel) == 1) {
       rel <- rel[[1]]
+    }
 
     # If there are more than one fitting mappings merge them. If column names from the first mapping (given via
     # 'regionmapping') also exist in further mappings (provided via 'extramappings') keep only the columns from
