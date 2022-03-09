@@ -7,7 +7,8 @@
 #' mapping please specify it in the argument mapping
 #'
 #'
-#' @param m MAgPIE object with ISO country codes in the spatial dimension
+#' @param m MAgPIE object with absolute/non-fractional values with
+#' ISO country codes in the spatial dimension.
 #' @param mapping mapping of historical ISO countries to the standard ISO
 #' country list. For the default setting (mapping=NULL) the mapping stored as
 #' supplementary data in the madrat package is used. If provided as file the
@@ -23,13 +24,13 @@
 #' overwrite=TRUE
 #' @param additional_weight optional weight to be used for regional disaggregation,
 #' if not provided, the values of m in the "lastYear" are used as weight
-#' @return A MAgPIE object with spatial entries for each country of the
-#' official ISO code country list. Historical time is filled up, old countries
-#' deleted
+#' @param checkFractional If TRUE throw a warning if data is potentially fractional
+#' (all values <= 1). Set to FALSE for absolute/non-fractional data.
+#' @return A MAgPIE object with spatial entries for each country of the official
+#' ISO code country list. Historical time is filled up, old countries deleted.
 #' @author Lavinia Baumstark
 #'
 #' @importFrom magclass getItems getYears setYears
-#'
 #' @export
 toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = NA, # nolint
                               additional_weight = NULL, checkFractional = TRUE) { # nolint

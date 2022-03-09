@@ -9,11 +9,13 @@ toolISOhistorical(
   mapping = NULL,
   additional_mapping = NULL,
   overwrite = NA,
-  additional_weight = NULL
+  additional_weight = NULL,
+  checkFractional = TRUE
 )
 }
 \arguments{
-\item{m}{MAgPIE object with ISO country codes in the spatial dimension}
+\item{m}{MAgPIE object with absolute/non-fractional values with
+ISO country codes in the spatial dimension.}
 
 \item{mapping}{mapping of historical ISO countries to the standard ISO
 country list. For the default setting (mapping=NULL) the mapping stored as
@@ -33,11 +35,13 @@ overwrite=TRUE}
 
 \item{additional_weight}{optional weight to be used for regional disaggregation,
 if not provided, the values of m in the "lastYear" are used as weight}
+
+\item{checkFractional}{If TRUE throw a warning if data is potentially fractional
+(all values <= 1). Set to FALSE for absolute/non-fractional data.}
 }
 \value{
-A MAgPIE object with spatial entries for each country of the
-official ISO code country list. Historical time is filled up, old countries
-deleted
+A MAgPIE object with spatial entries for each country of the official
+ISO code country list. Historical time is filled up, old countries deleted.
 }
 \description{
 This function expects a MAgPIE object with ISO country codes in the spatial
