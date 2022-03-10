@@ -257,8 +257,16 @@ test_that("Aggregation works", {
   xtramap <- file.path(tempdir(), "blub.csv")
   file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
   setConfig(extramappings = xtramap, .local = TRUE)
-  expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "glo")), "Multiple compatible mappings found")
-  expect_identical(a, glo)
+
+  # use 'local' to have the change of verbosity level only local and let the rmainder of the script unaffected
+  local({
+    # set verbosity to a level that will produce the expected NOTE
+    setConfig(verbosity = 1, .local = TRUE)
+    expect_message(a <- nc(calcOutput("AggregationTest", aggregate = "glo")),
+      paste0("Ignoring column\\(s\\) X, region, global from .* as the column\\(s\\) ",
+      "already exist in another mapping\\."))
+    expect_identical(a, glo)
+  })
 })
 
 test_that("Edge cases work as expected", {
