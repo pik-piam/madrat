@@ -264,7 +264,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
     return(argsHash)
   }
 
-  cfg$regionscode <- regionscode(label = useLabels)
+  cfg$regionscode <- paste(regionscode(label = useLabels), collapse = "-")
 
   cfg$collectionName <- paste0("rev", rev, dev, "_", cfg$regionscode, "_",
                                .argsHash(cfg$formalsReduced, useLabels), tolower(model),
