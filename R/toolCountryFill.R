@@ -54,8 +54,19 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
     x <- x[setdiff(getItems(x, dim = 1.1), additionalCountries), , ]
     # warn only for countries which were not explicitly mentioned in argument "remove"
     countries2warn <- setdiff(additionalCountries, no_remove_warning)
-    if (length(countries2warn) > 0) vcat(0, "Data for following unknown country codes removed: ",
-      paste(countries2warn, collapse = ", "))
+    if (length(countries2warn) > 0) {
+      historicalCountries <- unique(read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"),
+                                              stringsAsFactors = FALSE)[["fromISO"]])
+      removedHistoricalCountries <- intersect(countries2warn, historicalCountries)
+      historicalHint <- if (length(removedHistoricalCountries) > 0) {
+        paste(" - By using madrat::toolISOhistorical the data for the following countries can usually still be used:",
+              paste(removedHistoricalCountries, collapse = ", "))
+      } else {
+        ""
+      }
+      warning("Data for following unknown country codes removed: ", paste(countries2warn, collapse = ", "),
+              historicalHint)
+    }
   }
 
   # check mappings
