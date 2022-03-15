@@ -48,7 +48,10 @@ test_that("Given mapping data is properly translated", {
   m2 <- as.list(as.data.frame(t(m), stringsAsFactors = FALSE))
   expect_identical(toolISOhistorical(a, additional_mapping = m2), ref)
 
-  expect_error(toolISOhistorical(a["B1", , invert = TRUE], mapping = m), "there is no data for")
+  expect_error(toolISOhistorical(a["B1", , invert = TRUE], mapping = m),
+               paste("Missing disaggregation weights for [B1]. Provide explicit weights to toolISOhistorical by",
+                     "setting `additional_weight = as.magpie(c(B1 = ?, B2 = ?, B3 = ?))`."),
+               fixed = TRUE)
 
   b <- a
   b[is.na(b)] <- 0
@@ -60,16 +63,6 @@ test_that("Given mapping data is properly translated", {
 
   expect_identical(toolISOhistorical(b, mapping = m, overwrite = TRUE), ref)
   expect_identical(toolISOhistorical(b, mapping = m, overwrite = FALSE), ref2)
-
-  a["B1", 13, ] <- NA
-  expect_warning({
-    o <- toolISOhistorical(a, mapping = m)
-  }, "Weight in toolISOhistorical contained NAs")
-  ref3 <- new("magpie", .Data = structure(c(2, 0, 1.5, 1.5, 2, 0, 1.5,
-                                            1.5, 2, 0, 1.5, 1.5, 2, 0, 1.5, 1.5, 2, NA, 1, 1),
-                                         .Dim = c(4L, 5L, 1L), .Dimnames = list(region = c("A", "B1", "B2", "B3"),
-                                          year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
-  expect_identical(o, ref3)
 })
 
 test_that("toolISOhistorical recognizes fractional data", {

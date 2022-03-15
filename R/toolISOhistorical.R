@@ -30,7 +30,7 @@
 #' ISO code country list. Historical time is filled up, old countries deleted.
 #' @author Lavinia Baumstark
 #'
-#' @importFrom magclass getItems getYears setYears
+#' @importFrom magclass getItems getYears add_columns
 #' @export
 toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = NA, # nolint
                               additional_weight = NULL, checkFractional = TRUE) { # nolint
@@ -114,48 +114,50 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     fromISO <- fromISOYear[[i]][1, ]
     toISO   <- mapping$toISO[mapping$fromISO == fromISO[1] & mapping$lastYear == fromISOYear[[i]][2]]
     # take the maximum year of m that is lower than the transition year
-    fromY   <- max(getYears(m)[getYears(m) <= fromISOYear[[i]][2]])
-    # take the minimum of years that are later than fromY
-    toY     <- min(getYears(m)[getYears(m) > fromY])
-    transitions[[i]] <- list(fromISO = fromISO, toISO = toISO, fromY = fromY, toY = toY)
+    fromYear   <- max(getYears(m)[getYears(m) <= fromISOYear[[i]][2]])
+    # take the minimum of years that are later than fromYear
+    toYear     <- min(getYears(m)[getYears(m) > fromYear])
+    transitions[[i]] <- list(fromISO = fromISO, toISO = toISO, fromYear = fromYear, toYear = toYear)
   }
 
   vcat(2, "The following transitions are found in the data \n", paste(transitions, collapse = ", \n"))
 
+  newCountries <- transitions %>%
+    Reduce(f = function(result, transition) c(result, transition$toISO), NULL) %>%
+    unique() %>%
+    setdiff(getItems(m, dim = 1.1))
+  m <- add_columns(m, newCountries, dim = 1.1)
+
   # loop over all transitions
   for (transition in transitions) {
-    # check if new regions of transition exists in m
-    toISOmissing   <- !all(is.element(transition$toISO, getItems(m, dim = 1.1)))
-    if (toISOmissing) stop("there is no data for the following new countrys: ",
-                           paste(transition$toISO[which(!is.element(transition$toISO, getItems(m, dim = 1.1)))],
-                                 collapse = ", "))
-
-    # create transformation matrix
-    ## time span where the data need to be adjusted
-    subTime <- getYears(m[, seq_len(which(getYears(m) == transition$fromY)), ])
-    # disaggregation of countries
+    # time span where the data need to be adjusted
+    subTime <- getYears(m[, seq_len(which(getYears(m) == transition$fromYear)), ])
     if (length(transition$fromISO) == 1) {
-      if (is.null(additional_weight)) {
-        weight <- setYears(m[transition$toISO, transition$toY, ], NULL)
-        if (anyNA(weight)) {
-          weight[is.na(weight)] <- 0
-          vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
-        }
-      } else {
-        if (!all(transition$toISO %in% getItems(additional_weight, dim = 1))) {
-          stop(paste0(
-            "Invalid additional weight, missing countries: ",
-            paste0(setdiff(transition$toISO, getItems(additional_weight, dim = 1)), collapse = ", ")
-          ))
-        }
-        weight <- additional_weight[transition$toISO, , ]
+      # disaggregate countries
+      weight <- new.magpie(transition$toISO, names = getItems(m, dim = 3), fill = NA)
+      if (transition$toYear %in% getYears(m)) {
+        # use values of emerging countries in the year after the split as weights
+        weight[transition$toISO, , ] <- m[transition$toISO, transition$toYear, ]
+      }
+      if (!is.null(additional_weight)) {
+        countries <- intersect(transition$toISO, getItems(additional_weight, dim = 1.1))
+        weight[getItems(additional_weight[countries, , ], dim = 1.1), , ] <- additional_weight[countries, , ]
+      }
+
+      # ensure all weights necessary for toolAggregate are set
+      if (any(is.na(weight))) {
+        missingWeightCountries <- Filter(x = getItems(weight, dim = 1.1),
+                                         f = function(country) any(is.na(weight[country, , ])))
+        stop("Missing disaggregation weights for [", paste(missingWeightCountries, collapse = ", "),
+             "]. Provide explicit weights to toolISOhistorical by setting `additional_weight = as.magpie(c(",
+             paste(transition$toISO, "= ?", collapse = ", "), "))`.")
       }
 
       mTr <- toolAggregate(m[transition$fromISO, subTime, ],
                            mapping[is.element(mapping$toISO, transition$toISO), c("fromISO", "toISO")], weight = weight,
                            negative_weight = "allow")
-      ## aggregation of countries
     } else {
+      # aggregate countries
       mTr <- toolAggregate(m[transition$fromISO, subTime, ],
                            mapping[is.element(mapping$toISO, transition$toISO), c("fromISO", "toISO")], weight = NULL)
     }
