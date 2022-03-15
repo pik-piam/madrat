@@ -123,10 +123,8 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
 
   vcat(2, "The following transitions are found in the data \n", paste(transitions, collapse = ", \n"))
 
-  newCountries <- transitions %>%
-    Reduce(f = function(result, transition) c(result, transition$toISO), NULL) %>%
-    unique() %>%
-    setdiff(getItems(m, dim = 1.1))
+  newCountries <- Reduce(x = transitions, f = function(result, transition) c(result, transition$toISO), NULL)
+  newCountries <- setdiff(unique(newCountries), getItems(m, dim = 1.1))
   m <- add_columns(m, newCountries, dim = 1.1)
 
   # loop over all transitions
