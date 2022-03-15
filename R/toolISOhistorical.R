@@ -31,6 +31,7 @@
 #' @author Lavinia Baumstark
 #'
 #' @importFrom magclass getItems getYears add_columns
+#' @importFrom withr local_tempfile with_output_sink
 #' @export
 toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, overwrite = NA, # nolint
                               additional_weight = NULL, checkFractional = TRUE) { # nolint
@@ -146,11 +147,34 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
 
       # ensure all weights necessary for toolAggregate are set
       if (any(is.na(weight))) {
-        missingWeightCountries <- Filter(x = getItems(weight, dim = 1.1),
-                                         f = function(country) any(is.na(weight[country, , ])))
-        stop("Missing disaggregation weights for [", paste(missingWeightCountries, collapse = ", "),
-             "]. Provide explicit weights to toolISOhistorical by setting `additional_weight = as.magpie(c(",
-             paste(transition$toISO, "= ?", collapse = ", "), "))`.")
+        # try to generate a helpful error message
+        tryResult <- ({
+          transitionString <- as.character(list(transition))
+          missingWeightCountries <- Filter(x = getItems(weight, dim = 1.1),
+                                           f = function(country) any(is.na(weight[country, , ])))
+
+          firstYear <- as.integer(sub("^y", "", transition$fromYear))
+          firstYear <- max(firstYear - 2, min(getYears(m, as.integer = TRUE)))
+          lastYear <- as.integer(sub("^y", "", transition$toYear))
+          lastYear <- min(lastYear + 2, max(getYears(m, as.integer = TRUE)))
+          tmpfile <- local_tempfile()
+          with_output_sink(tmpfile, {
+            print(m[c(transition$fromISO, transition$toISO), firstYear:lastYear, ])
+          })
+          context <- paste(readLines(tmpfile), collapse = "\n")
+        })
+
+        if (inherits(tryResult, "try-error")) {
+          stop("Transition failed in toolISOhistorical.")
+        } else {
+          stop("The following transition failed:\n",
+               transitionString, "\n",
+               "Missing disaggregation weights for [", paste(missingWeightCountries, collapse = ", "), "].\n",
+               "Here's the available data:\n",
+               context, "\n",
+               "Provide explicit weights to toolISOhistorical by passing\n",
+               "additional_weight = as.magpie(c(", paste(missingWeightCountries, "= ?", collapse = ", "), "))")
+        }
       }
 
       mTr <- toolAggregate(m[transition$fromISO, subTime, ],

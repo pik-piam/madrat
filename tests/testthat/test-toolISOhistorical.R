@@ -36,8 +36,8 @@ test_that("Given mapping data is properly translated", {
 
   ref <- new("magpie", .Data = structure(c(2, 1, 1, 1, 2, 1, 1, 1, 2,
                                            1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1),
-              .Dim = c(4L, 5L, 1L), .Dimnames = list(region = c("A", "B1", "B2", "B3"),
-              year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
+                                         .Dim = c(4L, 5L, 1L), .Dimnames = list(region = c("A", "B1", "B2", "B3"),
+                                                                                year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
   expect_identical(toolISOhistorical(a, mapping = m), ref)
 
   mapfile <- tempfile()
@@ -49,17 +49,27 @@ test_that("Given mapping data is properly translated", {
   expect_identical(toolISOhistorical(a, additional_mapping = m2), ref)
 
   expect_error(toolISOhistorical(a["B1", , invert = TRUE], mapping = m),
-               paste("Missing disaggregation weights for [B1]. Provide explicit weights to toolISOhistorical by",
-                     "setting `additional_weight = as.magpie(c(B1 = ?, B2 = ?, B3 = ?))`."),
+               paste(c("The following transition failed:",
+                       "list(fromISO = \"B\", toISO = c(\"B1\", \"B2\", \"B3\"), fromYear = \"y12\", toYear = \"y13\")",
+                       "Missing disaggregation weights for [B1].",
+                       "Here's the available data:",
+                       "      year",
+                       "region y10 y11 y12 y13",
+                       "    B    3   3   3  NA",
+                       "    B1  NA  NA  NA  NA",
+                       "    B2  NA  NA  NA   1",
+                       "    B3  NA  NA  NA   1",
+                       "Provide explicit weights to toolISOhistorical by passing",
+                       "additional_weight = as.magpie(c(B1 = ?))"), collapse = "\n"),
                fixed = TRUE)
 
   b <- a
   b[is.na(b)] <- 0
 
   ref2 <- new("magpie", .Data = structure(c(0, 0, 0, 0, 0, 0, 0, 0, 2,
-              0, 0, 0, 2, 0, 0, 0, 2, 1, 1, 1), .Dim = c(4L, 5L, 1L),
-              .Dimnames = list(region = c("A", "B1", "B2", "B3"),
-                               year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
+                                            0, 0, 0, 2, 0, 0, 0, 2, 1, 1, 1), .Dim = c(4L, 5L, 1L),
+                                          .Dimnames = list(region = c("A", "B1", "B2", "B3"),
+                                                           year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
 
   expect_identical(toolISOhistorical(b, mapping = m, overwrite = TRUE), ref)
   expect_identical(toolISOhistorical(b, mapping = m, overwrite = FALSE), ref2)
