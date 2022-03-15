@@ -4,25 +4,25 @@
 \alias{toolTimeAverage}
 \title{toolTimeAverage}
 \usage{
-toolTimeAverage(x, averaging_range = NULL, cut = TRUE, annual = TRUE)
+toolTimeAverage(x, averaging_range = NULL, cut = TRUE, annual = NULL)
 }
 \arguments{
-\item{x}{magclass object that should be averaged}
+\item{x}{magclass object that should be averaged with equidistant time steps}
 
-\item{averaging_range}{number of time steps to average (if annual=FALSE, please check consistency)}
+\item{averaging_range}{number of time steps to average}
 
-\item{cut}{if TRUE, all time steps at the start and end that can not be averaged correctly, will be removed 
+\item{cut}{if TRUE, all time steps at the start and end that can not be averaged correctly, will be removed
 if FALSE, time steps at the start and end will be averaged with high weights for start and end points}
 
-\item{annual}{if TRUE checks for completeness of annual coverage in the data set
-if FALSE no checks are performed}
+\item{annual}{deprecated. Please don't use it!}
 }
 \value{
 the averaged data in magclass format
 }
 \description{
-average over time given an averaging range
+average over time given an averaging range. Only works for data with
+equidistant time steps!
 }
 \author{
-Kristine Karstens
+Kristine Karstens, Jan Philipp Dietrich
 }
