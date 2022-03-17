@@ -37,7 +37,7 @@ test_that("Given mapping data is properly translated", {
   ref <- new("magpie", .Data = structure(c(2, 1, 1, 1, 2, 1, 1, 1, 2,
                                            1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1),
                                          .Dim = c(4L, 5L, 1L), .Dimnames = list(region = c("A", "B1", "B2", "B3"),
-                                                                                year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
+                                                                                year = paste0("y", 9:13), data = NULL)))
   expect_identical(toolISOhistorical(a, mapping = m), ref)
 
   mapfile <- tempfile()

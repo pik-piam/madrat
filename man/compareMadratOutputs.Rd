@@ -4,7 +4,7 @@
 \alias{compareMadratOutputs}
 \title{Compare a madrat function's output with and without your changes}
 \usage{
-compareMadratOutputs(package, functionName, subtypes)
+compareMadratOutputs(package, functionName, subtypes, overwriteOld = FALSE)
 }
 \arguments{
 \item{package}{[character(1)] The package where the given function is located. It will be attached via `library`.}
@@ -13,6 +13,8 @@ compareMadratOutputs(package, functionName, subtypes)
 function whose name starts with read, correct, convert, or calc.}
 
 \item{subtypes}{[character(n)] The subtypes you want to check. For calc functions this must be NULL.}
+
+\item{overwriteOld}{If TRUE: overwrite a "*-old-*.rds" previously created with compareMadratOutputs.}
 }
 \value{
 Invisibly the result of `waldo::compare` or `all.equal` if a comparison was made, otherwise a named list of

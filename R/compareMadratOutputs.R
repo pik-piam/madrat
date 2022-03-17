@@ -11,6 +11,7 @@
 #' @param functionName [character(1)] The name of the function from which you want to compare outputs. Must be a madrat
 #' function whose name starts with read, correct, convert, or calc.
 #' @param subtypes [character(n)] The subtypes you want to check. For calc functions this must be NULL.
+#' @param overwriteOld If TRUE: overwrite a "*-old-*.rds" previously created with compareMadratOutputs.
 #' @return Invisibly the result of `waldo::compare` or `all.equal` if a comparison was made, otherwise a named list of
 #' the outputs for each subtype.
 #'
