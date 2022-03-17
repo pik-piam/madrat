@@ -74,7 +74,7 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
       saveRDS(output, paste0(functionName, "-new.rds"))
       message("Saved '", functionName, "-new.rds'. Found some differences:")
       comparison <- lapply(seq_along(output), function(i) {
-        return(where(oldOutput[[1]] != output[[1]])[["true"]])
+        return(where(oldOutput[[1]] != output[[1]])[["true"]][-1])
       })
       names(comparison) <- subtypes
       print(comparison)
