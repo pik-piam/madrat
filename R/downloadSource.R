@@ -87,7 +87,8 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
       unlink(typesubtype, recursive = TRUE)
     } else {
       stop('Source folder for source "', typesubtype, '" does already exist. Delete that folder or ',
-           "call downloadSource(..., overwrite = TRUE) if you want to re-download.")
+           "call downloadSource(..., overwrite = TRUE) if you want to re-download.",
+           if (is.null(subtype)) " Note: subtype is NULL, is that intended?")
     }
   } else if (dir.exists(downloadInProgressDirectory)) { # the download is already running in another R session
     for (i in seq_len(numberOfTries - 1)) { # -1 because one try was already done before
