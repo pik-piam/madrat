@@ -45,6 +45,15 @@ test_that("Given mapping data is properly translated", {
   expect_identical(toolISOhistorical(a, mapping = mapfile), ref)
   expect_identical(toolISOhistorical(a, additional_mapping = m), ref)
 
+  expect_error(toolISOhistorical(a, mapping = mapfile, additional_mapping = m),
+               paste0("(toolISOhistorical) The following rows are duplicated ",
+                      "after combining mapping and additional_mapping:\n",
+                      'c(fromISO = "A1", toISO = "A", lastYear = "y10")\n',
+                      'c(fromISO = "A2", toISO = "A", lastYear = "y10")\n',
+                      'c(fromISO = "B", toISO = "B1", lastYear = "y12")\n',
+                      'c(fromISO = "B", toISO = "B2", lastYear = "y12")\n',
+                      'c(fromISO = "B", toISO = "B3", lastYear = "y12")'), fixed = TRUE)
+
   m2 <- as.list(as.data.frame(t(m), stringsAsFactors = FALSE))
   expect_identical(toolISOhistorical(a, additional_mapping = m2), ref)
 

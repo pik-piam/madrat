@@ -61,6 +61,12 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     }
   }
 
+  if (any(duplicated(mapping))) {
+    duplicateRows <- apply(mapping[duplicated(mapping), ], 1, function(x) paste(list(x)))
+    stop("(toolISOhistorical) The following rows are duplicated after combining mapping and additional_mapping:\n",
+         paste(duplicateRows, collapse = "\n"))
+  }
+
   # sort mapping(transitions) in historical order -> needed for the correct filling of data
   mapping <- mapping[robustOrder(mapping$lastYear), ]
   # delete transitions from mapping which are not in the time horizon of m
