@@ -72,6 +72,9 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
         fill = fill, sep = "",
         labels = getOption("gdt_nestinglevel")
       )), collapse = "\n"))
+      if (!is.null(getOption("madratWarningsCounter"))) {
+        options(madratWarningsCounter = getOption("madratWarningsCounter") + 1) # nolint
+      }
     } else {
       base::message(paste(capture.output(base::cat(c(prefix, ...),
         fill = fill, sep = "",

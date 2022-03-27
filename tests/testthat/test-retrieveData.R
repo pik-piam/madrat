@@ -70,4 +70,19 @@ test_that("different kinds of arguments are logged correctly", {
   )
 })
 
+
+test_that("strict mode works", {
+  fullWARNTEST <- function() {
+    calcOutput("WarningTest", aggregate = FALSE)
+  }
+  calcWarningTest <- function() {
+    vcat(0, "This is a warning!")
+    return(list(x = as.magpie(1), unit = "1", description = "dummy", isocountries = FALSE))
+  }
+  globalassign("fullWARNTEST", "calcWarningTest")
+  setConfig(globalenv = TRUE, .verbose = FALSE, .local = TRUE)
+  expect_warning(retrieveData("WarnTest", strict = TRUE, cachetype = "def"), "puc file not written")
+  expect_true(file.exists(paste0(getConfig("outputfolder"), "/WARNINGS1_rev0_h12_warntest.tgz")))
+})
+
 rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
