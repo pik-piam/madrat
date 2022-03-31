@@ -74,7 +74,7 @@ getDependencies <- function(name, direction = "in", graph = NULL, type = NULL, s
 
   out <- data.frame(func = tmp, type = substr(tmp, 1, 4), package = packages[tmp], row.names = NULL,
                     stringsAsFactors = FALSE)
-  out$call <- paste0(out$package, ":::", out$func)
+  if (nrow(out) > 0) out$call <- paste0(out$package, ":::", out$func)
   out$call[out$package == ".GlobalEnv"] <- out$func[out$package == ".GlobalEnv"]
   out$hash <- attr(graph, "hash")[out$call]
   if (!is.null(type)) out <- out[out$type %in% type, ]
