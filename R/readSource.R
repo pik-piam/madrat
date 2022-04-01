@@ -109,7 +109,7 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
     with_dir(sourcefolder, {
       functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
       setWrapperActive("wrapperChecks")
-      x <- eval(parse(text = functionname))
+      x <- withMadratLogging(eval(parse(text = functionname)))
       setWrapperInactive("wrapperChecks")
     })
 

@@ -156,7 +156,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
 
   with_dir(sourcefolder, {
     setWrapperActive("wrapperChecks")
-    returnedValue <- do.call(cfg$functionCode, cfg$fullNow)
+    returnedValue <- withMadratLogging(do.call(cfg$functionCode, cfg$fullNow))
     setWrapperInactive("wrapperChecks")
   })
   if ("tag" %in% names(returnedValue)) {
