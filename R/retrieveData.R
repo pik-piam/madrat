@@ -60,7 +60,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
 
     .match <- function(folder, fileType, pattern) {
       match <- dir(path = folder, pattern = paste0(".*\\.", fileType))
-      match <- match[startsWith(match, pattern) & !startsWith(match, paste0(pattern, "_debug"))]
+      match <- match[(startsWith(match, paste0(pattern, "_")) | startsWith(match, paste0(pattern, "."))) & !startsWith(match, paste0(pattern, "_debug"))] # nolint
       return(match)
     }
 
@@ -87,42 +87,57 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   }
 
   # data not yet ready and has to be prepared first
-  sourcefolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
+  outputfolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
 
   # create folder if required
-  if (!file.exists(sourcefolder)) {
-    dir.create(sourcefolder, recursive = TRUE)
+  if (!file.exists(outputfolder)) {
+    dir.create(outputfolder, recursive = TRUE)
   }
 
-  # copy mapping to mapping folder and set config accordingly
-  regionmapping <- toolGetMapping(getConfig("regionmapping"), type = "regional", returnPathOnly = TRUE)
-  mappath <- toolGetMapping(paste0(cfg$regionscode, ".csv"), "regional", error.missing = FALSE, returnPathOnly = TRUE)
-  if (!file.exists(mappath)) {
-    if (!dir.exists(dirname(mappath))) {
-      dir.create(dirname(mappath), recursive = TRUE)
+  # copy mappings to mapping folder and set config accordingly
+  regionmapping <- sapply(c(getConfig("regionmapping"),getConfig("extramappings")), toolGetMapping, type = "regional", returnPathOnly = TRUE) # nolint
+  mappath <- sapply(paste0(cfg$regionscode, ".csv"), toolGetMapping, "regional", error.missing = FALSE, returnPathOnly = TRUE) # nolint
+
+  for (i in seq_along(regionmapping)) {
+
+    # copy mapping to mapping folder
+    if (!file.exists(mappath[i])) {
+      if (!dir.exists(dirname(mappath[i]))) {
+        dir.create(dirname(mappath[i]), recursive = TRUE)
+      }
+      file.copy(regionmapping[i], mappath[i])
     }
-    file.copy(regionmapping, mappath)
+
+    # copy mapping to output folder
+    tryCatch({
+      file.copy(regionmapping[i], outputfolder, overwrite = TRUE)
+    }, error = function(error) {
+      warning("Copying regionmapping to output folder failed: ", error)
+    })
   }
-  # copy mapping to output folder
-  tryCatch({
-    file.copy(regionmapping, sourcefolder, overwrite = TRUE)
-  }, error = function(error) {
-    warning("Copying regionmapping to output folder failed: ", error)
-  })
+
   tryCatch({
     saveRDS(list(package = attr(cfg$functionName, "package"),
                  args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
                  pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
-            file.path(sourcefolder, "config.rds"), version = 2)
+            file.path(outputfolder, "config.rds"), version = 2)
   }, error = function(error) {
     warning("Creation of config.rds failed: ", error)
   })
+
   setConfig(
-    regionmapping = paste0(cfg$regionscode, ".csv"),
-    outputfolder = sourcefolder,
+    regionmapping = paste0(cfg$regionscode[1], ".csv"),
+    outputfolder = outputfolder,
     diagnostics = "diagnostics",
     .local = TRUE
   )
+
+  if (length(cfg$regionscode) > 1) {
+    setConfig(
+      extramappings = paste0(cfg$regionscode[-1], ".csv"),
+      .local = TRUE
+    )
+  }
 
   if (cachetype == "rev") {
     setConfig(
@@ -146,7 +161,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   getMadratGraph(packages = getConfig("packages"),
                  globalenv = getConfig("globalenv"))
 
-  with_dir(sourcefolder, {
+  with_dir(outputfolder, {
     setWrapperActive("wrapperChecks")
     returnedValue <- do.call(cfg$functionCode, cfg$fullNow)
     setWrapperInactive("wrapperChecks")
@@ -162,7 +177,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
 
   if (puc) {
     vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
-    pucFiles <- file.path(sourcefolder, "pucFiles")
+    pucFiles <- file.path(outputfolder, "pucFiles")
     if (file.exists(pucFiles)) {
       vcat(2, " - list of files for puc identified", fill = 300, show_prefix = FALSE)
       if ("pucTag" %in% names(returnedValue)) {
@@ -178,7 +193,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
           with_tempdir({
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
-            file.copy(file.path(sourcefolder, otherFiles), ".")
+            file.copy(file.path(outputfolder, otherFiles), ".")
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {
@@ -190,10 +205,10 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
     }
   }
 
-  with_dir(sourcefolder, {
+  with_dir(outputfolder, {
     suppressWarnings(tar(file.path("..", paste0(cfg$collectionName, ".tgz")), compression = "gzip"))
   })
-  unlink(sourcefolder, recursive = TRUE)
+  unlink(outputfolder, recursive = TRUE)
 
   toolendmessage(startinfo)
 }
@@ -264,9 +279,9 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
     return(argsHash)
   }
 
-  cfg$regionscode <- paste(regionscode(label = useLabels), collapse = "-")
+  cfg$regionscode <- regionscode(label = useLabels)
 
-  cfg$collectionName <- paste0("rev", rev, dev, "_", cfg$regionscode, "_",
+  cfg$collectionName <- paste0("rev", rev, dev, "_", paste(cfg$regionscode, collapse = "-"), "_",
                                .argsHash(cfg$formalsReduced, useLabels), tolower(model),
                                ifelse(getConfig("debug") == TRUE, "_debug", ""))
   if (is.null(cfg$pucArguments)) {

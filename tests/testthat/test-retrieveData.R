@@ -29,6 +29,40 @@ test_that("argument handling works", {
                  "myargument = \"hello\"")
 })
 
+test_that("set extramapping via setConfig and add it's hash to filename", {
+  fullTESTX <- function() {
+    return()
+  }
+  globalassign("fullTESTX")
+  setConfig("nolabels" = TRUE)
+  setConfig("regionmapping" = "regionmappingH12.csv")
+  setConfig("extramappings" = "regionmapping_21_EU11-columnname.csv")
+  expect_message(retrieveData("TestX", globalenv = TRUE), "Run retrieveData")
+  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_62eff8f7-ba755b60_testx.tgz")))
+  setConfig("extramappings" = "")
+  expect_identical(getConfig("extramappings"), NULL)
+  setConfig("nolabels" = FALSE)
+  expect_identical(getConfig("nolabels"), FALSE)
+})
+
+test_that("set extramapping via retrieveData and add it's hash and the hash of the full function to filename", {
+  fullTESTY <- function(dummy=FALSE) {
+    # this function has a dummy parameter to yield a hash that will also be added to the name of the tgz file
+    return()
+  }
+  globalassign("fullTESTY")
+  setConfig("extramappings" = "")
+  setConfig("nolabels" = TRUE)
+  expect_identical(getConfig("extramappings"), NULL)
+  expect_message(retrieveData("TestY", dummy = TRUE,
+                              regionmapping = "regionmappingH12.csv",
+                              extramappings = "regionmapping_21_EU11-columnname.csv", globalenv = TRUE),
+                 "Run retrieveData")
+  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_62eff8f7-ba755b60_2d7a1a9c_testy.tgz")))
+  setConfig("nolabels" = FALSE)
+  expect_identical(getConfig("nolabels"), FALSE)
+})
+
 test_that("a tag can be appended to filename", {
   fullTEST <- function() {
     return(list(tag = "some_tag"))
