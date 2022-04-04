@@ -2,6 +2,8 @@ globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
 
+tempDir <- tempdir()
+setConfig(mainfolder = tempDir, .verbose = FALSE)
 
 test_that("retrieveData works as expected", {
   expect_message(retrieveData("example", rev = 0, dev = "test"), "Run retrieveData")
@@ -30,19 +32,19 @@ test_that("argument handling works", {
 })
 
 test_that("a tag can be appended to filename", {
-  fullTEST <- function() {
+  fullTESTTAG <- function() {
     return(list(tag = "some_tag"))
   }
-  globalassign("fullTEST")
+  globalassign("fullTESTTAG")
 
-  expect_message(retrieveData("Test", globalenv = TRUE), "Run retrieveData")
-  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_h12_test_some_tag.tgz")))
+  expect_message(retrieveData("TestTag", globalenv = TRUE), "Run retrieveData")
+  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_h12_testtag_some_tag.tgz")))
 
-  fullTEST2 <- function() {
+  fullTESTTAG2 <- function() {
     return(list(tag = "debug_some_tag"))
   }
-  globalassign("fullTEST2")
-  expect_warning(retrieveData("Test2", globalenv = TRUE), "should not include the word 'debug'")
+  globalassign("fullTESTTAG2")
+  expect_warning(retrieveData("TestTag2", globalenv = TRUE), "should not include the word 'debug'")
 })
 
 test_that("retrieveData works if no tag is returned", {

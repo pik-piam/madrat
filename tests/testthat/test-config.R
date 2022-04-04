@@ -36,14 +36,10 @@ test_that("addMapping works", {
   addMapping("regionmappingH12.csv")
   expect_identical(getConfig("extramappings"), "regionmappingH12.csv")
   map <- toolGetMapping("regionmappingH12.csv")
-  addMapping("test.rds", map)
+  expect_message(addMapping("test.rds", map), "extramappings: regionmappingH12.csv -> regionmappingH12.csv, test.rds")
   expect_identical(getConfig("extramappings"), c("regionmappingH12.csv", "test.rds"))
   expect_silent(map2 <- toolGetMapping("test.rds", type = "regional"))
   expect_identical(map, map2)
   expect_error(addMapping("test.blablub", map), "Unsupported filetype")
   expect_error(addMapping("blablub.csv", TRUE), "Cannot handle this mapping format")
-
-
-
-
 })
