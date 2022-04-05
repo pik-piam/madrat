@@ -2,8 +2,7 @@ globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
 
-tempDir <- tempdir()
-setConfig(mainfolder = tempDir, .verbose = FALSE)
+setConfig(mainfolder =  withr::local_tempdir(), .verbose = FALSE)
 
 test_that("retrieveData works as expected", {
   expect_message(retrieveData("example", rev = 0, dev = "test"), "Run retrieveData")
