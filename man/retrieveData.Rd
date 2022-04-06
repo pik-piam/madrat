@@ -10,6 +10,7 @@ retrieveData(
   dev = "",
   cachetype = "rev",
   puc = identical(dev, ""),
+  strict = FALSE,
   ...
 )
 }
@@ -30,6 +31,11 @@ forcecache setting.}
 
 \item{puc}{Boolean deciding whether a fitting puc file (if existing) should be
 read in and if a puc file (if not already existing) should be created.}
+
+\item{strict}{Boolean which allows to trigger a strict mode. During strict mode
+warnings will be taken more seriously and will cause 1. to have the number of
+warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
+from creating a puc file.}
 
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding

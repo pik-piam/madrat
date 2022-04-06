@@ -2,6 +2,7 @@ globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
 
+setConfig(mainfolder =  withr::local_tempdir(), .verbose = FALSE)
 
 test_that("retrieveData works as expected", {
   expect_message(retrieveData("example", rev = 0, dev = "test"), "Run retrieveData")
@@ -64,19 +65,19 @@ test_that("set extramapping via retrieveData and add it's hash and the hash of t
 })
 
 test_that("a tag can be appended to filename", {
-  fullTEST <- function() {
+  fullTESTTAG <- function() {
     return(list(tag = "some_tag"))
   }
-  globalassign("fullTEST")
+  globalassign("fullTESTTAG")
 
-  expect_message(retrieveData("Test", globalenv = TRUE), "Run retrieveData")
-  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_h12_test_some_tag.tgz")))
+  expect_message(retrieveData("TestTag", globalenv = TRUE), "Run retrieveData")
+  expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0_h12_testtag_some_tag.tgz")))
 
-  fullTEST2 <- function() {
+  fullTESTTAG2 <- function() {
     return(list(tag = "debug_some_tag"))
   }
-  globalassign("fullTEST2")
-  expect_warning(retrieveData("Test2", globalenv = TRUE), "should not include the word 'debug'")
+  globalassign("fullTESTTAG2")
+  expect_warning(retrieveData("TestTag2", globalenv = TRUE), "should not include the word 'debug'")
 })
 
 test_that("retrieveData works if no tag is returned", {
@@ -102,6 +103,21 @@ test_that("different kinds of arguments are logged correctly", {
     ),
     fixed = TRUE
   )
+})
+
+
+test_that("strict mode works", {
+  fullWARNTEST <- function() {
+    calcOutput("WarningTest", aggregate = FALSE)
+  }
+  calcWarningTest <- function() {
+    vcat(0, "This is a warning!")
+    return(list(x = as.magpie(1), unit = "1", description = "dummy", isocountries = FALSE))
+  }
+  globalassign("fullWARNTEST", "calcWarningTest")
+  setConfig(globalenv = TRUE, .verbose = FALSE, .local = TRUE)
+  expect_warning(retrieveData("WarnTest", strict = TRUE, cachetype = "def"), "puc file not written")
+  expect_true(file.exists(paste0(getConfig("outputfolder"), "/WARNINGS1_rev0_h12_warntest.tgz")))
 })
 
 rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

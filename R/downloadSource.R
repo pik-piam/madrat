@@ -115,7 +115,7 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
   })
   with_dir(downloadInProgressDirectory, {
     setWrapperActive("wrapperChecks")
-    meta <- eval(parse(text = functionname))
+    meta <- withMadratLogging(eval(parse(text = functionname)))
     setWrapperInactive("wrapperChecks")
 
     # define mandatory elements of meta data and check if they exist

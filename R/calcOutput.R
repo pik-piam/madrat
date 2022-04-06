@@ -271,13 +271,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     setWrapperActive("wrapperChecks")
     vcat(2, " - execute function ", functionname, show_prefix = FALSE)
     if (try || debugMode) {
-      x <- try(eval(parse(text = functionname)), silent = TRUE)
+      x <- withMadratLogging(try(eval(parse(text = functionname)), silent = TRUE))
       if ("try-error" %in% class(x)) {
         vcat(0, as.character(attr(x, "condition")))
         return(x)
       }
     } else {
-      x <- eval(parse(text = functionname))
+      x <- withMadratLogging(eval(parse(text = functionname)))
     }
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname)
