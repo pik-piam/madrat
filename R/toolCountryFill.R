@@ -39,7 +39,7 @@
 #' y <- toolCountryFill(x, 99)
 #' @importFrom magclass getItems new.magpie getYears getNames mbind setCells
 #' @export
-toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, #nolint
+toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, # nolint
                             countrylist = NULL, ...) {
   if (is.null(countrylist)) {
     isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
@@ -101,7 +101,11 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
     }
 
     tmp <- new.magpie(missingCountries, getYears(x), getNames(x), fill = fill)
-    x <- mbind(x, tmp)
+    if (length(x) == 0) {
+      x <- tmp
+    } else {
+      x <- mbind(x, tmp)
+    }
 
     # map data as defined by additional mappings
     if (!is.null(map)) {

@@ -22,4 +22,10 @@ test_that("toolCountryFill works as expected", {
   expect_true(toolCountryFill(x3, 99, FRA = "DEU")["FRA", , ] == 42)
   expect_message(y5 <- toolCountryFill(x3, 99, FRA = "DEU", overwrite = TRUE), "data overwritten")
   expect_true(y5["FRA", , ] == 0)
+
+  empty <- new.magpie(NULL, NULL, c("bla"))
+  expect_silent(y6 <- toolCountryFill(empty, verbosity = 3))
+  expect_identical(getItems(y6, dim = c(2, 3)), getItems(empty, dim = c(2, 3)))
+  expect_identical(getItems(y6, dim = 1), getItems(y5, dim = 1))
+
 })
