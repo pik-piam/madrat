@@ -9,6 +9,10 @@
 #' @param subtype For some sources there are subtypes of the source, for these
 #' source the subtype can be specified with this argument. If a source does not
 #' have subtypes, subtypes should not be set.
+#' @param subset Similar to \code{subtype} a source can also have \code{subsets}. A \code{subsets}
+#' can be used to only read part of the data. This can in particular make sense for huge
+#' data sets where reading in the whole data set might be impracticle or even
+#' infeasible.
 #' @param convert Boolean indicating whether input data conversion to
 #' ISO countries should be done or not. In addition it can be set to "onlycorrect"
 #' for sources with a separate correctXXX-function.
@@ -26,7 +30,7 @@
 #' @importFrom methods existsFunction is
 #' @importFrom withr local_dir with_dir defer
 #' @export
-readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
+readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("readSource")
@@ -69,17 +73,20 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
     }
   }
 
-  .getData <- function(type, subtype, prefix = "read") {
+  .getData <- function(type, subtype, subset, prefix = "read") {
     # get data either from cache or by calculating it from source
     sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
     if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
       sourcefolder <- file.path(sourcefolder, make.names(subtype))
     }
 
-    fname <- paste0(prefix, type, subtype)
+    fname <- paste0(prefix, type, "_", subtype, "_", subset)
     args <- NULL
     if (!is.null(subtype)) {
-      args <- list(subtype = subtype)
+      args <- append(args, list(subtype = subtype))
+    }
+    if (!is.null(subset)) {
+      args <- append(args, list(subset = subset))
     }
 
     # try to get from cache and check
@@ -97,17 +104,19 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
 
     # cache miss, read from source file
     if (prefix == "correct") {
-      x <- .getData(type, subtype, "read")
+      x <- .getData(type, subtype, subset, "read")
     } else if (prefix == "convert") {
       if (type %in% getSources(type = "correct")) {
-        x <- .getData(type, subtype, "correct")
+        x <- .getData(type, subtype, subset, "correct")
       } else {
-        x <- .getData(type, subtype, "read")
+        x <- .getData(type, subtype, subset, "read")
       }
     }
 
     with_dir(sourcefolder, {
-      functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ifelse(is.null(subtype), "subtype", NA))
+      ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
+      if(length(ignore) == 0) ignore <- NULL
+      functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
       setWrapperActive("wrapperChecks")
       x <- withMadratLogging(eval(parse(text = functionname)))
       setWrapperInactive("wrapperChecks")
@@ -118,10 +127,6 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
     }
     if (prefix == "convert") {
       .testISO(getItems(x, dim = 1.1), functionname = functionname)
-    }
-    args <- NULL
-    if (!is.null(subtype)) {
-      args <- list(subtype = subtype)
     }
     cachePut(x, prefix = prefix, type = type, args = args)
     return(x)
@@ -162,6 +167,6 @@ readSource <- function(type, subtype = NULL, convert = TRUE) { # nolint
   } else {
     prefix <- "read"
   }
-  x <- clean_magpie(.getData(type, subtype, prefix))
+  x <- clean_magpie(.getData(type, subtype, subset, prefix))
   return(x)
 }
