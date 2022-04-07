@@ -115,7 +115,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
 
     with_dir(sourcefolder, {
       ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
-      if(length(ignore) == 0) ignore <- NULL
+      if (length(ignore) == 0) ignore <- NULL
       functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
       setWrapperActive("wrapperChecks")
       x <- withMadratLogging(eval(parse(text = functionname)))

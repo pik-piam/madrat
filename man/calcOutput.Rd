@@ -10,6 +10,7 @@ calcOutput(
   file = NULL,
   years = NULL,
   round = NULL,
+  signif = NULL,
   supplementary = FALSE,
   append = FALSE,
   warnNA = TRUE,
@@ -33,7 +34,11 @@ outputfolder as specified in the config.}
 \item{years}{A vector of years that should be returned. If set to NULL all
 available years are returned.}
 
-\item{round}{A rounding factor. If set to NULL no rounding will occur.}
+\item{round}{Number of decimal places to round to.  Ignored if \code{NULL}.  See
+\code{\link[=round]{round()}} for details.}
+
+\item{signif}{Number of significant digits to round to.  Ignored if \code{NULL}.
+See \code{\link[=signif]{signif()}} for details.}
 
 \item{supplementary}{boolean deciding whether supplementary information such as weight should be
 returned or not. If set to TRUE a list of elements will be returned!}
@@ -88,13 +93,13 @@ will check whether there are any values below the given threshold and warn in th
 \item \bold{max} (optional) - Maximum value which can appear in the data. If provided calcOutput
 will check whether there are any values above the given threshold and warn in this case
 \item \bold{structure.spatial} (optional) - regular expression describing the name structure of all
-names in the spatial dimension (e.g. "^[A-Z]\{3\}$"). Names will be checked against this regular expression and
+names in the spatial dimension (e.g. \code{"^[A-Z]\\{3\\}$"}). Names will be checked against this regular expression and
 disagreements will be reported via a warning.
 \item \bold{structure.temporal} (optional) - regular expression describing the name structure of all
-names in the temporal dimension (e.g. "^y[0-9]\{4\}$"). Names will be checked against this regular expression and
+names in the temporal dimension (e.g. \code{"^y[0-9]\\{4\\}$"}). Names will be checked against this regular expression and
 disagreements will be reported via a warning.
 \item \bold{structure.data} (optional) - regular expression describing the name structure of all
-names in the data dimension (e.g. "^[a-z]*\\\\.[a-z]*$"). Names will be checked against this regular expression and
+names in the data dimension (e.g. \code{"^[a-z]*\\\\\\\\.[a-z]*$"}). Names will be checked against this regular expression and
 disagreements will be reported via a warning.
 \item \bold{aggregationFunction} (optional | default = toolAggregate) - Function to be used to
 aggregate data from country to regions. The function must have the argument \code{x} for
