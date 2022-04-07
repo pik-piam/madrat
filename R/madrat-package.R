@@ -11,6 +11,3 @@
 #' @aliases madrat-package madrat
 #' @docType package
 NULL
-
-
-
