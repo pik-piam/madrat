@@ -16,6 +16,10 @@
 #' forcecache setting.
 #' @param puc Boolean deciding whether a fitting puc file (if existing) should be
 #' read in and if a puc file (if not already existing) should be created.
+#' @param strict Boolean which allows to trigger a strict mode. During strict mode
+#' warnings will be taken more seriously and will cause 1. to have the number of
+#' warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
+#' from creating a puc file.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -38,14 +42,16 @@
 #' }
 #' @importFrom methods formalArgs
 #' @importFrom utils sessionInfo tar modifyList
-#' @importFrom withr with_dir with_tempdir
+#' @importFrom withr with_dir with_tempdir local_options
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), ...) { # nolint
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), strict = FALSE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   setWrapperActive("retrieveData")
   setWrapperActive("saveCache")
   setWrapperInactive("wrapperChecks")
+
+  local_options(madratWarningsCounter = 0)
 
   if (!(cachetype %in% c("rev", "def"))) {
     stop("Unknown cachetype \"", cachetype, "\"!")
@@ -106,7 +112,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   # copy mapping to output folder
   tryCatch({
     file.copy(regionmapping, sourcefolder, overwrite = TRUE)
-  }, error = function(error) {
+  },
+ error = function(error) {
     warning("Copying regionmapping to output folder failed: ", error)
   })
   tryCatch({
@@ -114,7 +121,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
                  args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
                  pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
             file.path(sourcefolder, "config.rds"), version = 2)
-  }, error = function(error) {
+  },
+ error = function(error) {
     warning("Creation of config.rds failed: ", error)
   })
   setConfig(
@@ -148,7 +156,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
 
   with_dir(sourcefolder, {
     setWrapperActive("wrapperChecks")
-    returnedValue <- do.call(cfg$functionCode, cfg$fullNow)
+    returnedValue <- withMadratLogging(do.call(cfg$functionCode, cfg$fullNow))
     setWrapperInactive("wrapperChecks")
   })
   if ("tag" %in% names(returnedValue)) {
@@ -156,6 +164,15 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
       warning("The tag returned in a fullXYZ function should not include the word 'debug'")
     }
     cfg$collectionName <- paste0(cfg$collectionName, "_", returnedValue$tag)
+  }
+
+  nWarn <-  getOption("madratWarningsCounter")
+  if (strict && nWarn > 0) {
+    cfg$collectionName <- paste0("WARNINGS", nWarn, "_", cfg$collectionName)
+    if (puc) {
+      puc <- FALSE
+      vcat(0, "puc file not written as ", nWarn, " warning(s) occurred and strict mode is active")
+    }
   }
 
   vcat(2, " - function ", cfg$functionName, " finished", fill = 300, show_prefix = FALSE)

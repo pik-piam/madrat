@@ -158,7 +158,7 @@ setConfig <- function(regionmapping = NULL, # nolint
   for (x in args) {
     if (!is.null(get(x))) {
       value <- get(x)
-      if (x == "extramappings" && value == "") value <- NULL
+      if (x == "extramappings" && length(value) == 1 && value == "") value <- NULL
       # additional checks/modifications if input is a folder
       if (grepl("folder", x, fixed = TRUE)) {
         if (!is.na(value)) {

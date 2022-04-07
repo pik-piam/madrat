@@ -31,6 +31,8 @@ setWrapperInactive <- function(name) {
                         calcOutput     = FALSE,
                         retrieveData   = FALSE,
                         saveCache      = FALSE,
+                        callingHandler = FALSE,
+                        vcat           = FALSE,
                         wrapperChecks  = TRUE)
   wrapperActive <- getOption("madrat_wrapperActive")
   if (is.null(wrapperActive)) {

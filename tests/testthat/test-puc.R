@@ -12,7 +12,7 @@ test_that("puc creation works", {
    expect_identical(cfg$package, "madrat")
    expect_identical(cfg$pucArguments, "extra")
    expect_identical(cfg$args, list(model = "example", rev = 42, dev = "", cachetype = "rev",
-                                   puc = TRUE, extra = "test1"))
+                                   puc = TRUE, strict = FALSE, extra = "test1"))
    expect_error(pucAggregate("rev42_extra_example_tag.puc", bla = "blub"), "cannot be changed in the given puc")
    expect_message(pucAggregate("rev42_extra_example_tag.puc", extra = "blub", regionmapping = "regionmappingH12.csv"),
                   "Run calcOutput")

@@ -22,6 +22,8 @@
 #' @param show_prefix a logical defining whether a content specific prefix (e.g. "NOTE")
 #' should be shown in front of the message or not. If prefix is not shown it will also
 #' not show up in official statistics.
+#' @param logOnly option to only log warnings and error message without creating warnings
+#' or errors (expert use only).
 #' @export
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}
@@ -31,8 +33,11 @@
 #' }
 #' @importFrom utils capture.output
 vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
-                 show_prefix = TRUE) { # nolint
+                 show_prefix = TRUE, logOnly = FALSE) { # nolint
 
+  # make sure that vcat is not run from within another vcat
+  if (isWrapperActive("vcat")) return()
+  setWrapperActive("vcat")
   setWrapperInactive("wrapperChecks")
 
   if (!is.null(level)) {
@@ -65,13 +70,20 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
                 file = logfile, append = TRUE)
     }
     if (verbosity == -1) {
-      base::stop(..., call. = FALSE)
+      base::message(paste(capture.output(base::cat(c(prefix, ...),
+                                                   fill = fill, sep = "",
+                                                   labels = getOption("gdt_nestinglevel")
+      )), collapse = "\n"))
+      if (!logOnly) base::stop(..., call. = FALSE)
     } else if (verbosity == 0) {
-      base::warning(..., call. = FALSE)
+      if (!logOnly) base::warning(..., call. = FALSE)
       base::message(paste(capture.output(base::cat(c(prefix, ...),
         fill = fill, sep = "",
         labels = getOption("gdt_nestinglevel")
       )), collapse = "\n"))
+      if (!is.null(getOption("madratWarningsCounter"))) {
+        options(madratWarningsCounter = getOption("madratWarningsCounter") + 1) # nolint
+      }
     } else {
       base::message(paste(capture.output(base::cat(c(prefix, ...),
         fill = fill, sep = "",
