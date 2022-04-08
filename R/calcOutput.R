@@ -3,7 +3,7 @@
 #' Calculate a specific output for which a calculation function exists. The function is a
 #' wrapper for specific functions designed for the different possible output types.
 #'
-#'
+#' @md
 #' @param type output type, e.g. "TauTotal". A list of all available source
 #' types can be retrieved with function \code{\link{getCalculations}}.
 #' @param aggregate Boolean indicating whether output data aggregation should be performed or
@@ -13,7 +13,10 @@
 #' outputfolder as specified in the config.
 #' @param years A vector of years that should be returned. If set to NULL all
 #' available years are returned.
-#' @param round A rounding factor. If set to NULL no rounding will occur.
+#' @param round Number of decimal places to round to.  Ignored if `NULL`.  See
+#'   [`round()`] for details.
+#' @param signif Number of significant digits to round to.  Ignored if `NULL`.
+#'   See [`signif()`] for details.
 #' @param supplementary boolean deciding whether supplementary information such as weight should be
 #' returned or not. If set to TRUE a list of elements will be returned!
 #' @param append boolean deciding whether the output data should be appended in the existing file.
@@ -53,13 +56,13 @@
 #' \item \bold{max} (optional) - Maximum value which can appear in the data. If provided calcOutput
 #' will check whether there are any values above the given threshold and warn in this case
 #' \item \bold{structure.spatial} (optional) - regular expression describing the name structure of all
-#' names in the spatial dimension (e.g. "^[A-Z]\{3\}$"). Names will be checked against this regular expression and
+#' names in the spatial dimension (e.g. `"^[A-Z]\{3\}$"`). Names will be checked against this regular expression and
 #' disagreements will be reported via a warning.
 #' \item \bold{structure.temporal} (optional) - regular expression describing the name structure of all
-#' names in the temporal dimension (e.g. "^y[0-9]\{4\}$"). Names will be checked against this regular expression and
+#' names in the temporal dimension (e.g. `"^y[0-9]\{4\}$"`). Names will be checked against this regular expression and
 #' disagreements will be reported via a warning.
 #' \item \bold{structure.data} (optional) - regular expression describing the name structure of all
-#' names in the data dimension (e.g. "^[a-z]*\\\\.[a-z]*$"). Names will be checked against this regular expression and
+#' names in the data dimension (e.g. `"^[a-z]*\\\\.[a-z]*$"`). Names will be checked against this regular expression and
 #' disagreements will be reported via a warning.
 #' \item \bold{aggregationFunction} (optional | default = toolAggregate) - Function to be used to
 #' aggregate data from country to regions. The function must have the argument \code{x} for
@@ -91,7 +94,8 @@
 #' @importFrom withr defer local_dir
 #' @export
 
-calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round = NULL, supplementary = FALSE, # nolint
+calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
+                       round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, regionmapping = NULL, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
@@ -431,6 +435,12 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, round 
     if (x$class != "magpie") stop("rounding can only be used in combination with x$class=\"magpie\"!")
     x$x <- round(x$x, round)
   }
+  if (!is.null(signif)) {
+    if (x$class != "magpie")
+      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    x$x <- signif(x$x, signif)
+  }
+
 
   extendedComment <- c(description,
     unit,
