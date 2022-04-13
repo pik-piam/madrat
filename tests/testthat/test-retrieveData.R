@@ -2,8 +2,6 @@ globalassign <- function(...) {
   for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
 }
 
-setConfig(mainfolder =  withr::local_tempdir(), .verbose = FALSE)
-
 test_that("retrieveData works as expected", {
   expect_message(retrieveData("example", rev = 0, dev = "test"), "Run retrieveData")
   expect_true(file.exists(paste0(getConfig("outputfolder"), "/rev0test_h12_5c275ce3_example_customizable_tag.tgz")))

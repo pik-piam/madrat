@@ -1,7 +1,6 @@
 test_that("puc creation works", {
    skip_on_cran()
    skip_if_offline("zenodo.org")
-   setConfig(mainfolder = withr::local_tempdir(), .verbose = FALSE, .local = TRUE)
    retrieveData("example", rev = 42, extra = "test1")
    expect_true(dir.exists(getConfig("pucfolder")))
    withr::local_dir(getConfig("pucfolder"))

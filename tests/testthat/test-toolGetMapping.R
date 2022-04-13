@@ -23,7 +23,7 @@ test_that("toolGetMapping works", {
   expect_error(toolGetMapping("notexisting.csv", where = "local"), "not found")
   expect_error(toolGetMapping("notexisting.csv", where = "madrat"), "not found")
 
-  setConfig(mappingfolder = tempdir(), .verbose = FALSE, .local = TRUE)
+  setConfig(.verbose = FALSE, .local = TRUE)
   dir.create(getConfig("mappingfolder"), showWarnings = FALSE)
   expect_silent(toolGetMapping("regionmappingH12.csv"))
   expect_error(toolGetMapping("regionmappingH12.csv", where = "mappingfolder"), "not found!")

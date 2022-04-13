@@ -111,7 +111,7 @@ test_that("Calculation for tau example data set works", {
   skip_if_offline("zenodo.org")
   sink(tempfile())
   require(magclass)
-  setConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2, mainfolder = tempdir(), .local = TRUE)
+  setConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2, .local = TRUE)
   expectedResult <- new("magpie",
                          .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
                                            .Dim = c(12L, 1L, 1L),
@@ -129,7 +129,7 @@ test_that("Calculation for tau example data set works", {
 
 
 test_that("Standard workflow works", {
-  setConfig(globalenv = TRUE, mainfolder = tempdir(), .verbose = FALSE, .local = TRUE)
+  setConfig(globalenv = TRUE, .verbose = FALSE, .local = TRUE)
 
   downloadTest2 <- function() {
     a <- as.magpie(1)
@@ -159,7 +159,7 @@ test_that("Standard workflow works", {
 })
 
 test_that("Custom class support works", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
   calcBla1 <- function() return(list(x          = list(1),
                                     class      = "list",
                                     unit       = "1",
@@ -171,7 +171,7 @@ test_that("Custom class support works", {
 })
 
 test_that("Old descriptors are properly removed from comment", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
   calcBlub <- function() {
     x <- as.magpie(1)
     getComment(x) <- "test comment"
@@ -196,7 +196,7 @@ test_that("Old descriptors are properly removed from comment", {
 })
 
 test_that("Aggregation works", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
   calcAggregationTest <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -270,7 +270,7 @@ test_that("Aggregation works", {
 })
 
 test_that("Edge cases work as expected", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
   calcEdgeTest <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -356,7 +356,7 @@ test_that("Edge cases work as expected", {
 })
 
 test_that("Data check works as expected", {
-  setConfig(globalenv = TRUE, outputfolder = tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
   calcMalformedISO <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,

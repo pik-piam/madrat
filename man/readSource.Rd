@@ -4,7 +4,7 @@
 \alias{readSource}
 \title{readSource}
 \usage{
-readSource(type, subtype = NULL, convert = TRUE)
+readSource(type, subtype = NULL, subset = NULL, convert = TRUE)
 }
 \arguments{
 \item{type}{source type, e.g. "IEA". A list of all available source types
@@ -13,6 +13,11 @@ can be retrieved with function \code{\link{getSources}}.}
 \item{subtype}{For some sources there are subtypes of the source, for these
 source the subtype can be specified with this argument. If a source does not
 have subtypes, subtypes should not be set.}
+
+\item{subset}{Similar to \code{subtype} a source can also have \code{subsets}. A \code{subsets}
+can be used to only read part of the data. This can in particular make sense for huge
+data sets where reading in the whole data set might be impracticle or even
+infeasible.}
 
 \item{convert}{Boolean indicating whether input data conversion to
 ISO countries should be done or not. In addition it can be set to "onlycorrect"
