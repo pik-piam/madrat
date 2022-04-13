@@ -19,7 +19,7 @@ test_that("fingerprinting works as expected", {
 })
 
 test_that("fingerprintFiles works as expected", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1, .local = TRUE)
+  setConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1, .local = TRUE)
   withr::local_dir(tempdir())
   writeLines("this is a test", "test.txt", sep = "")
   fp <- madrat:::fingerprintFiles("test.txt")
@@ -27,7 +27,7 @@ test_that("fingerprintFiles works as expected", {
 })
 
 test_that("fingerprinting works for edge cases", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1, .local = TRUE)
+  setConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1, .local = TRUE)
   withr::local_dir(tempdir())
   writeLines("this is a test", "map.csv", sep = "")
   readFingerprintTest <- function() {
@@ -55,7 +55,7 @@ test_that("empty hash cache file is handled properly", {
 })
 
 test_that("fingerprinting works with control flags", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, mainfolder = tempdir(), verbosity = 1, .local = TRUE)
+  setConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1, .local = TRUE)
   readData <- function() {
     return(1)
   }
