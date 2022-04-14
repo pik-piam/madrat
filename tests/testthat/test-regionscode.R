@@ -1,5 +1,5 @@
 test_that("regionscode function works", {
-  setConfig(hash = "xxhash32", .verbose = FALSE, .local = TRUE)
+  localConfig(hash = "xxhash32", .verbose = FALSE)
   expect_identical(regionscode(), "62eff8f7")
   expect_identical(regionscode(strict = FALSE), "1bb3bfca")
   expect_identical(regionscode(label = TRUE), "h12")

@@ -12,7 +12,7 @@ nce <- function(x) {
 }
 
 test_that("readSource detects common problems", {
-  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE)
   readNoDownload <- function() {} # nolint
   globalassign("readNoDownload")
   expect_error(readSource("NoDownload"), "no download script")
@@ -74,7 +74,7 @@ test_that("default readSource example works", {
 test_that("downloadSource works", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
-  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE)
   expect_error(downloadSource("Tau", "paper"),
                paste('Source folder for source "Tau/paper" does already exist. Delete that folder or call',
                      "downloadSource(..., overwrite = TRUE) if you want to re-download."), fixed = TRUE)

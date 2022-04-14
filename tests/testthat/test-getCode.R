@@ -3,7 +3,7 @@ globalassign <- function(...) {
 }
 
 test_that("getCode works", {
- setConfig(verbosity = 1, .verbose = FALSE, .local = TRUE)
+ localConfig(verbosity = 1, .verbose = FALSE)
  expect_silent({
    a <- madrat:::getCode("madrat")
   })
