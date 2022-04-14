@@ -254,7 +254,7 @@ test_that("Aggregation works", {
   expect_error(calcOutput("MalformedAggregation"), "must be a function")
   expect_error(calcOutput("MalformedAggregation2"), "must be a list of function arguments")
 
-  xtramap <- file.path(tempdir(), "blub.csv")
+  xtramap <- file.path(withr::local_tempdir(), "blub.csv")
   file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
   setConfig(extramappings = xtramap, .local = TRUE)
 

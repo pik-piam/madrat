@@ -5,8 +5,7 @@ globalassign <- function(...) {
 test_that("Caching works", {
   calcCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  setConfig(globalenv = TRUE, ignorecache = FALSE, .verbose = FALSE, .local = TRUE,
-            cachefolder = paste0(tempdir(), "/test_caching_works"))
+  setConfig(globalenv = TRUE, ignorecache = FALSE, .verbose = FALSE, .local = TRUE)
   expect_null(madrat:::cacheGet("calc", "CacheExample"))
   expect_message(calcOutput("CacheExample", aggregate = FALSE), "writing cache")
   expect_identical(madrat:::cacheGet("calc", "CacheExample")$x, as.magpie(1))
