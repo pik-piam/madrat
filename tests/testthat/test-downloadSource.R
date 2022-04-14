@@ -4,7 +4,7 @@ globalassign <- function(...) {
 
 test_that("downloadSource uses temporary downloadInProgress directory", {
   mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
-  setConfig(mainfolder = mainfolder, globalenv = TRUE, .local = TRUE)
+  localConfig(mainfolder = mainfolder, globalenv = TRUE)
 
   downloadTest <- function() {
     expect_false(dir.exists(file.path(mainfolder, "sources", "Test")))
@@ -21,7 +21,7 @@ test_that("downloadSource uses temporary downloadInProgress directory", {
 
 test_that("downloadSource waits until already running download is finished", {
   mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
-  setConfig(mainfolder = mainfolder, .local = TRUE)
+  localConfig(mainfolder = mainfolder)
   dir.create(file.path(mainfolder, "sources", "Tau-downloadInProgress"), recursive = TRUE)
 
   expect_error(downloadSource("Tau", numberOfTries = 1),

@@ -115,7 +115,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       dir.create(getConfig("cachefolder"), recursive = TRUE)
   }
 
-  if (!is.null(regionmapping)) setConfig(regionmapping = regionmapping, .local = TRUE)
+  if (!is.null(regionmapping)) localConfig(regionmapping = regionmapping)
 
   # read region mappings check settings for aggregate
   if (aggregate != FALSE) {

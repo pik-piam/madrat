@@ -5,8 +5,9 @@ test_that("robustOrder sorts locale independent", {
   expect_equal(madrat:::robustOrder(x), c(3, 1, 2))
 
   if (!identical(Sys.info()[["sysname"]], "Windows")) {
+    allLocales <- system("locale -a", intern = TRUE)
     expect_true(all(vapply(
-      system("locale -a", intern = TRUE),
+      allLocales[seq_len(min(20, length(allLocales)))],
       function(availableLocale) {
         withr::local_locale(LC_COLLATE = availableLocale)
         return(isTRUE(all.equal(madrat:::robustOrder(x), c(3, 1, 2))))

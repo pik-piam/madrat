@@ -1,5 +1,5 @@
 test_that("getSources works", {
-  setConfig(globalenv = FALSE, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = FALSE, .verbose = FALSE)
   expect_identical(getSources(name = "calcTauTotal", type = "download", packages = "madrat"), "Tau")
   expect_identical(getSources(type = "correct", packages = "madrat"), character(0))
   expect_identical(getSources(type = "read", packages = "madrat"), "Tau")

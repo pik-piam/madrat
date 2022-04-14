@@ -13,7 +13,7 @@ nc <- function(x) {
 
 
 test_that("calcOutput will stop if unused arguments are provided", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, .verbose = FALSE)
   calcTest1 <- function(testarg = FALSE) {
     return(list(x = as.magpie(0),
                 weight = NULL,
@@ -29,7 +29,7 @@ test_that("calcOutput will stop if unused arguments are provided", {
 test_that("Malformed inputs are properly detected", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
-  expect_error(setConfig(packages = "nonexistentpackage", .local = TRUE),
+  expect_error(localConfig(packages = "nonexistentpackage"),
                'Setting "packages" can only be set to installed packages')
   expect_error(calcOutput("TauTotal", aggregate = "wtf"),
                "None of the columns given in aggregate = wtf could be found in the mappings!")
@@ -38,7 +38,7 @@ test_that("Malformed inputs are properly detected", {
 })
 
 test_that("Malformed calc outputs are properly detected", {
-  setConfig(globalenv = TRUE, verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, verbosity = 0, .verbose = FALSE)
   calcBla1 <- function() return(as.magpie(1))
   calcBla2 <- function() return(list(x = 1, weight = NULL))
   calcBla3 <- function() return(list(x = as.magpie(1), weight = 1))
@@ -111,7 +111,7 @@ test_that("Calculation for tau example data set works", {
   skip_if_offline("zenodo.org")
   sink(tempfile())
   require(magclass)
-  setConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2, .local = TRUE)
+  localConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2)
   expectedResult <- new("magpie",
                          .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
                                            .Dim = c(12L, 1L, 1L),
@@ -129,7 +129,7 @@ test_that("Calculation for tau example data set works", {
 
 
 test_that("Standard workflow works", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, .verbose = FALSE)
 
   downloadTest2 <- function() {
     a <- as.magpie(1)
@@ -159,7 +159,7 @@ test_that("Standard workflow works", {
 })
 
 test_that("Custom class support works", {
-  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcBla1 <- function() return(list(x          = list(1),
                                     class      = "list",
                                     unit       = "1",
@@ -171,7 +171,7 @@ test_that("Custom class support works", {
 })
 
 test_that("Old descriptors are properly removed from comment", {
-  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcBlub <- function() {
     x <- as.magpie(1)
     getComment(x) <- "test comment"
@@ -196,7 +196,7 @@ test_that("Old descriptors are properly removed from comment", {
 })
 
 test_that("Aggregation works", {
-  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcAggregationTest <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -254,14 +254,14 @@ test_that("Aggregation works", {
   expect_error(calcOutput("MalformedAggregation"), "must be a function")
   expect_error(calcOutput("MalformedAggregation2"), "must be a list of function arguments")
 
-  xtramap <- file.path(tempdir(), "blub.csv")
+  xtramap <- file.path(withr::local_tempdir(), "blub.csv")
   file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
-  setConfig(extramappings = xtramap, .local = TRUE)
+  localConfig(extramappings = xtramap)
 
   # use 'local' to have the change of verbosity level only local and let the rmainder of the script unaffected
   local({
     # set verbosity to a level that will produce the expected NOTE
-    setConfig(verbosity = 1, .local = TRUE)
+    localConfig(verbosity = 1)
     expect_message(a <- nc(calcOutput("AggregationTest", aggregate = "glo")),
       paste0("Ignoring column\\(s\\) X, region, global from .* as the column\\(s\\) ",
       "already exist in another mapping\\."))
@@ -270,7 +270,7 @@ test_that("Aggregation works", {
 })
 
 test_that("Edge cases work as expected", {
-  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcEdgeTest <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -356,7 +356,7 @@ test_that("Edge cases work as expected", {
 })
 
 test_that("Data check works as expected", {
-  setConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
   calcMalformedISO <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -436,7 +436,7 @@ test_that("Data check works as expected", {
   a <- readRDS(cache)
   getCells(a$x)[1] <- "BLA"
   saveRDS(a, cache)
-  setConfig(verbosity = 2, .verbose = FALSE, .local = TRUE)
+  localConfig(verbosity = 2, .verbose = FALSE)
   expect_message(calcOutput("MatchingStruct"), "cache file corrupt")
   expect_warning(calcOutput("Infinite", aggregate = FALSE), "infinite values")
 })

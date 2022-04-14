@@ -45,7 +45,7 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
 
   message("Running library(", package, ")")
   library(package, character.only = TRUE) # nolint
-  setConfig(ignorecache = functionName, .local = TRUE)
+  localConfig(ignorecache = functionName)
   if (is.null(subtypes)) {
     subtypes <- list(NULL)
   }

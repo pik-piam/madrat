@@ -2,6 +2,7 @@
 % Please edit documentation in R/setConfig.R
 \name{setConfig}
 \alias{setConfig}
+\alias{localConfig}
 \title{setConfig}
 \usage{
 setConfig(
@@ -29,6 +30,8 @@ setConfig(
   .verbose = TRUE,
   .local = FALSE
 )
+
+localConfig(...)
 }
 \arguments{
 \item{regionmapping}{The name of the csv file containing the region mapping
@@ -118,6 +121,8 @@ in regular cases)}
 
 \item{.local}{boolean deciding whether options are only changed until the end of the current function execution
 OR environment for which the options should get changed.}
+
+\item{...}{Arguments forwarded to setConfig}
 }
 \description{
 This function manipulates the current madrat configuration.
@@ -126,6 +131,11 @@ all other inputs will overwrite the current setting.
 For values which can be reset to NULL (currently only "extramappings")
 you can achieve a reset by setting the value to "".
 }
+\section{Functions}{
+\itemize{
+\item \code{localConfig}: A wrapper for setConfig(..., .local = TRUE)
+}}
+
 \note{
 \code{setConfig} must only be used before the data processing is started and changes in the configuration
 from within a download-, read-, correct-, convert-, calc-, or full-function are not allowed! Only allowed
