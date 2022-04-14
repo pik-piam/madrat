@@ -198,3 +198,8 @@ setConfig <- function(regionmapping = NULL, # nolint
     for (i in info) vcat(-2, i)
   }
 }
+
+#' @describeIn setConfig A wrapper for setConfig(..., .local = TRUE)
+#' @param ... Arguments forwarded to setConfig
+#' @export
+localConfig <- function(...) setConfig(..., .local = TRUE)
