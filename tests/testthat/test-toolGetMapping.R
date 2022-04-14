@@ -5,7 +5,7 @@ test_that("toolGetMapping works", {
                              RegionCode = c("LAM", "OAS", "SSA", "LAM", "EUR", "NEU")),
                         row.names = c(NA, 6L), class = "data.frame")
   # find a mapping file in the current package that is not found also
-  # in the obvious place getConfig(mappingfolder)
+  # in the obvious place getConfig("mappingfolder")
   fname <- setdiff(grep("csv", dir(paste0(system.file(package = "madrat"), "/extdata")), value = TRUE),
                    grep("csv", dir(as.character(getConfig("mappingfolder"))), value = TRUE))[1]
   fullPath <- paste0(system.file(package = "madrat"), "/extdata/", fname)
@@ -23,7 +23,7 @@ test_that("toolGetMapping works", {
   expect_error(toolGetMapping("notexisting.csv", where = "local"), "not found")
   expect_error(toolGetMapping("notexisting.csv", where = "madrat"), "not found")
 
-  setConfig(.verbose = FALSE, .local = TRUE)
+  localConfig(.verbose = FALSE)
   dir.create(getConfig("mappingfolder"), showWarnings = FALSE)
   expect_silent(toolGetMapping("regionmappingH12.csv"))
   expect_error(toolGetMapping("regionmappingH12.csv", where = "mappingfolder"), "not found!")

@@ -48,7 +48,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE
-    setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
+    localConfig(regionmapping = regionmapping, forcecache = TRUE)
     do.call(retrieveData, cfg$args)
   }
 

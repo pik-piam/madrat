@@ -1,6 +1,6 @@
 
 test_that("vcat redirect works", {
-  setConfig(verbosity = 1, .verbose = FALSE, .local = TRUE)
+  localConfig(verbosity = 1, .verbose = FALSE)
   expect_message(madrat:::cat("blub"), "NOTE: blub")
   expect_message(suppressWarnings(madrat:::warning("blub")), "WARNING: blub")
 })
@@ -28,7 +28,7 @@ test_that("withMadratLogging properly logs warnings", {
 test_that("withMadratLogging properly logs messages", {
   m <- "This is a message"
   mExp <- paste0("^NOTE: ", m, "\n$")
-  setConfig(verbosity = 2, .verbose = FALSE, .local = TRUE)
+  localConfig(verbosity = 2, .verbose = FALSE)
   for (withMadratLoggingX in c(wML1, wML2)) {
     expect_message(withMadratLoggingX(base::message(m)), mExp)
     expect_message(withMadratLoggingX(message(m)), mExp)

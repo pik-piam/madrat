@@ -1,6 +1,5 @@
 test_that("compareData works", {
-  td <- tempdir()
-  testdir <- file.path(td, "test")
+  testdir <- file.path(withr::local_tempdir(), "test")
   dir.create(testdir)
   withr::defer({
     unlink(testdir, recursive = TRUE)

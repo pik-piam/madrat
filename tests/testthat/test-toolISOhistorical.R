@@ -1,5 +1,5 @@
 test_that("Historic data is properly translated", {
-  setConfig(.verbose = FALSE, .local = TRUE)
+  localConfig(.verbose = FALSE)
   newcountries <- c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",
                     "LVA", "LTU", "MDA", "RUS", "TJK", "TKM", "UKR", "UZB")
   a <- new.magpie(c("SUN", newcountries), 1990:1992)

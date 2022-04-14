@@ -16,7 +16,7 @@ have subtypes, subtypes should not be set.}
 
 \item{subset}{Similar to \code{subtype} a source can also have \code{subsets}. A \code{subsets}
 can be used to only read part of the data. This can in particular make sense for huge
-data sets where reading in the whole data set might be impracticle or even
+data sets where reading in the whole data set might be impractical or even
 infeasible.}
 
 \item{convert}{Boolean indicating whether input data conversion to
