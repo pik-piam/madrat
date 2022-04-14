@@ -20,6 +20,8 @@
 #' }
 #' @importFrom withr with_tempdir local_package
 #' @importFrom utils untar modifyList
+#' @importFrom callr r
+#' @importFrom renv activate restore
 #' @export
 pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
@@ -28,8 +30,14 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
-  with_tempdir({
-    untar(puc, exdir = "puc")
+  .pucAgg <- function(regionmapping, extraArgs, madratCfg) {
+    options(madrat_cfg = madratCfg)
+    if(file.exists("puc/renv.lock")) {
+      renv::activate()
+      renv::restore(lockfile="puc/renv.lock", prompt=FALSE)
+    }
+    library(madrat)
+    library(withr)
     cfg <- readRDS("puc/config.rds")
     if (!all(names(extraArgs) %in% cfg$pucArguments)) {
       stop("arguments provided that cannot be changed in the given puc! Allowed arguments are: ",
@@ -42,6 +50,18 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
     cfg$args$puc <- FALSE
     setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
     do.call(retrieveData, cfg$args)
+  }
+
+  with_tempdir({
+    untar(puc, exdir = "puc")
+    if (file.exists("puc/renv.lock")) {
+      activate(profile = "puc/renv.lock")
+      restore(prompt = FALSE)
+    }
+    r(.pucAgg, list(regionmapping = regionmapping, extraArgs = extraArgs, madratCfg = getOption("madrat_cfg")),
+      stderr="/home/dietrich/PIK/tmp/callr/test.log",
+      stdout="/home/dietrich/PIK/tmp/callr/test.log",
+      spinner = FALSE, show = TRUE)
   })
 
   toolendmessage(startinfo)

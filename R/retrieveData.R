@@ -43,6 +43,7 @@
 #' @importFrom methods formalArgs
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir local_options
+#' @importFrom renv snapshot
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), strict = FALSE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
@@ -196,6 +197,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(sourcefolder, otherFiles), ".")
+            trash <- capture.output(snapshot(packages = attr(cfg$functionName, "package"), prompt = FALSE))
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {
