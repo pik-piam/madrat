@@ -55,8 +55,6 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
   with_tempdir({
     untar(puc, exdir = "puc")
     r(.pucAgg, list(regionmapping = regionmapping, extraArgs = extraArgs, madratCfg = getOption("madrat_cfg")),
-      stderr="/home/dietrich/PIK/tmp/callr/test.log",
-      stdout="/home/dietrich/PIK/tmp/callr/test.log",
       spinner = FALSE, show = TRUE)
   })
 
