@@ -19,7 +19,7 @@ test_that("fingerprinting works as expected", {
 })
 
 test_that("fingerprintFiles works as expected", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1, .local = TRUE)
+  localConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1)
   withr::local_dir(withr::local_tempdir())
   writeLines("this is a test", "test.txt", sep = "")
   fp <- madrat:::fingerprintFiles("test.txt")
@@ -27,7 +27,7 @@ test_that("fingerprintFiles works as expected", {
 })
 
 test_that("fingerprinting works for edge cases", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1, .local = TRUE)
+  localConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1)
   withr::local_dir(withr::local_tempdir())
   writeLines("this is a test", "map.csv", sep = "")
   readFingerprintTest <- function() {
@@ -48,14 +48,14 @@ test_that("empty hash cache file is handled properly", {
   localTempdir <- withr::local_tempdir()
   dir.create(file.path(localTempdir, "something"))
   file.create(file.path(localTempdir, paste0("fileHashCache", basename(localTempdir), ".rds")))
-  setConfig(sourcefolder = localTempdir, cachefolder = localTempdir, .local = TRUE)
+  localConfig(sourcefolder = localTempdir, cachefolder = localTempdir)
   expect_warning(madrat:::fingerprintFiles(localTempdir),
                  "Ignoring corrupt hashCacheFile: Error in readRDS(hashCacheFile) : error reading from connection",
                  fixed = TRUE)
 })
 
 test_that("fingerprinting works with control flags", {
-  setConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1, .local = TRUE)
+  localConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1)
   readData <- function() {
     return(1)
   }

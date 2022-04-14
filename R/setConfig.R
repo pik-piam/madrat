@@ -202,4 +202,5 @@ setConfig <- function(regionmapping = NULL, # nolint
 #' @describeIn setConfig A wrapper for setConfig(..., .local = TRUE)
 #' @param ... Arguments forwarded to setConfig
 #' @export
-localConfig <- function(...) setConfig(..., .local = TRUE)
+# setting .local = TRUE would only set config until localConfig ends
+localConfig <- function(...) setConfig(..., .local = parent.frame())

@@ -84,7 +84,7 @@ test_that("toolTimeSpline works as expected", {
 })
 
 test_that("toolConvertMapping works as expected", {
-  setConfig(mappingfolder = withr::local_tempdir(), .verbose = FALSE, .local = TRUE)
+  localConfig(mappingfolder = withr::local_tempdir(), .verbose = FALSE)
   file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))
 
   expect_silent(toolConvertMapping("regionmappingH12.csv"))
@@ -106,7 +106,7 @@ test_that("toolConvertMapping works as expected", {
 
 test_that("toolConditionalReplace works as expected", {
 
-  setConfig(verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(verbosity = 0, .verbose = FALSE)
   m <- as.magpie(c(1, NA, 0, -1, Inf))
 
   expect_error(toolConditionalReplace(m), "missing, with no default")
