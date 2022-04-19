@@ -614,7 +614,8 @@ Others Latin America and the Caribbean;XAC
 Others Oceania;XOO
 Others West Asia;XWA
 PA;PAN
-pacific islands (palau);XXX
+pacific islands (palau);PLW
+Pacific Islands Trust Territory;PCI
 Pakistan;PAK
 palastina;PSE
 palästina;PSE
@@ -668,7 +669,7 @@ Republic of Moldova;MDA
 Republic of North Macedonia;MKD
 republic of south sudan;SSD
 republic of south vietnam;XXX
-republic of sudan;XXX
+republic of sudan;SDN
 Reunion;REU
 Réunion;REU
 rhodesia-nyasaland;XXX
@@ -700,6 +701,7 @@ Saint Kitts and Nevis;KNA
 Saint Lucia;LCA
 saint martin (dutch portion);SXM
 Saint Martin (French part);MAF
+Saint-Martin (French part);MAF
 Saint Pierre and Miquelon;SPM
 Saint Vincent and the Grenadines;VCT
 Sambia;ZMB
@@ -914,6 +916,7 @@ VN;VNM
 Volkrep,China;CHN
 VU;VUT
 Wake_Islands;WAK
+Wake Island;WAK
 Wallis and Futuna;WLF
 wallis and futuna islands;WLF
 Wallis and Futuna Islands;WLF
