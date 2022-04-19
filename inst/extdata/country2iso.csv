@@ -140,6 +140,7 @@ Chad;TCD
 Chile;CHL
 China;CHN
 China (mainland);CHN
+China, mainland;CHN
 China HK SAR;HKG
 China Hong Kong SAR;HKG
 China Mac SAR;MAC
@@ -248,7 +249,7 @@ Estonia;EST
 Eswatini;SWZ
 ET;ETH
 Ethiopia;ETH
-Ethiopia PDR;XET
+Ethiopia PDR;ETH
 faeroe islands;FRO
 Falkland Islands (Malvinas);FLK
 Falkland_Islands_or_Islas_Malvinas;FLK
