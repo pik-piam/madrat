@@ -191,7 +191,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(sourcefolder, otherFiles), ".")
-            capture.output(snapshot(packages = attr(cfg$functionName, "package"), prompt = FALSE))
+            trash <- capture.output(snapshot(packages = attr(cfg$functionName, "package"), prompt = FALSE)) # nolint
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {

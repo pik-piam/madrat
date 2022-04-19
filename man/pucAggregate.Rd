@@ -4,7 +4,7 @@
 \alias{pucAggregate}
 \title{pucAggregate}
 \usage{
-pucAggregate(puc, regionmapping = getConfig("regionmapping"), ...)
+pucAggregate(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE)
 }
 \arguments{
 \item{puc}{path to a puc-file}

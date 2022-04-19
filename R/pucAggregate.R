@@ -23,21 +23,22 @@
 #' @importFrom callr r
 #' @importFrom renv activate restore
 #' @export
-pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
+pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
   extraArgs <- list(...)
-  startinfo <- toolstartmessage("pucAggregate", argumentValues, 0)
+  startinfo <- toolstartmessage("pucAggregate", argumentValues, "+")
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
-  .aggregatePuc <- function(regionmapping, cfg, madratCfg) {
-    options(madrat_cfg = madratCfg)
-    if(file.exists("puc/renv.lock")) {
+  .aggregatePuc <- function(regionmapping, cfg, madratCfg, renv, nestinglevel) {
+    if (FALSE && isTRUE(renv) && file.exists("puc/renv.lock")) {
       renv::activate()
-      renv::restore(lockfile="puc/renv.lock", prompt=FALSE)
+      renv::restore(lockfile = "puc/renv.lock", prompt = FALSE)
     }
+    withr::local_options(madrat_cfg = madratCfg, gdt_nestinglevel = nestinglevel)
     if (!is.null(cfg$package)) withr::local_package(cfg$package)
-    madrat::setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
+    madrat::setConfig(regionmapping = regionmapping, forcecache = TRUE,
+                      .verbose = FALSE, .local = TRUE)
     do.call(retrieveData, cfg$args)
   }
 
@@ -52,8 +53,11 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE
-    r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg, madratCfg = getOption("madrat_cfg")),
-      spinner = FALSE, show = TRUE)
+    out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
+                          madratCfg = getOption("madrat_cfg"), renv = renv,
+                          nestinglevel = getOption("gdt_nestinglevel")),
+                          spinner = FALSE, show = TRUE))
+    message(paste(out,"\n"))
   })
 
   toolendmessage(startinfo)
