@@ -30,31 +30,29 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
-  .pucAgg <- function(regionmapping, extraArgs, madratCfg) {
+  .aggregatePuc <- function(regionmapping, cfg, madratCfg) {
     options(madrat_cfg = madratCfg)
     if(file.exists("puc/renv.lock")) {
       renv::activate()
       renv::restore(lockfile="puc/renv.lock", prompt=FALSE)
     }
-    library(madrat)
-    library(withr)
+    if (!is.null(cfg$package)) withr::local_package(cfg$package)
+    madrat::setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
+    do.call(retrieveData, cfg$args)
+  }
+
+  with_tempdir({
+    untar(puc, exdir = "puc")
     cfg <- readRDS("puc/config.rds")
     if (!all(names(extraArgs) %in% cfg$pucArguments)) {
       stop("arguments provided that cannot be changed in the given puc! Allowed arguments are: ",
            paste(cfg$pucArguments, collapse = ", "))
     }
     cfg$args <- modifyList(cfg$args, extraArgs)
-    if (!is.null(cfg$package) && cfg$package != "madrat") local_package(cfg$package)
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE
-    setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
-    do.call(retrieveData, cfg$args)
-  }
-
-  with_tempdir({
-    untar(puc, exdir = "puc")
-    r(.pucAgg, list(regionmapping = regionmapping, extraArgs = extraArgs, madratCfg = getOption("madrat_cfg")),
+    r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg, madratCfg = getOption("madrat_cfg")),
       spinner = FALSE, show = TRUE)
   })
 
