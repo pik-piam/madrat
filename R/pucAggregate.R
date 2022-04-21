@@ -11,6 +11,8 @@
 #' @param ... (Optional) Settings that should be changed in addition. NOTE:
 #' which settings can be modified varies from puc to puc. Allowed settings are
 #' typically listed in the file name of the puc file after the revision number.
+#' @param renv Boolean which determines whether data should be aggregated from
+#' within a renv environment (recommended) or not.
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{retrieveData}},\code{\link{setConfig}}
@@ -57,7 +59,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
                           madratCfg = getOption("madrat_cfg"), renv = renv,
                           nestinglevel = getOption("gdt_nestinglevel")),
                           spinner = FALSE, show = TRUE))
-    message(paste(out,"\n"))
+    message(paste(out, "\n"))
   })
 
   toolendmessage(startinfo)

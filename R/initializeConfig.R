@@ -24,6 +24,7 @@ initializeConfig <- function(verbose = TRUE) {
                 mappingfolder        = NA,
                 outputfolder         = NA,
                 pucfolder            = NA,
+                tmpfolder            = NA,
                 nolabels             = NULL,
                 forcecache           = FALSE,
                 ignorecache          = NULL,

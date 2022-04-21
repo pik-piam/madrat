@@ -14,6 +14,9 @@ pucAggregate(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE)
 \item{...}{(Optional) Settings that should be changed in addition. NOTE:
 which settings can be modified varies from puc to puc. Allowed settings are
 typically listed in the file name of the puc file after the revision number.}
+
+\item{renv}{Boolean which determines whether data should be aggregated from
+within a renv environment (recommended) or not.}
 }
 \description{
 Function which takes a puc-file ("portable unaggregated collection") as created
