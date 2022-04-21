@@ -32,8 +32,8 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
-  .aggregatePuc <- function(regionmapping, cfg, madratCfg, renv, nestinglevel) {
-    if (FALSE && isTRUE(renv) && file.exists("puc/renv.lock")) {
+  .aggregatePuc <- function(regionmapping, cfg, madratCfg, nestinglevel) {
+    if (file.exists("puc/renv.lock")) {
       renv::activate()
       renv::restore(lockfile = "puc/renv.lock", prompt = FALSE)
     }
@@ -41,7 +41,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     if (!is.null(cfg$package)) withr::local_package(cfg$package)
     madrat::setConfig(regionmapping = regionmapping, forcecache = TRUE,
                       .verbose = FALSE, .local = TRUE)
-    do.call(retrieveData, cfg$args)
+    do.call(retrieveData, c(cfg$args, list(renv = FALSE)))
   }
 
   with_tempdir({
@@ -55,11 +55,18 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE
-    out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
-                          madratCfg = getOption("madrat_cfg"), renv = renv,
-                          nestinglevel = getOption("gdt_nestinglevel")),
-                          spinner = FALSE, show = TRUE))
-    message(paste(out, "\n"))
+    if (isTRUE(renv)) {
+      out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
+                            madratCfg = getOption("madrat_cfg"),
+                            nestinglevel = getOption("gdt_nestinglevel")),
+                            spinner = FALSE, show = TRUE))
+      message(paste(out, "\n"))
+    } else {
+      if (!is.null(cfg$package) && cfg$package != "madrat") withr::local_package(cfg$package)
+      madrat::setConfig(regionmapping = regionmapping, forcecache = TRUE,
+                        .verbose = FALSE, .local = TRUE)
+      do.call(retrieveData, c(cfg$args, list(renv = FALSE)))
+    }
   })
 
   toolendmessage(startinfo)

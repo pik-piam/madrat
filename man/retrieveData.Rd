@@ -11,6 +11,7 @@ retrieveData(
   cachetype = "rev",
   puc = identical(dev, ""),
   strict = FALSE,
+  renv = TRUE,
   ...
 )
 }
@@ -36,6 +37,10 @@ read in and if a puc file (if not already existing) should be created.}
 warnings will be taken more seriously and will cause 1. to have the number of
 warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
 from creating a puc file.}
+
+\item{renv}{Boolean which determines whether calculations should
+within a renv environment (recommended) or not (currently only applied in
+\code{pucAggregate}).}
 
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding

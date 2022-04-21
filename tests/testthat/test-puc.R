@@ -17,6 +17,6 @@ test_that("puc creation works", {
    expect_message(pucAggregate("rev42_extra_example_tag.puc", extra = "blub", regionmapping = "regionmappingH12.csv",
                                renv = FALSE), "already available")
    expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_7a5441e5_example_customizable_tag.tgz")))
-   expect_message(retrieveData("example", rev = 42, extra = "test2"), "Run pucAggregate")
+   expect_message(retrieveData("example", rev = 42, extra = "test2", renv = FALSE), "Run pucAggregate")
    expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_5f3d77a0_example_customizable_tag.tgz")))
 })
