@@ -12,7 +12,10 @@
 #' which settings can be modified varies from puc to puc. Allowed settings are
 #' typically listed in the file name of the puc file after the revision number.
 #' @param renv Boolean which determines whether data should be aggregated from
-#' within a renv environment (recommended) or not.
+#' within a renv environment (recommended) or not. If activated, \code{renv}
+#' will check which packages in which versions were used to create the puc file,
+#' download, install and load these packages and run the aggregation with them.
+#' Otherwise, the packages in the currently used environment are being used.
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{retrieveData}},\code{\link{setConfig}}
@@ -58,9 +61,9 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     cfg$args$puc <- FALSE
     if (isTRUE(renv)) {
       out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
-                            madratCfg = getOption("madrat_cfg"),
-                            nestinglevel = getOption("gdt_nestinglevel")),
-                            spinner = FALSE, show = TRUE))
+                                                  madratCfg = getOption("madrat_cfg"),
+                                                  nestinglevel = getOption("gdt_nestinglevel")),
+                              spinner = FALSE, show = TRUE))
       message(paste(out, "\n"))
     } else {
       if (!is.null(cfg$package) && cfg$package != "madrat") withr::local_package(cfg$package)

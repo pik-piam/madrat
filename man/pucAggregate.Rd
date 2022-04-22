@@ -16,7 +16,10 @@ which settings can be modified varies from puc to puc. Allowed settings are
 typically listed in the file name of the puc file after the revision number.}
 
 \item{renv}{Boolean which determines whether data should be aggregated from
-within a renv environment (recommended) or not.}
+within a renv environment (recommended) or not. If activated, \code{renv}
+will check which packages in which versions were used to create the puc file,
+download, install and load these packages and run the aggregation with them.
+Otherwise, the packages in the currently used environment are being used.}
 }
 \description{
 Function which takes a puc-file ("portable unaggregated collection") as created

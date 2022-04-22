@@ -22,7 +22,10 @@
 #' from creating a puc file.
 #' @param renv Boolean which determines whether calculations should run
 #' within a renv environment (recommended) or not (currently only applied in
-#' \code{pucAggregate}).
+#' \code{\link{pucAggregate}}). If activated, \code{renv} will check which packages
+#' in which versions were used to create the puc file, download, install and
+#' load these packages and run the aggregation with them. Otherwise, the packages
+#' in the currently used environment are being used.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -194,7 +197,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(sourcefolder, otherFiles), ".")
-            trash <- capture.output(snapshot(packages = attr(cfg$functionName, "package"), prompt = FALSE)) # nolint
+            vcat(3, capture.output(snapshot(packages = attr(cfg$functionName, "package"), prompt = FALSE)))
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {
