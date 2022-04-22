@@ -86,4 +86,24 @@ test_that("downloadSource works", {
   expect_warning(downloadSource("Test", overwrite = TRUE), "reserved and will be overwritten")
 })
 
+test_that("forcecache works for readSource", {
+  localConfig(mainfolder = withr::local_tempdir(), globalenv = TRUE)
+  readTest2 <- function() new.magpie()
+  globalassign("readTest2")
+  expect_error(readSource("Test2"),
+               paste('Sourcefolder does not contain data for the requested source type = "Test2" and there is no',
+                     "download script which could provide the missing data. Please check your settings!"),
+               fixed = TRUE)
+  dir.create(file.path(getConfig("sourcefolder"), "Test2"), recursive = TRUE)
+  expect_identical(readSource("Test2"), new.magpie())
+
+  # ensure forced cache file is used even though sourcefolder does not exist
+  unlink(file.path(getConfig("sourcefolder"), "Test2"), recursive = TRUE)
+  localConfig(forcecache = TRUE)
+  saveRDS("secret", cacheName("read", "Test2"))
+  actual <- readSource("Test2")
+  attributes(actual) <- NULL
+  expect_identical(actual, "secret")
+})
+
 rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
