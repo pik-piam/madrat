@@ -20,7 +20,7 @@
 #' warnings will be taken more seriously and will cause 1. to have the number of
 #' warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
 #' from creating a puc file.
-#' @param renv Boolean which determines whether calculations should
+#' @param renv Boolean which determines whether calculations should run
 #' within a renv environment (recommended) or not (currently only applied in
 #' \code{pucAggregate}).
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
