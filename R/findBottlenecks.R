@@ -36,7 +36,7 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
   runtime <- rep(0, max(x$level) + 3)
   for (i in seq_len(nrow(x))) {
     l <- x$level[i] + 2
-    runtime[l] <- runtime[l] + x$time[i]
+    runtime[l] <- runtime[l] + x$"time[s]"[i]
     x$"net[s]"[i] <- x$"time[s]"[i] - runtime[l + 1]
     runtime[l + 1] <- 0
   }

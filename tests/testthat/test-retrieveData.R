@@ -20,7 +20,7 @@ test_that("argument handling works", {
     return()
   }
   globalassign("fullTEST")
-  setConfig(globalenv = FALSE, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = FALSE, .verbose = FALSE)
   expect_error(retrieveData("Test"), "is not a valid output type")
   expect_warning(retrieveData("Test", globalenv = TRUE), "Overlapping arguments")
   expect_error(retrieveData("Test"), "is not a valid output type") # globalenv is only set temporarily, so this fails
@@ -113,7 +113,7 @@ test_that("strict mode works", {
     return(list(x = as.magpie(1), unit = "1", description = "dummy", isocountries = FALSE))
   }
   globalassign("fullWARNTEST", "calcWarningTest")
-  setConfig(globalenv = TRUE, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, .verbose = FALSE)
   expect_warning(retrieveData("WarnTest", strict = TRUE, cachetype = "def"), "puc file not written")
   expect_true(file.exists(paste0(getConfig("outputfolder"), "/WARNINGS1_rev0_h12_warntest.tgz")))
 })

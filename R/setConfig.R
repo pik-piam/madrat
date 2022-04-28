@@ -39,6 +39,8 @@
 #' should be used which is <mainfolder>/output
 #' @param pucfolder The path where portable unaggregated collection (puc) files
 #' are located. NA by default, which means <mainfolder>/puc
+#' @param tmpfolder Path to a temp folder for temporary storage of files. By default
+#' set to <mainfolder>/tmp
 #' @param nolabels vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 #' which should NOT apply a replacement of known hashes with given code labels
 #' @param forcecache Argument that allows to force madrat to read data from
@@ -98,6 +100,7 @@ setConfig <- function(regionmapping = NULL, # nolint
                       mappingfolder = NULL,
                       outputfolder = NULL,
                       pucfolder = NULL,
+                      tmpfolder = NULL,
                       nolabels = NULL,
                       forcecache = NULL,
                       ignorecache = NULL,
@@ -198,3 +201,9 @@ setConfig <- function(regionmapping = NULL, # nolint
     for (i in info) vcat(-2, i)
   }
 }
+
+#' @describeIn setConfig A wrapper for setConfig(..., .local = TRUE)
+#' @param ... Arguments forwarded to setConfig
+#' @export
+# setting .local = TRUE would only set config until localConfig ends
+localConfig <- function(...) setConfig(..., .local = parent.frame())

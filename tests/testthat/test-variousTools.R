@@ -69,14 +69,14 @@ test_that("toolTimeSpline works as expected", {
     return(round(x, 1))
   }
 
-  expect_lt(max(abs(ncr(toolTimeSpline(p)) - o5)), 0.11)
-  expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 5)) - o5)), 0.11)
-  expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 3)) - o3)), 0.11)
+  expect_lt(max(abs(ncr(toolTimeSpline(p)) - o5)), 0.3)
+  expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 5)) - o5)), 0.3)
+  expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 3)) - o3)), 0.3)
 
   expect_warning({
     p5 <- ncr(toolTimeSpline(p, dof = 0))
   }, "dof values < 1 not allowed!")
-  expect_lt(max(abs(p5 - o5)), 0.11)
+  expect_lt(max(abs(p5 - o5)), 0.3)
   expect_warning({
     p100 <- ncr(toolTimeSpline(p, dof = 100))
   }, "Degrees of freedom too high")
@@ -84,7 +84,7 @@ test_that("toolTimeSpline works as expected", {
 })
 
 test_that("toolConvertMapping works as expected", {
-  setConfig(mappingfolder = tempdir(), .verbose = FALSE, .local = TRUE)
+  localConfig(mappingfolder = withr::local_tempdir(), .verbose = FALSE)
   file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))
 
   expect_silent(toolConvertMapping("regionmappingH12.csv"))
@@ -106,7 +106,7 @@ test_that("toolConvertMapping works as expected", {
 
 test_that("toolConditionalReplace works as expected", {
 
-  setConfig(verbosity = 0, .verbose = FALSE, .local = TRUE)
+  localConfig(verbosity = 0, .verbose = FALSE)
   m <- as.magpie(c(1, NA, 0, -1, Inf))
 
   expect_error(toolConditionalReplace(m), "missing, with no default")

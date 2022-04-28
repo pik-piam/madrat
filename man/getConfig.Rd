@@ -34,9 +34,10 @@ configuration available to system tools of the madrat framework. There are
 only a few exceptions for which configuration settings are also readable
 from within a download-, read-, convert-, correct-, calc- or full-function.
 These exceptions are the setting "debug" (which can be used to add additional
-debug messages when active), the the setting "hash" (which can only be accessed
-from within a full function and can there be used to apply the identical hash
-algorithm for other calculations in which hashing is being used).
+debug messages when active), the "tmfolder" which can be used to temporarily
+store data and the setting "hash" (which can only be accessed from within a
+full function and can there be used to apply the identical hash algorithm for
+other calculations in which hashing is being used).
 Besides that "regionmapping" and "extramappings" can also be read from within
 calc- and full-functions but their use is at least for the calc-functions
 discouraged as it either might lead to incorrect caching behavior, or - if

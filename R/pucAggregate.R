@@ -11,6 +11,11 @@
 #' @param ... (Optional) Settings that should be changed in addition. NOTE:
 #' which settings can be modified varies from puc to puc. Allowed settings are
 #' typically listed in the file name of the puc file after the revision number.
+#' @param renv Boolean which determines whether data should be aggregated from
+#' within a renv environment (recommended) or not. If activated, \code{renv}
+#' will check which packages in which versions were used to create the puc file,
+#' download, install and load these packages and run the aggregation with them.
+#' Otherwise, the packages in the currently used environment are being used.
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{retrieveData}},\code{\link{setConfig}}
@@ -18,15 +23,30 @@
 #' \dontrun{
 #' pucAggregate("rev1_example.puc", regionmapping = "regionmappingH12.csv")
 #' }
-#' @importFrom withr with_tempdir local_package
+#' @importFrom withr with_tempdir local_package local_options
 #' @importFrom utils untar modifyList
+#' @importFrom callr r
+#' @importFrom renv activate restore
 #' @export
-pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
+pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
   extraArgs <- list(...)
-  startinfo <- toolstartmessage("pucAggregate", argumentValues, 0)
+  startinfo <- toolstartmessage("pucAggregate", argumentValues, "+")
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
+
+  .aggregatePuc <- function(regionmapping, cfg, madratCfg, nestinglevel) {
+    # need to use `::` because this is run in another R session
+    if (file.exists("puc/renv.lock")) {
+      renv::activate()
+      renv::restore(lockfile = "puc/renv.lock", prompt = FALSE)
+    }
+    withr::local_options(madrat_cfg = madratCfg, gdt_nestinglevel = nestinglevel)
+    if (!is.null(cfg$package)) withr::local_package(cfg$package)
+    madrat::setConfig(regionmapping = regionmapping, forcecache = TRUE,
+                      .verbose = FALSE, .local = TRUE)
+    do.call(madrat::retrieveData, c(cfg$args, list(renv = FALSE)))
+  }
 
   with_tempdir({
     untar(puc, exdir = "puc")
@@ -36,12 +56,21 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ...) {
            paste(cfg$pucArguments, collapse = ", "))
     }
     cfg$args <- modifyList(cfg$args, extraArgs)
-    if (!is.null(cfg$package) && cfg$package != "madrat") local_package(cfg$package)
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE
-    setConfig(regionmapping = regionmapping, forcecache = TRUE, .local = TRUE)
-    do.call(retrieveData, cfg$args)
+    if (isTRUE(renv)) {
+      out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
+                                                  madratCfg = getOption("madrat_cfg"),
+                                                  nestinglevel = getOption("gdt_nestinglevel")),
+                              spinner = FALSE, show = TRUE))
+      message(paste(out, "\n"))
+    } else {
+      if (!is.null(cfg$package) && cfg$package != "madrat") withr::local_package(cfg$package)
+      setConfig(regionmapping = regionmapping, forcecache = TRUE,
+                .verbose = FALSE, .local = TRUE)
+      do.call(retrieveData, c(cfg$args, list(renv = FALSE)))
+    }
   })
 
   toolendmessage(startinfo)

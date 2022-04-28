@@ -12,7 +12,7 @@ nce <- function(x) {
 }
 
 test_that("readSource detects common problems", {
-  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE)
   readNoDownload <- function() {} # nolint
   globalassign("readNoDownload")
   expect_error(readSource("NoDownload"), "no download script")
@@ -74,7 +74,7 @@ test_that("default readSource example works", {
 test_that("downloadSource works", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
-  setConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE, .local = TRUE)
+  localConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE)
   expect_error(downloadSource("Tau", "paper"),
                paste('Source folder for source "Tau/paper" does already exist. Delete that folder or call',
                      "downloadSource(..., overwrite = TRUE) if you want to re-download."), fixed = TRUE)
@@ -84,6 +84,26 @@ test_that("downloadSource works", {
                                          description = 1, unit = 1, call = "notallowed"))
   globalassign("downloadTest")
   expect_warning(downloadSource("Test", overwrite = TRUE), "reserved and will be overwritten")
+})
+
+test_that("forcecache works for readSource", {
+  localConfig(mainfolder = withr::local_tempdir(), globalenv = TRUE)
+  readTest2 <- function() new.magpie()
+  globalassign("readTest2")
+  expect_error(readSource("Test2"),
+               paste('Sourcefolder does not contain data for the requested source type = "Test2" and there is no',
+                     "download script which could provide the missing data. Please check your settings!"),
+               fixed = TRUE)
+  dir.create(file.path(getConfig("sourcefolder"), "Test2"), recursive = TRUE)
+  expect_identical(readSource("Test2"), new.magpie())
+
+  # ensure forced cache file is used even though sourcefolder does not exist
+  unlink(file.path(getConfig("sourcefolder"), "Test2"), recursive = TRUE)
+  localConfig(forcecache = TRUE)
+  saveRDS("secret", cacheName("read", "Test2"))
+  actual <- readSource("Test2")
+  attributes(actual) <- NULL
+  expect_identical(actual, "secret")
 })
 
 rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

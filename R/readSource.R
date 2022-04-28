@@ -73,43 +73,40 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     }
   }
 
-  .getData <- function(type, subtype, subset, prefix = "read") {
-    # get data either from cache or by calculating it from source
-    sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-    if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
-      sourcefolder <- file.path(sourcefolder, make.names(subtype))
-    }
-
-    fname <- paste0(prefix, type, "_", subtype, "_", subset)
-    args <- NULL
-    if (!is.null(subtype)) {
-      args <- append(args, list(subtype = subtype))
-    }
-    if (!is.null(subset)) {
-      args <- append(args, list(subset = subset))
-    }
-
-    # try to get from cache and check
+  # try to get from cache and check
+  .getFromCache <- function(prefix, type, args, subtype, subset) {
     x <- cacheGet(prefix = prefix, type = type, args = args)
     if (!is.null(x) && prefix == "convert") {
+      fname <- paste0(prefix, type, "_", subtype, "_", subset)
       err <- try(.testISO(getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
       if ("try-error" %in% class(err)) {
         vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
         x <- NULL
       }
     }
+    return(x)
+  }
+
+  .getData <- function(type, subtype, subset, args, prefix = "read") {
+    # get data either from cache or by calculating it from source
+    sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
+    if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
+      sourcefolder <- file.path(sourcefolder, make.names(subtype))
+    }
+
+    x <- .getFromCache(prefix, type, args, subtype, subset)
     if (!is.null(x)) {
       return(x)
     }
 
     # cache miss, read from source file
     if (prefix == "correct") {
-      x <- .getData(type, subtype, subset, "read")
+      x <- .getData(type, subtype, subset, args, "read")
     } else if (prefix == "convert") {
       if (type %in% getSources(type = "correct")) {
-        x <- .getData(type, subtype, subset, "correct")
+        x <- .getData(type, subtype, subset, args, "correct")
       } else {
-        x <- .getData(type, subtype, subset, "read")
+        x <- .getData(type, subtype, subset, args, "read")
       }
     }
 
@@ -130,6 +127,35 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     }
     cachePut(x, prefix = prefix, type = type, args = args)
     return(x)
+  }
+
+  # determine prefix
+  if (isTRUE(convert) && (type %in% getSources(type = "convert"))) {
+    prefix <- "convert"
+  } else if ((isTRUE(convert) || convert == "onlycorrect") && (type %in% getSources(type = "correct"))) {
+    prefix <- "correct"
+  } else {
+    prefix <- "read"
+  }
+
+  args <- NULL
+  if (!is.null(subtype)) {
+    args <- append(args, list(subtype = subtype))
+  }
+  if (!is.null(subset)) {
+    args <- append(args, list(subset = subset))
+  }
+
+  # check forcecache before checking source dir
+  forcecacheActive <- all(!is.null(getConfig("forcecache")),
+                          any(isTRUE(getConfig("forcecache")),
+                              type %in% getConfig("forcecache"),
+                              paste0(prefix, type) %in% getConfig("forcecache")))
+  if (forcecacheActive) {
+    x <- .getFromCache(prefix, type, args, subtype, subset)
+    if (!is.null(x)) {
+      return(x)
+    }
   }
 
   # Check whether source folder exists and try do download source data if it is missing
@@ -160,13 +186,6 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
   }
 
-  if (convert == TRUE && (type %in% getSources(type = "convert"))) {
-    prefix <- "convert"
-  } else if (convert %in% c(TRUE, "onlycorrect") && (type %in% getSources(type = "correct"))) {
-    prefix <- "correct"
-  } else {
-    prefix <- "read"
-  }
-  x <- clean_magpie(.getData(type, subtype, subset, prefix))
+  x <- clean_magpie(.getData(type, subtype, subset, args, prefix))
   return(x)
 }
