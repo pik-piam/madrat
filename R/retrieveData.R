@@ -51,7 +51,9 @@
 #' @importFrom withr with_dir with_tempdir local_options
 #' @importFrom renv snapshot
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), strict = FALSE, renv = TRUE, ...) { # nolint
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""),
+                         strict = FALSE, renv = TRUE, ...) {
+
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   setWrapperActive("retrieveData")
@@ -73,7 +75,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
 
     .match <- function(folder, fileType, pattern) {
       match <- dir(path = folder, pattern = paste0(".*\\.", fileType))
-      match <- match[(startsWith(match, paste0(pattern, "_")) | startsWith(match, paste0(pattern, "."))) & !startsWith(match, paste0(pattern, "_debug"))] # nolint
+      match <- match[(startsWith(match, paste0(pattern, "_")) | startsWith(match, paste0(pattern, "."))) &
+                     !startsWith(match, paste0(pattern, "_debug"))]
       return(match)
     }
 

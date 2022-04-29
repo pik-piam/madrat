@@ -10,7 +10,7 @@
 #' @seealso \code{\link{getCode}}
 
 getFlags <- function(code) {
-  if (class(code) == "function") {
+  if (inherits(code, "function")) {
     code <- c(code = paste(deparse(code), collapse = "\n"))
   }
   flags <- stri_extract_all(code, regex = '"\\!#.*?[^\\\\]\\"', omit_no_match = TRUE)
