@@ -11,6 +11,7 @@ retrieveData(
   cachetype = "rev",
   puc = identical(dev, ""),
   strict = FALSE,
+  renv = TRUE,
   ...
 )
 }
@@ -36,6 +37,13 @@ read in and if a puc file (if not already existing) should be created.}
 warnings will be taken more seriously and will cause 1. to have the number of
 warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
 from creating a puc file.}
+
+\item{renv}{Boolean which determines whether calculations should run
+within a renv environment (recommended) or not (currently only applied in
+\code{\link{pucAggregate}}). If activated, \code{renv} will check which packages
+in which versions were used to create the puc file, download, install and
+load these packages and run the aggregation with them. Otherwise, the packages
+in the currently used environment are being used.}
 
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding

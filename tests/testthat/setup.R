@@ -2,7 +2,7 @@
 local({
   previousMadratConfig <- getOption("madrat_cfg")
   setConfig(mainfolder = withr::local_tempdir(.local_envir = teardown_env()), .verbose = FALSE)
-  withr::local_options(madrat_codelabels = NULL, MadratCache = NULL,
+  withr::local_options(madrat_codelabels = NULL, MadratCache = NULL, renv.verbose = FALSE,
                        magclass_expand_version = NULL, magclass_sizeLimit = NULL, .local_envir = teardown_env())
 
   withr::defer({

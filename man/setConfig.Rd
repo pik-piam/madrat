@@ -18,6 +18,7 @@ setConfig(
   mappingfolder = NULL,
   outputfolder = NULL,
   pucfolder = NULL,
+  tmpfolder = NULL,
   nolabels = NULL,
   forcecache = NULL,
   ignorecache = NULL,
@@ -77,6 +78,9 @@ should be used which is <mainfolder>/output}
 
 \item{pucfolder}{The path where portable unaggregated collection (puc) files
 are located. NA by default, which means <mainfolder>/puc}
+
+\item{tmpfolder}{Path to a temp folder for temporary storage of files. By default
+set to <mainfolder>/tmp}
 
 \item{nolabels}{vector of retrieve models (e.g. "EXAMPLE" in case of "fullEXAMPLE")
 which should NOT apply a replacement of known hashes with given code labels}

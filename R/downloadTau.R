@@ -4,16 +4,26 @@ downloadTau <- function(subtype = "paper") {
   settings <- list(paper = list(title = "Tau Factor (cellular, crop-specific)",
                                 description = paste("Cellular (0.5deg), crop-specific land use intensity (tau)",
                                                     "for 1995 and 2000"),
-                                url = "https://zenodo.org/record/4282581/files/tau-paper.zip",
+                                url = paste0(c("https://rse.pik-potsdam.de/data/madrat/",
+                                               "https://zenodo.org/record/4282581/files/"), "tau-paper.zip"),
                                 doi = "10.5281/zenodo.4282581"),
                    historical = list(title = "Tau Factor (historic trends)",
                                      description = "Historic land use intensity (tau) development",
-                                     url = "https://zenodo.org/record/4282548/files/tau-historical.zip",
+                                     url = paste0(c("https://rse.pik-potsdam.de/data/madrat/",
+                                                    "https://zenodo.org/record/4282548/files/"), "tau-historical.zip"),
                                      doi = "10.5281/zenodo.4282548"))
   meta <- toolSubtypeSelect(subtype, settings)
 
-  download.file(meta$url, destfile = "tau.zip",
-                quiet = requireNamespace("testthat", quietly = TRUE) && testthat::is_testing())
+  tryCatch({
+    download.file(meta$url[1], destfile = "tau.zip",
+                  quiet = requireNamespace("testthat", quietly = TRUE) && testthat::is_testing())
+    meta$url <- meta$url[1]
+  },
+  error = function(e) {
+    download.file(meta$url[2], destfile = "tau.zip",
+                  quiet = requireNamespace("testthat", quietly = TRUE) && testthat::is_testing())
+  })
+  if (length(meta$url) == 2) meta$url <- meta$url[2]
   unzip("tau.zip")
   unlink("tau.zip")
 

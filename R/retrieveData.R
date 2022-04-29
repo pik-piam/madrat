@@ -20,6 +20,12 @@
 #' warnings will be taken more seriously and will cause 1. to have the number of
 #' warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
 #' from creating a puc file.
+#' @param renv Boolean which determines whether calculations should run
+#' within a renv environment (recommended) or not (currently only applied in
+#' \code{\link{pucAggregate}}). If activated, \code{renv} will check which packages
+#' in which versions were used to create the puc file, download, install and
+#' load these packages and run the aggregation with them. Otherwise, the packages
+#' in the currently used environment are being used.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -43,8 +49,9 @@
 #' @importFrom methods formalArgs
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir local_options
+#' @importFrom renv snapshot
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), strict = FALSE, ...) { # nolint
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""), strict = FALSE, renv = TRUE, ...) { # nolint
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
   setWrapperActive("retrieveData")
@@ -84,7 +91,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
 
       if (length(matchingPUCs) == 1) {
         vcat(-2, " - data will be created from existing puc (", matchingPUCs, ").", fill = 300)
-        do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)),
+        do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)), renv = renv,
                                  cfg$input[cfg$pucArguments]))
         return()
       }
@@ -118,7 +125,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   })
   tryCatch({
     saveRDS(list(package = attr(cfg$functionName, "package"),
-                 args = argumentValues[!(names(argumentValues) %in% names(cfg$setConfig))],
+                 args = argumentValues[!(names(argumentValues) %in% c(names(cfg$setConfig), "renv"))],
                  pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
             file.path(sourcefolder, "config.rds"), version = 2)
   },
@@ -190,6 +197,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(sourcefolder, otherFiles), ".")
+            vcat(3, capture.output(snapshot(packages = attr(cfg$functionName, "package"), prompt = FALSE)))
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {
