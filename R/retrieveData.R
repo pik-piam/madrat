@@ -51,6 +51,8 @@
 #' @importFrom withr with_dir with_tempdir local_options
 #' @importFrom renv snapshot
 #' @export
+#'
+
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""),
                          strict = FALSE, renv = TRUE, ...) {
 
@@ -72,13 +74,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   cfg <- .prepConfig(model, rev, dev, ...)
 
   if (getConfig("debug") != TRUE) {
-
-    .match <- function(folder, fileType, pattern) {
-      match <- dir(path = folder, pattern = paste0(".*\\.", fileType))
-      match <- match[(startsWith(match, paste0(pattern, "_")) | startsWith(match, paste0(pattern, "."))) &
-                     !startsWith(match, paste0(pattern, "_debug"))]
-      return(match)
-    }
 
     matchingCollections <- .match(getConfig("outputfolder"), "tgz", cfg$collectionName)
 
@@ -106,21 +101,17 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   outputfolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
 
   # create folder if required
-  if (!file.exists(outputfolder)) {
-    dir.create(outputfolder, recursive = TRUE)
-  }
+  dir.create(outputfolder, recursive = TRUE, showWarnings = !file.exists(outputfolder))
 
   # copy mappings to mapping folder and set config accordingly
-  regionmapping <- sapply(c(getConfig("regionmapping"),getConfig("extramappings")), toolGetMapping, type = "regional", returnPathOnly = TRUE) # nolint
+  regionmapping <- sapply(c(getConfig("regionmapping"), getConfig("extramappings")), toolGetMapping, type = "regional", returnPathOnly = TRUE) # nolint
   mappath <- sapply(paste0(cfg$regionscode, ".csv"), toolGetMapping, "regional", error.missing = FALSE, returnPathOnly = TRUE) # nolint
 
   for (i in seq_along(regionmapping)) {
 
     # copy mapping to mapping folder
     if (!file.exists(mappath[i])) {
-      if (!dir.exists(dirname(mappath[i]))) {
-        dir.create(dirname(mappath[i]), recursive = TRUE)
-      }
+      dir.create(dirname(mappath[i]), recursive = TRUE, showWarnings = !dir.exists(dirname(mappath[i])))
       file.copy(regionmapping[i], mappath[i])
     }
 
@@ -312,4 +303,11 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
                                tolower(model), ifelse(getConfig("debug") == TRUE, "_debug", ""))
 
   return(cfg)
+}
+
+.match <- function(folder, fileType, pattern) {
+  match <- dir(path = folder, pattern = paste0(".*\\.", fileType))
+  match <- match[(startsWith(match, paste0(pattern, "_")) | startsWith(match, paste0(pattern, "."))) &
+                   !startsWith(match, paste0(pattern, "_debug"))]
+  return(match)
 }
