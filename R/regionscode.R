@@ -31,7 +31,7 @@
 #' @export
 regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
 
-  if (is.null(mapping)) mapping <- getConfig("regionmapping")
+  if (is.null(mapping)) mapping <- c(getConfig("regionmapping"), getConfig("extramappings"))
 
   setWrapperInactive("wrapperChecks")
 
