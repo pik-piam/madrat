@@ -104,8 +104,10 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   dir.create(outputfolder, recursive = TRUE, showWarnings = !file.exists(outputfolder))
 
   # copy mappings to mapping folder and set config accordingly
-  regionmapping <- sapply(c(getConfig("regionmapping"), getConfig("extramappings")), toolGetMapping, type = "regional", returnPathOnly = TRUE) # nolint
-  mappath <- sapply(paste0(cfg$regionscode, ".csv"), toolGetMapping, "regional", error.missing = FALSE, returnPathOnly = TRUE) # nolint
+  regionmapping <- vapply(c(getConfig("regionmapping"), getConfig("extramappings")), toolGetMapping, type = "regional",
+                          returnPathOnly = TRUE, FUN.VALUE = character(1))
+  mappath <- vapply(paste0(cfg$regionscode, ".csv"), toolGetMapping, "regional", error.missing = FALSE,
+                    returnPathOnly = TRUE, FUN.VALUE = character(1))
 
   for (i in seq_along(regionmapping)) {
 
