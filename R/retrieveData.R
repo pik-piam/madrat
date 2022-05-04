@@ -205,7 +205,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(outputfolder, otherFiles), ".")
-            vcat(3, capture.output(snapshot(packages = attr(cfg$functionName, "package"), prompt = FALSE)))
+            vcat(3, capture.output(snapshot(packages = attr(cfg$functionName, "package"),
+                                            prompt = FALSE, force = TRUE)))
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {
