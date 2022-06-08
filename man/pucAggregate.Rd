@@ -34,7 +34,7 @@ pucAggregate("rev1_example.puc", regionmapping = "regionmappingH12.csv")
 }
 }
 \seealso{
-\code{\link{retrieveData}},\code{\link{setConfig}}
+\code{\link{retrieveData}},\code{\link{localConfig}}
 }
 \author{
 Jan Philipp Dietrich

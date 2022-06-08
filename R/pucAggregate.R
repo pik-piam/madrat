@@ -18,7 +18,7 @@
 #' Otherwise, the packages in the currently used environment are being used.
 #' @author Jan Philipp Dietrich
 #' @seealso
-#' \code{\link{retrieveData}},\code{\link{setConfig}}
+#' \code{\link{retrieveData}},\code{\link{localConfig}}
 #' @examples
 #' \dontrun{
 #' pucAggregate("rev1_example.puc", regionmapping = "regionmappingH12.csv")
@@ -42,9 +42,9 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
       renv::restore(lockfile = "puc/renv.lock", prompt = FALSE)
     }
     withr::local_options(madrat_cfg = madratCfg, gdt_nestinglevel = nestinglevel)
+    madrat::localConfig(packages = "madrat", regionmapping = regionmapping,
+                forcecache = TRUE, .verbose = FALSE)
     if (!is.null(cfg$package)) withr::local_package(cfg$package)
-    madrat::setConfig(regionmapping = regionmapping, forcecache = TRUE,
-                      .verbose = FALSE, .local = TRUE)
     do.call(madrat::retrieveData, c(cfg$args, list(renv = FALSE)))
   }
 
@@ -66,12 +66,11 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
                               spinner = FALSE, show = TRUE))
       message(paste(out, "\n"))
     } else {
+      localConfig(packages = "madrat", regionmapping = regionmapping,
+                  forcecache = TRUE, .verbose = FALSE)
       if (!is.null(cfg$package) && cfg$package != "madrat") withr::local_package(cfg$package)
-      setConfig(regionmapping = regionmapping, forcecache = TRUE,
-                .verbose = FALSE, .local = TRUE)
       do.call(retrieveData, c(cfg$args, list(renv = FALSE)))
     }
   })
-
   toolendmessage(startinfo)
 }
