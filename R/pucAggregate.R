@@ -66,9 +66,12 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
                               spinner = FALSE, show = TRUE))
       message(paste(out, "\n"))
     } else {
-      localConfig(packages = "madrat", regionmapping = regionmapping,
-                  forcecache = TRUE, .verbose = FALSE)
-      if (!is.null(cfg$package) && cfg$package != "madrat") withr::local_package(cfg$package)
+      # only attach and detach if package is not already attached, might crash otherwise
+      if (!is.null(cfg$package) && !cfg$package %in% .packages()) {
+        withr::local_package(cfg$package)
+      }
+      localConfig(regionmapping = regionmapping, forcecache = TRUE,
+                .verbose = FALSE)
       do.call(retrieveData, c(cfg$args, list(renv = FALSE)))
     }
   })
