@@ -23,6 +23,7 @@ Imports:
     igraph (>= 1.0.1),
     Matrix,
     methods,
+    pkgload,
     renv,
     stringi,
     tools,
