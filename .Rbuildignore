@@ -12,3 +12,5 @@ cran-comments.md
 ^.lintr$
 ^tests/.lintr$
 ^vignettes/.lintr$
+^.vscode$
+^.idea$
