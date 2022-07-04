@@ -24,6 +24,7 @@
 #'
 #' head(toolGetMapping("regionmappingH12.csv", where = "madrat"))
 #' @importFrom tools file_ext
+#' @importFrom pkgload is_dev_package
 #' @export
 toolGetMapping <- function(name, type = NULL, where = NULL,
                            error.missing = TRUE, # nolint
@@ -66,9 +67,10 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
       tmpfname <- paste0(type, "/", name)
     }
     fname <-  system.file("extdata", tmpfname, package = where)
-    if (fname == "") fname <- system.file("inst/extdata", tmpfname, package = where)
+    if (fname == "" && !is_dev_package(where)) fname <- system.file("inst/extdata", tmpfname, package = where)
     if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
-    if (fname == "") fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
+    if (fname == "" && !is_dev_package(where))
+      fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
     if (fname == "" & error.missing) {
       stop('Mapping "', name, '" with type "', type, '" not found in package "', where, '"!')
     }
