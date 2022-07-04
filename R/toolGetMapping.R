@@ -39,7 +39,7 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
       fname <- name
     } else if (!file.exists(as.character(fname))) {
       packages <- getConfig("packages")
-      if (!is.null(activecalc[[1]]) & any(grepl(paste0("^", activecalc[[1]], "$"), getCalculations()[, "type"]))) {
+      if (!is.null(activecalc[[1]]) && any(grepl(paste0("^", activecalc[[1]], "$"), getCalculations()[, "type"]))) {
         fp <- as.character(attr(prepFunctionName(activecalc[[1]], "calc"), "package"))
         packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
       }
@@ -71,11 +71,11 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
     if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
     if (fname == "" && !is_dev_package(where))
       fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
-    if (fname == "" & error.missing) {
+    if (fname == "" && error.missing) {
       stop('Mapping "', name, '" with type "', type, '" not found in package "', where, '"!')
     }
   }
-  if (error.missing & !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
+  if (error.missing && !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
   fname <- gsub("/+", "/", fname)
   if (returnPathOnly) return(fname)
   filetype <- tolower(file_ext(fname))
