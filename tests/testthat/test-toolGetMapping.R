@@ -11,6 +11,7 @@ test_that("toolGetMapping works", {
   fullPath <- paste0(system.file(package = "madrat"), "/extdata/", fname)
   # try to find that mapping as if you did not know where it is
   expect_identical(toolGetMapping(fname), read.csv(fullPath, header = TRUE, sep = ";", colClasses = "character"))
+  expect_identical(toolGetMapping(fullPath, type = "csv"), toolGetMapping(fname))
   expect_identical(head(toolGetMapping("regionmappingH12.csv", where = "madrat")), expected)
   expect_identical(toolGetMapping("bla", where = "local", returnPathOnly = TRUE, error.missing = FALSE), "bla")
   expect_identical(toolGetMapping("/bla", where = "local", returnPathOnly = TRUE, error.missing = FALSE), "/bla")
