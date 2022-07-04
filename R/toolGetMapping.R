@@ -32,23 +32,22 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
 
   setWrapperInactive("wrapperChecks")
 
-  fname <- searchName(name = name, type = type, where = where, activecalc = activecalc)
+  fname <- .searchName(name = name, type = type, where = where, activecalc = activecalc)
 
   if (error.missing && !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
   fname <- gsub("/+", "/", fname)
   if (returnPathOnly) return(fname)
 
-  return(readMapping(fname = fname))
+  return(.readMapping(fname = fname))
 }
 
-searchName <- function(name, type, where, activecalc) {
+.searchName <- function(name, type, where, activecalc) {
   if (is.null(where)) {
-    fname <- searchName(name, type = type, where = "local")
+    fname <- .searchNameLocal(name, type = type)
     if (file.exists(as.character(fname))) {
       return(fname)
     }
-
-    fname <- searchName(name, type = type, where = "mappingfolder")
+    fname <- .searchNameMappingFolder(name, type = type)
     if (file.exists(as.character(fname))) {
       return(fname)
     }
@@ -59,7 +58,7 @@ searchName <- function(name, type, where, activecalc) {
       packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
     }
     for (i in packages) {
-      out <- searchName(name, type = type, where = i)
+      out <- .searchNamePackage(name, type = type, packageName = i)
       if (out != "") {
         fname <- out
       }
@@ -68,32 +67,44 @@ searchName <- function(name, type, where, activecalc) {
     return(fname)
 
   } else if (where == "mappingfolder") {
-    mf <- getConfig("mappingfolder")
-    return(paste0(mf, "/", type, "/", name))
-
+    return(.searchNameMappingFolder(name = name, type = type))
   } else if (where == "local") {
-    if (is.null(type)) {
-      return(name)
-    } else {
-      return(paste0(type, "/", name))
-    }
-
-  } else {  # "where" is a package name
-    if (is.null(type)) {
-      tmpfname <- name
-    } else {
-      tmpfname <- paste0(type, "/", name)
-    }
-    fname <- system.file("extdata", tmpfname, package = where)
-    if (fname == "" && !is_dev_package(where)) fname <- system.file("inst/extdata", tmpfname, package = where)
-    if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
-    if (fname == "" && !is_dev_package(where))
-      fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
-    return(fname)
+    return(.searchNameLocal(name = name, type = type))
+  } else {
+    return(.searchNamePackage(name = name, type = type, packageName = where))
   }
 }
 
-readMapping <- function(fname) {
+.searchNameLocal <- function(name, type) {
+  if (file.exists(as.character(name))) {
+    return(name)
+  }
+  return(.typedName(name, type))
+}
+
+.searchNameMappingFolder <- function(name, type) {
+  mf <- getConfig("mappingfolder")
+  return(paste0(mf, "/", type, "/", name))
+}
+
+.searchNamePackage <- function(name, type, packageName) {
+  tmpfname <- .typedName(name, type)
+  fname <- system.file("extdata", tmpfname, package = packageName)
+  if (fname == "" && !is_dev_package(packageName)) fname <- system.file("inst/extdata", tmpfname, package = packageName)
+  if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
+  if (fname == "" && !is_dev_package(packageName))
+    fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
+  return(fname)
+}
+
+.typedName <- function(name, type) {
+  if (is.null(type)) {
+    return(name)
+  }
+  return(paste0(type, "/", name))
+}
+
+.readMapping <- function(fname) {
   filetype <- tolower(file_ext(fname))
   if (filetype == "csv") {
     if (grepl(pattern = ";", x = readLines(fname, 1))) {
@@ -109,6 +120,6 @@ readMapping <- function(fname) {
   } else if (filetype == "rds") {
     return(readRDS(fname))
   } else {
-    stop("Unsupported filetype \"", filetype, "\"")
+    stop("Unsupported filetype \"", filetype, "\" of file \"", fname, "\"")
   }
 }
