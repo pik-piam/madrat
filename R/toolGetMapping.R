@@ -32,52 +32,68 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
 
   setWrapperInactive("wrapperChecks")
 
+  fname <- searchName(name = name, type = type, where = where, activecalc = activecalc)
+
+  if (error.missing && !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
+  fname <- gsub("/+", "/", fname)
+  if (returnPathOnly) return(fname)
+
+  return(readMapping(fname = fname))
+}
+
+searchName <- function(name, type, where, activecalc) {
   if (is.null(where)) {
-    mf <- getConfig("mappingfolder")
-    fname <- paste0(mf, "/", type, "/", name)
-    if (file.exists(as.character(name))) {
-      fname <- name
-    } else if (!file.exists(as.character(fname))) {
-      packages <- getConfig("packages")
-      if (!is.null(activecalc[[1]]) && any(grepl(paste0("^", activecalc[[1]], "$"), getCalculations()[, "type"]))) {
-        fp <- as.character(attr(prepFunctionName(activecalc[[1]], "calc"), "package"))
-        packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
-      }
-      for (i in packages) {
-        out <- toolGetMapping(name, type = type, where = i, error.missing = FALSE, returnPathOnly = TRUE)
-        if (out != "") {
-          fname <- out
-          break
-        }
+    fname <- searchName(name, type = type, where = "local")
+    if (file.exists(as.character(fname))) {
+      return(fname)
+    }
+
+    fname <- searchName(name, type = type, where = "mappingfolder")
+    if (file.exists(as.character(fname))) {
+      return(fname)
+    }
+
+    packages <- getConfig("packages")
+    if (!is.null(activecalc[[1]]) && any(grepl(paste0("^", activecalc[[1]], "$"), getCalculations()[, "type"]))) {
+      fp <- as.character(attr(prepFunctionName(activecalc[[1]], "calc"), "package"))
+      packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
+    }
+    for (i in packages) {
+      out <- searchName(name, type = type, where = i)
+      if (out != "") {
+        fname <- out
       }
     }
+    # if not found in packages, fall back to result from mappingfolder, even though it doesn't exist
+    return(fname)
+
   } else if (where == "mappingfolder") {
     mf <- getConfig("mappingfolder")
-    fname <- paste0(mf, "/", type, "/", name)
+    return(paste0(mf, "/", type, "/", name))
+
   } else if (where == "local") {
     if (is.null(type)) {
-      fname <- name
+      return(name)
     } else {
-      fname <- paste0(type, "/", name)
+      return(paste0(type, "/", name))
     }
-  } else {
+
+  } else {  # "where" is a package name
     if (is.null(type)) {
       tmpfname <- name
     } else {
       tmpfname <- paste0(type, "/", name)
     }
-    fname <-  system.file("extdata", tmpfname, package = where)
+    fname <- system.file("extdata", tmpfname, package = where)
     if (fname == "" && !is_dev_package(where)) fname <- system.file("inst/extdata", tmpfname, package = where)
     if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
     if (fname == "" && !is_dev_package(where))
       fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
-    if (fname == "" && error.missing) {
-      stop('Mapping "', name, '" with type "', type, '" not found in package "', where, '"!')
-    }
+    return(fname)
   }
-  if (error.missing && !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
-  fname <- gsub("/+", "/", fname)
-  if (returnPathOnly) return(fname)
+}
+
+readMapping <- function(fname) {
   filetype <- tolower(file_ext(fname))
   if (filetype == "csv") {
     if (grepl(pattern = ";", x = readLines(fname, 1))) {
