@@ -1,8 +1,8 @@
 Package: madrat
 Type: Package
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 2.18.3
-Date: 2022-06-08
+Version: 2.18.4
+Date: 2022-07-04
 Authors@R: c(person("Jan Philipp", "Dietrich", email = "dietrich@pik-potsdam.de", role = c("aut","cre")),
              person("Lavinia", "Baumstark", email = "lavinia@pik-potsdam.de", role = "aut"),
              person("Stephen", "Wirth", email = "wirth@pik-potsdam.de", role = "aut"),
@@ -23,6 +23,7 @@ Imports:
     igraph (>= 1.0.1),
     Matrix,
     methods,
+    pkgload,
     renv,
     stringi,
     tools,
