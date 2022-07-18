@@ -16,6 +16,10 @@
 #' will check which packages in which versions were used to create the puc file,
 #' download, install and load these packages and run the aggregation with them.
 #' Otherwise, the packages in the currently used environment are being used.
+#' @param strict Boolean or NULL which allows to trigger a strict mode. During strict mode
+#' warnings will be taken more seriously and will cause 1. to have the number of
+#' warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
+#' from creating a puc file. If set to NULL the setting will be read from the puc file.
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{retrieveData}},\code{\link{localConfig}}
@@ -28,7 +32,7 @@
 #' @importFrom callr r
 #' @importFrom renv activate restore
 #' @export
-pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE) {
+pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE, strict = FALSE) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
   extraArgs <- list(...)
   startinfo <- toolstartmessage("pucAggregate", argumentValues, "+")
@@ -59,6 +63,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     cfg$args$cachetype <- "def"
     cfg$args$cachefolder <- "./puc"
     cfg$args$puc <- FALSE
+    if (!is.null(strict)) cfg$args$strict <- strict
     if (isTRUE(renv)) {
       out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
                                                   madratCfg = getOption("madrat_cfg"),
