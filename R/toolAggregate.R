@@ -330,7 +330,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
             y[j] <- 1
           }
         }
-        if (any(is.na(y))) {
+        if (any(is.na(y)) && !all(is.na(y))) {
           # Special NA treatment to prevent that a single NA in x
           # is setting the full output to NA (because 0*NA is NA)
           # NAs are now treated in a way that anything except 0 times NA
