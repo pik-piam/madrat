@@ -121,8 +121,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (aggregate != FALSE) {
     .bilateralMapping <- function(mapping) {
       out <- NULL
-      for (i in seq_len(ncol(mapping))) {
-        tmp <- expand.grid(mapping[[i]], mapping[[i]])
+      for (m in mapping) { # iterating over columns of a dataframe
+        tmp <- expand.grid(m, m, stringsAsFactors = FALSE)
         out <- cbind(out, do.call(paste, args = c(tmp, list(sep = "."))))
       }
       out <- as.data.frame(out, stringsAsFactors = FALSE)
@@ -140,7 +140,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       if (is.null(rel[[r]]$global)) {
         rel[[r]]$global <- "GLO"  # add global column
       }
-      if (nrow(rel[[r]]) < 250) {
+      # create bilateral mappings for small maps (there are 249 ISO countries so that still fits in)
+      # exclude bigger maps as this could negatively affect performance and usually is not needed
+      if (nrow(rel[[r]]) < 300) {
         rel[[paste0(r, "bilateral")]] <- .bilateralMapping(rel[[r]])
       }
       relNames <- union(relNames, names(rel[[r]]))
