@@ -4,7 +4,13 @@
 \alias{pucAggregate}
 \title{pucAggregate}
 \usage{
-pucAggregate(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE)
+pucAggregate(
+  puc,
+  regionmapping = getConfig("regionmapping"),
+  ...,
+  renv = TRUE,
+  strict = FALSE
+)
 }
 \arguments{
 \item{puc}{path to a puc-file}
@@ -20,6 +26,11 @@ within a renv environment (recommended) or not. If activated, \code{renv}
 will check which packages in which versions were used to create the puc file,
 download, install and load these packages and run the aggregation with them.
 Otherwise, the packages in the currently used environment are being used.}
+
+\item{strict}{Boolean or NULL which allows to trigger a strict mode. During strict mode
+warnings will be taken more seriously and will cause 1. to have the number of
+warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
+from creating a puc file. If set to NULL the setting will be read from the puc file.}
 }
 \description{
 Function which takes a puc-file ("portable unaggregated collection") as created

@@ -72,7 +72,7 @@ jobs:
         run: |
           ./run.sh install_aptget libhdf5-dev
           ./run.sh install_all
-          ./run.sh install_r lucode2 covr
+          ./run.sh install_r lucode2 covr rstudioapi
 
       - name: Remove bspm integration # to get rid of error when running install.packages
         run: |
