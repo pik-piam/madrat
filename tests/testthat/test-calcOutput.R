@@ -43,40 +43,51 @@ test_that("Malformed calc outputs are properly detected", {
   calcBla2 <- function() return(list(x = 1, weight = NULL))
   calcBla3 <- function() return(list(x = as.magpie(1), weight = 1))
   calcBla4 <- function() return(list(x = as.magpie(1), weight = new.magpie(years = 1:2)))
-  calcBla5 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test"))
-  calcBla6 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    description = "test"))
-  calcBla7 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1"))
-  calcBla8 <- function() return(list(x = new.magpie(years = 1:2),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test"))
-  calcBla9 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test",
-                                    max = 0))
-  calcBla10 <- function() return(list(x = new.magpie(years = 1:2, fill = 1),
-                                    weight = new.magpie(years = 3, fill = 1),
-                                    unit = "1",
-                                    description = "test",
-                                    min = 10))
-  calcBla11 <- function() return(list(x = 1,
-                                     class = list))
-  calcBla12 <- function() return(list(x = 1,
-                                     class = c("classA", "classB")))
-  calcBla13 <- function() return(list(x = 1,
-                                     class = "list"))
-  calcBla14 <- function() return(list(x = list(1),
-                                     class = "list",
-                                     unit = "1",
-                                     description = "test"))
+  calcBla5 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test"))
+  }
+  calcBla6 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                description = "test"))
+  }
+  calcBla7 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1"))
+  }
+  calcBla8 <- function() {
+    return(list(x = new.magpie(years = 1:2),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test"))
+  }
+  calcBla9 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test",
+                max = 0))
+  }
+  calcBla10 <- function() {
+    return(list(x = new.magpie(years = 1:2, fill = 1),
+                weight = new.magpie(years = 3, fill = 1),
+                unit = "1",
+                description = "test",
+                min = 10))
+  }
+  calcBla11 <- function() return(list(x = 1, class = list))
+  calcBla12 <- function() return(list(x = 1, class = c("classA", "classB")))
+  calcBla13 <- function() return(list(x = 1, class = "list"))
+  calcBla14 <- function() {
+    return(list(x = list(1),
+                class = "list",
+                unit = "1",
+                description = "test"))
+  }
   globalassign(paste0("calcBla", 1:14))
 
   expect_error(calcOutput("Bla1"), "not list of two MAgPIE objects")
@@ -138,10 +149,11 @@ test_that("Standard workflow works", {
   }
   readTest2 <- function() return(read.magpie("test.mz"))
   convertTest2 <- function(x) return(toolCountryFill(x, fill = 10))
-  calcTest2 <- function() return(list(x = readSource("Test2"),
-                                      weight = NULL,
-                                      unit = "1"))
-
+  calcTest2 <- function() {
+    return(list(x = readSource("Test2"),
+                weight = NULL,
+                unit = "1"))
+  }
   fullTEST2 <- function(rev = 0, dev = "") {
     expectedOutput <- new("magpie",
                            .Data = structure(c(540, 490, 510, 331, 160, 210, 120, 50, 40, 10, 10, 10),
@@ -160,10 +172,12 @@ test_that("Standard workflow works", {
 
 test_that("Custom class support works", {
   localConfig(globalenv = TRUE, outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
-  calcBla1 <- function() return(list(x          = list(1),
-                                    class      = "list",
-                                    unit       = "1",
-                                    description = "test"))
+  calcBla1 <- function() {
+    return(list(x          = list(1),
+                class      = "list",
+                unit       = "1",
+                description = "test"))
+  }
   globalassign(paste0("calcBla", 1))
   data <- calcOutput("Bla1", aggregate = FALSE, file = "test.rds")
   expect_equivalent(data, list(1))
@@ -267,6 +281,27 @@ test_that("Aggregation works", {
       "already exist in another mapping\\."))
     expect_identical(a, glo)
   })
+})
+
+test_that("Bilateral aggregation works", {
+  calcBilateral <- function() {
+    map <- toolGetMapping("regionmappingH12.csv")
+    tmp <- expand.grid(map[[2]], map[[2]], stringsAsFactors = FALSE)
+    x <- new.magpie(paste0(tmp[[1]], ".", tmp[[2]]))
+    x[, , ] <- rep(seq_len(nrow(map)), nrow(map))
+    return(list(x = x, weight = x, unit = "SpaceDollar", description = "Test data set"))
+  }
+  localConfig(globalenv = TRUE, verbosity = 0, .verbose = FALSE)
+  globalassign("calcBilateral")
+  aExp <- new("magpie",
+              .Data = structure(c(161.215558601782, 176.61906116643, 171.777380952381),
+                                .Dim = c(3L, 1L, 1L),
+                                .Dimnames = list(region.region1 = c("LAM.LAM", "OAS.LAM", "SSA.LAM"),
+                                                 year = NULL, data = NULL)))
+
+  a <- calcOutput("Bilateral")
+  getComment(a) <- NULL
+  expect_equal(head(a), aExp)
 })
 
 test_that("Edge cases work as expected", {

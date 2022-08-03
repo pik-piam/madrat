@@ -9,3 +9,8 @@ cran-comments.md
 ^\.git$
 ^\.pre-commit-config\.yaml$
 ^workflow$
+^.lintr$
+^tests/.lintr$
+^vignettes/.lintr$
+^.vscode$
+^.idea$
