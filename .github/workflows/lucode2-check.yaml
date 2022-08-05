@@ -11,7 +11,7 @@ on:
 env:
   USE_BSPM: "true"
   _R_CHECK_FORCE_SUGGESTS_: "false"
-  NO_BINARY_INSTALL_R_PACKAGES: 'c("madrat", "magclass", "citation", "gms", "goxygen")'
+  NO_BINARY_INSTALL_R_PACKAGES: 'c("madrat", "magclass", "citation", "gms", "goxygen", "GDPuc")'
 
 jobs:
   lucode2-check:
@@ -56,6 +56,11 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v1
 
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
       - name: Cache R libraries
         uses: pat-s/always-upload-cache@v3
         with:
@@ -70,9 +75,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          ./run.sh install_aptget libhdf5-dev
+          ./run.sh install_aptget libhdf5-dev libharfbuzz-dev libfribidi-dev
           ./run.sh install_all
           ./run.sh install_r lucode2 covr rstudioapi
+
+      - name: Install python dependencies if applicable
+        run: |
+          [ -f requirements.txt ] && python -m pip install --upgrade pip wheel || true
+          [ -f requirements.txt ] && pip install -r requirements.txt || true
 
       - name: Remove bspm integration # to get rid of error when running install.packages
         run: |

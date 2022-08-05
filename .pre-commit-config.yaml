@@ -7,8 +7,22 @@ repos:
     hooks:
     -   id: check-case-conflict
     -   id: check-json
-    -   id: check-yaml
     -   id: check-merge-conflict
+    -   id: check-yaml
     -   id: fix-byte-order-marker
+    -   id: check-added-large-files
+        args: ['--maxkb=100']
+    -   id: mixed-line-ending
+
+-   repo: https://github.com/lorenzwalthert/precommit
+    rev: v0.3.2
+    hooks:
+    -   id: parsable-R
+    -   id: deps-in-desc
+        args: [--allow_private_imports]
+    -   id: no-browser-statement
+    -   id: no-debug-statement
+    -   id: readme-rmd-rendered
+    -   id: use-tidy-description
 ci:
     autoupdate_schedule: quarterly
