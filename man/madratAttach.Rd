@@ -19,9 +19,9 @@ universe or detaches it again from it.
 }
 \section{Functions}{
 \itemize{
-\item \code{madratDetach}: detach package from madrat universe
-}}
+\item \code{madratDetach()}: detach package from madrat universe
 
+}}
 \examples{
 \dontrun{
 madratAttach("madrat")

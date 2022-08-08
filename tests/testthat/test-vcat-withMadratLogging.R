@@ -1,8 +1,11 @@
-
 test_that("vcat redirect works", {
   localConfig(verbosity = 1, .verbose = FALSE)
   expect_message(madrat:::cat("blub"), "NOTE: blub")
   expect_message(suppressWarnings(madrat:::warning("blub")), "WARNING: blub")
+})
+
+test_that("vcat can handle lists", {
+  expect_warning(vcat(0, list(a = 3, b = "blub")), "3blub")
 })
 
 # define shortcut for withMadratLogging and a

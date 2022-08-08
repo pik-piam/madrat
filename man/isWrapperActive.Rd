@@ -22,11 +22,11 @@ automatically resetted when a function finishes).
 }
 \section{Functions}{
 \itemize{
-\item \code{setWrapperActive}: set wrapper activity status to on
+\item \code{setWrapperActive()}: set wrapper activity status to on
 
-\item \code{setWrapperInactive}: set wrapper activity status to off
+\item \code{setWrapperInactive()}: set wrapper activity status to off
+
 }}
-
 \author{
 Jan Philipp Dietrich
 }

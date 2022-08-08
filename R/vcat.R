@@ -34,6 +34,9 @@
 #' @importFrom utils capture.output
 vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
                  show_prefix = TRUE, logOnly = FALSE) { # nolint
+  # deparse lists to character to prevent `(type 'list') cannot be handled by 'cat'`
+  messages <- lapply(list(...), function(x) if (is.list(x)) deparse(x) else x)
+  messages <- as.character(messages)
 
   # make sure that vcat is not run from within another vcat
   if (isWrapperActive("vcat")) return()
@@ -51,51 +54,45 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
   }
 
   d <- getConfig("diagnostics")
-  if (is.character(d)) {
-    writelog <- TRUE
+  writelog <- is.character(d)
+  if (writelog) {
     logfile <- paste0(getConfig("outputfolder"), "/", d, ".log")
     fulllogfile <- paste0(getConfig("outputfolder"), "/", d, "_full.log")
-  } else {
-    writelog <- FALSE
   }
   prefix <- c("", "ERROR: ", "WARNING: ", "NOTE: ", "MINOR NOTE: ")[min(verbosity, 2) + 3]
-  if (prefix == "" | !show_prefix) prefix <- NULL
+  if (prefix == "" || !show_prefix) prefix <- NULL
   if (writelog && dir.exists(dirname(fulllogfile))) {
-    base::cat(c(prefix, ...), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
+    base::cat(c(prefix, messages), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
               file = fulllogfile, append = TRUE)
   }
   if (getConfig("verbosity") >= verbosity) {
     if (writelog && dir.exists(dirname(logfile))) {
-      base::cat(c(prefix, ...), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
+      base::cat(c(prefix, messages), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
                 file = logfile, append = TRUE)
     }
     if (verbosity == -1) {
-      base::message(paste(capture.output(base::cat(c(prefix, ...),
+      base::message(paste(capture.output(base::cat(c(prefix, messages),
                                                    fill = fill, sep = "",
                                                    labels = getOption("gdt_nestinglevel")
       )), collapse = "\n"))
-      if (!logOnly) base::stop(..., call. = FALSE)
-    } else if (verbosity == 0) {
-      if (!logOnly) base::warning(..., call. = FALSE)
-      base::message(paste(capture.output(base::cat(c(prefix, ...),
-        fill = fill, sep = "",
-        labels = getOption("gdt_nestinglevel")
-      )), collapse = "\n"))
-      if (!is.null(getOption("madratWarningsCounter"))) {
-        options(madratWarningsCounter = getOption("madratWarningsCounter") + 1) # nolint
+      if (!logOnly) {
+        base::stop(..., call. = FALSE)
       }
+    } else if (verbosity == 0) {
+      if (!logOnly) {
+        base::warning(..., call. = FALSE)
+      }
+      base::message(paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
+                                                   labels = getOption("gdt_nestinglevel"))), collapse = "\n"))
+      options(madratWarningsCounter = getOption("madratWarningsCounter", 0) + 1) # nolint
     } else {
-      base::message(paste(capture.output(base::cat(c(prefix, ...),
-        fill = fill, sep = "",
-        labels = getOption("gdt_nestinglevel")
-      )), collapse = "\n"))
+      base::message(paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
+                                                   labels = getOption("gdt_nestinglevel"))), collapse = "\n"))
     }
   }
 
-  if (!is.null(level)) {
-    if (level == "+") {
-      options(gdt_nestinglevel = paste0("~", getOption("gdt_nestinglevel"))) # nolint
-    }
+  if (identical(level, "+")) {
+    options(gdt_nestinglevel = paste0("~", getOption("gdt_nestinglevel"))) # nolint
   }
 }
 
