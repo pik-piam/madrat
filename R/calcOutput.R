@@ -119,6 +119,17 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   # read region mappings check settings for aggregate
   if (aggregate != FALSE) {
+    .bilateralMapping <- function(mapping) {
+      out <- NULL
+      for (m in mapping) { # iterating over columns of a dataframe
+        tmp <- expand.grid(m, m, stringsAsFactors = FALSE)
+        out <- cbind(out, do.call(paste, args = c(tmp, list(sep = "."))))
+      }
+      out <- as.data.frame(out, stringsAsFactors = FALSE)
+      colnames(out) <- colnames(mapping)
+      return(out)
+    }
+
     rel <- list()
     relNames <- NULL
     for (r in c(getConfig("regionmapping"), getConfig("extramappings"))) {
@@ -128,6 +139,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       if (any(names(rel[[r]]) == "RegionCode")) names(rel[[r]])[names(rel[[r]]) == "RegionCode"] <- "region"
       if (is.null(rel[[r]]$global)) {
         rel[[r]]$global <- "GLO"  # add global column
+      }
+      # create bilateral mappings for small maps (there are 249 ISO countries so that still fits in)
+      # exclude bigger maps as this could negatively affect performance and usually is not needed
+      if (nrow(rel[[r]]) < 300) {
+        rel[[paste0(r, "bilateral")]] <- .bilateralMapping(rel[[r]])
       }
       relNames <- union(relNames, names(rel[[r]]))
     }
@@ -214,8 +230,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       if (!is.null(x$weight) && nregions(x$weight) > 1) .countrycheck(getItems(x$weight, dim = 1.1), "weight")
     }
     # perform additional checks
-    if (x$class != "magpie" && (!is.null(x$min) | !is.null(x$max))) stop("Min/Max checks cannot be used in combination",
-      " with x$class!=\"magpie\"")
+    if (x$class != "magpie" && (!is.null(x$min) || !is.null(x$max))) {
+      stop("Min/Max checks cannot be used in combination with x$class!=\"magpie\"")
+    }
     if (!is.null(x$min) && any(x$x < x$min, na.rm = TRUE)) vcat(0, "Data returned by ", functionname,
       " contains values smaller than the predefined minimum",
       " (min = ", x$min, ")")
@@ -239,7 +256,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     checkNameStructure(x$x, x$structure.data, 3, x$class)
 
     if (x$class == "magpie") {
-      if (warnNA && anyNA(x$x))  vcat(0, "Data returned by ", functionname, " contains NAs")
+      if (warnNA && anyNA(x$x)) vcat(0, "Data returned by ", functionname, " contains NAs")
       if (any(is.infinite(x$x))) vcat(0, "Data returned by ", functionname, " contains infinite values")
     }
     return(x)
@@ -455,7 +472,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     attr(x$x, "comment") <- extendedComment
   }
 
-  if (is.null(file) & append) {
+  if (is.null(file) && append) {
     vcat(0, "The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
   }
 

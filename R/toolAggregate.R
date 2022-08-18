@@ -105,7 +105,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     .getAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, partrel = FALSE) {
 
       if ("tbl" %in% class(rel)) rel <- data.frame(rel)
-      if (!(is.matrix(rel) | is.data.frame(rel))) {
+      if (!(is.matrix(rel) || is.data.frame(rel))) {
         if (length(rel) > 1) stop("Malformed relation mapping!")
         if (!file.exists(rel)) {
           stop("Cannot find region mapping file: ", rel, " (working directory ", getwd(), ")")
@@ -235,16 +235,19 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       weight[is.na(weight)] <- 1
     }
 
+    if (wdim != floor(wdim)) {
+      getSets(weight)[paste0("d", wdim)]  <- getSets(x)[paste0("d", dim)]
+      getSets(weight2)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
+    }
+
     if (setequal(getItems(weight, dim = wdim), getItems(x, dim = dim))) {
-      if (wdim != floor(wdim)) getSets(weight)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
       out <- toolAggregate(x * weight, rel, from = from, to = to, dim = dim, partrel = partrel) * weight2
     } else {
-      if (wdim != floor(wdim)) getSets(weight2)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
       out <- toolAggregate(x * weight2, rel, from = from, to = to, dim = dim, partrel = partrel) * weight
     }
     getComment(out) <- c(comment, paste0("Data aggregated (toolAggregate): ", date()))
     return(out)
-  }  else {
+  } else {
 
     # convert rel for better performance
     rel <- Matrix(rel)
@@ -272,16 +275,19 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
           if (!setequal(rownames(rel), onlynames)) {
             stop("The provided mapping contains entries which could not be found in the data: ",
               paste(setdiff(colnames(rel), onlynames), collapse = ", "))
-          } else  rel <- t(rel)
+          } else  {
+            rel <- t(rel)
+          }
         }
 
         tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
         additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
         add <- sapply(additions, function(x) return(x[1:2])) # nolint
         add[is.na(add)] <- ""
-        .tmp <- function(add, fill) return(paste0(rep(add[1, ], each = length(fill)),
-          fill,
-          rep(add[2, ], each = length(fill))))
+        .tmp <- function(add, fill) {
+          return(paste0(rep(add[1, ], each = length(fill)), fill,
+                        rep(add[2, ], each = length(fill))))
+        }
 
         cnames <- .tmp(add, colnames(rel))
         rnames <- .tmp(add, rownames(rel))
@@ -324,7 +330,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
             y[j] <- 1
           }
         }
-        if (any(is.na(y))) {
+        if (any(is.na(y)) && !all(is.na(y))) {
           # Special NA treatment to prevent that a single NA in x
           # is setting the full output to NA (because 0*NA is NA)
           # NAs are now treated in a way that anything except 0 times NA
@@ -354,7 +360,9 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
         (rel %*% rep(1, dim(rel)[2])))))
       levels(regOut) <- levels(regionList)
-    } else stop("Missing dimnames for aggregated dimension")
+    } else {
+      stop("Missing dimnames for aggregated dimension")
+    }
 
     if (!any(grepl("\\.", regOut)) && anyDuplicated(regOut)) regOut <- paste(regOut, seq_len(dim(out)[1]), sep = ".")
 

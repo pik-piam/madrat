@@ -24,6 +24,7 @@
 #'
 #' head(toolGetMapping("regionmappingH12.csv", where = "madrat"))
 #' @importFrom tools file_ext
+#' @importFrom pkgload is_dev_package
 #' @export
 toolGetMapping <- function(name, type = NULL, where = NULL,
                            error.missing = TRUE, # nolint
@@ -31,51 +32,79 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
 
   setWrapperInactive("wrapperChecks")
 
-  if (is.null(where)) {
-    mf <- getConfig("mappingfolder")
-    fname <- paste0(mf, "/", type, "/", name)
-    if (file.exists(as.character(name))) {
-      fname <- name
-    } else if (!file.exists(as.character(fname))) {
-      packages <- getConfig("packages")
-      if (!is.null(activecalc[[1]]) & any(grepl(paste0("^", activecalc[[1]], "$"), getCalculations()[, "type"]))) {
-        fp <- as.character(attr(prepFunctionName(activecalc[[1]], "calc"), "package"))
-        packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
-      }
-      for (i in packages) {
-        out <- toolGetMapping(name, type = type, where = i, error.missing = FALSE, returnPathOnly = TRUE)
-        if (out != "") {
-          fname <- out
-          break
-        }
-      }
-    }
-  } else if (where == "mappingfolder") {
-    mf <- getConfig("mappingfolder")
-    fname <- paste0(mf, "/", type, "/", name)
-  } else if (where == "local") {
-    if (is.null(type)) {
-      fname <- name
-    } else {
-      fname <- paste0(type, "/", name)
-    }
-  } else {
-    if (is.null(type)) {
-      tmpfname <- name
-    } else {
-      tmpfname <- paste0(type, "/", name)
-    }
-    fname <-  system.file("extdata", tmpfname, package = where)
-    if (fname == "") fname <- system.file("inst/extdata", tmpfname, package = where)
-    if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
-    if (fname == "") fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = where)
-    if (fname == "" & error.missing) {
-      stop('Mapping "', name, '" with type "', type, '" not found in package "', where, '"!')
-    }
-  }
-  if (error.missing & !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
+  fname <- .searchName(name = name, type = type, where = where, activecalc = activecalc)
+
+  if (error.missing && !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')
   fname <- gsub("/+", "/", fname)
   if (returnPathOnly) return(fname)
+
+  return(.readMapping(fname = fname))
+}
+
+.searchName <- function(name, type, where, activecalc) {
+  if (is.null(where)) {
+    fname <- .searchNameLocal(name, type = type)
+    if (file.exists(as.character(fname))) {
+      return(fname)
+    }
+    fname <- .searchNameMappingFolder(name, type = type)
+    if (file.exists(as.character(fname))) {
+      return(fname)
+    }
+
+    packages <- getConfig("packages")
+    if (!is.null(activecalc[[1]]) && any(grepl(paste0("^", activecalc[[1]], "$"), getCalculations()[, "type"]))) {
+      fp <- as.character(attr(prepFunctionName(activecalc[[1]], "calc"), "package"))
+      packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
+    }
+    for (i in packages) {
+      out <- .searchNamePackage(name, type = type, packageName = i)
+      if (out != "") {
+        fname <- out
+      }
+    }
+    # if not found in packages, fall back to result from mappingfolder, even though it doesn't exist
+    return(fname)
+
+  } else if (where == "mappingfolder") {
+    return(.searchNameMappingFolder(name = name, type = type))
+  } else if (where == "local") {
+    return(.searchNameLocal(name = name, type = type))
+  } else {
+    return(.searchNamePackage(name = name, type = type, packageName = where))
+  }
+}
+
+.searchNameLocal <- function(name, type) {
+  if (file.exists(as.character(name))) {
+    return(name)
+  }
+  return(.typedName(name, type))
+}
+
+.searchNameMappingFolder <- function(name, type) {
+  mf <- getConfig("mappingfolder")
+  return(paste0(mf, "/", type, "/", name))
+}
+
+.searchNamePackage <- function(name, type, packageName) {
+  tmpfname <- .typedName(name, type)
+  fname <- system.file("extdata", tmpfname, package = packageName)
+  if (fname == "" && !is_dev_package(packageName)) fname <- system.file("inst/extdata", tmpfname, package = packageName)
+  if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
+  if (fname == "" && !is_dev_package(packageName))
+    fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
+  return(fname)
+}
+
+.typedName <- function(name, type) {
+  if (is.null(type)) {
+    return(name)
+  }
+  return(paste0(type, "/", name))
+}
+
+.readMapping <- function(fname) {
   filetype <- tolower(file_ext(fname))
   if (filetype == "csv") {
     if (grepl(pattern = ";", x = readLines(fname, 1))) {
@@ -91,6 +120,6 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
   } else if (filetype == "rds") {
     return(readRDS(fname))
   } else {
-    stop("Unsupported filetype \"", filetype, "\"")
+    stop("Unsupported filetype \"", filetype, "\" of file \"", fname, "\"")
   }
 }

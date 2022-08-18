@@ -22,6 +22,10 @@ addMapping <- function(filename, mapping = NULL) {
 
  setWrapperInactive("wrapperChecks")
 
+ if (!is.character(filename)) {
+   stop("Provided filename is not a character!")
+ }
+
  if (is.null(mapping)) {
    mapping <- toolGetMapping(filename, type = "regional")
  } else if (!is.data.frame(mapping)) {

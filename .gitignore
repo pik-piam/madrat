@@ -25,3 +25,5 @@ vignettes/*.pdf
 *.knit.md
 .Rproj.user
 inst/doc
+# jetbrains project files
+.idea/

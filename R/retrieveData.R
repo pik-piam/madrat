@@ -90,7 +90,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
       if (length(matchingPUCs) == 1) {
         vcat(-2, " - data will be created from existing puc (", matchingPUCs, ").", fill = 300)
         do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)), renv = renv,
-                                 cfg$input[cfg$pucArguments]))
+                                strict = NULL, cfg$input[cfg$pucArguments]))
         return()
       }
     }
