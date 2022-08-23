@@ -42,12 +42,12 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
   .aggregatePuc <- function(regionmapping, cfg, madratCfg, nestinglevel) {
     # need to use `::` because this is run in another R session
     if (file.exists("puc/renv.lock")) {
-      renv::activate()
+      renv::init()
       renv::restore(lockfile = "puc/renv.lock", prompt = FALSE)
     }
     withr::local_options(madrat_cfg = madratCfg, gdt_nestinglevel = nestinglevel)
     madrat::localConfig(packages = "madrat", regionmapping = regionmapping,
-                forcecache = TRUE, .verbose = FALSE)
+                        forcecache = TRUE, .verbose = FALSE)
     if (!is.null(cfg$package)) withr::local_package(cfg$package)
     do.call(madrat::retrieveData, c(cfg$args, list(renv = FALSE)))
   }

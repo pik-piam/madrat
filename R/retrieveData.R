@@ -205,8 +205,28 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(outputfolder, otherFiles), ".")
-            vcat(3, capture.output(snapshot(packages = attr(cfg$functionName, "package"),
-                                            prompt = FALSE, force = TRUE)))
+
+            createRenvLock <- function(requiredPackages, renvLockTarget) {
+              renv::init(withr::local_tempdir())
+              # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
+              renv::hydrate(requiredPackages)
+              # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
+              renv::snapshot(lockfile = renvLockTarget, packages = c(requiredPackages, "renv"),
+                             prompt = FALSE, force = TRUE)
+              # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
+              # in the created renv.lock might not match the version used to run the full functions
+            }
+
+            vcat(3, paste(capture.output({
+              # run in separate session to prevent changes to current session's libpath
+              callr::r(createRenvLock,
+                       list(requiredPackages = attr(cfg$functionName, "package"),
+                            renvLockTarget = file.path(normalizePath("."), "renv.lock")),
+                       spinner = FALSE, show = TRUE)
+            }), collapse = "\n"))
+
+            # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
+            # required madrat cache files
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {
