@@ -46,13 +46,13 @@
 #' \dontrun{
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
+#' @importFrom callr r
 #' @importFrom methods formalArgs
+#' @importFrom renv init hydrate snapshot
+#' @importFrom tools package_dependencies
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir local_options
-#' @importFrom renv snapshot
 #' @export
-#'
-
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""),
                          strict = FALSE, renv = TRUE, ...) {
 
@@ -94,7 +94,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
         return()
       }
     }
-
   }
 
   # data not yet ready and has to be prepared first
@@ -110,7 +109,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
                     returnPathOnly = TRUE, FUN.VALUE = character(1))
 
   for (i in seq_along(regionmapping)) {
-
     # copy mapping to mapping folder
     if (!file.exists(mappath[i])) {
       dir.create(dirname(mappath[i]), recursive = TRUE, showWarnings = !dir.exists(dirname(mappath[i])))
@@ -140,8 +138,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
               diagnostics = "diagnostics")
 
   if (length(cfg$regionscode) > 1) {
-    localConfig(extramappings = paste0(cfg$regionscode[-1], ".csv")
-    )
+    localConfig(extramappings = paste0(cfg$regionscode[-1], ".csv"))
   }
 
   if (cachetype == "rev") {
@@ -206,13 +203,17 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(outputfolder, otherFiles), ".")
 
+            requiredPackages <- attr(cfg$functionName, "package")
+            dependencies <- package_dependencies(requiredPackages, which = "all", recursive = "strong")
+            # TODO remove setdiff when sr15data is gone or installable
+            requiredPackages <- setdiff(unique(c("renv", requiredPackages, unlist(dependencies))), "sr15data")
+
             createRenvLock <- function(requiredPackages, renvLockTarget) {
               renv::init(withr::local_tempdir())
               # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
               renv::hydrate(requiredPackages)
               # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
-              renv::snapshot(lockfile = renvLockTarget, packages = c(requiredPackages, "renv"),
-                             prompt = FALSE, force = TRUE)
+              renv::snapshot(lockfile = renvLockTarget, packages = requiredPackages)
               # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
               # in the created renv.lock might not match the version used to run the full functions
             }
@@ -220,8 +221,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             vcat(3, paste(capture.output({
               # run in separate session to prevent changes to current session's libpath
               callr::r(createRenvLock,
-                       list(requiredPackages = attr(cfg$functionName, "package"),
-                            renvLockTarget = file.path(normalizePath("."), "renv.lock")),
+                       list(requiredPackages, renvLockTarget = file.path(normalizePath("."), "renv.lock")),
                        spinner = FALSE, show = TRUE)
             }), collapse = "\n"))
 
