@@ -204,7 +204,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(file.path(outputfolder, otherFiles), ".")
 
             requiredPackages <- attr(cfg$functionName, "package")
-            dependencies <- package_dependencies(requiredPackages, which = "all", recursive = "strong")
+            dependencies <- package_dependencies(requiredPackages, db = installed.packages(),
+                                                 which = "all", recursive = "strong")
             # TODO remove setdiff when sr15data is gone or installable
             requiredPackages <- setdiff(unique(c("renv", requiredPackages, unlist(dependencies))), "sr15data")
 
