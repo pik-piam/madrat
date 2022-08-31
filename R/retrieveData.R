@@ -51,7 +51,7 @@
 #' @importFrom renv init hydrate snapshot
 #' @importFrom tools package_dependencies
 #' @importFrom utils sessionInfo tar modifyList
-#' @importFrom withr with_dir with_tempdir local_options
+#' @importFrom withr with_dir with_tempdir local_options local_tempdir
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""),
                          strict = FALSE, renv = TRUE, ...) {
@@ -210,7 +210,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             requiredPackages <- setdiff(unique(c("renv", requiredPackages, unlist(dependencies))), "sr15data")
 
             createRenvLock <- function(requiredPackages, renvLockTarget) {
-              renv::init(withr::local_tempdir())
+              renv::init()
               # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
               renv::hydrate(requiredPackages)
               # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
@@ -223,7 +223,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
               # run in separate session to prevent changes to current session's libpath
               callr::r(createRenvLock,
                        list(requiredPackages, renvLockTarget = file.path(normalizePath("."), "renv.lock")),
-                       spinner = FALSE, show = TRUE)
+                       wd = local_tempdir(), spinner = FALSE, show = TRUE)
             }), collapse = "\n"))
 
             # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
