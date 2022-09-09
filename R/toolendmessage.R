@@ -12,7 +12,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolstartmessage}}, \code{\link{vcat}}
 toolendmessage <- function(startdata, level = NULL) {
-  runtime <- round((proc.time() - startdata$time1)["elapsed"], 2)
+  runtime <- unname(round((proc.time() - startdata$time1)["elapsed"], 2))
   vcat(1, "Exit ", startdata$functionCallString, " in ", runtime, " seconds",
        level = level, fill = 300, show_prefix = FALSE)
 }
