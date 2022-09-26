@@ -206,8 +206,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             requiredPackages <- attr(cfg$functionName, "package")
             dependencies <- package_dependencies(requiredPackages, db = installed.packages(),
                                                  which = "all", recursive = "strong")
-            # TODO remove setdiff when sr15data is gone or installable
-            requiredPackages <- setdiff(unique(c("renv", requiredPackages, unlist(dependencies))), "sr15data")
+            requiredPackages <- unique(c("renv", requiredPackages, unlist(dependencies)))
 
             createRenvLock <- function(requiredPackages, renvLockTarget) {
               renv::init()
