@@ -208,21 +208,28 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
                                                  which = "all", recursive = "strong")
             requiredPackages <- unique(c("renv", requiredPackages, unlist(dependencies)))
 
-            createRenvLock <- function(requiredPackages, renvLockTarget) {
-              renv::init()
+            vcat(3, paste(capture.output({
+              initRenv <- function() {
+                renv::init()
+                return(renv::project())
+              }
+              # run in separate session to prevent changes to current session's libpath
+              dummyProject <- callr::r(initRenv, wd = withr::local_tempdir(), spinner = FALSE, show = TRUE)
+
               # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
-              renv::hydrate(requiredPackages)
-              # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
-              renv::snapshot(lockfile = renvLockTarget, packages = requiredPackages)
+              # need to hydrate outside of dummyProject, otherwise renv will not use global libPaths
+              renv::hydrate(packages = requiredPackages, project = dummyProject)
+
+              takeSnapshot <- function(renvLockTarget) {
+                renv::load() # callr overwrites libPaths, this ensures renv is loaded
+                # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
+                renv::snapshot(lockfile = renvLockTarget, type = "all")
+              }
+              callr::r(takeSnapshot,
+                       args = list(renvLockTarget = file.path(normalizePath("."), "renv.lock")),
+                       wd = dummyProject, spinner = FALSE, show = TRUE)
               # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
               # in the created renv.lock might not match the version used to run the full functions
-            }
-
-            vcat(3, paste(capture.output({
-              # run in separate session to prevent changes to current session's libpath
-              callr::r(createRenvLock,
-                       list(requiredPackages, renvLockTarget = file.path(normalizePath("."), "renv.lock")),
-                       wd = local_tempdir(), spinner = FALSE, show = TRUE)
             }), collapse = "\n"))
 
             # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
