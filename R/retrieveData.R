@@ -209,25 +209,22 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             requiredPackages <- unique(c("renv", requiredPackages, unlist(dependencies)))
 
             vcat(3, paste(capture.output({
+              dummyProject <- withr::local_tempdir()
               initRenv <- function() {
                 renv::init()
-                return(renv::project())
+                return(normalizePath(.libPaths()[[1]]))
               }
               # init renv in separate session to prevent changes to current session's libpath
-              dummyProject <- callr::r(initRenv, wd = withr::local_tempdir(), spinner = FALSE, show = TRUE)
+              dummyLibPath <- callr::r(initRenv, wd = dummyProject, spinner = FALSE, show = TRUE)
 
               # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
               # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
-              renv::hydrate(packages = requiredPackages, project = dummyProject)
+              renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject)
 
-              takeSnapshot <- function(renvLockTarget) {
-                renv::load() # callr overwrites libPaths, this ensures renv is loaded
-                # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
-                renv::snapshot(lockfile = renvLockTarget, type = "all")
-              }
-              callr::r(takeSnapshot,
-                       args = list(renvLockTarget = file.path(normalizePath("."), "renv.lock")),
-                       wd = dummyProject, spinner = FALSE, show = TRUE)
+              # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
+              renv::snapshot(project = dummyProject, library = dummyLibPath,
+                             lockfile = file.path(normalizePath("."), "renv.lock"), type = "all")
+
               # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
               # in the created renv.lock might not match the version used to run the full functions
             }), collapse = "\n"))
