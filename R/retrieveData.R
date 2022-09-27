@@ -212,7 +212,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
               dummyProject <- withr::local_tempdir()
               initRenv <- function() {
                 renv::init()
-                return(normalizePath(.libPaths()[[1]]))
+                return(normalizePath(renv::paths$library()))
               }
               # init renv in separate session to prevent changes to current session's libpath
               dummyLibPath <- callr::r(initRenv, wd = dummyProject, spinner = FALSE, show = TRUE)
