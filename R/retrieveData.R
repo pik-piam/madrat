@@ -213,11 +213,11 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
                 renv::init()
                 return(renv::project())
               }
-              # run in separate session to prevent changes to current session's libpath
+              # init renv in separate session to prevent changes to current session's libpath
               dummyProject <- callr::r(initRenv, wd = withr::local_tempdir(), spinner = FALSE, show = TRUE)
 
               # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
-              # need to hydrate outside of dummyProject, otherwise renv will not use global libPaths
+              # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
               renv::hydrate(packages = requiredPackages, project = dummyProject)
 
               takeSnapshot <- function(renvLockTarget) {
