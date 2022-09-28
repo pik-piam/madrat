@@ -137,9 +137,9 @@ you can achieve a reset by setting the value to "".
 }
 \section{Functions}{
 \itemize{
-\item \code{localConfig}: A wrapper for setConfig(..., .local = TRUE)
-}}
+\item \code{localConfig()}: A wrapper for setConfig(..., .local = TRUE)
 
+}}
 \note{
 \code{setConfig} must only be used before the data processing is started and changes in the configuration
 from within a download-, read-, correct-, convert-, calc-, or full-function are not allowed! Only allowed

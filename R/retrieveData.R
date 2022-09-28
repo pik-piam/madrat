@@ -46,13 +46,13 @@
 #' \dontrun{
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
+#' @importFrom callr r
 #' @importFrom methods formalArgs
+#' @importFrom renv init hydrate snapshot
+#' @importFrom tools package_dependencies
 #' @importFrom utils sessionInfo tar modifyList
-#' @importFrom withr with_dir with_tempdir local_options
-#' @importFrom renv snapshot
+#' @importFrom withr with_dir with_tempdir local_options local_tempdir
 #' @export
-#'
-
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""),
                          strict = FALSE, renv = TRUE, ...) {
 
@@ -94,7 +94,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
         return()
       }
     }
-
   }
 
   # data not yet ready and has to be prepared first
@@ -110,7 +109,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
                     returnPathOnly = TRUE, FUN.VALUE = character(1))
 
   for (i in seq_along(regionmapping)) {
-
     # copy mapping to mapping folder
     if (!file.exists(mappath[i])) {
       dir.create(dirname(mappath[i]), recursive = TRUE, showWarnings = !dir.exists(dirname(mappath[i])))
@@ -140,8 +138,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
               diagnostics = "diagnostics")
 
   if (length(cfg$regionscode) > 1) {
-    localConfig(extramappings = paste0(cfg$regionscode[-1], ".csv")
-    )
+    localConfig(extramappings = paste0(cfg$regionscode[-1], ".csv"))
   }
 
   if (cachetype == "rev") {
@@ -205,8 +202,35 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
             file.copy(cacheFiles, ".")
             otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
             file.copy(file.path(outputfolder, otherFiles), ".")
-            vcat(3, capture.output(snapshot(packages = attr(cfg$functionName, "package"),
-                                            prompt = FALSE, force = TRUE)))
+
+            requiredPackages <- attr(cfg$functionName, "package")
+            dependencies <- package_dependencies(requiredPackages, db = installed.packages(),
+                                                 which = "all", recursive = "strong")
+            requiredPackages <- unique(c("renv", requiredPackages, unlist(dependencies)))
+
+            vcat(3, paste(capture.output({
+              dummyProject <- withr::local_tempdir()
+              initRenv <- function() {
+                renv::init()
+                return(normalizePath(renv::paths$library()))
+              }
+              # init renv in separate session to prevent changes to current session's libpath
+              dummyLibPath <- callr::r(initRenv, wd = dummyProject, spinner = FALSE, show = TRUE)
+
+              # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
+              # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
+              renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject)
+
+              # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
+              renv::snapshot(project = dummyProject, library = dummyLibPath,
+                             lockfile = file.path(normalizePath("."), "renv.lock"), type = "all")
+
+              # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
+              # in the created renv.lock might not match the version used to run the full functions
+            }), collapse = "\n"))
+
+            # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
+            # required madrat cache files
             suppressWarnings(tar(pucPath, compression = "gzip"))
           })
         } else {
