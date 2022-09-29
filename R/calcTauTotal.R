@@ -5,7 +5,7 @@
 #' data and moves xref values to the weighting object which is required for
 #' aggregation.
 #' 
-#' 
+#' @param source data source, either "paper" (default) or "historical".
 #' @return Total tau data and corresponding weights as a list of two MAgPIE
 #' objects
 #' @author Jan Philipp Dietrich
@@ -19,20 +19,22 @@
 #' }
 #' @importFrom utils bibentry person
 
-calcTauTotal <- function() {
-  tau    <- readSource("Tau","paper")
+calcTauTotal <- function(source="paper") {
+  
+  tau    <- readSource("Tau",source)
   x      <- collapseNames(tau[,,"tau.total"])
   weight <- collapseNames(tau[,,"xref.total"])
   return(list(x=x,
               weight=weight,
               min=0,
               max=10,
+              structure.temporal = "^y[0-9]{4}$",
+              structure.spatial  = "^[A-Z]{3}$",
               unit="1",
               description="Agricultural Land Use Intensity Tau",
               note=c('data based on Dietrich J.P., Schmitz C., M\uFCller C., Fader M., Lotze-Campen H., Popp A.,',
                      'Measuring agricultural land-use intensity - A global analysis using a model-assisted approach',
-                     'Ecological Modelling, Volume 232, 10 May 2012, Pages 109-118, ISSN 0304-3800, 10.1016/j.ecolmodel.2012.03.002.',
-                     'preprint available \u40 http://edoc.gfz-potsdam.de/pik/display.epl?mode=doc&id=5281'),
+                     'Ecological Modelling, Volume 232, 10 May 2012, Pages 109-118, ISSN 0304-3800, https://doi.org/10.1016/j.ecolmodel.2012.03.002.'),
               source=bibentry("Article",
                               title="Measuring agricultural land-use intensity - A global analysis using a model-assisted approach",
                               author=c(person("Jan Philipp","Dietrich"),person("Christoph","Schmitz"),person("Christoph","Mueller"),person("Marianela","Fader"),
@@ -41,6 +43,6 @@ calcTauTotal <- function() {
                               journal="Ecological Modelling",
                               volume="232",
                               pages="109-118",
-                              url="http://edoc.gfz-potsdam.de/pik/display.epl?mode=doc&id=5281",
+                              url="https://doi.org/10.1016/j.ecolmodel.2012.03.002",
                               doi="10.1016/j.ecolmodel.2012.03.002")))
 }

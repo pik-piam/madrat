@@ -36,11 +36,10 @@ prepFunctionName <- function(type, prefix="calc", ignore=NULL, error_on_missing=
   if(length(name)>1) {
     name <- as.character(tail(name,1))
     package <- as.character(tail(package,1))
+    warning("More than one function found for type \"",type,"\" and prefix \"",prefix,"\". Use last occurrence (package \"",package,"\")")
     if(package==".GlobalEnv" & type %in% c("TauTotal","Tau")) {
       stop("Cannot substitute package internal function for type \"",type,"\" and prefix \"",prefix,"\" with function in global environment. Please use other function name instead!")  
-    } else {
-      warning("More than one function found for type \"",type,"\" and prefix \"",prefix,"\". Use last occurrence (package \"",package,"\")")
-    }
+    } 
   }
   
   # extract arguments which agree between the given function and its corresponding wrapper function
@@ -75,11 +74,12 @@ prepFunctionName <- function(type, prefix="calc", ignore=NULL, error_on_missing=
   if("..." %in% wformals & !fcomplete) args <- c(args,"...")
   out <- paste0(name,'(',paste(args,collapse=", "),')')
   
+  attr(out,"formals") <- formals
   attr(out,"package") <- package
   if(package==".GlobalEnv") {
     attr(out,"pkgcomment") <- ".GlobalEnv"
   } else {
-    attr(out,"pkgcomment") <- paste(package,packageDescription(package)$Version)
+    attr(out,"pkgcomment") <- paste(package, unname(getNamespaceVersion(package)))
   }
   return(out)
 }

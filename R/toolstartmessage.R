@@ -1,42 +1,53 @@
 #' Tool: Start message
-#' 
-#' Function writes a process start message and performs some diagnostics
-#' 
-#' 
-#' @param level This argument allows to establish a hierarchy of print
-#' statements. The hierarchy is preserved for the next vcat executions.
-#' Currently this setting can have 4 states: NULL (nothing will be changed), 0
-#' (reset hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease
-#' hierarchy level by 1).
-#' @return a list containing diagnostic information required by \code{\link{toolendmessage}}
-#' @author Jan Philipp Dietrich
+#'
+#' This function writes a process start message (what function was called with which arguments) and stores the current
+#' time, so the corresponding call to \code{\link{toolendmessage}} can calculate the elapsed time.
+#'
+#' @param functionName The name of the calling function as a string.
+#' @param argumentValues A list of the evaluated arguments of the calling function.
+#' @param level This argument allows to establish a hierarchy of print statements. The hierarchy is preserved for the
+#' next vcat executions. Currently this setting can have 4 states: NULL (nothing will be changed), 0 (reset
+#' hierarchies), "+" (increase hierarchy level by 1) and "-" (decrease hierarchy level by 1).
+#' @return A list containing diagnostic information required by \code{\link{toolendmessage}}.
+#' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
+#' @importFrom utils str
 #' @examples
-#' 
-#' \dontrun{
-#' tmp <- function(bla=NULL) {
-#'   startinfo <- toolstartmessage("+")
-#'   print(bla)
-#'   toolendmessage(startinfo,"-")
-#'   }
-#' tmp(bla=99)
+#'
+#' innerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage("innerFunction", list(argumentsToPrint = 123), "+")
+#'   vcat(1, "inner")
+#'   madrat:::toolendmessage(startinfo, "-")
 #' }
-#' 
+#' outerFunction <- function() {
+#'   startinfo <- madrat:::toolstartmessage("outerFunction", list(), "+")
+#'   vcat(1, "outer")
+#'   innerFunction()
+#'   madrat:::toolendmessage(startinfo, "-")
+#' }
+#' outerFunction()
+toolstartmessage <- function(functionName, argumentValues, level = NULL) {
 
-toolstartmessage <- function(level=NULL) {
-  functioncall <- paste(deparse(sys.call(-1)),collapse="")
-  vcat(-2,"Run",functioncall, level=level, fill=300)
-  startdata <- list(time1=proc.time())
-  d <- getConfig("diagnostics")
-  if(is.character(d)) {
-    filename <- paste0(getConfig("outputfolder"),"/",d,".csv")
-    if(!file.exists(filename)) {
-      x <- data.frame(functioncall=functioncall,start=TRUE,time=as.numeric(startdata$time1["elapsed"]),runtime=-1,id="none")
-    } else {
-      x <- read.table(filename,stringsAsFactors = FALSE, sep = ";", header = TRUE, quote = "")
-      x <- rbind(x,c(functioncall,TRUE,startdata$time1["elapsed"],-1,"none"))
+  setWrapperInactive("wrapperChecks")
+
+  nonDefaultArguments <- getNonDefaultArguments(functionName, argumentValues)
+  argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
+  argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
+
+  callWithEvaluatedArgs <- paste0(functionName, "(", argsString, ")")
+  if (nchar(callWithEvaluatedArgs) <= getConfig("maxLengthLogMessage")) {
+    functionCallString <- callWithEvaluatedArgs
+    hint <- ""
+  } else {
+    functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
+    if (nchar(functionCallString) > getConfig("maxLengthLogMessage")) {
+      functionCallString <- paste0(substr(callWithEvaluatedArgs, 1,
+                                          getConfig("maxLengthLogMessage") - 3), "...")
     }
-    suppressWarnings(try(write.table(x,filename,row.names = FALSE, quote = FALSE, sep=";"), silent = TRUE))
+    hint <- paste0(" -- to print all evaluated arguments: setConfig(maxLengthLogMessage = ",
+                   nchar(callWithEvaluatedArgs), ")")
   }
-  return(startdata)
+
+  vcat(1, "Run ", functionCallString, hint, level = level, fill = 300, show_prefix = FALSE)
+  return(list(time1 = proc.time(), functionCallString = functionCallString))
 }

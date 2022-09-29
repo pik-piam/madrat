@@ -1,4 +1,16 @@
-^\.travis\.yml$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 cran-comments.md
+^CRAN-RELEASE$
+^.*\.zenodo.json$
+^\.buildlibrary$
+^\.github$
+^codecov\.yml$
+^\.git$
+^\.pre-commit-config\.yaml$
+^workflow$
+^.lintr$
+^tests/.lintr$
+^vignettes/.lintr$
+^.vscode$
+^.idea$

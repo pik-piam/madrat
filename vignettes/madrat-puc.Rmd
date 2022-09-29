@@ -1,0 +1,96 @@
+---
+title: "Portable unagreggated collections (PUCs) in MADRaT"
+author: "Jan Philipp Dietrich"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Portable unagreggated collections (PUCs) in MADRaT}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+In some use-cases it can be useful to be able to share an unaggregated version of the data collections created by madrat::retrieveData, e.g. if a partner wants to be able to compute the data collection with a custom aggregation without the need to rerun the whole data processing, or if a snapshot of a data collection should be taken in a form in which it can be later re-used in other aggregations. Portable Unaggregated Collections (PUCs) are the tool to do so. 
+
+
+## Basics
+
+The core idea of madrat is to create data processing workflow in a format in which it can be shared and re-used by others. Theoretically that means that a user should just need to have a madrat-package in order to recompute the resulting data collection. In practice this does not always work (e.g. because of problems accessing the source data) or might be impratical for certain applications (e.g. because of high runtimes and/or hardware requirements of the preprocessing). 
+
+In these instances a solution is to share the code (for transparency reasons) along with the computed data collection. A drawback of that solution is that the data is already aggregated to a specified regional aggregation, limiting the range of application of such an approach. PUCs represent an intermediate product in which most of the computations have already been performed in advance but the data still needs to be aggregated to its final aggregation and (potentially) some less time consuming computation steps still have to be done. This can be great for portability of the data collection while maintaining some degree of freedom when it comes to parametrization of the data processing. 
+
+## A typical workflow
+
+By default a PUC is created automatically when a data processing is launched:
+
+
+```{r, echo = TRUE, eval=FALSE}
+library(madrat, quietly = TRUE)
+retrieveData("EXAMPLE", rev = 42, puc = TRUE, extra = "Extra Argument")
+```
+
+In this example the example collection from this package is computed in revision 42. The argument `puc` hereby controls whether the processing should also create a puc-file or not. As `puc = TRUE` is the default setting it does not have to be mentioned here specifically in order to be computed. The `extra` argument is an additional parameter forwarded to the example data collection.
+
+Running this code will create the aggregated collection in the output folder (`getConfig("outputfolder)`) as well as the portable, unaggregated collection in the puc-folder (`getConfig("pucfolder")`).
+
+In this example the puc file name is `rev42_extra_example_tag.puc` and it consists of different components. Every puc-file has the same name structure, which is `rev<revisionNumber>_<selectableArguments>_<collectionName>_<tag>.puc` in which `<revisionNumber>` stands for the revision number, `<selectableArguments>` stands for additional arguments (in addition to the regional aggregation) that can be selected when aggregating a collection from a puc-file (other arguments cannot be changed as they would require a new puc-file), `<collectionName>` stands for the name of the data collection and `<tag>` stands for an optional name tag, which can be specified in the corresponding `full`-function.
+
+In our example we have the puc for the data collection "example" in revision 42 and users can select the argument "extra" when aggregating data from the puc file.
+
+Aggregating from a puc-file can now happen in two ways:
+
+* on the system where the puc-file has been created it will serve as a snapshot and will be re-used as soon as `retrieveData` is run again with same settings except of the ones which can be changed in the puc-File (e.g. `retrieveData("EXAMPLE", rev=42, puc = TRUE, extra = "Other Argument")`)
+
+* when giving the puc to someone else they can aggregate the puc-file using the function `pucAggregate` (e.g. `pucAggregate("rev42_extra_example_tag.puc"), extra = "Other Argument")`)
+
+In both cases a new aggregated collection will be written into the outputfolder based on the given puc-file.
+
+## Making a madrat preprocessing ready for puc-files
+
+While many parts of the puc-file creation happen automatically, some specific cases require manual tweaking. By default the cache files of the calc-functions called directly by the corresponding full-function are being put into the puc-file. This way only the full-function itself needs to be re-run without running the underlying calculations as all the data of these calculations is already part of the puc-file. However, in some instances
+these top-level cache-files are not the ones which should be put into the puc-file (e.g. if these calculations should be recomputed every time a puc-file is being aggregated). Whether a file should be included in a puc-file can be controlled by the return value of a calc-function:
+
+```{r, echo = TRUE, eval=FALSE}
+calcExample <- function() {
+return(list(x = data,
+            putInPUC = FALSE))
+}
+```
+
+The calc-function in the shown example uses the return value `putInPUC = FALSE` to overwrite the automatic puc-detection and prevent the cache file from being stored in a puc-file. In a similar fashion `putInPUC = TRUE` would make sure that the file becomes a part of the resulting puc-file.
+
+Besides the decision which data should be stored in the puc file it is also important to know which arguments can be changed later when aggregating the puc-file. This can be controlled via control flags in the full-function:
+
+```{r, echo = TRUE, eval=FALSE}
+fullEXAMPLE <- function(rev = 0, dev = "", extra = "Example argument") {
+
+  "!# @pucArguments extra"
+
+  writeLines(extra, "test.txt")
+
+  if (rev >= 1) {
+    calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")
+  }
+  if (dev == "test") {
+    message("Here you could execute code for a hypothetical development version called \"test\"")
+  }
+  # return is optional, tag is appended to the tgz filename, pucTag is appended to the puc filename
+  return(list(tag = "customizable_tag",
+              pucTag = "tag"))
+}
+```
+
+In `fullEXAMPLE` the control flag `@pucArguments` adds the argument `extra` to the list of arguments which can be changed later when aggregating the puc file. The reason why it has been defined as customizable argument is that it does not have a direct effect on the cached data but only affects the computations in the full-function which are anyway recomputed when running `pucAggregate`. 
+
+Another thing which is set in this example is the return value `pucTag` which is setting the additional name tag showing later on in the file name of the puc-file. Here, it is set to "tag" which is the reason why our puc-file ends on `tag.puc`.
+
+## Potential problems
+
+While this procedure simplifies some processes it is by no means error proof and thereby has to be handled with care. There are potential mistakes on the creation side of a puc-file as well as on the user side.
+
+On the creation every faulty configuration of the shown settings above will most likely result in a puc-file which is created but unusable (e.g. one could set `putInPUC` to `FALSE` for the calculation `TauTotal` which would render the resulting puc-file unusable). So proper configuration is key to functioning puc-files.
+
+On the user side it is currently mandatory that the system on which the puc-file is being used also has the proper package versions of the packages involved in the processing of the data. Having a different package version locally compared to the version on the system used to compute the puc-file might work but can also fail or can lead to different results than expected. In the future this problem might get a technical solution (by also storing the packages in the appropriate versions in the puc-file), but for now it is in the responsibility of the user to have the proper package versions installed.
