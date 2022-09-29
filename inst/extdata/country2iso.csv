@@ -249,7 +249,7 @@ Estonia;EST
 Eswatini;SWZ
 ET;ETH
 Ethiopia;ETH
-Ethiopia PDR;ETH
+Ethiopia PDR;XET
 faeroe islands;FRO
 Falkland Islands (Malvinas);FLK
 Falkland_Islands_or_Islas_Malvinas;FLK
@@ -615,8 +615,7 @@ Others Latin America and the Caribbean;XAC
 Others Oceania;XOO
 Others West Asia;XWA
 PA;PAN
-pacific islands (palau);PLW
-Pacific Islands Trust Territory;PCI
+pacific islands (palau);XXX
 Pakistan;PAK
 palastina;PSE
 palästina;PSE
@@ -670,7 +669,7 @@ Republic of Moldova;MDA
 Republic of North Macedonia;MKD
 republic of south sudan;SSD
 republic of south vietnam;XXX
-republic of sudan;SDN
+republic of sudan;XXX
 Reunion;REU
 Réunion;REU
 rhodesia-nyasaland;XXX
@@ -701,7 +700,6 @@ Saint Helena, Ascension and Tristan da Cunha;SHN
 Saint Kitts and Nevis;KNA
 Saint Lucia;LCA
 saint martin (dutch portion);SXM
-Saint Martin (French part);MAF
 Saint-Martin (French part);MAF
 Saint Pierre and Miquelon;SPM
 Saint Vincent and the Grenadines;VCT
@@ -788,7 +786,6 @@ St_Vincent_and_the_Grenadines;VCT
 sudafrika;ZAF
 Südafrika;ZAF
 Sudan;SDN
-Sudan (former);SDN
 Suedafrika;ZAF
 Suriname;SUR
 SV;SLV
