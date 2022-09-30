@@ -41,6 +41,7 @@
 #' @export
 toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = FALSE, verbosity = 1, # nolint
                             countrylist = NULL, ...) {
+  comment <- getComment(x)
   if (is.null(countrylist)) {
     isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
     countrylist <- as.vector(isoCountry[, "x"])
@@ -131,5 +132,6 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
 
   # order regions by region name
   x <- x[robustSort(getItems(x, dim = 1.1)), , ]
+  getComment(x) <- comment
   return(x)
 }
