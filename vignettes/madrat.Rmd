@@ -29,9 +29,14 @@ cfg <- getConfig()
 
 After setting that directory, the package is ready to use. If not stated otherwise in the config, all downloaded source data and created output files can be found in the subdirectories `sources/` or `output/` of the main directory, respectectively.
 
+If you want to change settings, e.g. the location of the input data archive or the region mapping that should be used for aggregation, you can use the function setConfig().
+
 ## madrat framework components
 
-madrat splits the process of data preparation into the following components. Note for developers: The source code of each component comes with a madrat wrapper function managing the data preparation process and performing some sanity checks on the calculations. The wrapper functions will run user defined functions which are specific to a certain source or calculation.
+madrat splits the process of data preparation into the following components (see figure 1): downloadSource, readSource, calcOutput and retrieveData. Note for developers: The source code of each component comes with a madrat wrapper function (depicted in blue) managing the data preparation process and performing some sanity checks on the calculations. The wrapper functions will run user defined functions (colored red) which are specific to a certain source or calculation and that can not be generalized. The arrows indicate which function calls which function. On the right hand side you find example code for the relevant functions. Please note: Never call your functions directly! Use the wrapper functions only to call your functions (see the examples on the left side below).
+
+![figure 1](madrat-workflow.png)
+
 
 ### downloadSource
 
