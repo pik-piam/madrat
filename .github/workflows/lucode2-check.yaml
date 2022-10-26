@@ -54,7 +54,8 @@ jobs:
           ' "$NO_BINARY_INSTALL_R_PACKAGES" | sudo tee --append /etc/R/Rprofile.site >/dev/null
           cat /etc/R/Rprofile.site
 
-      - uses: r-lib/actions/setup-pandoc@v1
+      - name: Set up Pandoc
+        uses: r-lib/actions/setup-pandoc@v1
 
       - name: Set up Python 3.9
         uses: actions/setup-python@v2
@@ -62,12 +63,13 @@ jobs:
           python-version: 3.9
 
       - name: Cache R libraries
+        if: ${{ !env.ACT }} # skip when running locally via nektos/act
         uses: pat-s/always-upload-cache@v3
         with:
           path: /usr/local/lib/R/
-          key: ${{ runner.os }}-usr-local-lib-R-${{ hashFiles('DESCRIPTION') }}
+          key: 2-${{ runner.os }}-usr-local-lib-R-${{ hashFiles('DESCRIPTION') }}
           restore-keys: |
-            ${{ runner.os }}-usr-local-lib-R-
+            2-${{ runner.os }}-usr-local-lib-R-
 
       - name: Restore R library permissions
         run: |
@@ -77,7 +79,8 @@ jobs:
         run: |
           ./run.sh install_aptget libhdf5-dev libharfbuzz-dev libfribidi-dev
           ./run.sh install_all
-          ./run.sh install_r lucode2 covr rstudioapi
+          ./run.sh install_r_binary covr rstudioapi
+          ./run.sh install_r lucode2
 
       - name: Install python dependencies if applicable
         run: |
