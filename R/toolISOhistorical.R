@@ -132,7 +132,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
         weight <- setYears(m[a$toISO, a$toY, ], NULL)
         if (anyNA(weight)) {
           weight[is.na(weight)] <- 0
-          vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
+          warning("Weight in toolISOhistorical contained NAs. Set NAs to 0!")
         }
       } else {
         if (!all(a$toISO %in% getItems(additional_weight, dim = 1))) {
