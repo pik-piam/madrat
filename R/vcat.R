@@ -82,8 +82,10 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
       if (!logOnly) {
         base::warning(..., call. = FALSE)
       }
-      base::message(paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
-                                                   labels = getOption("gdt_nestinglevel"))), collapse = "\n"))
+      preppedMessage <- paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
+                                                       labels = getOption("gdt_nestinglevel"))), collapse = "\n")
+      base::message(preppedMessage)
+      base::cat(preppedMessage)
       options(madratWarningsCounter = getOption("madratWarningsCounter", 0) + 1) # nolint
     } else {
       base::message(paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
@@ -95,8 +97,3 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
     options(gdt_nestinglevel = paste0("~", getOption("gdt_nestinglevel"))) # nolint
   }
 }
-
-# redirect standard messaging functions to vcat
-cat     <- function(...) vcat(1, ...)
-warning <- function(...) vcat(0, ...)
-stop    <- function(...) vcat(-1, ...)

@@ -58,7 +58,7 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
                   "! Access will be disabled soon!")
           break
         } else if (option %in% discouragedOptions[[w]]) {
-          cat("getConfig for option \"", option, "\" should - if possible - be avoided from within ", w, "!")
+          message("getConfig for option \"", option, "\" should - if possible - be avoided from within ", w, "!")
           break
         }
       }
