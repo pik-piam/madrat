@@ -82,7 +82,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     h <- NULL
     fromISOYear <- list()
     for (i in seq_along(ptr[, 1])) {
-      if (!length(mapping$toISO[mapping$fromISO == ptr[i, 1]]) == 1 | i == length(ptr[, 1])) {
+      if (!length(mapping$toISO[mapping$fromISO == ptr[i, 1]]) == 1 || i == length(ptr[, 1])) {
         ntr <- ntr + 1
         fromISOYear[[ntr]] <- cbind(h, ptr[i, ])
         h <- NULL
