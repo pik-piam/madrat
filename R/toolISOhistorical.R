@@ -157,7 +157,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
                              mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = NULL)
       }
       # fill data
-      if (overwrite == TRUE) {
+      if (overwrite) {
         m[a$toISO, subTime, ] <- mTr
       } else {
         m[a$toISO, subTime, ][is.na(m[a$toISO, subTime, ])] <- mTr[is.na(m[a$toISO, subTime, ])]
@@ -219,8 +219,9 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
             } else if (mainDim == 1.2) {
               addR <- as.vector(outer(addR, getItems(weight, dim = mainDim), paste, sep = "."))
             }
-}
+          }
           # sometimes individual bilateral combination may be missing, leading to weights that don't sum to 1
+          # these countries are added below igf missing, and given weight 0
           if (mainDim == 1.1) {
             addInd <- setdiff(as.vector(outer(
               tr$toISO,
@@ -244,7 +245,6 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
             weight <- mbind(weight, addMiss)
           }
 
-
           if (anyNA(weight)) {
             weight[is.na(weight)] <- 0
             vcat(0, "Weight 1 in toolISOhistorical contained NAs. Set NAs to 0!")
@@ -255,47 +255,52 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
 
         bilatMapping <- mapping # mapping needs to be made bilateral
         if (mainDim == 1.1) {
-bilatMapping <- data.frame(toISO = as.vector(outer(bilatMapping$toISO, getItems(z, dim = secdDim), paste, sep = ".")),
-                                                        fromISO = as.vector(outer(bilatMapping$fromISO,
-                                                                  getItems(z, dim = secdDim), paste, sep = ".")))
+          toISO <- as.vector(outer(bilatMapping$toISO, getItems(z, dim = secdDim), paste, sep = "."))
+          fromISO <- as.vector(outer(bilatMapping$fromISO, getItems(z, dim = secdDim), paste, sep = "."))
+          bilatMapping <- data.frame(toISO, fromISO)
         } else if (mainDim == 1.2) {
-bilatMapping <- data.frame(toISO = as.vector(outer(getItems(z, dim = secdDim), bilatMapping$toISO, paste, sep = ".")),
-                                                              fromISO = as.vector(outer(getItems(z, dim = secdDim),
-                                                                        bilatMapping$fromISO, paste, sep = ".")))
+          toISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$toISO, paste, sep = "."))
+          fromISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$fromISO, paste, sep = "."))
+          bilatMapping <- data.frame(toISO, fromISO)
         }
+        # subset mapping to specific transitions in the loop
+
+        # countries in transition object
+        isoTr <- getItems(z[setNames(list(c(tr$fromISO)), mainDimName), , ], dim = secdDimName)
+        wTr <- weight[setNames(list(isoTr), secdDimName), , ]
+
+        mappingTr <- bilatMapping[is.element(bilatMapping$toISO, getItems(wTr, dim = 1)),
+                                  c("fromISO", "toISO")]
 
         # make a second weight to add to original weight in cases where weight is 0 in all new countries.
         # This weight is very small value so should not affect actual values. Weight2 is ratio of each country's values
         # as ratio of sum across  partner countries as well as products.
-        weight2 <- weight
+        weight2 <- wTr
         for (i in getItems(weight2, dim = mainDim)) {
           weight2[i, , ] <- dimSums(weight2[i, , ], dim = c(secdDim, 3)) /
-                            dimSums(weight2[i, , ], dim = c(1, 3), na.rm = TRUE)
+            dimSums(weight2[i, , ], dim = c(1, 3), na.rm = TRUE)
         }
         weight2[is.na(weight2)] <- 0
         weight2 <- weight2 / 1e10
 
         zTr <- toolAggregate(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ],
-                             bilatMapping[is.element(bilatMapping$toISO,
-                                                     getItems(weight[setNames(list(c(getItems(z[setNames(list(c(tr$fromISO)), #nolint
-                                                                                                         mainDimName), , ], dim = secdDimName))),  # nolint
-                                                                              secdDimName), , ],
-                                                              dim = 1)),
-                                          c("fromISO", "toISO")],
+                             mappingTr,
                              from = "fromISO", to = "toISO",
                              dim = 1,
-                             weight = weight[setNames(list(c(getItems(z[setNames(list(c(tr$fromISO)), mainDimName), , ],
-                                                                      dim = secdDimName))), secdDimName), , ] +
-                               weight2[setNames(list(c(getItems(z[setNames(list(c(tr$fromISO)), mainDimName), , ],
-                                                                   dim = secdDimName))), secdDimName), , ], # nolint #add small weight to disaggregate properly
+                             weight = wTr + weight2, # nolint #add small weight to disaggregate properly
                              wdim = 1)
 
         # aggregation of countries
       } else {
+        if (mainDim == 1.1) {
+          isoTr <- as.vector(outer(tr$toISO, getItems(z[setNames(list(c(tr$fromISO)), mainDimName), , ], dim = secdDim),
+                                    paste, sep = "."))
+        } else if (mainDim == 1.2) {
+          isoTr <- as.vector(outer(getItems(z[setNames(list(c(tr$fromISO)), mainDimName), , ], dim = secdDim), tr$toISO,
+                                    paste, sep = "."))
+        }
         zTr <- toolAggregate(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ],
-                             bilatMapping[is.element(bilatMapping$toISO,
-                                                     as.vector(outer(tr$toISO, getItems(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ], dim = secdDim), # nolint
-                                                                     paste, sep = "."))),
+                             bilatMapping[is.element(bilatMapping$toISO, isoTr),
                                           c("fromISO", "toISO")],
                              weight = NULL)
       }
@@ -308,9 +313,9 @@ bilatMapping <- data.frame(toISO = as.vector(outer(getItems(z, dim = secdDim), b
     mainDim <- 1.1
 
     for (a in tr) {
-      mTr <-   .histDim(m, tr = a, mainDim = mainDim, dims = dims)
+      mTr <- .histDim(m, tr = a, mainDim = mainDim, dims = dims)
       # fill data
-      if (overwrite == TRUE) {
+      if (overwrite) {
         # only overwrite the exact combinations for which weighting existed, rest remains zero
         addM <- setdiff(getItems(mTr, dim = 1), getItems(m, dim = 1))
         if (length(addM) > 0) {
@@ -323,18 +328,18 @@ bilatMapping <- data.frame(toISO = as.vector(outer(getItems(z, dim = secdDim), b
 
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
-        m[getItems(mTr, dim = 1), getYears(mTr), ][is.na(m[getItems(mTr, dim = 1), getYears(mTr), ])] <- mTr[is.na(m[getItems(mTr, dim = 1), getYears(mTr), ])] # nolint
+        toFill <- m[getItems(mTr, dim = 1), getYears(mTr), ]
+        m[is.na(toFill)] <- mTr[is.na(toFill)]
       }
-
     }
 
     # do second dimension
     mainDim <- 1.2
 
     for (a in tr2) {
-      mTr <-   .histDim(m, tr = a, mainDim = mainDim, dims = dims)
+      mTr <- .histDim(m, tr = a, mainDim = mainDim, dims = dims)
       # fill data
-      if (overwrite == TRUE) {
+      if (overwrite) {
         # only overwrite the exact combinations for which weighting existed, rest remains zero
         addM <- setdiff(getItems(mTr, dim = 1), getItems(m, dim = 1))
         if (length(addM) > 0) {
@@ -347,7 +352,8 @@ bilatMapping <- data.frame(toISO = as.vector(outer(getItems(z, dim = secdDim), b
 
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
-        m[getItems(mTr, dim = 1), getYears(mTr), ][is.na(m[getItems(mTr, dim = 1), getYears(mTr), ])] <- mTr[is.na(m[getItems(mTr, dim = 1), getYears(mTr), ])] # nolint
+        toFill <- m[getItems(mTr, dim = 1), getYears(mTr), ]
+        m[is.na(toFill)] <- mTr[is.na(toFill)]
       }
     }
 
