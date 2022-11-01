@@ -176,7 +176,6 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     tr2 <- .identifyTransitions(m, dim = 1.2)
     vcat(2, "The following transitions are found in the data for dim 1.2 \n", paste(tr2, collapse = ", \n"))
 
-
     # function to fill in a specific dimension
     .histDim <- function(z, tr, mainDim, dims, overwrite) {
 
@@ -187,22 +186,40 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
       # check if new regions of transition exists in m
       toISOmissing <- !all(is.element(tr$toISO, getItems(z, dim = mainDim)))
       if (toISOmissing) {
-        missingNew <- new.magpie(cells_and_regions =
-                                   as.vector(outer(tr$toISO[which(!is.element(tr$toISO, getItems(z, dim = mainDim)))],
-                                                   getItems(z, dim = secdDim), paste, sep = ".")),
+        if (mainDim == 1.1) {
+        missingISO <- as.vector(outer(tr$toISO[which(!is.element(tr$toISO, getItems(z, dim = mainDim)))],
+                                                   getItems(z, dim = secdDim), paste, sep = "."))
+        } else if (mainDim == 1.2) {
+             missingISO <- as.vector(outer(getItems(z, dim = secdDim),
+                                             tr$toISO[which(!is.element(tr$toISO, getItems(z, dim = mainDim)))],
+                                           paste, sep = "."))
+        }
+        missingNew <- new.magpie(cells_and_regions = missingISO,
                                  years = getItems(m, dim = 2),
                                  names = getItems(m, dim = 3),
                                  fill = 0)
         z <- mbind(z, missingNew)
 
-        vcat(1, "Data was newly created and given equal weighting for the following new countries in dim 1.1: ",
-             getItems(missingNew, dim = mainDim))
+        vcat(1, "New Country(ies) ", getItems(missingNew, dim = mainDim), " created and given 0 value and weighting")
       }
 
       # create transformation matrix
       # time span where the data need to be adjusted
       subTime <- getYears(z[, seq_len(which(getYears(z) == tr$fromY)), ])
       # disaggregation of countries
+  
+  
+     bilatMapping <- mapping # mapping needs to be made bilateral
+        if (mainDim == 1.1) {
+          toISO <- as.vector(outer(bilatMapping$toISO, getItems(z, dim = secdDim), paste, sep = "."))
+          fromISO <- as.vector(outer(bilatMapping$fromISO, getItems(z, dim = secdDim), paste, sep = "."))
+          bilatMapping <- data.frame(toISO, fromISO)
+        } else if (mainDim == 1.2) {
+          toISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$toISO, paste, sep = "."))
+          fromISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$fromISO, paste, sep = "."))
+          bilatMapping <- data.frame(toISO, fromISO)
+        }
+
 
       if (length(tr$fromISO) == 1) {
 
@@ -245,24 +262,13 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
             weight <- mbind(weight, addMiss)
           }
 
-          if (anyNA(weight)) {
-            weight[is.na(weight)] <- 0
-            vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
-          }
+        #set any other weight values to 0
+        weight[is.na(weight)] <- 0
+
         } else {
-          stop("additional_weight is not supported for bilateral data.")
+          stop("Additional_weight is not supported for bilateral data.")
         }
 
-        bilatMapping <- mapping # mapping needs to be made bilateral
-        if (mainDim == 1.1) {
-          toISO <- as.vector(outer(bilatMapping$toISO, getItems(z, dim = secdDim), paste, sep = "."))
-          fromISO <- as.vector(outer(bilatMapping$fromISO, getItems(z, dim = secdDim), paste, sep = "."))
-          bilatMapping <- data.frame(toISO, fromISO)
-        } else if (mainDim == 1.2) {
-          toISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$toISO, paste, sep = "."))
-          fromISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$fromISO, paste, sep = "."))
-          bilatMapping <- data.frame(toISO, fromISO)
-        }
         # subset mapping to specific transitions in the loop
 
         # countries in transition object
@@ -281,13 +287,13 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
             dimSums(weight2[i, , ], dim = c(1, 3), na.rm = TRUE)
         }
         weight2[is.na(weight2)] <- 0
-        weight2 <- weight2 / 1e10
+        weight2 <- weight2 / 1e6
 
         zTr <- toolAggregate(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ],
                              mappingTr,
                              from = "fromISO", to = "toISO",
                              dim = 1,
-                             weight = wTr + weight2, # add small weight to disaggregate properly
+                             weight = wTr + weight2 + 1e-12, # add small weight to disaggregate properly
                              wdim = 1)
 
         # aggregation of countries
@@ -325,10 +331,9 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
                                  fill = 0)
           m <- mbind(m, addMissM)
         }
-
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
-        m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(t[getItems(mTr, dim = 1), getYears(mTr), ]),
+        m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(m[getItems(mTr, dim = 1), getYears(mTr), ]),
                                                               mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
       }
     }
@@ -349,12 +354,20 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
                                  fill = 0)
           m <- mbind(m, addMissM)
         }
-
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
-        m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(t[getItems(mTr, dim = 1), getYears(mTr), ]),
+          addM <- setdiff(getItems(mTr, dim = 1), getItems(m, dim = 1))
+        if (length(addM) > 0) {
+          addMissM <- new.magpie(cells_and_regions = addM,
+                                 years = getItems(m, dim = 2),
+                                 names = getItems(m, dim = 3),
+                                 fill = NA)
+          m <- mbind(m, addMissM)
+        }
+           m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(m[getItems(mTr, dim = 1), getYears(mTr), ]),
                                                                      mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
-
+         if (length(addM) > 0) {
+          m[is.na(m)] <- 0 }
       }
     }
 

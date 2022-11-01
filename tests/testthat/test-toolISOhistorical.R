@@ -60,21 +60,37 @@ test_that("Given mapping data is properly translated", {
 test_that("Bilateral data is properly translated", {
   localConfig(.verbose = FALSE)
   newcountriesA <- as.vector(outer(c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",
-                    "LVA", "LTU", "MDA", "RUS", "TJK", "TKM", "UKR", "UZB"), "USA", paste, sep = "."))
+                    "LVA", "LTU", "MDA", "TJK", "TKM", "UKR", "UZB"), "USA", paste, sep = "."))
+  missing <- "RUS.USA"
   a <- new.magpie(c("SUN.USA", newcountriesA), 1991:1993)
   a["SUN.USA", 1991, ] <- 240
-  a[-1, 1992:1993, ] <- rep(1:15, 2)
+  a[-1, 1992:1993, ] <- 1
   a <- toolISOhistorical(a, overwrite = TRUE)
-  expect_equal(as.vector(a[, 1991, ]), 2 * (1:15))
-  expect_identical(magclass::getItems(a, dim = 1), newcountriesA)
+  expect_equal(as.vector(a[, 1991, ]), c(rep(240 / 14, 14), 0))
+  expect_identical(magclass::getItems(a, dim = 1), c(newcountriesA, missing))
 
-  # when disagg in 2nd dim
-newcountriesB <- as.vector(outer("USA", c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",
-                    "LVA", "LTU", "MDA", "RUS", "TJK", "TKM", "UKR", "UZB"), paste, sep = "."))
-  b <- new.magpie(c("USA.SUN", newcountriesB), 1991:1993)
+  # when disagg in 2nd dim, and with all countries missing
+  b <- new.magpie("USA.SUN", 1991:1993)
   b["USA.SUN", 1991, ] <- 240
-  b[-1, 1992:1993, ] <- rep(1:15, 2)
-  b <- toolISOhistorical(b, overwrite = TRUE)
-  expect_equal(as.vector(b[, 1991, ]), 2 * (1:15))
-  expect_identical(magclass::getItems(b, dim = 1), newcountriesB)
+  for (ov in c(TRUE, FALSE)){
+  b1 <- toolISOhistorical(b, overwrite = ov)
+  expect_equal(as.vector(b1[, 1991, ]), rep(240 / 15, 15))
+  }
+  # when additional weighting is given
+  expect_error(o <- toolISOhistorical(b, additional_weight = "2"),
+               "Additional_weight is not supported for bilateral data.")
+
+  # when aggregating
+  mapping <- data.frame(fromISO = c("A1", "A2"),
+                  toISO = c("A", "A"),
+                  lastYear = c("y0010", "y0010"),
+                  stringsAsFactors = FALSE)
+
+  d <- new.magpie(c("A1.Z", "A2.Z", "A.Z"), 9:11,)
+  d[c("A1.Z", "A2.Z"), c("y0009", "y0010") , ] <- 5
+  d <- toolISOhistorical(d, mapping = mapping, overwrite = FALSE)
+  expect_equal(as.vector(d[,c("y0009", "y0010"), ]), rep(10, 2))
+
+
+
 })
