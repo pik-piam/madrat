@@ -200,7 +200,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
           vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
           with_tempdir({
             file.copy(cacheFiles, ".")
-            otherFiles <- c("config.rds", "diagnostics.log", "diagnostics_full.log")
+            otherFiles <- c("config.rds", "diagnostics.log")
             file.copy(file.path(outputfolder, otherFiles), ".")
 
             requiredPackages <- attr(cfg$functionName, "package")

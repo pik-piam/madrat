@@ -103,9 +103,7 @@ use compression. TRUE corresponds to gzip compression, and character strings "gz
 all algorithms supported by \code{\link[digest]{digest}} can be used.}
 
 \item{diagnostics}{Either FALSE (default) to avoid the creation of additional
-log files or a file name for additional diagnostics information (without file ending).
-2 log files are written if a file name is provided (a compact version with the most
-relevant information and a full version with all available details).}
+log files or a file name for additional diagnostics information (without file ending).}
 
 \item{debug}{Boolean which activates a debug mode. In debug mode all calculations will
 be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.

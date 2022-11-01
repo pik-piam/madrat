@@ -117,13 +117,13 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
     }
   }
   if (verbose) {
-    vcat(1, "Replaced missing values with regional average for: ", paste(replace, collapse = ", "))
+    message("Replaced missing values with regional average for: ", paste(replace, collapse = ", "))
   }
   if (length(aboveThreshold$warning) > 0) {
     warning("More than ", 100 * warningThreshold, "% missing values for: ",
             paste(names(aboveThreshold$warning), collapse = ", "))
   } else if (length(aboveThreshold$note) > 0) {
-    vcat(1, "More than ", 100 * noteThreshold, "% missing values for: ",
+    message("More than ", 100 * noteThreshold, "% missing values for: ",
          paste(names(aboveThreshold$note), collapse = ", "))
   }
 

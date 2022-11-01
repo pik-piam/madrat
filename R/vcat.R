@@ -32,16 +32,33 @@
 #' vcat(2, "Hello world!")
 #' }
 #' @importFrom utils capture.output
-vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
-                 show_prefix = TRUE, logOnly = FALSE) { # nolint
-  # deparse lists to character to prevent `(type 'list') cannot be handled by 'cat'`
-  messages <- lapply(list(...), function(x) if (is.list(x)) deparse(x) else x)
-  messages <- as.character(messages)
+
+vcat <- function(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE, logOnly = FALSE) { # nolint
+
+  # add check functions to detect whether warnings/messages should be suppressed
+  .warningsSuppressed <- function() {
+    supressed <- (length(capture.output(warning(NULL, immediate. = TRUE), type = "message")) == 0)
+    return(supressed)
+  }
+  .messagesSuppressed <- function() {
+    supressed <- (length(capture.output(message(NULL), type = "message")) == 0)
+    return(supressed)
+  }
+
+  .suppressed <- function(verbosity) {
+    if (verbosity == 0) return(.warningsSuppressed())
+    if (verbosity > 0) return(.messagesSuppressed())
+    return(FALSE)
+  }
 
   # make sure that vcat is not run from within another vcat
   if (isWrapperActive("vcat")) return()
   setWrapperActive("vcat")
   setWrapperInactive("wrapperChecks")
+
+  # deparse lists to character to prevent `(type 'list') cannot be handled by 'cat'`
+  messages <- lapply(list(...), function(x) if (is.list(x)) deparse(x) else x)
+  messages <- as.character(messages)
 
   if (!is.null(level)) {
     if (level == 0) {
@@ -57,16 +74,11 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
   writelog <- is.character(d)
   if (writelog) {
     logfile <- paste0(getConfig("outputfolder"), "/", d, ".log")
-    fulllogfile <- paste0(getConfig("outputfolder"), "/", d, "_full.log")
   }
   prefix <- c("", "ERROR: ", "WARNING: ", "NOTE: ", "MINOR NOTE: ")[min(verbosity, 2) + 3]
   if (prefix == "" || !show_prefix) prefix <- NULL
-  if (writelog && dir.exists(dirname(fulllogfile))) {
-    base::cat(c(prefix, messages), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
-              file = fulllogfile, append = TRUE)
-  }
   if (getConfig("verbosity") >= verbosity) {
-    if (writelog && dir.exists(dirname(logfile))) {
+    if (writelog && dir.exists(dirname(logfile)) && !.suppressed(verbosity)) {
       base::cat(c(prefix, messages), fill = fill, sep = "", labels = getOption("gdt_nestinglevel"),
                 file = logfile, append = TRUE)
     }
@@ -82,9 +94,12 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
       if (!logOnly) {
         base::warning(..., call. = FALSE)
       }
-      base::message(paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
-                                                   labels = getOption("gdt_nestinglevel"))), collapse = "\n"))
-      options(madratWarningsCounter = getOption("madratWarningsCounter", 0) + 1) # nolint
+      if (!.warningsSuppressed() || logOnly) {
+        preppedMessage <- paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
+                                                         labels = getOption("gdt_nestinglevel"))), collapse = "\n")
+        base::message(preppedMessage)
+        options(madratWarningsCounter = getOption("madratWarningsCounter", 0) + 1) # nolint
+      }
     } else {
       base::message(paste(capture.output(base::cat(c(prefix, messages), fill = fill, sep = "",
                                                    labels = getOption("gdt_nestinglevel"))), collapse = "\n"))
@@ -95,8 +110,3 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE,
     options(gdt_nestinglevel = paste0("~", getOption("gdt_nestinglevel"))) # nolint
   }
 }
-
-# redirect standard messaging functions to vcat
-cat     <- function(...) vcat(1, ...)
-warning <- function(...) vcat(0, ...)
-stop    <- function(...) vcat(-1, ...)
