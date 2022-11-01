@@ -56,3 +56,25 @@ test_that("Given mapping data is properly translated", {
                                           year = c("y9", "y10", "y11", "y12", "y13"), data = NULL)))
   expect_identical(o, ref3)
 })
+
+test_that("Bilateral data is properly translated", {
+  localConfig(.verbose = FALSE)
+  newcountriesA <- as.vector(outer(c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",
+                    "LVA", "LTU", "MDA", "RUS", "TJK", "TKM", "UKR", "UZB"), "USA", paste, sep = "."))
+  a <- new.magpie(c("SUN.USA", newcountriesA), 1991:1993)
+  a["SUN.USA", 1991, ] <- 240
+  a[-1, 1992:1993, ] <- rep(1:15, 2)
+  a <- toolISOhistorical(a, overwrite = TRUE)
+  expect_equal(as.vector(a[, 1991, ]), 2 * (1:15))
+  expect_identical(magclass::getItems(a, dim = 1), newcountriesA)
+
+  # when disagg in 2nd dim
+newcountriesB <- as.vector(outer("USA", c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",
+                    "LVA", "LTU", "MDA", "RUS", "TJK", "TKM", "UKR", "UZB"), paste, sep = "."))
+  b <- new.magpie(c("USA.SUN", newcountriesB), 1991:1993)
+  b["USA.SUN", 1991, ] <- 240
+  b[-1, 1992:1993, ] <- rep(1:15, 2)
+  b <- toolISOhistorical(b, overwrite = TRUE)
+  expect_equal(as.vector(b[, 1991, ]), 2 * (1:15))
+  expect_identical(magclass::getItems(b, dim = 1), newcountriesB)
+})

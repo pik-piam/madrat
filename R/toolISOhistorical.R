@@ -220,8 +220,8 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
               addR <- as.vector(outer(addR, getItems(weight, dim = mainDim), paste, sep = "."))
             }
           }
-          # sometimes individual bilateral combination may be missing, leading to weights that don't sum to 1
-          # these countries are added below igf missing, and given weight 0
+          # sometimes individual bilateral combination may be missing, leading to incomplete weights
+          # these countries are added below if missing, and given weight 0
           if (mainDim == 1.1) {
             addInd <- setdiff(as.vector(outer(
               tr$toISO,
@@ -247,7 +247,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
 
           if (anyNA(weight)) {
             weight[is.na(weight)] <- 0
-            vcat(0, "Weight 1 in toolISOhistorical contained NAs. Set NAs to 0!")
+            vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
           }
         } else {
           stop("additional_weight is not supported for bilateral data.")
@@ -287,7 +287,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
                              mappingTr,
                              from = "fromISO", to = "toISO",
                              dim = 1,
-                             weight = wTr + weight2, # nolint #add small weight to disaggregate properly
+                             weight = wTr + weight2, # add small weight to disaggregate properly
                              wdim = 1)
 
         # aggregation of countries
@@ -328,8 +328,8 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
 
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
-        toFill <- m[getItems(mTr, dim = 1), getYears(mTr), ]
-        m[is.na(toFill)] <- mTr[is.na(toFill)]
+        m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(t[getItems(mTr, dim = 1), getYears(mTr), ]),
+                                                              mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
       }
     }
 
@@ -352,8 +352,9 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
 
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
-        toFill <- m[getItems(mTr, dim = 1), getYears(mTr), ]
-        m[is.na(toFill)] <- mTr[is.na(toFill)]
+        m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(t[getItems(mTr, dim = 1), getYears(mTr), ]),
+                                                                     mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
+
       }
     }
 
