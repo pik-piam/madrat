@@ -45,7 +45,7 @@ test_that("set extramapping via setConfig and add it's hash to filename", {
 })
 
 test_that("set extramapping via retrieveData and add it's hash and the hash of the full function to filename", {
-  fullTESTY <- function(dummy=FALSE) {
+  fullTESTY <- function(dummy = FALSE) {
     # this function has a dummy parameter to yield a hash that will also be added to the name of the tgz file
     return()
   }
@@ -109,7 +109,7 @@ test_that("strict mode works", {
     calcOutput("WarningTest", aggregate = FALSE)
   }
   calcWarningTest <- function() {
-    vcat(0, "This is a warning!")
+    warning("This is a warning!")
     return(list(x = as.magpie(1), unit = "1", description = "dummy", isocountries = FALSE))
   }
   globalassign("fullWARNTEST", "calcWarningTest")

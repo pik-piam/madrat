@@ -55,7 +55,7 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
     x <- x[setdiff(getItems(x, dim = 1.1), additionalCountries), , ]
     # warn only for countries which were not explicitly mentioned in argument "remove"
     countries2warn <- setdiff(additionalCountries, no_remove_warning)
-    if (length(countries2warn) > 0) vcat(0, "Data for following unknown country codes removed: ",
+    if (length(countries2warn) > 0) warning("Data for following unknown country codes removed: ",
       paste(countries2warn, collapse = ", "))
   }
 
@@ -71,7 +71,7 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
     if (!all(names(map) %in% missingCountries)) {
       if (overwrite) {
         tmp <- map[!(names(map) %in% missingCountries)]
-        vcat(1, "Existing data overwritten with data from another country (",
+        message("Existing data overwritten with data from another country (",
           paste(tmp, names(tmp), sep = " -> ", collapse = " | "), ").")
       } else {
         map <- map[(names(map) %in% missingCountries)]

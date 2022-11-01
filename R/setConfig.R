@@ -58,8 +58,6 @@
 #' all algorithms supported by \code{\link[digest]{digest}} can be used.
 #' @param diagnostics Either FALSE (default) to avoid the creation of additional
 #' log files or a file name for additional diagnostics information (without file ending).
-#' 2 log files are written if a file name is provided (a compact version with the most
-#' relevant information and a full version with all available details).
 #' @param debug Boolean which activates a debug mode. In debug mode all calculations will
 #' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
 #' This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
@@ -197,7 +195,7 @@ setConfig <- function(regionmapping = NULL, # nolint
     options(madrat_cfg = cfg) # nolint
   }
 
-  if (!is.null(info) & .verbose) {
+  if (!is.null(info) && .verbose) {
     for (i in info) vcat(-2, i)
   }
 }
