@@ -175,16 +175,13 @@ The same procedure works also for all other functions such as `downloadXYZ`, `re
 
 Since version 1.00 madrat allows to link packages to it and make use of its functionality. For linking madrat (in version >= 2.5.1) has to be added as a package dependency.
 
-```{r, eval = FALSE}
+```
 Depends: madrat(>= 2.5.1)
 ```
 
 In addition the following lines of code should be added as `madrat.R` to the R folder of the package.
 
 ```{r, eval = FALSE}
-### madrat.R
-#' @importFrom madrat vcat
-
 .onAttach <- function(libname, pkgname) {
   madrat::madratAttach(pkgname)
 }
@@ -192,12 +189,6 @@ In addition the following lines of code should be added as `madrat.R` to the R f
 .onDetach <- function(libpath) {
   madrat::madratDetach(libpath)
 }
-
-# redirect standard messaging functions to vcat
-cat     <- function(...) vcat(1, ...)
-message <- function(...) vcat(1, ...)
-warning <- function(...) vcat(0, ...)
-stop    <- function(...) vcat(-1, ...)
 ```
 
 The `.onAttach` statement makes sure that the package is linked to madrat as soon as it is loaded. The replacements of `cat`, `message`, `warning` and `stop`are required to make use of the specific notification system in madrat, which makes for instance sure that all notes, warnings and error messages will show up in the written log files.

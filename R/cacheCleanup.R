@@ -31,7 +31,7 @@ cacheCleanup <- function(daysThreshold, path = getConfig("cachefolder", verbose 
   }
   local_dir(path)
 
-  cat("Loading file timestamps...")
+  message("Loading file timestamps...")
   filesAccessTimes <- file.info(list.files())
   dateThreshold <- Sys.time() - daysThreshold * 24 * 60 * 60
   oldFiles <- filesAccessTimes[filesAccessTimes[[timeType]] < dateThreshold, ]
