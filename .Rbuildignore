@@ -14,3 +14,4 @@ cran-comments.md
 ^vignettes/.lintr$
 ^.vscode$
 ^.idea$
+^Makefile$
