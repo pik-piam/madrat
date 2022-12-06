@@ -1,12 +1,12 @@
 #' Tool: ManualDownload
 #'
-#' Support tool for the creation of download functions in cases in which an fully automatized data download is not
+#' Support tool for the creation of download functions in cases where a fully automated data download is not
 #' an option (e.g. due to a missing API). The function can be used to print a step-by-step guide for the user
 #' how to manually retrieve the data and then asks for a (local) path where the data can be copied from.
 #'
 #' @param instructions Download instructions in form of a character vector describing how to manually
 #' retrieve the data.
-#' @param request prompt which should show up after the instructions to ask for the local download location
+#' @param request A prompt which should show up after the instructions to ask for the local download location.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{downloadSource}}
 #' @examples
@@ -29,5 +29,5 @@ toolManualDownload <- function(instructions, request = "Enter the path to the do
   filePath <- .getLine()
   if (!file.exists(filePath)) stop("Data could not be found!")
   file.copy(filePath, ".")
-  message("Data has been succesfully copied. You can now delete the downloaded data.")
+  message("Data has been succesfully copied. You can now delete ", normalizePath(filePath))
 }
