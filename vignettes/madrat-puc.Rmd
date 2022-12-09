@@ -1,6 +1,6 @@
 ---
 title: "Portable unagreggated collections (PUCs) in MADRaT"
-author: "Jan Philipp Dietrich"
+author: "Jan Philipp Dietrich, Lavinia Baumstark"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >

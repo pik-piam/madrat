@@ -13,10 +13,10 @@ toolManualDownload(
 \item{instructions}{Download instructions in form of a character vector describing how to manually
 retrieve the data.}
 
-\item{request}{prompt which should show up after the instructions to ask for the local download location}
+\item{request}{A prompt which should show up after the instructions to ask for the local download location.}
 }
 \description{
-Support tool for the creation of download functions in cases in which an fully automatized data download is not
+Support tool for the creation of download functions in cases where a fully automated data download is not
 an option (e.g. due to a missing API). The function can be used to print a step-by-step guide for the user
 how to manually retrieve the data and then asks for a (local) path where the data can be copied from.
 }

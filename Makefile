@@ -1,9 +1,15 @@
 .PHONY: help build check test lint format
 .DEFAULT_GOAL = help
 
+# extracts the help text and formats it nicely
+HELP_PARSING = 'm <- readLines("Makefile");\
+				m <- grep("\#\#", m, value=TRUE);\
+				command <- sub("^([^ ]*) *\#\#(.*)", "\\1", m);\
+				help <- sub("^([^ ]*) *\#\#(.*)", "\\2", m);\
+				cat(sprintf("%-8s%s", command, help), sep="\n")'
+
 help:           ## Show this help.
-	@sed -e '/##/ !d' -e '/sed/ d' -e 's/^\([^ ]*\) *##\(.*\)/\1^\2/' \
-		$(MAKEFILE_LIST) | column -ts '^'
+	@Rscript -e $(HELP_PARSING)
 
 build:          ## Build the package using lucode2::buildLibrary()
 	Rscript -e 'lucode2::buildLibrary()'
