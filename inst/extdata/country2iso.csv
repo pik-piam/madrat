@@ -43,6 +43,7 @@ AT;AUT
 athiopien;ETH
 Äthiopien;ETH
 AU;AUS
+AUSTRALI;AUS
 Australia;AUS
 Australien;AUS
 Austria;AUT
@@ -89,6 +90,7 @@ Bosnia and Herzegovina;BIH
 Bosnia Herzg;BIH
 Bosnia_and_Herzegovina;BIH
 Bosnia-Herzegovina;BIH
+BOSNIAHERZ;BIH
 Bosnien und Herzegowina;BIH
 Botsuana;BWA
 Botswana;BWA
@@ -167,6 +169,7 @@ Congo DR;COD
 Congo Rep;COG
 Congo_Brazzaville;COG
 Congo, the Democratic Republic of the;COD
+CONGOREP;COD
 Cook Is;COK
 Cook Islands;COK
 Cook_Islands;COK
@@ -179,6 +182,7 @@ Côte d'Ivoire;CIV
 côte d‘ivoire;CIV
 Cote d’Ivoire;CIV
 Cote dIvoire;CIV
+COTEIVOIRE;CIV
 CR;CRI
 Croatia;HRV
 CU;CUB
@@ -224,6 +228,7 @@ Dominican Rep;DOM
 Dominican Rep.;DOM
 Dominican Republic;DOM
 Dominican_Republic;DOM
+DOMINICANR;DOM
 Dominika,Rep,;DOM
 DZ;DZA
 east & west pakistan;XXX
@@ -237,7 +242,9 @@ Egypt (Arab Republic);EGY
 EH;ESH
 El Salvador;SLV
 El_Salvador;SLV
+ELSALVADOR;SLV
 Eq Guinea;GNQ
+EQGUINEA;GNQ
 Equatorial Guinea;GNQ
 Equatorial_Guinea;GNQ
 ER;ERI
@@ -293,9 +300,9 @@ french west africa;XXX
 French_Guiana;GUF
 French_Polynesia;PYF
 French_Southern_and_Antarctica_Lands;ATF
+FSUND;SUN
 FYR Macedonia;MKD
 FYR of Macedonia;MKD
-Macedonia (FYROM);MKD
 FYROM;MKD
 GA;GAB
 Gabon;GAB
@@ -353,10 +360,11 @@ Honduras;HND
 Hong Kong;HKG
 Hong Kong (China);HKG
 Hong Kong SAR;HKG
-hong kong special adminstrative region of china;HKG
 Hong Kong Special Administrative Region of China;HKG
+hong kong special adminstrative region of china;HKG
 Hong Kong, China;HKG
 Hong-Kong;HKG
+HONGKONG;HKG
 HR;HRV
 HT;HTI
 HU;HUN
@@ -440,6 +448,7 @@ Korea, Demokratische Volksrepublik;PRK
 Korea, Republic of;KOR
 korea, republik;KOR
 Korea, south;KOR
+KOREADPR;PRK
 Kosovo;KOS
 KP;PRK
 KR;KOR
@@ -484,15 +493,17 @@ LR;LBR
 LS;LSO
 LT;LTU
 LU;LUX
+LUXEMBOU;LUX
 Luxembourg;LUX
 LV;LVA
 LY;LBY
 MA;MAR
 Macao;MAC
+Macao Special Administrative Region of China;MAC
 Macau;MAC
 macau special adminstrative region of china;MAC
-Macao Special Administrative Region of China;MAC
 Macedonia;MKD
+Macedonia (FYROM);MKD
 Macedonia, the former Yugoslav Republic of;MKD
 Madagascar;MDG
 Madagaskar;MDG
@@ -565,6 +576,7 @@ netherland antilles;XAN
 netherland antilles and aruba;ANT
 Netherlands;NLD
 Netherlands Antilles;ANT
+NETHLAND;NLD
 Neukaledonien;NCL
 NeuSeeland;NZL
 New Caledon;NCL
@@ -590,6 +602,7 @@ North Macedonia;MKD
 North_Korea;PRK
 Northern Mariana Islands;MNP
 Northern_Mariana_Islands;MNP
+NORTHMACED;MKD
 Norway;NOR
 Norwegen;NOR
 NP;NPL
@@ -608,6 +621,9 @@ Other Africa;IAF
 Other Asia;IAS
 Other Non-OECD Americas;ILA
 Other non-OECD Asia;IAS
+OTHERAFRIC;IAF
+OTHERASIA;IAS
+OTHERLATIN;ILA
 Others Africa;XOA
 Others East Asia;XEA
 Others Latin America and the Caribbean;XAC
@@ -635,6 +651,7 @@ Peru;PER
 PF;PYF
 PG;PNG
 PH;PHL
+PHILIPPINE;PHL
 philippinen;PHL
 Philippines;PHL
 Pitcairn;PCN
@@ -692,8 +709,8 @@ rwanda-urundi;XXX
 ryukyu islands;XXX
 SA;SAU
 sabah;XXX
-Saint Barthélemy;BLM
 Saint Barthelemy;BLM
+Saint Barthélemy;BLM
 saint helena;SHN
 Saint Helena, Ascension and Tristan da Cunha;SHN
 Saint Kitts and Nevis;KNA
@@ -717,6 +734,7 @@ sarawak;XXX
 Saudi Arabia;SAU
 Saudi_Arabia;SAU
 saudi-arabien;SAU
+SAUDIARABI;SAU
 SB;SLB
 SC;SYC
 Schweden;SWE
@@ -761,13 +779,16 @@ South Sudan;SSD
 South_Africa;ZAF
 South_Georgia_and_the_South_Sandwich_Islands;SGS
 South_Korea;KOR
+SOUTHAFRIC;ZAF
 Spain;ESP
 Spanien;ESP
 SR;SUR
 Sri Lanka;LKA
 Sri_Lanka;LKA
 Sri-lanka;LKA
+SRILANKA;LKA
 SS;SSD
+SSUDAN;SSD
 ST;STP
 St Barth;BLM
 St Kitts Nevis;KNA
@@ -794,6 +815,7 @@ Svalbard and Jan Mayen Islands;SJM
 Swasiland;SWZ
 Swaziland;SWZ
 Sweden;SWE
+SWITLAND;CHE
 Switzerland;CHE
 SX;SXM
 SY;SYR
@@ -804,6 +826,7 @@ Syrian Arab Republic;SYR
 syrien, arabische republik;SYR
 SZ;SWZ
 Tadschikistan;TJK
+TAIPEI;TWN
 Taiwan;TWN
 Taiwan  China;TWN
 Taiwan (China);TWN
@@ -837,6 +860,7 @@ Togo;TGO
 Tokelau;TKL
 Tonga;TON
 TR;TUR
+TRINIDAD;TTO
 Trinidad & Tobago;TTO
 Trinidad and Tobago;TTO
 Trinidad Tobago;TTO
@@ -851,6 +875,7 @@ Tunisia;TUN
 turkei;TUR
 Türkei;TUR
 Turkey;TUR
+TURKMENIST;TKM
 Turkmenistan;TKM
 Turks and Caicos Islands;TCA
 Turks Caicos;TCA
@@ -859,6 +884,7 @@ TV;TUV
 TW;TWN
 TZ;TZA
 UA;UKR
+UAE;ARE
 UG;UGA
 Uganda;UGA
 UK;GBR
@@ -930,6 +956,7 @@ WS;WSM
 YE;YEM
 Yemen;YEM
 YT;MYT
+YUGOND;YUG
 Yugoslav SFR;YUG
 Yugoslavia;YUG
 yugoslavia (former socialist federal republic);YUG
