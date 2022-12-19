@@ -11,6 +11,7 @@
 #' @param functionName [character(1)] The name of the function from which you want to compare outputs. Must be a madrat
 #' function whose name starts with read, correct, convert, or calc.
 #' @param subtypes [character(n)] The subtypes you want to check. For calc functions this must be NULL.
+#' @param overwriteOld If TRUE: overwrite a "*-old-*.rds" previously created with compareMadratOutputs.
 #' @return Invisibly the result of `waldo::compare` or `all.equal` if a comparison was made, otherwise a named list of
 #' the outputs for each subtype.
 #'
@@ -28,16 +29,25 @@
 #' @author Pascal Führlich
 #'
 #' @importFrom digest digest
+#' @importFrom magclass where
 #' @importFrom utils askYesNo
 #' @export
-compareMadratOutputs <- function(package, functionName, subtypes) {
-  functionHash <- digest(eval(str2expression(paste0(package, ":::", functionName))), "xxhash32")
+compareMadratOutputs <- function(package, functionName, subtypes, overwriteOld = FALSE) {
   oldRds <- Sys.glob(paste0(functionName, "-old-*.rds"))
   stopifnot(length(oldRds) %in% 0:1)
-  if (length(oldRds) == 0 && !askYesNo(paste0("Are you using the original, unchanged ", functionName, " right now?"))) {
-    stop("You need to run compareMadratOutputs with the original, unchanged ", functionName,
-         " first, so you can compare the output of your changed version with the original output.")
+
+  if (overwriteOld) {
+    unlink(oldRds)
+    oldRds <- character(0)
+  } else {
+    question <- paste0("Are you using the original, unchanged ", functionName, " right now?")
+    if ((length(oldRds) == 0 && !askYesNo(question))) {
+      stop("You need to run compareMadratOutputs with the original, unchanged ", functionName,
+           " first, so you can compare the output of your changed version with the original output.")
+    }
   }
+
+  functionHash <- digest(eval(str2expression(paste0(package, ":::", functionName))), "xxhash32")
   if (length(oldRds) == 1 && sub(paste0("^", functionName, "-old-(.+)[.]rds$"), "\\1", oldRds) == functionHash) {
     stop("Your are using the same version of ", functionName, " that ", oldRds, " was created with. ",
          "Please apply your changes, re-install ", package, " with your changes, and restart the R session.")
@@ -72,7 +82,10 @@ compareMadratOutputs <- function(package, functionName, subtypes) {
     } else {
       saveRDS(output, paste0(functionName, "-new.rds"))
       message("Saved '", functionName, "-new.rds'. Found some differences:")
-      comparison <- all.equal(oldOutput, output)
+      comparison <- lapply(seq_along(output), function(i) {
+        return(where(oldOutput[[1]] != output[[1]])[["true"]][-1])
+      })
+      names(comparison) <- subtypes
       print(comparison)
       return(invisible(comparison))
     }

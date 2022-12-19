@@ -87,13 +87,14 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
       unlink(typesubtype, recursive = TRUE)
     } else {
       stop('Source folder for source "', typesubtype, '" does already exist. Delete that folder or ',
-           "call downloadSource(..., overwrite = TRUE) if you want to re-download.")
+           "call downloadSource(..., overwrite = TRUE) if you want to re-download.",
+           if (is.null(subtype)) " Note: subtype is NULL, is that intended?")
     }
   } else if (dir.exists(downloadInProgressDirectory)) { # the download is already running in another R session
     for (i in seq_len(numberOfTries - 1)) { # -1 because one try was already done before
       argsString <- paste(list(list(type = type, subtype = subtype))) # use paste + list for nicer string output
       argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
-      vcat(1, "downloadSource(", argsString, ") is already in progress, waiting 30 seconds...")
+      cat("downloadSource(", argsString, ") is already in progress, waiting 30 seconds...")
       Sys.sleep(30)
       if (dir.exists(typesubtype)) {
         # the parallel running download finished, nothing to do here
