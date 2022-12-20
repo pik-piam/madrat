@@ -1,6 +1,6 @@
 test_that("downloadSource uses temporary downloadInProgress directory", {
   mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
-  localConfig(mainfolder = mainfolder, globalenv = TRUE)
+  localConfig(mainfolder = mainfolder)
 
   downloadTest <- function() {
     expect_false(dir.exists(file.path(mainfolder, "sources", "Test")))

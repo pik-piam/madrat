@@ -7,7 +7,7 @@ test_that("fingerprinting works as expected", {
     return(paste0(this, is, a, test))
   }
   globalassign("toolTest")
-  expect_equivalent(madrat:::fingerprint("toolTest", packages = "madrat", globalenv = TRUE), "8b3413cc")
+  expect_equivalent(madrat:::fingerprint("toolTest", packages = "madrat"), "8b3413cc")
   emptyfolder <- paste0(withr::local_tempdir(), "/empty")
   dir.create(emptyfolder, recursive = TRUE, showWarnings = FALSE)
   expect_equal(unname(madrat:::fingerprintFiles(emptyfolder)), "bc4159c0")
@@ -15,7 +15,7 @@ test_that("fingerprinting works as expected", {
 })
 
 test_that("fingerprintFiles works as expected", {
-  localConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1)
+  localConfig(verbosity = 1, .verbose = FALSE)
   withr::local_dir(withr::local_tempdir())
   writeLines("this is a test", "test.txt", sep = "")
   fp <- madrat:::fingerprintFiles("test.txt")
@@ -23,7 +23,7 @@ test_that("fingerprintFiles works as expected", {
 })
 
 test_that("fingerprinting works for edge cases", {
-  localConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1)
+  localConfig(verbosity = 1, .verbose = FALSE)
   withr::local_dir(withr::local_tempdir())
   writeLines("this is a test", "map.csv", sep = "")
   readFingerprintTest <- function() {
@@ -38,8 +38,6 @@ test_that("fingerprinting works for edge cases", {
   expect_null(madrat:::fingerprintCall("blub"))
 })
 
-rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
-
 test_that("empty hash cache file is handled properly", {
   localTempdir <- withr::local_tempdir()
   dir.create(file.path(localTempdir, "something"))
@@ -51,7 +49,7 @@ test_that("empty hash cache file is handled properly", {
 })
 
 test_that("fingerprinting works with control flags", {
-  localConfig(globalenv = TRUE, .verbose = FALSE, verbosity = 1)
+  localConfig(verbosity = 1, .verbose = FALSE)
   readData <- function() {
     return(1)
   }
@@ -118,5 +116,3 @@ test_that("fingerprinting works with control flags", {
   expect_identical(madrat:::fingerprint("calcExample3", details = TRUE, packages = "madrat"), fp3Expected)
   expect_identical(madrat:::fingerprint("calcExample4", details = TRUE, packages = "madrat"), fp4Expected)
 })
-
-rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

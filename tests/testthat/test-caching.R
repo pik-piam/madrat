@@ -1,7 +1,7 @@
 test_that("Caching works", {
   calcCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  localConfig(globalenv = TRUE, ignorecache = FALSE, .verbose = FALSE)
+  localConfig(ignorecache = FALSE, .verbose = FALSE)
   expect_null(madrat:::cacheGet("calc", "CacheExample"))
   expect_message(calcOutput("CacheExample", aggregate = FALSE), "writing cache")
   expect_identical(madrat:::cacheGet("calc", "CacheExample")$x, as.magpie(1))
@@ -50,9 +50,10 @@ test_that("Argument hashing works", {
 })
 
 test_that("Cache naming and identification works correctly", {
-  localConfig(globalenv = TRUE, forcecache = FALSE, .verbose = FALSE)
-  downloadCacheExample <- function() return(list(url = 1, author = 1, title = 1, license = 1,
-                                                 description = 1, unit = 1))
+  localConfig(forcecache = FALSE, .verbose = FALSE)
+  downloadCacheExample <- function() {
+    return(list(url = 1, author = 1, title = 1, license = 1, description = 1, unit = 1))
+  }
   readCacheExample <- function() return(as.magpie(1))
   correctCacheExample <- function(x, subtype = "blub") {
     if (subtype == "blub") return(as.magpie(1))

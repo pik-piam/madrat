@@ -8,8 +8,8 @@ nce <- function(x) {
 }
 
 test_that("readSource detects common problems", {
-  localConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE)
-  readNoDownload <- function() {} # nolint
+  localConfig(verbosity = 2, .verbose = FALSE)
+  readNoDownload <- function() NULL
   globalassign("readNoDownload")
   expect_error(readSource("NoDownload"), "no download script")
 
@@ -71,7 +71,7 @@ test_that("default readSource example works", {
 test_that("downloadSource works", {
   skip_on_cran()
   skip_if_offline("zenodo.org")
-  localConfig(globalenv = TRUE, verbosity = 2, .verbose = FALSE)
+  localConfig(verbosity = 2, .verbose = FALSE)
   expect_error(downloadSource("Tau", "paper"),
                paste('Source folder for source "Tau/paper" does already exist. Delete that folder or call',
                      "downloadSource(..., overwrite = TRUE) if you want to re-download."), fixed = TRUE)
@@ -86,7 +86,7 @@ test_that("downloadSource works", {
 })
 
 test_that("forcecache works for readSource", {
-  localConfig(mainfolder = withr::local_tempdir(), globalenv = TRUE)
+  localConfig(mainfolder = withr::local_tempdir())
   readTest2 <- function() new.magpie()
   globalassign("readTest2")
   expect_error(readSource("Test2"),
@@ -108,14 +108,10 @@ test_that("forcecache works for readSource", {
 test_that("read functions can return non-magpie objects", {
   testReadSource <- function(readThis, correctThis = function(x) x, convertThis = function(x) x, convert = TRUE) {
     downloadThis <- function() list(url = "", author = "", title = "", license = "", description = "", unit = "")
-    setConfig(globalenv = TRUE, .local = TRUE)
+    localConfig(globalenv = TRUE)
     stopifnot(!"This" %in% getCalculations(c("download", "read", "correct", "convert"))$type)
-    withr::defer({
-      rm("downloadThis", "readThis", "correctThis", "convertThis", envir = .GlobalEnv)
-    })
     globalassign("downloadThis", "readThis", "correctThis", "convertThis")
-    result <- readSource("This", convert = convert)
-    return(result)
+    return(readSource("This", convert = convert))
   }
 
   expect_identical(testReadSource(function() list(x = 1, class = "numeric")), list(x = 1, class = "numeric"))
@@ -143,5 +139,3 @@ test_that("read functions can return non-magpie objects", {
   expect_identical(testReadSource(function() list(x = brokenMagpie, class = "magpie"), convert = FALSE),
                    list(x = clean_magpie(brokenMagpie), class = "magpie"))
 })
-
-rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

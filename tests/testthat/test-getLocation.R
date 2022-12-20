@@ -6,5 +6,4 @@ test_that("getCalculations works", {
   globalassign("calcTauTotal")
   expect_identical(getLocation("TauTotal", packages = "madrat"), c("madrat", ".GlobalEnv"))
   expect_identical(getLocation("TauTotal", packages = "madrat", globalenv = FALSE), "madrat")
-  rm("calcTauTotal", envir = .GlobalEnv)
 })

@@ -4,7 +4,6 @@ test_that("getMadratInfo works without error", {
 })
 
 test_that("getMadratInfo properly detects problems", {
-  localConfig(globalenv = TRUE, .verbose = FALSE)
   calcBla <- function() {
     type <- "TauTotal"
     calcOutput(type)
@@ -20,7 +19,6 @@ test_that("getMadratInfo properly detects problems", {
   }
   globalassign("toolBla")
   expect_warning(a <- getMadratInfo(packages = "madrat"), "Some tool functions contain read or calc")
-  rm("toolBla", envir = .GlobalEnv)
 
   calcBla2 <- function() {
     calcOutput("UnknownType")
@@ -28,7 +26,6 @@ test_that("getMadratInfo properly detects problems", {
   globalassign("calcBla2")
   expect_warning(a <- getMadratInfo(packages = "madrat"),
       "Following functions could not be found in the scope of packages to be checked.: .* calcUnknownType->calcBla2")
-  rm("calcBla2", envir = .GlobalEnv)
 })
 
 

@@ -1,7 +1,7 @@
 test_that("getDependencies works for edge cases", {
   readTestX <- function() return(1)
   globalassign("readTestX")
-  graph <- getMadratGraph(packages = "madrat", globalenv = TRUE)
+  graph <- getMadratGraph(packages = "madrat")
   expect_null(getDependencies("readTestX", graph = graph))
   ref <- data.frame(func = "readTestX", type = "read", package = ".GlobalEnv",
                     call = "readTestX", hash = "783a5e2f",
@@ -14,5 +14,3 @@ test_that("getDependencies works for edge cases", {
   expect_identical(o$full, o$all)
   expect_identical(o$out, o$dout)
 })
-
-rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

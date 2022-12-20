@@ -4,9 +4,5 @@ test_that("prepFunctionName works", {
   expect_identical(as.character(madrat:::prepFunctionName("TauTotal")), "madrat:::calcTauTotal(...)")
   calcTauTotal <- function() return(1)
   globalassign("calcTauTotal")
-  localConfig(globalenv = TRUE, verbosity = FALSE)
   expect_error(suppressWarnings(madrat:::prepFunctionName("TauTotal")), "Cannot substitute")
-  rm(list = "calcTauTotal", envir = .GlobalEnv)
 })
-
-rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)
