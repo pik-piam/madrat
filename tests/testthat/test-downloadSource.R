@@ -1,7 +1,3 @@
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
-
 test_that("downloadSource uses temporary downloadInProgress directory", {
   mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
   localConfig(mainfolder = mainfolder, globalenv = TRUE)

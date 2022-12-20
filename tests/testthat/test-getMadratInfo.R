@@ -1,7 +1,3 @@
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
-
 test_that("getMadratInfo works without error", {
   localConfig(globalenv = FALSE, .verbose = FALSE)
   expect_message(a <- getMadratInfo(packages = "madrat", cutoff = -1, extended = TRUE), "passed")

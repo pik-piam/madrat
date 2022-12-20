@@ -106,25 +106,42 @@ test_that("forcecache works for readSource", {
 })
 
 test_that("read functions can return non-magpie objects", {
-  downloadThis <- function() list(url = "", author = "", title = "", license = "", description = "", unit = "")
-  readThis <- function(subtype) attr(subtype, "f")()
-
-  globalassign("downloadThis", "readThis")
-
-  testReadSource <- function(f, convert = TRUE) {
-    subtype <- "trojanFunction"
-    attr(subtype, "f") <- f
-    return(readSource("This", subtype, convert = convert))
+  testReadSource <- function(readThis, correctThis = function(x) x, convertThis = function(x) x, convert = TRUE) {
+    downloadThis <- function() list(url = "", author = "", title = "", license = "", description = "", unit = "")
+    setConfig(globalenv = TRUE, .local = TRUE)
+    stopifnot(!"This" %in% getCalculations(c("download", "read", "correct", "convert"))$type)
+    withr::defer({
+      rm("downloadThis", "readThis", "correctThis", "convertThis", envir = .GlobalEnv)
+    })
+    globalassign("downloadThis", "readThis", "correctThis", "convertThis")
+    result <- readSource("This", convert = convert)
+    return(result)
   }
 
-  expect_error(testReadSource(function() list(x = 1, class = "numeric")), NA)
+  expect_identical(testReadSource(function() list(x = 1, class = "numeric")), list(x = 1, class = "numeric"))
   expect_error(testReadSource(function() list(x = 1, class = "character")),
-               "Output of \"readThis(subtype=subtype)\" should have class \"character\" but it does not.",
+               "Output of \"readThis()\" should have class \"character\" but it does not.",
                fixed = TRUE)
-  expectedError <- paste("Output of \"readThis(subtype=subtype)\" must be a MAgPIE object",
-                         "or a list with the entries \"x\" and \"class\"!")
-  expect_error(testReadSource(function() list(y = 1, class = "character")), expectedError, fixed = TRUE)
-  # TODO test correct and convert
+  expect_error(testReadSource(function() NULL),
+               "Output of \"readThis()\" should have class \"magpie\" but it does not.",
+               fixed = TRUE)
+  expect_error(testReadSource(function() character(0)),
+               "Output of \"readThis()\" should have class \"magpie\" but it does not.",
+               fixed = TRUE)
+  expect_error(testReadSource(function() list(y = 1, class = "character")),
+               paste("Output of \"readThis()\" must be a MAgPIE object",
+                     "or a list with the entries \"x\" and \"class\"!"), fixed = TRUE)
+
+  # test whether ISO country check is applied
+  expect_error(testReadSource(function() list(x = as.magpie(1), class = "magpie")),
+               "Wrong number of countries returned by convertThis(x=x)!", fixed = TRUE)
+
+  # test whether clean_magpie is applied
+  brokenMagpie <- as.magpie(1)
+  dimnames(brokenMagpie)[1] <- NULL
+  expect_false(identical(brokenMagpie, clean_magpie(brokenMagpie)))
+  expect_identical(testReadSource(function() list(x = brokenMagpie, class = "magpie"), convert = FALSE),
+                   list(x = clean_magpie(brokenMagpie), class = "magpie"))
 })
 
 rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

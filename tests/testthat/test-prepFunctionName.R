@@ -1,7 +1,3 @@
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
-
 test_that("prepFunctionName works", {
   expect_error(madrat:::prepFunctionName("Missing"), "not a valid output type")
   expect_null(madrat:::prepFunctionName("Missing", error_on_missing = FALSE))

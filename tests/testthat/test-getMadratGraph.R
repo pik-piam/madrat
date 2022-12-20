@@ -1,7 +1,3 @@
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
-
 test_that("getMadratGraph works", {
   calcTest1 <- function() return(1)
   calcTest2 <- function() return(calcOutput("Test1"))

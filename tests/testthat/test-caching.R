@@ -1,7 +1,3 @@
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
-
 test_that("Caching works", {
   calcCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-"))
   globalassign("calcCacheExample")
