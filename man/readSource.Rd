@@ -24,9 +24,11 @@ ISO countries should be done or not. In addition it can be set to "onlycorrect"
 for sources with a separate correctXXX-function.}
 }
 \value{
-magpie object with the temporal and data dimensionality of the
-source data. Spatial will either agree with the source data or will be on
-ISO code country level depending on your choice for the argument "convert".
+Either a magpie object, or a list with the entries x (the data object)
+and class (the class of x). The temporal and data dimensionality
+should match the source data. The spatial dimension should either match the source data or,
+if the convert argument is set to TRUE, should be on ISO code country level. For magpie objects
+magclass::clean_magpie is run and if convert = TRUE ISO code country level is checked.
 }
 \description{
 Read in a source file and convert it to a MAgPIE object. The function is a
@@ -43,5 +45,5 @@ a <- readSource("Tau", "paper")
 \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 }
 \author{
-Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark
+Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
 }
