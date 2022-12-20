@@ -222,7 +222,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
               renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject)
 
               # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
-              renv::snapshot(project = dummyProject, library = dummyLibPath,
+              renv::snapshot(project = dummyProject, library = dummyLibPath, prompt = FALSE,
                              lockfile = file.path(normalizePath("."), "renv.lock"), type = "all")
 
               # (unlikely) caveat: if packages are updated while retrieveData is running a package's version

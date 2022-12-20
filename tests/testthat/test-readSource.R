@@ -1,9 +1,5 @@
 cfg <- getConfig(verbose = FALSE)
 
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
-
 nce <- function(x) {
   getComment(x) <- NULL
   attr(x, "cachefile") <- NULL
@@ -23,7 +19,8 @@ test_that("readSource detects common problems", {
   }
   readTest <- function() return(1)
   globalassign("downloadTest", "readTest")
-  expect_error(readSource("Test"), "not a MAgPIE object")
+  expect_error(readSource("Test"),
+               "Output of \"readTest()\" should have class \"magpie\" but it does not.", fixed = TRUE)
   readTest <- function(x) return(as.magpie(1))
   globalassign("readTest")
   expect_warning(readSource("Test", convert = FALSE), "Some arguments .* cannot be adressed by the wrapper")
@@ -80,8 +77,10 @@ test_that("downloadSource works", {
                      "downloadSource(..., overwrite = TRUE) if you want to re-download."), fixed = TRUE)
   expect_error(downloadSource(1:10), "Invalid type")
   expect_error(downloadSource("Tau", subtype = 1:10), "Invalid subtype")
-  downloadTest <- function() return(list(url = 1, author = 1, title = 1, license = 1,
-                                         description = 1, unit = 1, call = "notallowed"))
+  downloadTest <- function() {
+    return(list(url = 1, author = 1, title = 1, license = 1,
+                description = 1, unit = 1, call = "notallowed"))
+  }
   globalassign("downloadTest")
   expect_warning(downloadSource("Test", overwrite = TRUE), "reserved and will be overwritten")
 })
@@ -104,6 +103,28 @@ test_that("forcecache works for readSource", {
   actual <- readSource("Test2")
   attributes(actual) <- NULL
   expect_identical(actual, "secret")
+})
+
+test_that("read functions can return non-magpie objects", {
+  downloadThis <- function() list(url = "", author = "", title = "", license = "", description = "", unit = "")
+  readThis <- function(subtype) attr(subtype, "f")()
+
+  globalassign("downloadThis", "readThis")
+
+  testReadSource <- function(f, convert = TRUE) {
+    subtype <- "trojanFunction"
+    attr(subtype, "f") <- f
+    return(readSource("This", subtype, convert = convert))
+  }
+
+  expect_error(testReadSource(function() list(x = 1, class = "numeric")), NA)
+  expect_error(testReadSource(function() list(x = 1, class = "character")),
+               "Output of \"readThis(subtype=subtype)\" should have class \"character\" but it does not.",
+               fixed = TRUE)
+  expectedError <- paste("Output of \"readThis(subtype=subtype)\" must be a MAgPIE object",
+                         "or a list with the entries \"x\" and \"class\"!")
+  expect_error(testReadSource(function() list(y = 1, class = "character")), expectedError, fixed = TRUE)
+  # TODO test correct and convert
 })
 
 rm(list = ls(envir = .GlobalEnv), envir = .GlobalEnv)

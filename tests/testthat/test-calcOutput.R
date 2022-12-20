@@ -1,10 +1,6 @@
-Sys.setenv("LANGUAGE" = "EN")
+Sys.setenv("LANGUAGE" = "EN") # TODO
 
 cfg <- getConfig(verbose = FALSE)
-
-globalassign <- function(...) {
-  for (x in c(...)) assign(x, eval.parent(parse(text = x)), .GlobalEnv)
-}
 
 nc <- function(x) {
   getComment(x) <- NULL
@@ -167,7 +163,7 @@ test_that("Standard workflow works", {
     expect_equivalent(a, expectedOutput)
   }
   globalassign("downloadTest2", "readTest2", "convertTest2", "calcTest2", "fullTEST2")
-  co <- capture.output(retrieveData("test2"))
+  co <- capture.output(retrieveData("test2", puc = FALSE))
 })
 
 test_that("Custom class support works", {
