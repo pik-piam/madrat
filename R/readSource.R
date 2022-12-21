@@ -125,27 +125,33 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     })
 
     # ensure we are always working with a list with entries "x" and "class"
-    xList <- if (is.list(x)) x else list(x = x, class = "magpie")
+    xList <- if (is.list(x)) x else list(x = x)
 
-    if (!identical(robustSort(names(xList)), c("class", "x"))) {
-      stop('Output of "', functionname,
+    # return list is only available for read, not for correct/convert
+    if (prefix == "read") {
+      if (!is.list(x)) {
+        xList$class <- "magpie"
+      }
+
+      # assert return list has the expected entries
+      if (!identical(robustSort(names(xList)), c("class", "x"))) {
+        stop('Output of "', functionname,
             '" must be a MAgPIE object or a list with the entries "x" and "class"!')
-    }
+      }
 
-    if (!inherits(xList$x, xList$class)) {
-      stop('Output of "', functionname, '" should have class "', xList$class, '" but it does not.')
-    }
-
-    if (prefix == "convert") {
-      if (xList$class == "magpie") {
+      if (!inherits(xList$x, xList$class)) {
+        stop('Output of "', functionname, '" should have class "', xList$class, '" but it does not.')
+      }
+    } else if (prefix == "convert") {
+      if (magclass::is.magpie(xList$x)) {
         .testISO(magclass::getItems(xList$x, dim = 1.1), functionname = functionname)
       } else {
         vcat(2, "Non-magpie objects are not checked for ISO country level.")
       }
     }
 
-    cachePut(x, prefix = prefix, type = type, args = args)
-    return(x)
+    cachePut(xList$x, prefix = prefix, type = type, args = args)
+    return(xList$x)
   }
 
   # determine prefix
@@ -208,8 +214,6 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
   x <- .getData(type, subtype, subset, args, prefix)
   if (magclass::is.magpie(x)) {
     x <- clean_magpie(x)
-  } else if (x$class == "magpie") {
-    x$x <- clean_magpie(x$x)
   }
   return(x)
 }
