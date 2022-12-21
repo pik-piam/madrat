@@ -114,7 +114,7 @@ test_that("read functions can return non-magpie objects", {
     return(readSource("This", convert = convert))
   }
 
-  expect_identical(testReadSource(function() list(x = 1, class = "numeric")), list(x = 1, class = "numeric"))
+  expect_identical(testReadSource(function() list(x = 1, class = "numeric")), 1)
   expect_error(testReadSource(function() list(x = 1, class = "character")),
                "Output of \"readThis()\" should have class \"character\" but it does not.",
                fixed = TRUE)
@@ -137,5 +137,5 @@ test_that("read functions can return non-magpie objects", {
   dimnames(brokenMagpie)[1] <- NULL
   expect_false(identical(brokenMagpie, clean_magpie(brokenMagpie)))
   expect_identical(testReadSource(function() list(x = brokenMagpie, class = "magpie"), convert = FALSE),
-                   list(x = clean_magpie(brokenMagpie), class = "magpie"))
+                   clean_magpie(brokenMagpie))
 })

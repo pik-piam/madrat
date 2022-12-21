@@ -4,20 +4,21 @@
 #' wrapper for specific functions designed for the different possible source
 #' types.
 #'
-#' @param type source type, e.g. "IEA". A list of all available source types
-#' can be retrieved with function \code{\link{getSources}}.
-#' @param subtype For some sources there are subtypes of the source, for these
-#' source the subtype can be specified with this argument. If a source does not
+#' @param type A character string referring to the source type, e.g. "IEA" which would
+#' internally call a function called `readIEA` (the "wrapped function"). A list of
+#' available source types can be retrieved with function \code{\link{getSources}}.
+#' @param subtype A character string. For some sources there are subtypes of the source, for these
+#' sources the subtype can be specified with this argument. If a source does not
 #' have subtypes, subtypes should not be set.
-#' @param subset Similar to \code{subtype} a source can also have \code{subsets}. A \code{subsets}
-#' can be used to only read part of the data. This can in particular make sense for huge
-#' data sets where reading in the whole data set might be impractical or even
-#' infeasible.
+#' @param subset A character string. Similar to \code{subtype} a source can also have \code{subsets}.
+#' A \code{subsets} can be used to only read part of the data. This can in particular make sense
+#' for huge data sets where reading in the whole data set might be impractical or even infeasible.
 #' @param convert Boolean indicating whether input data conversion to
 #' ISO countries should be done or not. In addition it can be set to "onlycorrect"
 #' for sources with a separate correctXXX-function.
-#' @return Either a magpie object, or a list with the entries x (the data object)
-#' and class (the class of x). The temporal and data dimensionality
+#' @return The read-in data, usually a magpie object. Technically speaking
+#' `if (is.list(result)) result$x else result` will be returned, where `result` is the
+#' return value of the wrapped function. The temporal and data dimensionality
 #' should match the source data. The spatial dimension should either match the source data or,
 #' if the convert argument is set to TRUE, should be on ISO code country level. For magpie objects
 #' magclass::clean_magpie is run and if convert = TRUE ISO code country level is checked.
@@ -28,9 +29,6 @@
 #' a <- readSource("Tau", "paper")
 #' }
 #'
-#' @importFrom magclass read.magpie is.magpie getComment<- getItems
-#' @importFrom methods existsFunction is
-#' @importFrom withr local_dir with_dir defer
 #' @export
 readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # nolint
   argumentValues <- as.list(environment())  # capture arguments for logging
@@ -38,9 +36,9 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
   setWrapperActive("readSource")
   setWrapperInactive("wrapperChecks")
 
-  local_dir(getConfig("mainfolder"))
+  withr::local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
-  defer({
+  withr::defer({
     toolendmessage(startinfo, "-")
   })
 
@@ -80,7 +78,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     x <- cacheGet(prefix = prefix, type = type, args = args)
     if (!is.null(x) && prefix == "convert") {
       fname <- paste0(prefix, type, "_", subtype, "_", subset)
-      err <- try(.testISO(getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
+      err <- try(.testISO(magclass::getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
       if ("try-error" %in% class(err)) {
         vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
         x <- NULL
@@ -113,7 +111,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
       x <- .getData(type, subtype, subset, args, upstreamPrefix)
     }
 
-    with_dir(sourcefolder, {
+    withr::with_dir(sourcefolder, {
       ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
       if (length(ignore) == 0) ignore <- NULL
       functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
@@ -140,7 +138,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
 
     if (prefix == "convert") {
       if (xList$class == "magpie") {
-        .testISO(getItems(xList$x, dim = 1.1), functionname = functionname)
+        .testISO(magclass::getItems(xList$x, dim = 1.1), functionname = functionname)
       } else {
         vcat(2, "Non-magpie objects are not checked for ISO country level.")
       }
@@ -208,7 +206,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
   }
 
   x <- .getData(type, subtype, subset, args, prefix)
-  if (is.magpie(x)) {
+  if (magclass::is.magpie(x)) {
     x <- clean_magpie(x)
   } else if (x$class == "magpie") {
     x$x <- clean_magpie(x$x)
