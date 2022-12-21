@@ -37,9 +37,9 @@ toolCountry2isocode <- function(country, warn = TRUE, ignoreCountries = NULL, ty
     countries2warn <- setdiff(levels(country)[is.na(tmp)], ignoreCountries)
     if (length(countries2warn) > 0) {
       warning("Following country names could not be found in the country list and returned as NA: ",
-              paste('"', countries2warn, '"', collapse = ", "))
+              paste0('"', countries2warn, '"', collapse = ", "))
     }
-    }
+  }
   levels(country) <- tmp
   return(as.character(country))
 }
