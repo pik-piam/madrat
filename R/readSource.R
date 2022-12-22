@@ -30,7 +30,8 @@
 #' }
 #'
 #' @export
-readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # nolint
+# TODO mention clean_magpie only in @details section
+readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE, supplementary = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("readSource")
@@ -75,16 +76,16 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
 
   # try to get from cache and check
   .getFromCache <- function(prefix, type, args, subtype, subset) {
-    x <- cacheGet(prefix = prefix, type = type, args = args)
-    if (!is.null(x) && prefix == "convert") {
+    xList <- cacheGet(prefix = prefix, type = type, args = args)
+    if (!is.null(xList) && prefix == "convert" && magclass::is.magpie(xList$x)) {
       fname <- paste0(prefix, type, "_", subtype, "_", subset)
-      err <- try(.testISO(magclass::getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
+      err <- try(.testISO(magclass::getItems(xList$x, dim = 1.1), functionname = fname), silent = TRUE)
       if ("try-error" %in% class(err)) {
         vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
-        x <- NULL
+        xList <- NULL
       }
     }
-    return(x)
+    return(xList)
   }
 
   .getData <- function(type, subtype, subset, args, prefix = "read") {
@@ -94,10 +95,10 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
       sourcefolder <- file.path(sourcefolder, make.names(subtype))
     }
 
-    x <- .getFromCache(prefix, type, args, subtype, subset)
-    if (!is.null(x)) {
+    xList <- .getFromCache(prefix, type, args, subtype, subset)
+    if (!is.null(xList)) {
       # cache hit, return
-      return(x)
+      return(xList)
     }
     # cache miss, read from source
 
@@ -107,39 +108,38 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
       } else {
         upstreamPrefix <- "read"
       }
-      # this x is passed if prefix is correct or convert
-      x <- .getData(type, subtype, subset, args, upstreamPrefix)
+      xList <- .getData(type, subtype, subset, args, upstreamPrefix)
+      # this x is passed to correct or convert function
+      x <- xList$x
     }
 
+    ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
+    if (length(ignore) == 0) ignore <- NULL
+    functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
+    setWrapperActive("wrapperChecks")
+
+    # run the actual read/correct/convert function
+    # if prefix is correct or convert the locally defined x is passed, so check it exists
+    stopifnot(prefix == "read" || exists("x"))
     withr::with_dir(sourcefolder, {
-      ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
-      if (length(ignore) == 0) ignore <- NULL
-      functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
-      setWrapperActive("wrapperChecks")
-
-      # run the actual read/correct/convert function
-      # the locally defined x is passed if prefix is correct or convert
       x <- withMadratLogging(eval(parse(text = functionname)))
-
-      setWrapperInactive("wrapperChecks")
     })
+    setWrapperInactive("wrapperChecks")
 
     # ensure we are always working with a list with entries "x" and "class"
     xList <- if (is.list(x)) x else list(x = x, class = "magpie")
 
-    # return list is only available for read, not for correct/convert
-    if (prefix == "read") {
+    # assert return list has the expected entries
+    if (!identical(robustSort(names(xList)), c("class", "x"))) {
+      stop('Output of "', functionname,
+           '" must be a MAgPIE object or a list with the entries "x" and "class"!')
+    }
 
-      # assert return list has the expected entries
-      if (!identical(robustSort(names(xList)), c("class", "x"))) {
-        stop('Output of "', functionname,
-            '" must be a MAgPIE object or a list with the entries "x" and "class"!')
-      }
+    if (!inherits(xList$x, xList$class)) {
+      stop('Output of "', functionname, '" should have class "', xList$class, '" but it does not.')
+    }
 
-      if (!inherits(xList$x, xList$class)) {
-        stop('Output of "', functionname, '" should have class "', xList$class, '" but it does not.')
-      }
-    } else if (prefix == "convert") {
+    if (prefix == "convert") {
       if (magclass::is.magpie(xList$x)) {
         .testISO(magclass::getItems(xList$x, dim = 1.1), functionname = functionname)
       } else {
@@ -148,7 +148,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     }
 
     cachePut(xList, prefix = prefix, type = type, args = args)
-    return(xList$x)
+    return(xList)
   }
 
   # determine prefix
@@ -208,9 +208,9 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
   }
 
-  x <- .getData(type, subtype, subset, args, prefix)
-  if (magclass::is.magpie(x)) {
-    x <- clean_magpie(x)
+  xList <- .getData(type, subtype, subset, args, prefix)
+  if (magclass::is.magpie(xList$x)) {
+    xList$x <- clean_magpie(xList$x)
   }
-  return(x)
+  return(if (supplementary) xList else xList$x)
 }

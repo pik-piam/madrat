@@ -1,5 +1,3 @@
-cfg <- getConfig(verbose = FALSE)
-
 nce <- function(x) {
   getComment(x) <- NULL
   attr(x, "cachefile") <- NULL
@@ -45,9 +43,9 @@ test_that("readSource detects common problems", {
   expect_identical(nce(readSource("Test", convert = "onlycorrect")), clean_magpie(as.magpie(2)))
   expect_identical(nce(readSource("Test")), clean_magpie(new.magpie(getISOlist(), fill = 1)))
 
-  cache <- madrat:::cacheName("convert", "Test")
+  cache <- cacheName("convert", "Test")
   a <- readRDS(cache)
-  getCells(a)[1] <- "BLA"
+  getCells(a$x)[1] <- "BLA"
   saveRDS(a, cache)
   expect_message(readSource("Test"), "cache file corrupt")
 
@@ -106,7 +104,10 @@ test_that("forcecache works for readSource", {
 })
 
 test_that("read functions can return non-magpie objects", {
-  testReadSource <- function(readThis, correctThis = function(x) x, convertThis = function(x) x, convert = TRUE) {
+  testReadSource <- function(readThis,
+                             correctThis = function(x) readThis(),
+                             convertThis = function(x) readThis(),
+                             convert = TRUE) {
     downloadThis <- function() list(url = "", author = "", title = "", license = "", description = "", unit = "")
     localConfig(globalenv = TRUE)
     stopifnot(!"This" %in% getCalculations(c("download", "read", "correct", "convert"))$type)
