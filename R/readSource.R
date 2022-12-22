@@ -125,13 +125,10 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     })
 
     # ensure we are always working with a list with entries "x" and "class"
-    xList <- if (is.list(x)) x else list(x = x)
+    xList <- if (is.list(x)) x else list(x = x, class = "magpie")
 
     # return list is only available for read, not for correct/convert
     if (prefix == "read") {
-      if (!is.list(x)) {
-        xList$class <- "magpie"
-      }
 
       # assert return list has the expected entries
       if (!identical(robustSort(names(xList)), c("class", "x"))) {
@@ -150,7 +147,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
       }
     }
 
-    cachePut(xList$x, prefix = prefix, type = type, args = args)
+    cachePut(xList, prefix = prefix, type = type, args = args)
     return(xList$x)
   }
 
