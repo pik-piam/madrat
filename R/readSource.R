@@ -4,6 +4,9 @@
 #' wrapper for specific functions designed for the different possible source
 #' types.
 #'
+#' @note If a magpie object is returned magclass::clean_magpie is run and if convert = TRUE
+#' ISO code country level is checked.
+#'
 #' @param type A character string referring to the source type, e.g. "IEA" which would
 #' internally call a function called `readIEA` (the "wrapped function"). A list of
 #' available source types can be retrieved with function \code{\link{getSources}}.
@@ -20,8 +23,7 @@
 #' `if (is.list(result)) result$x else result` will be returned, where `result` is the
 #' return value of the wrapped function. The temporal and data dimensionality
 #' should match the source data. The spatial dimension should either match the source data or,
-#' if the convert argument is set to TRUE, should be on ISO code country level. For magpie objects
-#' magclass::clean_magpie is run and if convert = TRUE ISO code country level is checked.
+#' if the convert argument is set to TRUE, should be on ISO code country level.
 #' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
 #' @seealso \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 #' @examples
@@ -30,7 +32,6 @@
 #' }
 #'
 #' @export
-# TODO mention clean_magpie only in @details section
 readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE, supplementary = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
 
