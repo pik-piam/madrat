@@ -19,9 +19,10 @@
 #' @param convert Boolean indicating whether input data conversion to
 #' ISO countries should be done or not. In addition it can be set to "onlycorrect"
 #' for sources with a separate correctXXX-function.
-#' @return The read-in data, usually a magpie object. Technically speaking
-#' `if (is.list(result)) result$x else result` will be returned, where `result` is the
-#' return value of the wrapped function. The temporal and data dimensionality
+#' @param supplementary Boolean deciding whether a list including the actual data and metadata,
+#' or just the actual data is returned.
+#' @return The read-in data, usually a magpie object. If supplementary is TRUE a list including
+#' the data and metadata is returned instead. The temporal and data dimensionality
 #' should match the source data. The spatial dimension should either match the source data or,
 #' if the convert argument is set to TRUE, should be on ISO code country level.
 #' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
@@ -32,7 +33,8 @@
 #' }
 #'
 #' @export
-readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE, supplementary = FALSE) {
+readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_linter
+                       convert = TRUE, supplementary = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("readSource")

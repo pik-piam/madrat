@@ -67,9 +67,9 @@ jobs:
         uses: pat-s/always-upload-cache@v3
         with:
           path: /usr/local/lib/R/
-          key: 2-${{ runner.os }}-usr-local-lib-R-${{ hashFiles('DESCRIPTION') }}
+          key: 3-${{ runner.os }}-usr-local-lib-R-${{ hashFiles('DESCRIPTION') }}
           restore-keys: |
-            2-${{ runner.os }}-usr-local-lib-R-
+            3-${{ runner.os }}-usr-local-lib-R-
 
       - name: Restore R library permissions
         run: |
