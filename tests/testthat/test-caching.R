@@ -9,7 +9,7 @@ test_that("Caching works", {
   expect_null(madrat:::cacheGet("calc", "CacheExample"))
   localConfig(ignorecache = FALSE, .verbose = FALSE)
 
-  expect_identical(basename(madrat:::cacheName("calc", "CacheExample")), "calcCacheExample-F43888ba0.rds")
+  expect_identical(basename(madrat:::cacheName("calc", "CacheExample")), "calcCacheExample-Ff5d41fca.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
@@ -17,16 +17,17 @@ test_that("Caching works", {
   localConfig(forcecache = TRUE, .verbose = FALSE)
   expect_identical(basename(madrat:::cacheName("calc", "CacheExample")), "calcCacheExample.rds")
   expect_message(cf <- madrat:::cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
-  expect_identical(basename(cf), "calcCacheExample-F43888ba0.rds")
+  expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
   localConfig(forcecache = FALSE, .verbose = FALSE)
+  Sys.sleep(1) # wait a second to ensure this second cache file has newer mtime, so forcecache reproducibly takes it
   expect_message(a <- calcOutput("CacheExample", aggregate = FALSE), "writing cache")
-  expect_identical(basename(madrat:::cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-F4ece4fe6.rds")
+  expect_identical(basename(madrat:::cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-Fad6287a7.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(3), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   localConfig(forcecache = TRUE, .verbose = FALSE)
   expect_message(cf <- madrat:::cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
-  expect_identical(basename(cf), "calcCacheExample-F4ece4fe6.rds")
+  expect_identical(basename(cf), "calcCacheExample-Fad6287a7.rds")
 })
 
 test_that("Argument hashing works", {

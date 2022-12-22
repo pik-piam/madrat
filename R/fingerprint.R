@@ -26,7 +26,7 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
-#' @return A md5-based fingerprint of all provided sources, or "fingerprintError"
+#' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
 #' @author Jan Philipp Dietrich, Pascal Führlich
 #' @seealso \code{\link{readSource}}
 #' @examples
@@ -60,7 +60,14 @@ fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
       fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
       fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
       fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
-      out <- digest(unname(fingerprint), algo = getConfig("hash"))
+
+      # Cache files became incompatible when readSource was allowed to return non-magpie objects.
+      # Referring to madrat versions before this change as "old" and after this change as "new" here:
+      # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
+      # Old madrat versions will never read/write these new cache files, and new madrat versions will never
+      # read/write cache files created with an old madrat version.
+      out <- digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
+
       if (details) {
         attr(out, "details") <- fingerprint
         vcat(3, "hash components (", out, "):", show_prefix = FALSE)
