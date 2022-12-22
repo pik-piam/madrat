@@ -42,8 +42,8 @@ test_that("localConfig only changes config temporarily", {
 test_that("main folder setting works", {
   withr::local_options(MADRAT_MAINFOLDER = NULL)
   withr::local_envvar(MADRAT_MAINFOLDER = NA)
-  expect_identical(basename(madrat:::getMainfolder(.testmode = TRUE)), "testmaindir")
-  expect_identical(basename(madrat:::getMainfolder()), "testmaindir")
+  expect_identical(basename(getMainfolder(.testmode = TRUE)), "testmaindir")
+  expect_identical(basename(getMainfolder()), "testmaindir")
 })
 
 test_that("addMapping works", {
