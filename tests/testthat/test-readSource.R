@@ -133,6 +133,12 @@ test_that("read functions can return non-magpie objects", {
                               correctThis = function() list(x = 1, class = "character")),
                "Output of \"correctThis()\" should have class \"character\" but it does not.",
                fixed = TRUE)
+
+  convertThis <- function(x) {
+    expect_identical(x, 1)
+    return(list(x = 2, class = "numeric"))
+  }
+  expect_identical(testReadSource(readThis = function() list(x = 1, class = "numeric"), convertThis = convertThis), 2)
   expect_error(testReadSource(readThis = function() list(x = 1, class = "numeric"),
                               correctThis = function() list(x = 1, class = "numeric"),
                               convertThis = function() list(x = 1, class = "character")),
