@@ -107,17 +107,36 @@ test_that("read functions can return non-magpie objects", {
   testReadSource <- function(readThis,
                              correctThis = function(x) readThis(),
                              convertThis = function(x) readThis(),
-                             convert = TRUE) {
+                             convert = TRUE,
+                             supplementary = FALSE) {
     downloadThis <- function() list(url = "", author = "", title = "", license = "", description = "", unit = "")
     localConfig(globalenv = TRUE)
     stopifnot(!"This" %in% getCalculations(c("download", "read", "correct", "convert"))$type)
     globalassign("downloadThis", "readThis", "correctThis", "convertThis")
-    return(readSource("This", convert = convert))
+    return(readSource("This", convert = convert, supplementary = supplementary))
   }
+
+  expect_identical(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE),
+                   list(x = 1, class = "numeric"))
+
+  # running second time -> loading from cache, will have additional attribute
+  expect_false(identical(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE),
+                         list(x = 1, class = "numeric")))
+  expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE)),
+                   list(x = 1, class = "numeric"))
 
   expect_identical(testReadSource(function() list(x = 1, class = "numeric")), 1)
   expect_error(testReadSource(function() list(x = 1, class = "character")),
                "Output of \"readThis()\" should have class \"character\" but it does not.",
+               fixed = TRUE)
+  expect_error(testReadSource(readThis = function() list(x = 1, class = "numeric"),
+                              correctThis = function() list(x = 1, class = "character")),
+               "Output of \"correctThis()\" should have class \"character\" but it does not.",
+               fixed = TRUE)
+  expect_error(testReadSource(readThis = function() list(x = 1, class = "numeric"),
+                              correctThis = function() list(x = 1, class = "numeric"),
+                              convertThis = function() list(x = 1, class = "character")),
+               "Output of \"convertThis()\" should have class \"character\" but it does not.",
                fixed = TRUE)
   expect_error(testReadSource(function() NULL),
                "Output of \"readThis()\" should have class \"magpie\" but it does not.",
