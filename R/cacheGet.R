@@ -35,6 +35,20 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
     vcat(0, " - corrupt cache file ", basename(fname), "! Continue without cache.")
     return(NULL)
   }
+  if (is.list(x)) {
+    for (elem in c("x", "weight")) {
+      if (is.list(x[[elem]]) && !is.null(x[[elem]]$class) && x[[elem]]$class == "SpatRaster") {
+        x[[elem]] <- .spatRasterLoad(x[[elem]])
+      }
+    }
+  }
   attr(x, "id") <- fname
   return(x)
+}
+
+.spatRasterLoad <- function(x) {
+  if (!requireNamespace("terra", quietly = TRUE)) stop("Package `terra` required for caching of SpatRaster objects!")
+  out <- terra::rast(x$file)
+  names(out) <- x$names
+  return(out)
 }

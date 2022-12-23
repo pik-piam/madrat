@@ -2,7 +2,7 @@ Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
 Version: 2.21.0
-Date: 2022-12-22
+Date: 2022-12-23
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre")),
     person("Lavinia", "Baumstark", , "lavinia@pik-potsdam.de", role = "aut"),
@@ -47,6 +47,7 @@ Suggests:
     ggplot2,
     knitr,
     rmarkdown,
+    terra,
     testthat,
     tibble
 VignetteBuilder:
