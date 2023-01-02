@@ -14,12 +14,29 @@
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' \dontrun{
-#'   example <- 1
-#'   madrat:::cachePut(example, "calc","Example", packages="madrat")
-#'  }
+#' example <- 1
+#' madrat:::cachePut(example, "calc", "Example", packages = "madrat")
+#' }
 #' @importFrom digest digest
 
-cachePut <- function(x, prefix, type, args=NULL, graph = NULL, ...) {
+cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
+
+  .spatRaster2Cache <- function(x, name, fname) {
+    if (!requireNamespace("terra", quietly = TRUE)) stop("Package `terra` required for caching of SpatRaster objects!")
+    if (length(terra::sources(x)) > 1) {
+      stop("Multiple sources of SpatRaster objects in caching currently not supported!")
+    }
+    if (terra::inMemory(x)) return(x)
+    sourceName <- terra::sources(x)
+    sourceType <- tools::file_ext(sourceName)
+    targetName <- sub("\\..*$", paste0("-", name, ".", sourceType), fname)
+    file.copy(sourceName, targetName)
+    Sys.chmod(targetName, mode = "0666", use_umask = FALSE)
+    return(list(class = "SpatRaster",
+                names = names(x),
+                file = targetName))
+  }
+
   fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "put", ...)
   if (!is.null(fname)) {
     if (!dir.exists(dirname(fname))) {
@@ -27,6 +44,13 @@ cachePut <- function(x, prefix, type, args=NULL, graph = NULL, ...) {
     }
     attr(x, "cachefile") <- basename(fname)
     vcat(1, " - writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
+    if (is.list(x)) {
+      for (elem in c("x", "weight")) {
+        if (inherits(x[[elem]], "SpatRaster")) {
+          x[[elem]] <- .spatRaster2Cache(x[[elem]], elem, fname)
+        }
+      }
+    }
     saveRDS(x, file = fname, compress = getConfig("cachecompression"))
     Sys.chmod(fname, mode = "0666", use_umask = FALSE)
   }
