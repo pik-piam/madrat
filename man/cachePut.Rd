@@ -27,7 +27,7 @@ Save data to cache
 \examples{
 \dontrun{
 example <- 1
-  madrat:::cachePut(example, "calc", "Example", packages = "madrat")
+madrat:::cachePut(example, "calc", "Example", packages = "madrat")
 }
 }
 \seealso{
