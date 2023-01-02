@@ -37,7 +37,7 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
   }
   if (is.list(x)) {
     for (elem in c("x", "weight")) {
-      if (is.list(x[[elem]]) && !is.null(x[[elem]]$class) && x[[elem]]$class == "SpatRaster") {
+      if (is.list(x[[elem]]) && identical(x[[elem]]$class, "SpatRaster")) {
         x[[elem]] <- .spatRasterLoad(x[[elem]])
       }
     }

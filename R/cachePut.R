@@ -46,11 +46,11 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
   }
   if (terra::inMemory(x)) return(x)
   sourceName <- terra::sources(x)
-  sourceType <- sub("^.*\\.([^.]*)$", "\\1", sourceName)
+  sourceType <- tools::file_ext(sourceName)
   targetName <- sub("\\..*$", paste0("-", name, ".", sourceType), fname)
   file.copy(sourceName, targetName)
   Sys.chmod(targetName, mode = "0666", use_umask = FALSE)
   return(list(class = "SpatRaster",
-               names = names(x),
-               file = targetName))
+              names = names(x),
+              file = targetName))
 }
