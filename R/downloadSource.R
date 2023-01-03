@@ -64,11 +64,15 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
     stop("Invalid subtype (must be a single character string)!")
   }
 
-  functionname <- prepFunctionName(type = type, prefix = "download", ignore = ifelse(is.null(subtype), "subtype", NA))
+  functionCall <- prepFunctionName(type = type, prefix = "download", ignore = if (is.null(subtype)) "subtype" else NA)
 
-  if (!grepl("subtype=subtype", functionname, fixed = TRUE)) {
-    subtype <- NULL
+  if (is.null(subtype)) {
+    functionName <- sub("\\(.*$", "", functionCall)
+    # get default subtype argument if available, otherwise NULL
+    subtype <- formals(eval(parse(text = functionName)))[["subtype"]]
   }
+
+  functionCall <- prepFunctionName(type = type, prefix = "download", ignore = if (is.null(subtype)) "subtype" else NA)
 
   if (!file.exists(getConfig("sourcefolder"))) {
     dir.create(getConfig("sourcefolder"), recursive = TRUE)
@@ -116,27 +120,27 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
   })
   with_dir(downloadInProgressDirectory, {
     setWrapperActive("wrapperChecks")
-    meta <- withMadratLogging(eval(parse(text = functionname)))
+    meta <- withMadratLogging(eval(parse(text = functionCall)))
     setWrapperInactive("wrapperChecks")
 
     # define mandatory elements of meta data and check if they exist
     mandatory <- c("url", "author", "title", "license", "description", "unit")
     if (!all(mandatory %in% names(meta))) {
-      vcat(0, "Missing entries in the meta data of function '", functionname[1], "': ",
+      vcat(0, "Missing entries in the meta data of function '", functionCall[1], "': ",
            toString(mandatory[!mandatory %in% names(meta)]))
     }
 
     # define reserved elements of meta data and check if they already exist
     reserved <- c("call", "accessibility")
     if (any(reserved %in% names(meta))) {
-      vcat(0, "The following entries in the meta data of the function '", functionname[1],
+      vcat(0, "The following entries in the meta data of the function '", functionCall[1],
            "' are reserved and will be overwritten: ", reserved[reserved %in% names(meta)])
     }
 
     # set reserved meta data elements
     meta$call <- list(origin  = paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()), collapse = "")),
-                                       " -> ", functionname, " (madrat ", unname(getNamespaceVersion("madrat")),
-                                       " | ", attr(functionname, "pkgcomment"), ")"),
+                                       " -> ", functionCall, " (madrat ", unname(getNamespaceVersion("madrat")),
+                                       " | ", attr(functionCall, "pkgcomment"), ")"),
                       type    = type,
                       subtype = ifelse(is.null(subtype), "none", subtype),
                       time    = format(Sys.time(), "%F %T %Z"))
