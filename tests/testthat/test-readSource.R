@@ -184,3 +184,22 @@ test_that("readSource uses default subtype", {
   readSource("Test") # call readSource without passing subtype explicitly
   expect_true(file.exists(file.path(mainfolder, "sources", "Test", "a", "data.txt")))
 })
+
+test_that("read with subtype, download without", {
+  mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
+  localConfig(mainfolder = mainfolder)
+
+  downloadTest <- function() {
+    writeLines("z", "data.txt")
+    return(list(url = "", author = "", title = "", license = "", description = "", unit = ""))
+  }
+  readTest <- function(subtype = "a") {
+    stopifnot(file.exists("data.txt"))
+    return(as.magpie(1))
+  }
+  globalassign(c("downloadTest", "readTest"))
+
+  expect_false(file.exists(file.path(mainfolder, "sources", "Test", "data.txt")))
+  readSource("Test") # call readSource without passing subtype explicitly
+  expect_true(file.exists(file.path(mainfolder, "sources", "Test", "data.txt")))
+})

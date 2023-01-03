@@ -65,11 +65,14 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
   }
 
   functionCall <- prepFunctionName(type = type, prefix = "download")
+  functionName <- sub("\\(.*$", "", functionCall)
+  functionFormals <- formals(eval(parse(text = functionName)))
 
   if (is.null(subtype)) {
-    functionName <- sub("\\(.*$", "", functionCall)
     # get default subtype argument if available, otherwise NULL
-    subtype <- formals(eval(parse(text = functionName)))[["subtype"]]
+    subtype <- functionFormals[["subtype"]]
+  } else if (!"subtype" %in% names(functionFormals)) {
+    stop(functionName, "does not have a subtype argument, but subtype '", subtype, "' was provided.")
   }
 
   functionCall <- prepFunctionName(type = type, prefix = "download", ignore = if (is.null(subtype)) "subtype" else NA)

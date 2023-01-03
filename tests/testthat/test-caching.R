@@ -55,7 +55,7 @@ test_that("Cache naming and identification works correctly", {
   downloadCacheExample <- function() {
     return(list(url = 1, author = 1, title = 1, license = 1, description = 1, unit = 1))
   }
-  readCacheExample <- function() return(as.magpie(1))
+  readCacheExample <- function(subtype = "bla") as.magpie(1)
   correctCacheExample <- function(x, subtype = "blub") {
     if (subtype == "blub") return(as.magpie(1))
     else if (subtype == "bla") return(as.magpie(2))

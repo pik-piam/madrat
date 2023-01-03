@@ -92,7 +92,12 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   }
 
   # get data either from cache or by calculating it from source
-  .getData <- function(type, subtype, subset, args, prefix, sourcefolder) {
+  .getData <- function(type, subtype, subset, args, prefix) {
+    sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
+    if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
+      sourcefolder <- file.path(sourcefolder, make.names(subtype))
+    }
+
     xList <- .getFromCache(prefix, type, args, subtype, subset)
     if (!is.null(xList)) {
       # cache hit, return
@@ -106,7 +111,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       } else {
         upstreamPrefix <- "read"
       }
-      xList <- .getData(type, subtype, subset, args, upstreamPrefix, sourcefolder)
+      xList <- .getData(type, subtype, subset, args, upstreamPrefix)
       # this x is passed to correct or convert function
       x <- xList$x
     }
@@ -187,14 +192,26 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
 
   # Check whether source folder exists and try do download source data if it is missing
   sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-  if (!is.null(subtype)) {
-    sourcefolder <- file.path(sourcefolder, make.names(subtype))
+  # if any DOWNLOAD.yml exists use these files as reference,
+  # otherwise just check whether the sourcefolder exists
+  df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
+  if (length(df) == 0) {
+    sourceAvailable <- dir.exists(sourcefolder)
+  } else {
+    sourcefile <- file.path(sourcefolder, "DOWNLOAD.yml")
+    sourcesubfile <- file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml")
+    sourceAvailable <- isTRUE(file.exists(sourcefile)) || isTRUE(file.exists(sourcesubfile))
   }
 
-  if (!dir.exists(sourcefolder)) {
+  if (!sourceAvailable) {
     # does a routine exist to download the source data?
     if (type %in% getSources(type = "download")) {
-      downloadSource(type = type, subtype = subtype, overwrite = TRUE)
+      downloadCall <- prepFunctionName(type = type, prefix = "download")
+      downloadFunctionName <- sub("\\(.*$", "", downloadCall)
+      downloadFormals <- formals(eval(parse(text = downloadFunctionName)))
+      downloadHasSubtypeArg <- "subtype" %in% names(downloadFormals)
+
+      downloadSource(type = type, subtype = if (downloadHasSubtypeArg) subtype else NULL)
     } else {
       typesubtype <- paste0(paste(c(paste0('type = "', type), subtype), collapse = '" subtype = "'), '"')
       stop("Sourcefolder does not contain data for the requested source ", typesubtype,
@@ -206,7 +223,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
   }
 
-  xList <- .getData(type, subtype, subset, args, prefix, sourcefolder)
+  xList <- .getData(type, subtype, subset, args, prefix)
   if (magclass::is.magpie(xList$x)) {
     xList$x <- clean_magpie(xList$x)
   }
