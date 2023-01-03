@@ -28,6 +28,7 @@ jobs:
           curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
           chmod 0755 run.sh
           ./run.sh bootstrap
+          rm -f bspm_*.tar.gz
 
       - name: Enable r-universe repo, modify bspm integration
         run: |
@@ -48,6 +49,7 @@ jobs:
                 pkgs <- c(bspm::install_sys(pkgs[!pkgs %%in%% noBinaryInstallRPackages]),
                           pkgs[pkgs %%in%% noBinaryInstallRPackages])
               }
+              type <- "source"
             })
             trace(utils::install.packages, expr, print = FALSE)
           })

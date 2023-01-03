@@ -44,7 +44,7 @@
 #' @importFrom yaml write_yaml
 #' @importFrom withr local_dir defer with_dir
 #' @export
-downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTries = 300) {
+downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTries = 300) { # nolint: cyclocomp_linter.
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("downloadSource")
