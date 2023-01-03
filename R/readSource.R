@@ -91,13 +91,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     return(xList)
   }
 
-  .getData <- function(type, subtype, subset, args, prefix = "read") {
-    # get data either from cache or by calculating it from source
-    sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-    if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
-      sourcefolder <- file.path(sourcefolder, make.names(subtype))
-    }
-
+  # get data either from cache or by calculating it from source
+  .getData <- function(type, subtype, subset, args, prefix, sourcefolder) {
     xList <- .getFromCache(prefix, type, args, subtype, subset)
     if (!is.null(xList)) {
       # cache hit, return
@@ -111,7 +106,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       } else {
         upstreamPrefix <- "read"
       }
-      xList <- .getData(type, subtype, subset, args, upstreamPrefix)
+      xList <- .getData(type, subtype, subset, args, upstreamPrefix, sourcefolder)
       # this x is passed to correct or convert function
       x <- xList$x
     }
@@ -163,6 +158,13 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     prefix <- "read"
   }
 
+  if (is.null(subtype)) {
+    functionCall <- prepFunctionName(type = type, prefix = prefix)
+    functionName <- sub("\\(.*$", "", functionCall)
+    # get default subtype argument if available, otherwise NULL
+    subtype <- formals(eval(parse(text = functionName)))[["subtype"]]
+  }
+
   args <- NULL
   if (!is.null(subtype)) {
     args <- append(args, list(subtype = subtype))
@@ -185,21 +187,14 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
 
   # Check whether source folder exists and try do download source data if it is missing
   sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-  # if any DOWNLOAD.yml exists use these files as reference,
-  # otherwise just check whether the sourcefolder exists
-  df <- dir(sourcefolder, recursive = TRUE, pattern = "DOWNLOAD.yml")
-  if (length(df) == 0) {
-    sourceAvailable <- dir.exists(sourcefolder)
-  } else {
-    sourcefile <- file.path(sourcefolder, "DOWNLOAD.yml")
-    sourcesubfile <- file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml")
-    sourceAvailable <- isTRUE(file.exists(sourcefile)) || isTRUE(file.exists(sourcesubfile))
+  if (!is.null(subtype)) {
+    sourcefolder <- file.path(sourcefolder, make.names(subtype))
   }
 
-  if (!sourceAvailable) {
+  if (!dir.exists(sourcefolder)) {
     # does a routine exist to download the source data?
     if (type %in% getSources(type = "download")) {
-      downloadSource(type = type, subtype = subtype)
+      downloadSource(type = type, subtype = subtype, overwrite = TRUE)
     } else {
       typesubtype <- paste0(paste(c(paste0('type = "', type), subtype), collapse = '" subtype = "'), '"')
       stop("Sourcefolder does not contain data for the requested source ", typesubtype,
@@ -211,7 +206,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
   }
 
-  xList <- .getData(type, subtype, subset, args, prefix)
+  xList <- .getData(type, subtype, subset, args, prefix, sourcefolder)
   if (magclass::is.magpie(xList$x)) {
     xList$x <- clean_magpie(xList$x)
   }

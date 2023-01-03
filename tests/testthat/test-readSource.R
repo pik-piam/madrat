@@ -165,3 +165,22 @@ test_that("read functions can return non-magpie objects", {
   expect_identical(testReadSource(function() list(x = brokenMagpie, class = "magpie"), convert = FALSE),
                    clean_magpie(brokenMagpie))
 })
+
+test_that("readSource uses default subtype", {
+  mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
+  localConfig(mainfolder = mainfolder)
+
+  downloadTest <- function(subtype = "a") {
+    writeLines(subtype, "data.txt")
+    return(list(url = "", author = "", title = "", license = "", description = "", unit = ""))
+  }
+  readTest <- function(subtype = "a") {
+    stopifnot(file.exists("data.txt"))
+    return(as.magpie(1))
+  }
+  globalassign(c("downloadTest", "readTest"))
+
+  expect_false(file.exists(file.path(mainfolder, "sources", "Test", "a", "data.txt")))
+  readSource("Test") # call readSource without passing subtype explicitly
+  expect_true(file.exists(file.path(mainfolder, "sources", "Test", "a", "data.txt")))
+})

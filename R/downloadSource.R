@@ -64,7 +64,7 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
     stop("Invalid subtype (must be a single character string)!")
   }
 
-  functionCall <- prepFunctionName(type = type, prefix = "download", ignore = if (is.null(subtype)) "subtype" else NA)
+  functionCall <- prepFunctionName(type = type, prefix = "download")
 
   if (is.null(subtype)) {
     functionName <- sub("\\(.*$", "", functionCall)
