@@ -55,13 +55,16 @@ test_that("Cache naming and identification works correctly", {
   downloadCacheExample <- function() {
     return(list(url = 1, author = 1, title = 1, license = 1, description = 1, unit = 1))
   }
-  readCacheExample <- function(subtype = "bla") as.magpie(1)
+  readCacheExample <- function(subtype = "blub") as.magpie(1)
   correctCacheExample <- function(x, subtype = "blub") {
     if (subtype == "blub") return(as.magpie(1))
     else if (subtype == "bla") return(as.magpie(2))
   }
   globalassign("downloadCacheExample", "readCacheExample", "correctCacheExample")
-  expect_message(readSource("CacheExample", convert = "onlycorrect"), "correctCacheExample-F[^-]*.rds")
+  expect_message(readSource("CacheExample", subtype = "blub", convert = "onlycorrect"),
+                 "writing cache correctCacheExample-F[^-]*.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect"),
+                 "loading cache correctCacheExample-F[^-]*.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"),
                  "correctCacheExample-F[^-]*-d0d19d80.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),
