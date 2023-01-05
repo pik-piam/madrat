@@ -4,7 +4,7 @@ test_that("vcat can handle lists", {
 
 # define shortcut for withMadratLogging and a
 # repeated calling of the same function
-wML1 <- madrat:::withMadratLogging
+wML1 <- withMadratLogging
 wML2 <- function(expr) wML1(wML1(expr))
 
 test_that("withMadratLogging properly logs warnings", {

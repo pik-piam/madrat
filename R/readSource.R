@@ -4,41 +4,45 @@
 #' wrapper for specific functions designed for the different possible source
 #' types.
 #'
-#' @param type source type, e.g. "IEA". A list of all available source types
-#' can be retrieved with function \code{\link{getSources}}.
-#' @param subtype For some sources there are subtypes of the source, for these
-#' source the subtype can be specified with this argument. If a source does not
+#' @note If a magpie object is returned magclass::clean_magpie is run and if convert = TRUE
+#' ISO code country level is checked.
+#'
+#' @param type A character string referring to the source type, e.g. "IEA" which would
+#' internally call a function called `readIEA` (the "wrapped function"). A list of
+#' available source types can be retrieved with function \code{\link{getSources}}.
+#' @param subtype A character string. For some sources there are subtypes of the source, for these
+#' sources the subtype can be specified with this argument. If a source does not
 #' have subtypes, subtypes should not be set.
-#' @param subset Similar to \code{subtype} a source can also have \code{subsets}. A \code{subsets}
-#' can be used to only read part of the data. This can in particular make sense for huge
-#' data sets where reading in the whole data set might be impractical or even
-#' infeasible.
+#' @param subset A character string. Similar to \code{subtype} a source can also have \code{subsets}.
+#' A \code{subsets} can be used to only read part of the data. This can in particular make sense
+#' for huge data sets where reading in the whole data set might be impractical or even infeasible.
 #' @param convert Boolean indicating whether input data conversion to
 #' ISO countries should be done or not. In addition it can be set to "onlycorrect"
 #' for sources with a separate correctXXX-function.
-#' @return magpie object with the temporal and data dimensionality of the
-#' source data. Spatial will either agree with the source data or will be on
-#' ISO code country level depending on your choice for the argument "convert".
-#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark
+#' @param supplementary Boolean deciding whether a list including the actual data and metadata,
+#' or just the actual data is returned.
+#' @return The read-in data, usually a magpie object. If supplementary is TRUE a list including
+#' the data and metadata is returned instead. The temporal and data dimensionality
+#' should match the source data. The spatial dimension should either match the source data or,
+#' if the convert argument is set to TRUE, should be on ISO code country level.
+#' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
 #' @seealso \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 #' @examples
 #' \dontrun{
 #' a <- readSource("Tau", "paper")
 #' }
 #'
-#' @importFrom magclass read.magpie is.magpie getComment<- getItems
-#' @importFrom methods existsFunction is
-#' @importFrom withr local_dir with_dir defer
 #' @export
-readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # nolint
+readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_linter
+                       convert = TRUE, supplementary = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
 
   setWrapperActive("readSource")
   setWrapperInactive("wrapperChecks")
 
-  local_dir(getConfig("mainfolder"))
+  withr::local_dir(getConfig("mainfolder"))
   startinfo <- toolstartmessage("readSource", argumentValues, "+")
-  defer({
+  withr::defer({
     toolendmessage(startinfo, "-")
   })
 
@@ -54,7 +58,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
   }
 
   # Does a correctTYPE function exist?
-  if (convert == "onlycorrect" & !(type %in% getSources(type = "correct"))) {
+  if (convert == "onlycorrect" && !(type %in% getSources(type = "correct"))) {
     warning("No correct function for ", type, " could be found. Set convert to FALSE.")
     convert <- FALSE
   }
@@ -75,58 +79,79 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
 
   # try to get from cache and check
   .getFromCache <- function(prefix, type, args, subtype, subset) {
-    x <- cacheGet(prefix = prefix, type = type, args = args)
-    if (!is.null(x) && prefix == "convert") {
+    xList <- cacheGet(prefix = prefix, type = type, args = args)
+    if (!is.null(xList) && prefix == "convert" && magclass::is.magpie(xList$x)) {
       fname <- paste0(prefix, type, "_", subtype, "_", subset)
-      err <- try(.testISO(getItems(x, dim = 1.1), functionname = fname), silent = TRUE)
+      err <- try(.testISO(magclass::getItems(xList$x, dim = 1.1), functionname = fname), silent = TRUE)
       if ("try-error" %in% class(err)) {
         vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
-        x <- NULL
+        xList <- NULL
       }
     }
-    return(x)
+    return(xList)
   }
 
-  .getData <- function(type, subtype, subset, args, prefix = "read") {
-    # get data either from cache or by calculating it from source
+  # get data either from cache or by calculating it from source
+  .getData <- function(type, subtype, subset, args, prefix) {
     sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
     if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
       sourcefolder <- file.path(sourcefolder, make.names(subtype))
     }
 
-    x <- .getFromCache(prefix, type, args, subtype, subset)
-    if (!is.null(x)) {
-      return(x)
+    xList <- .getFromCache(prefix, type, args, subtype, subset)
+    if (!is.null(xList)) {
+      # cache hit, return
+      return(xList)
+    }
+    # cache miss, read from source
+
+    if (prefix != "read") {
+      if (prefix == "convert" && type %in% getSources(type = "correct")) {
+        upstreamPrefix <- "correct"
+      } else {
+        upstreamPrefix <- "read"
+      }
+      xList <- .getData(type, subtype, subset, args, upstreamPrefix)
+      # this x is passed to correct or convert function
+      x <- xList$x
     }
 
-    # cache miss, read from source file
-    if (prefix == "correct") {
-      x <- .getData(type, subtype, subset, args, "read")
-    } else if (prefix == "convert") {
-      if (type %in% getSources(type = "correct")) {
-        x <- .getData(type, subtype, subset, args, "correct")
+    ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
+    if (length(ignore) == 0) ignore <- NULL
+    functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
+    setWrapperActive("wrapperChecks")
+
+    # run the actual read/correct/convert function
+    # if prefix is correct or convert the locally defined x is passed, so check it exists
+    stopifnot(prefix == "read" || exists("x"))
+    withr::with_dir(sourcefolder, {
+      x <- withMadratLogging(eval(parse(text = functionname)))
+    })
+    setWrapperInactive("wrapperChecks")
+
+    # ensure we are always working with a list with entries "x" and "class"
+    xList <- if (is.list(x)) x else list(x = x, class = "magpie")
+
+    # assert return list has the expected entries
+    if (!identical(robustSort(names(xList)), c("class", "x"))) {
+      stop('Output of "', functionname,
+           '" must be a MAgPIE object or a list with the entries "x" and "class"!')
+    }
+
+    if (!inherits(xList$x, xList$class)) {
+      stop('Output of "', functionname, '" should have class "', xList$class, '" but it does not.')
+    }
+
+    if (prefix == "convert") {
+      if (magclass::is.magpie(xList$x)) {
+        .testISO(magclass::getItems(xList$x, dim = 1.1), functionname = functionname)
       } else {
-        x <- .getData(type, subtype, subset, args, "read")
+        vcat(2, "Non-magpie objects are not checked for ISO country level.")
       }
     }
 
-    with_dir(sourcefolder, {
-      ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
-      if (length(ignore) == 0) ignore <- NULL
-      functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
-      setWrapperActive("wrapperChecks")
-      x <- withMadratLogging(eval(parse(text = functionname)))
-      setWrapperInactive("wrapperChecks")
-    })
-
-    if (!is.magpie(x)) {
-      stop('Output of function "', functionname, '" is not a MAgPIE object!')
-    }
-    if (prefix == "convert") {
-      .testISO(getItems(x, dim = 1.1), functionname = functionname)
-    }
-    cachePut(x, prefix = prefix, type = type, args = args)
-    return(x)
+    cachePut(xList, prefix = prefix, type = type, args = args)
+    return(xList)
   }
 
   # determine prefix
@@ -136,6 +161,13 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     prefix <- "correct"
   } else {
     prefix <- "read"
+  }
+
+  if (is.null(subtype)) {
+    functionCall <- prepFunctionName(type = type, prefix = prefix)
+    functionName <- sub("\\(.*$", "", functionCall)
+    # get default subtype argument if available, otherwise NULL
+    subtype <- formals(eval(parse(text = functionName)))[["subtype"]]
   }
 
   args <- NULL
@@ -174,7 +206,12 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
   if (!sourceAvailable) {
     # does a routine exist to download the source data?
     if (type %in% getSources(type = "download")) {
-      downloadSource(type = type, subtype = subtype)
+      downloadCall <- prepFunctionName(type = type, prefix = "download")
+      downloadFunctionName <- sub("\\(.*$", "", downloadCall)
+      downloadFormals <- formals(eval(parse(text = downloadFunctionName)))
+      downloadHasSubtypeArg <- "subtype" %in% names(downloadFormals)
+
+      downloadSource(type = type, subtype = if (downloadHasSubtypeArg) subtype else NULL)
     } else {
       typesubtype <- paste0(paste(c(paste0('type = "', type), subtype), collapse = '" subtype = "'), '"')
       stop("Sourcefolder does not contain data for the requested source ", typesubtype,
@@ -186,6 +223,9 @@ readSource <- function(type, subtype = NULL, subset = NULL, convert = TRUE) { # 
     stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
   }
 
-  x <- clean_magpie(.getData(type, subtype, subset, args, prefix))
-  return(x)
+  xList <- .getData(type, subtype, subset, args, prefix)
+  if (magclass::is.magpie(xList$x)) {
+    xList$x <- clean_magpie(xList$x)
+  }
+  return(if (supplementary) xList else xList$x)
 }

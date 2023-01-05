@@ -16,6 +16,14 @@
 #' madrat:::cacheGet("calc", "TauTotal", packages = "madrat")
 #' @importFrom digest digest
 cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
+
+  .spatRasterLoad <- function(x) {
+    if (!requireNamespace("terra", quietly = TRUE)) stop("Package `terra` required for caching of SpatRaster objects!")
+    out <- terra::rast(x$file)
+    names(out) <- x$names
+    return(out)
+  }
+
   .isSet <- function(prefix, type, setting) {
     if (is.null(getConfig(setting))) return(FALSE)
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))
@@ -34,6 +42,13 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
   if ("try-error" %in% class(x)) {
     vcat(0, " - corrupt cache file ", basename(fname), "! Continue without cache.")
     return(NULL)
+  }
+  if (is.list(x)) {
+    for (elem in c("x", "weight")) {
+      if (is.list(x[[elem]]) && identical(x[[elem]]$class, "SpatRaster")) {
+        x[[elem]] <- .spatRasterLoad(x[[elem]])
+      }
+    }
   }
   attr(x, "id") <- fname
   return(x)

@@ -28,6 +28,7 @@ jobs:
           curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
           chmod 0755 run.sh
           ./run.sh bootstrap
+          rm -f bspm_*.tar.gz
 
       - name: Enable r-universe repo, modify bspm integration
         run: |
@@ -48,6 +49,7 @@ jobs:
                 pkgs <- c(bspm::install_sys(pkgs[!pkgs %%in%% noBinaryInstallRPackages]),
                           pkgs[pkgs %%in%% noBinaryInstallRPackages])
               }
+              type <- "source"
             })
             trace(utils::install.packages, expr, print = FALSE)
           })
@@ -67,9 +69,9 @@ jobs:
         uses: pat-s/always-upload-cache@v3
         with:
           path: /usr/local/lib/R/
-          key: 2-${{ runner.os }}-usr-local-lib-R-${{ hashFiles('DESCRIPTION') }}
+          key: 3-${{ runner.os }}-usr-local-lib-R-${{ hashFiles('DESCRIPTION') }}
           restore-keys: |
-            2-${{ runner.os }}-usr-local-lib-R-
+            3-${{ runner.os }}-usr-local-lib-R-
 
       - name: Restore R library permissions
         run: |

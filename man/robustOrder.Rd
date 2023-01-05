@@ -11,8 +11,9 @@ robustOrder(..., na.last = TRUE, decreasing = FALSE, method = "radix")
 
 \item{na.last}{If TRUE missing values are put last, if FALSE they are put first, if NA they are removed}
 
-\item{decreasing}{If TRUE decreasing/descending order, if FALSE increasing/ascending order. For the "radix" method,
-this can be a vector of length equal to the number of arguments in ... . For the other methods, it must be length one.}
+\item{decreasing}{If TRUE decreasing/descending order, if FALSE increasing/ascending order.
+For the "radix" method, this can be a vector of length equal to the number of arguments in ... .
+For the other methods, it must be length one.}
 
 \item{method}{Default is "radix", which is locale independent. The alternatives "auto" and "shell" should not be used
 in madrat because they are locale dependent.}

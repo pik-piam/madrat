@@ -20,10 +20,8 @@ data and moves xref values to the weighting object which is required for
 aggregation.
 }
 \examples{
-
-\dontrun{ 
+\dontrun{
 calcOutput("TauTotal")
-
 }
 }
 \seealso{

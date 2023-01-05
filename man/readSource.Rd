@@ -4,34 +4,48 @@
 \alias{readSource}
 \title{readSource}
 \usage{
-readSource(type, subtype = NULL, subset = NULL, convert = TRUE)
+readSource(
+  type,
+  subtype = NULL,
+  subset = NULL,
+  convert = TRUE,
+  supplementary = FALSE
+)
 }
 \arguments{
-\item{type}{source type, e.g. "IEA". A list of all available source types
-can be retrieved with function \code{\link{getSources}}.}
+\item{type}{A character string referring to the source type, e.g. "IEA" which would
+internally call a function called `readIEA` (the "wrapped function"). A list of
+available source types can be retrieved with function \code{\link{getSources}}.}
 
-\item{subtype}{For some sources there are subtypes of the source, for these
-source the subtype can be specified with this argument. If a source does not
+\item{subtype}{A character string. For some sources there are subtypes of the source, for these
+sources the subtype can be specified with this argument. If a source does not
 have subtypes, subtypes should not be set.}
 
-\item{subset}{Similar to \code{subtype} a source can also have \code{subsets}. A \code{subsets}
-can be used to only read part of the data. This can in particular make sense for huge
-data sets where reading in the whole data set might be impractical or even
-infeasible.}
+\item{subset}{A character string. Similar to \code{subtype} a source can also have \code{subsets}.
+A \code{subsets} can be used to only read part of the data. This can in particular make sense
+for huge data sets where reading in the whole data set might be impractical or even infeasible.}
 
 \item{convert}{Boolean indicating whether input data conversion to
 ISO countries should be done or not. In addition it can be set to "onlycorrect"
 for sources with a separate correctXXX-function.}
+
+\item{supplementary}{Boolean deciding whether a list including the actual data and metadata,
+or just the actual data is returned.}
 }
 \value{
-magpie object with the temporal and data dimensionality of the
-source data. Spatial will either agree with the source data or will be on
-ISO code country level depending on your choice for the argument "convert".
+The read-in data, usually a magpie object. If supplementary is TRUE a list including
+the data and metadata is returned instead. The temporal and data dimensionality
+should match the source data. The spatial dimension should either match the source data or,
+if the convert argument is set to TRUE, should be on ISO code country level.
 }
 \description{
 Read in a source file and convert it to a MAgPIE object. The function is a
 wrapper for specific functions designed for the different possible source
 types.
+}
+\note{
+If a magpie object is returned magclass::clean_magpie is run and if convert = TRUE
+ISO code country level is checked.
 }
 \examples{
 \dontrun{
@@ -43,5 +57,5 @@ a <- readSource("Tau", "paper")
 \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 }
 \author{
-Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark
+Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
 }

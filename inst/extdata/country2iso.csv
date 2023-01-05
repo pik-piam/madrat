@@ -169,6 +169,7 @@ Congo DR;COD
 Congo Rep;COG
 Congo_Brazzaville;COG
 Congo, the Democratic Republic of the;COD
+Congo, Democratic Republic of the;COD
 CONGOREP;COD
 Cook Is;COK
 Cook Islands;COK
@@ -362,6 +363,7 @@ Hong Kong (China);HKG
 Hong Kong SAR;HKG
 Hong Kong Special Administrative Region of China;HKG
 hong kong special adminstrative region of china;HKG
+Hong Kong, Special Administrative Region of China;HKG
 Hong Kong, China;HKG
 Hong-Kong;HKG
 HONGKONG;HKG
@@ -500,6 +502,7 @@ LY;LBY
 MA;MAR
 Macao;MAC
 Macao Special Administrative Region of China;MAC
+Macao, Special Administrative Region of China;MAC
 Macau;MAC
 macau special adminstrative region of china;MAC
 Macedonia;MKD
@@ -612,6 +615,7 @@ NU;NIU
 NZ;NZL
 Occupied Palastine Territory;PSE
 Occupied Palestinian Territory;PSE
+Palestinian Territory, Occupied;PSE
 Oesterreich;AUT
 OM;OMN
 Oman;OMN
@@ -719,6 +723,7 @@ saint martin (dutch portion);SXM
 Saint Martin (French part);MAF
 Saint Pierre and Miquelon;SPM
 Saint Vincent and the Grenadines;VCT
+Saint Vincent and Grenadines;VCT
 Sambia;ZMB
 Samoa;WSM
 Samoa (Western);WSM
@@ -823,6 +828,7 @@ Syria;SYR
 Syria (Arab Republic);SYR
 Syrian AR;SYR
 Syrian Arab Republic;SYR
+Syrian Arab Republic (Syria);SYR
 syrien, arabische republik;SYR
 SZ;SWZ
 Tadschikistan;TJK
@@ -874,6 +880,7 @@ tunesien;TUN
 Tunisia;TUN
 turkei;TUR
 Türkei;TUR
+Türkiye;TUR
 Turkey;TUR
 TURKMENIST;TKM
 Turkmenistan;TKM
@@ -934,6 +941,7 @@ Viet Nam;VNM
 Vietnam;VNM
 Virgin Islands, British;VGB
 Virgin Islands, U.S.;VIR
+Virgin Islands, US;VIR
 Virgin_Islands;VIR
 VN;VNM
 Volkrep,China;CHN
