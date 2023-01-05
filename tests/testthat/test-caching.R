@@ -1,9 +1,16 @@
 test_that("Caching works", {
   calcCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-"))
-  globalassign("calcCacheExample")
+  calcNoCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-", cache = FALSE))
+  downloadNoCacheExample <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readNoCacheExample <- function() return(list(x = as.magpie(1), class = "magpie", cache = FALSE))
+  globalassign("calcCacheExample", "calcNoCacheExample", "readNoCacheExample", "downloadNoCacheExample")
   localConfig(ignorecache = FALSE, .verbose = FALSE)
   expect_null(cacheGet("calc", "CacheExample"))
   expect_message(calcOutput("CacheExample", aggregate = FALSE), "writing cache")
+  expect_message(calcOutput("NoCacheExample", aggregate = FALSE), "no cache written")
+  expect_message(readSource("NoCacheExample", convert = FALSE), "no cache written")
   expect_identical(cacheGet("calc", "CacheExample")$x, as.magpie(1))
   localConfig(ignorecache = TRUE, .verbose = FALSE)
   expect_null(cacheGet("calc", "CacheExample"))
