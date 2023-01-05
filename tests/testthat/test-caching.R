@@ -10,7 +10,7 @@ test_that("Caching works", {
   expect_null(cacheGet("calc", "CacheExample"))
   expect_message(calcOutput("CacheExample", aggregate = FALSE), "writing cache")
   expect_message(calcOutput("NoCacheExample", aggregate = FALSE), "cache disabled for calcNoCacheExample")
-  expect_message(readSource("NoCacheExample", convert = FALSE), "cache disabled for calcNoCacheExample")
+  expect_message(readSource("NoCacheExample", convert = FALSE), "cache disabled for readNoCacheExample")
   expect_identical(cacheGet("calc", "CacheExample")$x, as.magpie(1))
   localConfig(ignorecache = TRUE, .verbose = FALSE)
   expect_null(cacheGet("calc", "CacheExample"))
