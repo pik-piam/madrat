@@ -115,6 +115,11 @@ If not set \code{calcOutput} will try to determine automatically, whether a file
 or not, but in more complex cases (e.g. if calculations below top-level have to be run as well) this setting can
 be used to manually tweak the puc file list. CAUTION: Incorrect settings will cause corrupt puc files,
 so use this setting with extreme care and only if necessary.
+\item \bold{cache} (optional) boolean which decides whether a cache file should be written (if caching is active)
+or not. Default setting is TRUE. This can be for instance useful, if the calculation itself is quick, but
+the corresponding file sizes are huge. Or if the caching for the given data type does not support storage
+in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
+will corrupt the PUC file. Use with care.
 }
 }
 \examples{

@@ -1,6 +1,6 @@
 {
   "title": "madrat: May All Data be Reproducible and Transparent (MADRaT) *",
-  "version": "2.21.0",
+  "version": "2.21.1",
   "description": "<p>Provides a framework which should improve reproducibility and\n    transparency in data processing. It provides functionality such as\n    automatic meta data creation and management, rudimentary quality\n    management, data caching, work-flow management and data aggregation.\n    * The title is a wish not a promise. By no means we expect this\n    package to deliver everything what is needed to achieve full\n    reproducibility and transparency, but we believe that it supports\n    efforts in this direction.<\/p>",
   "creators": [
     {
