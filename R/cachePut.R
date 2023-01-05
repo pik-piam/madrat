@@ -37,8 +37,8 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
                 file = targetName))
   }
 
-  if (is.list(x) && identical(x$cache, FALSE)) {
-    vcat(1, " - no cache written", fill = 300, show_prefix = FALSE)
+  if (is.list(x) && isFALSE(x$cache)) {
+    vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
     return()
   }
 
