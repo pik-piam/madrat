@@ -83,3 +83,16 @@ test_that("Cache naming and identification works correctly", {
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),
                  "correctCacheExample-F[^-]*.rds")
 })
+
+test_that("non-list cache files are supported for forcecache", {
+  localConfig(cachefolder = withr::local_tempdir(), forcecache = TRUE)
+
+  # write legacy non-list cache file
+  saveRDS(as.magpie(1), file.path(getConfig("cachefolder"), "readCacheExample-Fasdasd.rds"))
+
+  readCacheExample <- function() as.magpie(1)
+  globalassign("readCacheExample")
+
+  expect_identical(readSource("CacheExample", supplementary = TRUE),
+                   list(x = readSource("CacheExample"), class = "magpie"))
+})
