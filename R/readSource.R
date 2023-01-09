@@ -27,6 +27,22 @@
 #' if the convert argument is set to TRUE, should be on ISO code country level.
 #' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
 #' @seealso \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
+#' #' @note The underlying read-functions can return a magpie object or a list of information
+#' (preferred) back to \code{readSource}. In list format the object should have the following
+#' structure:
+#' \itemize{
+#' \item \bold{x} - the data itself as magclass object
+#' \item \bold{unit} (optional) - unit of the provided data
+#' \item \bold{description} (otional) - a short description of the data
+#' \item \bold{note} (optional) - additional notes related to the data
+#' \item \bold{class} (optional | default = "magpie") - Class of the returned object. If set to
+#' something other than "magpie" most functionality will not be available and is switched off!
+#' \item \bold{cache} (optional) boolean which decides whether a cache file should be written (if caching is active)
+#' or not. Default setting is TRUE. This can be for instance useful, if the calculation itself is quick, but
+#' the corresponding file sizes are huge. Or if the caching for the given data type does not support storage
+#' in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
+#' will corrupt the PUC file. Use with care.
+#' }
 #' @examples
 #' \dontrun{
 #' a <- readSource("Tau", "paper")
@@ -137,8 +153,11 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     # ensure we are always working with a list with entries "x" and "class"
     xList <- if (is.list(x)) x else list(x = x, class = "magpie")
 
+    # set class to "magpie" if not set
+    if (is.null(xList$class)) xList$class <- "magpie"
+
     # assert return list has the expected entries
-    if (!identical(robustSort(names(xList)), c("class", "x"))) {
+    if (!all(c("class", "x") %in% names(xList))) {
       stop('Output of "', functionname,
            '" must be a MAgPIE object or a list with the entries "x" and "class"!')
     }
