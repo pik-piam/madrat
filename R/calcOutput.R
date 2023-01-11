@@ -122,57 +122,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   if (!is.null(regionmapping)) localConfig(regionmapping = regionmapping)
 
-  # read region mappings check settings for aggregate
-  if (aggregate != FALSE) {
-    .bilateralMapping <- function(mapping) {
-      out <- NULL
-      for (m in mapping) { # iterating over columns of a dataframe
-        tmp <- expand.grid(m, m, stringsAsFactors = FALSE)
-        out <- cbind(out, do.call(paste, args = c(tmp, list(sep = "."))))
-      }
-      out <- as.data.frame(out, stringsAsFactors = FALSE)
-      colnames(out) <- colnames(mapping)
-      return(out)
-    }
-
-    rel <- list()
-    relNames <- NULL
-    for (r in c(getConfig("regionmapping"), getConfig("extramappings"))) {
-      rel[[r]] <- toolGetMapping(r, type = "regional", activecalc = type)
-      # rename column names from old to new convention, if necessary
-      if (any(names(rel[[r]]) == "CountryCode")) names(rel[[r]])[names(rel[[r]]) == "CountryCode"] <- "country"
-      if (any(names(rel[[r]]) == "RegionCode")) names(rel[[r]])[names(rel[[r]]) == "RegionCode"] <- "region"
-      if (is.null(rel[[r]]$global)) {
-        rel[[r]]$global <- "GLO"  # add global column
-      }
-      # create bilateral mappings for small maps (there are 249 ISO countries so that still fits in)
-      # exclude bigger maps as this could negatively affect performance and usually is not needed
-      if (nrow(rel[[r]]) < 300) {
-        rel[[paste0(r, "bilateral")]] <- .bilateralMapping(rel[[r]])
-      }
-      relNames <- union(relNames, names(rel[[r]]))
-    }
-  }
-
-  if (!is.logical(aggregate)) {
-    # rename aggregate arguments from old to new convention, if necessary
-    if (toupper(aggregate) == "GLO") aggregate <- "global"
-    if (toupper(gsub("+", "", aggregate, fixed = TRUE)) == "REGGLO") aggregate <- "region+global"
-
-    # Ignore columns in 'aggregate' that are not defined in one of the mappings.
-    # Stop if 'aggregate' contains none of the columns defined in one of the mappings.
-    aggregateSplitted <- strsplit(aggregate, "+", fixed = TRUE)[[1]]
-    commonColumns <- aggregateSplitted %in% relNames
-    if (all(!commonColumns)) {
-      stop("None of the columns given in aggregate = ", aggregate, " could be found in the mappings!")
-    } else {
-      if (any(!commonColumns)) vcat(verbosity = 0, "Omitting ", aggregateSplitted[!commonColumns],
-        " from aggregate = ", aggregate, " because it does not exists in the mappings.")
-      # Use those columns only for aggregation that exist in either of the mappings
-      aggregate <- paste0(aggregateSplitted[commonColumns], collapse = "+")
-    }
-  }
-
   # check type input
   if (!is.character(type)) stop("Invalid type (must be a character)!")
   if (length(type) != 1) stop("Invalid type (must be a single character string)!")
@@ -364,80 +313,33 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   date        <- .prepComment(date(), "creation date")
   note        <- .prepComment(x$note, "note")
 
-  # select fitting relation mappings and merge them if there is more than one
-  if (aggregate != FALSE) {
+
+  if (!identical(aggregate, FALSE)) {
+
+    # select fitting relation mappings and merge them if there is more than one
     if (x$class != "magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
-    items <- getItems(x$x, dim = 1)
 
-    # find mappings that have the same (setequal) items (usually ISO countries) in any column as data (items)
-    # lapply loops over the mappings, vapply loops over the columns of a mapping
-    columnHasItems <- lapply(rel, vapply, setequal, items, FUN.VALUE = logical(1))
-    # extract the names of columns that have the same items as data
-    columnNameWithItems <- lapply(columnHasItems, function(x) names(which(x)))
+    # prepare mappings and aggregate argument for aggregation
+    map <- .getMapping(aggregate, type, x$x)
 
-    # mappings must have the same length AND the same items as data
-    relFitting <- which(vapply(rel, nrow, FUN.VALUE = integer(1)) == length(items) &
-                        !vapply(columnNameWithItems, identical, character(0), FUN.VALUE = logical(1)))
-
-    if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
-      " contain a mapping compatible to the provided data!")
-
-    # inform about mappings that don't fit and will be omitted
-    omit <- setdiff(names(rel), names(relFitting))
-    if (length(omit) > 0) {
-      vcat(verbosity = 2, "Ignoring region mapping ", omit, " because it does not fit the data")
+    # read and check x$aggregationFunction value which provides the aggregation function
+    # to be used.
+    if (is.null(x$aggregationFunction)) x$aggregationFunction <- "toolAggregate"
+    if (!is.function(x$aggregationFunction) && !is.character(x$aggregationFunction)) {
+      stop("x$aggregationFunction must be a function!")
     }
 
-    # keep mappings only that fit the data
-    rel <- rel[relFitting]
+    # read and check x$aggregationArguments value which provides additional arguments
+    # to be used in the aggregation function.
+    if (is.null(x$aggregationArguments)) x$aggregationArguments <- list()
+    if (!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
+    # Add base arguments to the argument list (except of rel, which is added later)
+    x$aggregationArguments$x <- quote(x$x)
+    if (!is.null(x$weight)) x$aggregationArguments$weight <- quote(x$weight)
+    if (x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE # nolint
 
-    # if there is only one fitting mapping make rel a data frame
-    if (length(rel) == 1) {
-      rel <- rel[[1]]
-    }
-
-    # If there are more than one fitting mappings merge them. If column names from the first mapping (given via
-    # 'regionmapping') also exist in further mappings (provided via 'extramappings') keep only the columns from
-    # the first mapping
-    if (length(relFitting) > 1) {
-      itemCol <- columnNameWithItems[relFitting]
-      tmp <- rel[[1]]
-      for (i in 2:length(rel)) {
-        # merge two mappings by their column that matched the data (see above; usually the ISO countries) and
-        # append '-remove' to the names of columns in the second mapping that also exist in the first mapping.
-        tmp <- merge(tmp, rel[[i]], by.x = itemCol[[1]], by.y = itemCol[[i]], suffixes = c("", "-remove"))
-        # find index of columns that will be removed from the merge result
-        ignoredColumnsID <- grep("-remove", colnames(tmp))
-        # list names of columns that will be removed
-        ignoredColumnsName <- paste(gsub("-remove", "", colnames(tmp)[ignoredColumnsID]), collapse = ", ")
-        vcat(verbosity = 1, "Ignoring column(s) ", ignoredColumnsName, " from ", names(rel[i]),
-             " as the column(s) already exist in another mapping.", sep = " ")
-        # remove columns from the merge result tagged with '-remove'
-        tmp <- tmp[, -ignoredColumnsID]
-      }
-      rel <- tmp
-    }
-  }
-
-  # read and check x$aggregationFunction value which provides the aggregation function
-  # to be used.
-  if (is.null(x$aggregationFunction)) x$aggregationFunction <- "toolAggregate"
-  if (!is.function(x$aggregationFunction) && !is.character(x$aggregationFunction)) {
-    stop("x$aggregationFunction must be a function!")
-  }
-
-  # read and check x$aggregationArguments value which provides additional arguments
-  # to be used in the aggregation function.
-  if (is.null(x$aggregationArguments)) x$aggregationArguments <- list()
-  if (!is.list(x$aggregationArguments)) stop("x$aggregationArguments must be a list of function arguments!")
-  # Add base arguments to the argument list (except of rel, which is added later)
-  x$aggregationArguments$x <- quote(x$x)
-  if (!is.null(x$weight)) x$aggregationArguments$weight <- quote(x$weight)
-  if (x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE # nolint
-
-  if (aggregate != FALSE) {
-    x$aggregationArguments$rel <- quote(rel)
-    if (aggregate != TRUE) x$aggregationArguments$to <- aggregate
+    x$aggregationArguments$rel <- quote(map$rel)
+    if (aggregate != TRUE) x$aggregationArguments$to <- map$aggregate
     if (try || getConfig("debug") == TRUE) {
       x$x <- try(do.call(x$aggregationFunction, x$aggregationArguments), silent = TRUE)
       if ("try-error" %in% class(x$x)) {
@@ -462,7 +364,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       stop("rounding can only be used in combination with x$class=\"magpie\"!")
     x$x <- signif(x$x, signif)
   }
-
 
   extendedComment <- c(description,
     unit,
@@ -503,3 +404,131 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     return(x$x)
   }
 }
+
+
+.getMapping <- function(aggregate, type, x) {
+
+  .items2rel <- function(x) {
+    rel <- data.frame(from = getItems(x, dim = 1), getItems(x, dim = 1, split=TRUE, full = TRUE))
+    return(rel)
+  }
+
+  .bilateralMapping <- function(mapping) {
+    out <- NULL
+    for (m in mapping) { # iterating over columns of a dataframe
+      tmp <- expand.grid(m, m, stringsAsFactors = FALSE)
+      out <- cbind(out, do.call(paste, args = c(tmp, list(sep = "."))))
+    }
+    out <- as.data.frame(out, stringsAsFactors = FALSE)
+    colnames(out) <- colnames(mapping)
+    return(out)
+  }
+
+  # check if x is bilateral data
+  if(dim(x)[[1]] == length(getISOlist())^2) {
+    tmp <- expand.grid(getISOlist(), getISOlist(), stringsAsFactors = FALSE)
+    bilateralElements <- paste0(tmp[[1]], ".", tmp[[2]])
+    bilateral <- setequal(bilateralElements, getItems(x, dim = 1))
+  } else {
+    bilateral <- FALSE
+  }
+
+  # create a list of all relation maps to consider
+  rel <- list()
+  relNames <- NULL
+  for (r in c(getConfig("regionmapping"), getConfig("extramappings"))) {
+    rel[[r]] <- toolGetMapping(r, type = "regional", activecalc = type)
+    # rename column names from old to new convention, if necessary
+    if (any(names(rel[[r]]) == "CountryCode")) names(rel[[r]])[names(rel[[r]]) == "CountryCode"] <- "country"
+    if (any(names(rel[[r]]) == "RegionCode")) names(rel[[r]])[names(rel[[r]]) == "RegionCode"] <- "region"
+    if (is.null(rel[[r]]$global)) {
+      rel[[r]]$global <- "GLO"  # add global column
+    }
+    # create bilateral mappings for country mappings if x is bilateral
+    if (bilateral && nrow(rel[[r]]) == length(getISOlist())) {
+      rel[[paste0(r, "bilateral")]] <- .bilateralMapping(rel[[r]])
+    }
+    relNames <- union(relNames, names(rel[[r]]))
+  }
+  if (!bilateral && ndim(x, dim = 1) > 1) {
+    rel[["items2rel"]] <- .items2rel(x)
+    relNames <- union(relNames, strsplit(getSets(x, fulldim = FALSE)[1],"\\.")[[1]])
+    if (is.null(rel[["items2rel"]]$global)) {
+      rel[["items2rel"]]$global <- "GLO"  # add global column
+    }
+  }
+
+  if (!is.logical(aggregate)) {
+    # rename aggregate arguments from old to new convention, if necessary
+    if (toupper(aggregate) == "GLO") aggregate <- "global"
+    if (toupper(gsub("+", "", aggregate, fixed = TRUE)) == "REGGLO") aggregate <- "region+global"
+
+    # Ignore columns in 'aggregate' that are not defined in one of the mappings.
+    # Stop if 'aggregate' contains none of the columns defined in one of the mappings.
+    aggregateSplitted <- strsplit(aggregate, "+", fixed = TRUE)[[1]]
+    commonColumns <- aggregateSplitted %in% relNames
+    if (all(!commonColumns)) {
+      stop("None of the columns given in aggregate = ", aggregate, " could be found in the mappings!")
+    } else {
+      if (any(!commonColumns)) vcat(verbosity = 0, "Omitting ", aggregateSplitted[!commonColumns],
+                                    " from aggregate = ", aggregate, " because it does not exists in the mappings.")
+      # Use those columns only for aggregation that exist in either of the mappings
+      aggregate <- paste0(aggregateSplitted[commonColumns], collapse = "+")
+    }
+  }
+
+  items <- getItems(x, dim = 1)
+
+  # find mappings that have the same (setequal) items (usually ISO countries) in any column as data (items)
+  # lapply loops over the mappings, vapply loops over the columns of a mapping
+  columnHasItems <- lapply(rel, vapply, setequal, items, FUN.VALUE = logical(1))
+  # extract the names of columns that have the same items as data
+  columnNameWithItems <- lapply(columnHasItems, function(x) names(which(x)))
+
+  # mappings must have the same length AND the same items as data
+  relFitting <- which(vapply(rel, nrow, FUN.VALUE = integer(1)) == length(items) &
+                        !vapply(columnNameWithItems, identical, character(0), FUN.VALUE = logical(1)))
+
+  if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
+                                    " contain a mapping compatible to the provided data!")
+
+  # inform about mappings that don't fit and will be omitted
+  omit <- setdiff(names(rel), names(relFitting))
+  if (length(omit) > 0) {
+    vcat(verbosity = 2, "Ignoring region mapping ", omit, " because it does not fit the data")
+  }
+
+  # keep mappings only that fit the data
+  rel <- rel[relFitting]
+
+  # if there is only one fitting mapping make rel a data frame
+  if (length(rel) == 1) {
+    rel <- rel[[1]]
+  }
+
+  # If there are more than one fitting mappings merge them. If column names from the first mapping (given via
+  # 'regionmapping') also exist in further mappings (provided via 'extramappings') keep only the columns from
+  # the first mapping
+  if (length(relFitting) > 1) {
+    itemCol <- columnNameWithItems[relFitting]
+    tmp <- rel[[1]]
+    for (i in 2:length(rel)) {
+      # merge two mappings by their column that matched the data (see above; usually the ISO countries) and
+      # append '-remove' to the names of columns in the second mapping that also exist in the first mapping.
+      tmp <- merge(tmp, rel[[i]], by.x = itemCol[[1]], by.y = itemCol[[i]], suffixes = c("", "-remove"))
+      # find index of columns that will be removed from the merge result
+      ignoredColumnsID <- grep("-remove", colnames(tmp))
+      # list names of columns that will be removed
+      ignoredColumnsName <- paste(gsub("-remove", "", colnames(tmp)[ignoredColumnsID]), collapse = ", ")
+      vcat(verbosity = 1, "Ignoring column(s) ", ignoredColumnsName, " from ", names(rel[i]),
+           " as the column(s) already exist in another mapping.", sep = " ")
+      # remove columns from the merge result tagged with '-remove'
+      tmp <- tmp[, -ignoredColumnsID]
+    }
+    rel <- tmp
+  }
+  return(list(rel = rel, aggregate = aggregate))
+}
+
+
+
