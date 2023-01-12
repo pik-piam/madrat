@@ -220,6 +220,7 @@ test_that("Aggregation works", {
   }
   calcAggregationTest3 <- function() {
     x1 <- new.magpie(getISOlist(), fill = 1)
+    getSets(x1)[1] <- "country"
     x2 <- new.magpie(1:4, fill = 2)
     x <- x1*x2
     return(list(x = x,
@@ -259,21 +260,21 @@ test_that("Aggregation works", {
               .Dimnames = list(region = "GLO", year = NULL, data = NULL)))
 
   country2 <- new("magpie", .Data = structure(rep(8, 249), .Dim = c(249L, 1L, 1L), .Dimnames = list(
-    region = unname(getISOlist()), year = NULL, data = NULL)))
+    country = unname(getISOlist()), year = NULL, data = NULL)))
 
   reg2 <- new("magpie", .Data = structure(c(432, 392, 408, 272, 128, 168,
                                             96, 40, 32, 8, 8, 8), .Dim = c(12L, 1L, 1L), .Dimnames = list(
                                             region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA", "REF",
                                                        "CAZ", "CHA", "IND", "JPN", "USA"), year = NULL, data = NULL)))
   glo2 <- new("magpie", .Data = structure(1992, .Dim = c(1L, 1L, 1L),
-                                          .Dimnames = list(region = "GLO", year = NULL, data = NULL)))
+                                          .Dimnames = list(global = "GLO", year = NULL, data = NULL)))
 
   expect_identical(nc(calcOutput("AggregationTest")), reg)
   expect_identical(nc(calcOutput("AggregationTest2")), clean_magpie(as.magpie(1)))
-  #expect_identical(nc(calcOutput("AggregationTest3")), reg2)
+  expect_identical(nc(calcOutput("AggregationTest3")), reg2)
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "glo")), glo)
   expect_identical(nc(calcOutput("AggregationTest3", aggregate = "glo")), glo2)
-  #expect_identical(nc(calcOutput("AggregationTest3", aggregate = "country")), country2)
+  expect_identical(nc(calcOutput("AggregationTest3", aggregate = "country")), country2)
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "regglo")), mbind(reg, glo))
   expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "global+region+cheese")),
                  "Omitting cheese from aggregate")
