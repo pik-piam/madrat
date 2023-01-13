@@ -222,7 +222,7 @@ test_that("Aggregation works", {
     x1 <- new.magpie(getISOlist(), fill = 1)
     getSets(x1)[1] <- "country"
     x2 <- new.magpie(1:4, fill = 2)
-    x <- x1*x2
+    x <- x1 * x2
     return(list(x = x,
                 weight = NULL,
                 description = "Aggregation test data 3",
@@ -232,7 +232,7 @@ test_that("Aggregation works", {
     x1 <- new.magpie(getISOlist()[1:12], fill = 1)
     getSets(x1)[1] <- "country"
     x2 <- new.magpie(1:4, fill = 2)
-    x <- x1*x2
+    x <- x1 * x2
     return(list(x = x,
                 weight = NULL,
                 description = "Aggregation test data 3",
@@ -290,7 +290,7 @@ test_that("Aggregation works", {
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "glo")), glo)
   expect_identical(nc(calcOutput("AggregationTest3", aggregate = "glo")), glo2)
   expect_identical(nc(calcOutput("AggregationTest3", aggregate = "country")), country2)
-  expect_error(calcOutput("AggregationTest4", aggregate =TRUE), "Cannot aggregate to regions")
+  expect_error(calcOutput("AggregationTest4", aggregate = TRUE), "Cannot aggregate to regions")
   expect_identical(nc(calcOutput("AggregationTest4", aggregate = "region1")), region1)
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "regglo")), mbind(reg, glo))
   expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "global+region+cheese")),

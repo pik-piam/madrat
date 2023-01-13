@@ -90,7 +90,7 @@
 #' toolAggregate(p, mapping, weight = p)
 #' # combined aggregation across two columns
 #' toolAggregate(p, mapping, to = "region+global")
-
+#'
 toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
                           negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1) { # nolint
 
@@ -99,13 +99,13 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
   comment <- getComment(x)
 
   # create missing rel information from dimension names if argument "to" is set
-  if(missing(rel) && !is.null(to)) {
-    if(round(dim)!=dim) stop("Subdimensions in dim not supported if relation mapping is missing!")
-    rel <- data.frame(c(dimnames(x)[dim],getItems(x, dim = dim, split = TRUE, full = TRUE)))
+  if (missing(rel) && !is.null(to)) {
+    if (round(dim) != dim) stop("Subdimensions in dim not supported if relation mapping is missing!")
+    rel <- data.frame(c(dimnames(x)[dim], getItems(x, dim = dim, split = TRUE, full = TRUE)))
     if (dim == 1 && is.null(rel$global)) {
       rel$global <- "GLO"  # add global column
     }
-    if(is.null(rel$all)) {
+    if (is.null(rel$all)) {
       rel$all <- "all"
     }
   }
@@ -185,7 +185,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       rel <- tmprel
     } else {
       rel <- .getAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
-      if(is.null(to)) to  <- names(dimnames(rel))[1]
+      if (is.null(to)) to  <- names(dimnames(rel))[1]
     }
   }
 
@@ -394,7 +394,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
 
     sets <- getSets(x, fulldim = FALSE)
     # update set name if number of sub-dimensions reduced to 1
-    if (ndim(out, dim = dim) == 1  && ndim(x, dim = dim) > 1)  {
+    if (ndim(out, dim = dim) == 1  && ndim(x, dim = dim) > 1) {
       sets[dim] <- ifelse(!is.null(to), to, NA)
     }
     getSets(out, fulldim = FALSE) <- sets

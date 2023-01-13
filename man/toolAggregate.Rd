@@ -114,6 +114,7 @@ toolAggregate(p, mapping)
 toolAggregate(p, mapping, weight = p)
 # combined aggregation across two columns
 toolAggregate(p, mapping, to = "region+global")
+
 }
 \seealso{
 \code{\link{calcOutput}}

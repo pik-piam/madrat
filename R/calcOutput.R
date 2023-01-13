@@ -406,10 +406,10 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 }
 
 
-.getMapping <- function(aggregate, type, x) {
+.getMapping <- function(aggregate, type, x) { # nolint: cyclocomp_linter
 
   .items2rel <- function(x) {
-    rel <- data.frame(from = getItems(x, dim = 1), getItems(x, dim = 1, split=TRUE, full = TRUE))
+    rel <- data.frame(from = getItems(x, dim = 1), getItems(x, dim = 1, split = TRUE, full = TRUE))
     return(rel)
   }
 
@@ -425,7 +425,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
 
   # check if x is bilateral data
-  if(dim(x)[[1]] == length(getISOlist())^2) {
+  if (dim(x)[[1]] == length(getISOlist())^2) {
     tmp <- expand.grid(getISOlist(), getISOlist(), stringsAsFactors = FALSE)
     bilateralElements <- paste0(tmp[[1]], ".", tmp[[2]])
     bilateral <- setequal(bilateralElements, getItems(x, dim = 1))
@@ -458,13 +458,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     relNames <- union(relNames, colnames(rel[["items2rel"]])[-1])
     # add mapping to regions if countries are present
-    if(setequal(rel[["items2rel"]]$country, getISOlist())) {
-      if(!is.null(rel[["items2rel"]]$region)) rel[["items2rel"]]$region <- NULL
+    if (setequal(rel[["items2rel"]]$country, getISOlist())) {
+      if (!is.null(rel[["items2rel"]]$region)) rel[["items2rel"]]$region <- NULL
       rel[["items2rel"]]$region <- merge(rel[["items2rel"]], rel[[1]], by = "country", sort = FALSE)$region
       # sort region into 2nd place to set it as default aggregation if nothing else is specified (aggregate = TRUE)
       cn <- colnames(rel[["items2rel"]])
-      rel[["items2rel"]] <- rel[["items2rel"]][union(c(cn[1],"region"), cn)]
-    } else if(isTRUE(aggregate)) {
+      rel[["items2rel"]] <- rel[["items2rel"]][union(c(cn[1], "region"), cn)]
+    } else if (isTRUE(aggregate)) {
       stop("Cannot aggregate to regions as mapping is missing!")
     }
   }
@@ -540,6 +540,3 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
   return(list(rel = rel, aggregate = aggregate))
 }
-
-
-
