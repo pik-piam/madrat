@@ -26,6 +26,11 @@
 #' A mapping object consists of any number of columns, where one column contains
 #' all the elements in x. These elements are mapped to the corresponding values
 #' in another column, as described below (see parameter 'from').
+#' It is possible to not set \code{rel} as long as \code{to} is set and \code{dim}
+#' is chosen approprialtly. In that case the relation mapping is extracted from
+#' the dimnames of the corresponding dimension, e.g. if you data contains a
+#' spatial subdimension "country" you can aggregate to countries via
+#' \code{toolAggregate(x, to = "country", dim = 1)}.
 #' @param weight magclass object containing weights which should be considered
 #' for a weighted aggregation. The provided weight should only contain positive
 #' values, but does not need to be normalized (any positive number>=0 is allowed).
@@ -38,6 +43,8 @@
 #' used}). If data should be aggregated based on more than one column these
 #' columns can be specified via "+", e.g. "region+global" if the data should
 #' be aggregated to column regional as well as column global.
+#' If {rel} is missing \code{to} refers to the dimension name to which should
+#' be aggregated to.
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
@@ -91,10 +98,15 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
 
   comment <- getComment(x)
 
-  if(missing(rel)) {
+  # create missing rel information from dimension names if argument "to" is set
+  if(missing(rel) && !is.null(to)) {
+    if(round(dim)!=dim) stop("Subdimensions in dim not supported if relation mapping is missing!")
     rel <- data.frame(c(dimnames(x)[dim],getItems(x, dim = dim, split = TRUE, full = TRUE)))
-    if (is.null(rel$global)) {
+    if (dim == 1 && is.null(rel$global)) {
       rel$global <- "GLO"  # add global column
+    }
+    if(is.null(rel$all)) {
+      rel$all <- "all"
     }
   }
 
@@ -173,6 +185,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       rel <- tmprel
     } else {
       rel <- .getAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
+      if(is.null(to)) to  <- names(dimnames(rel))[1]
     }
   }
 

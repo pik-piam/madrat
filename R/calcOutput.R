@@ -450,11 +450,22 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     relNames <- union(relNames, names(rel[[r]]))
   }
+  # add relation map based on spatial subdimensions
   if (!bilateral && ndim(x, dim = 1) > 1) {
     rel[["items2rel"]] <- .items2rel(x)
-    relNames <- union(relNames, strsplit(getSets(x, fulldim = FALSE)[1],"\\.")[[1]])
     if (is.null(rel[["items2rel"]]$global)) {
       rel[["items2rel"]]$global <- "GLO"  # add global column
+    }
+    relNames <- union(relNames, colnames(rel[["items2rel"]])[-1])
+    # add mapping to regions if countries are present
+    if(setequal(rel[["items2rel"]]$country, getISOlist())) {
+      if(!is.null(rel[["items2rel"]]$region)) rel[["items2rel"]]$region <- NULL
+      rel[["items2rel"]]$region <- merge(rel[["items2rel"]], rel[[1]], by = "country", sort = FALSE)$region
+      # sort region into 2nd place to set it as default aggregation if nothing else is specified (aggregate = TRUE)
+      cn <- colnames(rel[["items2rel"]])
+      rel[["items2rel"]] <- rel[["items2rel"]][union(c(cn[1],"region"), cn)]
+    } else if(isTRUE(aggregate)) {
+      stop("Cannot aggregate to regions as mapping is missing!")
     }
   }
 

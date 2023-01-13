@@ -228,6 +228,17 @@ test_that("Aggregation works", {
                 description = "Aggregation test data 3",
                 unit = "1"))
   }
+  calcAggregationTest4 <- function() {
+    x1 <- new.magpie(getISOlist()[1:12], fill = 1)
+    getSets(x1)[1] <- "country"
+    x2 <- new.magpie(1:4, fill = 2)
+    x <- x1*x2
+    return(list(x = x,
+                weight = NULL,
+                description = "Aggregation test data 3",
+                unit = "1",
+                isocountries = FALSE))
+  }
   calcMalformedAggregation <- function() {
     x <- new.magpie(getISOlist(), fill = 1)
     return(list(x = x,
@@ -247,7 +258,7 @@ test_that("Aggregation works", {
                 aggregationArguments = 42,
                 aggregationFunction = function(x, rel, mixed_aggregation) return(as.magpie(1)))) # nolint
   }
-  globalassign("calcAggregationTest", "calcAggregationTest2", "calcAggregationTest3",
+  globalassign("calcAggregationTest", "calcAggregationTest2", "calcAggregationTest3", "calcAggregationTest4",
                "calcMalformedAggregation", "calcMalformedAggregation2")
 
   reg <- new("magpie", .Data = structure(c(54, 49, 51, 34, 16, 21, 12,
@@ -269,12 +280,18 @@ test_that("Aggregation works", {
   glo2 <- new("magpie", .Data = structure(1992, .Dim = c(1L, 1L, 1L),
                                           .Dimnames = list(global = "GLO", year = NULL, data = NULL)))
 
+  region1 <- new("magpie", .Data = structure(rep(24, 4), .Dim = c(4L, 1L, 1L),
+                                             .Dimnames = list(region1 = c("1", "2", "3", "4"),
+                                                              year = NULL, data = NULL)))
+
   expect_identical(nc(calcOutput("AggregationTest")), reg)
   expect_identical(nc(calcOutput("AggregationTest2")), clean_magpie(as.magpie(1)))
   expect_identical(nc(calcOutput("AggregationTest3")), reg2)
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "glo")), glo)
   expect_identical(nc(calcOutput("AggregationTest3", aggregate = "glo")), glo2)
   expect_identical(nc(calcOutput("AggregationTest3", aggregate = "country")), country2)
+  expect_error(calcOutput("AggregationTest4", aggregate =TRUE), "Cannot aggregate to regions")
+  expect_identical(nc(calcOutput("AggregationTest4", aggregate = "region1")), region1)
   expect_identical(nc(calcOutput("AggregationTest", aggregate = "regglo")), mbind(reg, glo))
   expect_warning(a <- nc(calcOutput("AggregationTest", aggregate = "global+region+cheese")),
                  "Omitting cheese from aggregate")
