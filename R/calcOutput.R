@@ -528,15 +528,15 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     tmp <- rel[[1]]
     for (i in 2:length(rel)) {
       # merge two mappings by their column that matched the data (see above; usually the ISO countries) and
-      # append '-remove' to the names of columns in the second mapping that also exist in the first mapping.
-      tmp <- merge(tmp, rel[[i]], by.x = itemCol[[1]], by.y = itemCol[[i]], suffixes = c("", "-remove"))
+      # append '--remove' to the names of columns in the second mapping that also exist in the first mapping.
+      tmp <- merge(tmp, rel[[i]], by.x = itemCol[[1]], by.y = itemCol[[i]], suffixes = c("", "--remove"))
       # find index of columns that will be removed from the merge result
-      ignoredColumnsID <- grep("-remove", colnames(tmp))
+      ignoredColumnsID <- grep("--remove", colnames(tmp))
       # list names of columns that will be removed
-      ignoredColumnsName <- paste(gsub("-remove", "", colnames(tmp)[ignoredColumnsID]), collapse = ", ")
+      ignoredColumnsName <- paste(gsub("--remove", "", colnames(tmp)[ignoredColumnsID]), collapse = ", ")
       vcat(verbosity = 1, "Ignoring column(s) ", ignoredColumnsName, " from ", names(rel[i]),
            " as the column(s) already exist in another mapping.", sep = " ")
-      # remove columns from the merge result tagged with '-remove'
+      # remove columns from the merge result tagged with '--remove'
       tmp <- tmp[, -ignoredColumnsID]
     }
     rel <- tmp
