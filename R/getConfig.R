@@ -68,20 +68,25 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
   cfg <- getOption("madrat_cfg")
   cfg$mainfolder <- sub("/$", "", cfg$mainfolder)
 
-  n <- c(sourcefolder = "sources", cachefolder = "cache/default", mappingfolder = "mappings",
-         outputfolder = "output", pucfolder = "puc", tmpfolder = "tmp")
-  for (p in names(n)) {
-    if (!raw && (is.null(cfg[[p]]) || is.na(cfg[[p]]))) cfg[[p]] <- file.path(cfg$mainfolder, n[p])
+  if (!raw) {
+    folders <- c(sourcefolder = "sources", cachefolder = "cache/default", mappingfolder = "mappings",
+                outputfolder = "output", pucfolder = "puc", tmpfolder = "tmp")
+    for (folderName in names(folders)) {
+      if (is.null(cfg[[folderName]]) || is.na(cfg[[folderName]])) {
+        cfg[[folderName]] <- file.path(cfg$mainfolder, folders[folderName])
+      }
+      dir.create(cfg[[folderName]], showWarnings = FALSE, recursive = TRUE)
+    }
   }
   if (verbose && print) {
     nmax <- max(nchar(names(cfg)))
     vcat(1, "", show_prefix = FALSE)
     vcat(1, "Current madrat configuration:", show_prefix = FALSE)
-    for (n in names(cfg)) {
-      quotes <- ifelse(is.character(cfg[[n]]), "\"", "")
-      value <- cfg[[n]]
+    for (configName in names(cfg)) {
+      quotes <- ifelse(is.character(cfg[[configName]]), "\"", "")
+      value <- cfg[[configName]]
       if (is.null(value)) value <- "NULL"
-      vcat(1, paste0("   ", format(n, width = nmax), " -> ",
+      vcat(1, paste0("   ", format(configName, width = nmax), " -> ",
                      paste0(quotes, value, quotes, collapse = ", ")), show_prefix = FALSE)
     }
     vcat(1, "", show_prefix = FALSE)
