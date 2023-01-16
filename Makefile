@@ -26,3 +26,9 @@ lint:           ## Check if code etiquette is followed using lucode2::lint()
 
 format:         ## Apply auto-formatting to changed files and lint afterwards
 	Rscript -e 'lucode2::autoFormat()'
+
+install:        ## Install the package locally via devtools::install()
+	Rscript -e 'devtools::install(upgrade = "never")'
+
+docs:           ## Generate the package documentation via roxygen2::roxygenize()
+	Rscript -e 'roxygen2::roxygenize()'

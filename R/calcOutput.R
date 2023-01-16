@@ -456,6 +456,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (is.null(rel[["items2rel"]]$global)) {
       rel[["items2rel"]]$global <- "GLO"  # add global column
     }
+    # remove region column (if available) to prevent a mix-up with the region column in the
+    # default country2region mapping
+    rel$region <- NULL
     relNames <- union(relNames, colnames(rel[["items2rel"]])[-1])
     # add mapping to regions if countries are present
     if (setequal(rel[["items2rel"]]$country, getISOlist())) {
