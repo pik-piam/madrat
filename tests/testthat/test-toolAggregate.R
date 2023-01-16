@@ -16,7 +16,7 @@ cfg <- getConfig(verbose = FALSE)
 
 noC <- function(x) {
   getComment(x) <- NULL
-  attr(x, "Metadata") <- NULL # nolint: object_name_linter
+  attr(x, "Metadata") <- NULL # nolint: object_name_linter.
   return(x)
 }
 

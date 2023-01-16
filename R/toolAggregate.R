@@ -27,8 +27,8 @@
 #' all the elements in x. These elements are mapped to the corresponding values
 #' in another column, as described below (see parameter 'from').
 #' It is possible to not set \code{rel} as long as \code{to} is set and \code{dim}
-#' is chosen approprialtly. In that case the relation mapping is extracted from
-#' the dimnames of the corresponding dimension, e.g. if you data contains a
+#' is chosen appropriately. In that case the relation mapping is extracted from
+#' the dimnames of the corresponding dimension, e.g. if your data contains a
 #' spatial subdimension "country" you can aggregate to countries via
 #' \code{toolAggregate(x, to = "country", dim = 1)}.
 #' @param weight magclass object containing weights which should be considered
@@ -43,8 +43,7 @@
 #' used}). If data should be aggregated based on more than one column these
 #' columns can be specified via "+", e.g. "region+global" if the data should
 #' be aggregated to column regional as well as column global.
-#' If {rel} is missing \code{to} refers to the dimension name to which should
-#' be aggregated to.
+#' If {rel} is missing \code{to} refers to the aggregation target dimension name.
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension

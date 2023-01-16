@@ -314,7 +314,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   note        <- .prepComment(x$note, "note")
 
 
-  if (!identical(aggregate, FALSE)) {
+  if (!isFALSE(aggregate)) {
 
     # select fitting relation mappings and merge them if there is more than one
     if (x$class != "magpie") stop("Aggregation can only be used in combination with x$class=\"magpie\"!")
@@ -339,7 +339,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE # nolint
 
     x$aggregationArguments$rel <- quote(map$rel)
-    if (aggregate != TRUE) x$aggregationArguments$to <- map$aggregate
+    if (!isTRUE(aggregate))  x$aggregationArguments$to <- map$aggregate
     if (try || getConfig("debug") == TRUE) {
       x$x <- try(do.call(x$aggregationFunction, x$aggregationArguments), silent = TRUE)
       if ("try-error" %in% class(x$x)) {
@@ -406,7 +406,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 }
 
 
-.getMapping <- function(aggregate, type, x) { # nolint: cyclocomp_linter
+.getMapping <- function(aggregate, type, x) { # nolint: cyclocomp_linter.
 
   .items2rel <- function(x) {
     rel <- data.frame(from = getItems(x, dim = 1), getItems(x, dim = 1, split = TRUE, full = TRUE))
