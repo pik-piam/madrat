@@ -26,6 +26,11 @@
 #' A mapping object consists of any number of columns, where one column contains
 #' all the elements in x. These elements are mapped to the corresponding values
 #' in another column, as described below (see parameter 'from').
+#' It is possible to not set \code{rel} as long as \code{to} is set and \code{dim}
+#' is chosen appropriately. In that case the relation mapping is extracted from
+#' the dimnames of the corresponding dimension, e.g. if your data contains a
+#' spatial subdimension "country" you can aggregate to countries via
+#' \code{toolAggregate(x, to = "country", dim = 1)}.
 #' @param weight magclass object containing weights which should be considered
 #' for a weighted aggregation. The provided weight should only contain positive
 #' values, but does not need to be normalized (any positive number>=0 is allowed).
@@ -38,6 +43,7 @@
 #' used}). If data should be aggregated based on more than one column these
 #' columns can be specified via "+", e.g. "region+global" if the data should
 #' be aggregated to column regional as well as column global.
+#' If {rel} is missing \code{to} refers to the aggregation target dimension name.
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
@@ -83,12 +89,25 @@
 #' toolAggregate(p, mapping, weight = p)
 #' # combined aggregation across two columns
 #' toolAggregate(p, mapping, to = "region+global")
+#'
 toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
                           negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1) { # nolint
 
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
 
   comment <- getComment(x)
+
+  # create missing rel information from dimension names if argument "to" is set
+  if (missing(rel) && !is.null(to)) {
+    if (round(dim) != dim) stop("Subdimensions in dim not supported if relation mapping is missing!")
+    rel <- data.frame(c(dimnames(x)[dim], getItems(x, dim = dim, split = TRUE, full = TRUE)))
+    if (dim == 1 && is.null(rel$global)) {
+      rel$global <- "GLO"  # add global column
+    }
+    if (is.null(rel$all)) {
+      rel$all <- "all"
+    }
+  }
 
   .reorder <- function(x, e, dim) {
     if (dim == 1) return(x[e, , ])
@@ -157,14 +176,15 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     }
     if (length(to) == 1 && grepl("+", to, fixed = TRUE)) {
       tmprel <- NULL
-      to <- strsplit(to, "+", fixed = TRUE)[[1]]
-      for (t in to) {
+      toSplit <- strsplit(to, "+", fixed = TRUE)[[1]]
+      for (t in toSplit) {
         tmp <- .getAggregationMatrix(rel, from = from, to = t, items = getItems(x, dim = dim), partrel = partrel)
         tmprel <- rbind(tmprel, tmp)
       }
       rel <- tmprel
     } else {
       rel <- .getAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
+      if (is.null(to)) to  <- names(dimnames(rel))[1]
     }
   }
 
@@ -371,7 +391,12 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     if (dim == 2) out <- wrap(out, map = list(2, 1, 3))
     if (dim == 3) out <- wrap(out, map = list(2, 3, 1))
 
-    getSets(out, fulldim = FALSE) <- getSets(x, fulldim = FALSE)
+    sets <- getSets(x, fulldim = FALSE)
+    # update set name if number of sub-dimensions reduced to 1
+    if (ndim(out, dim = dim) == 1  && ndim(x, dim = dim) > 1) {
+      sets[dim] <- ifelse(!is.null(to), to, NA)
+    }
+    getSets(out, fulldim = FALSE) <- sets
 
     getComment(out) <- c(comment, paste0("Data aggregated (toolAggregate): ", date()))
     out <- as.magpie(out, spatial = 1, temporal = 2)

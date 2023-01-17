@@ -16,7 +16,7 @@ cfg <- getConfig(verbose = FALSE)
 
 noC <- function(x) {
   getComment(x) <- NULL
-  attr(x, "Metadata") <- NULL
+  attr(x, "Metadata") <- NULL # nolint: object_name_linter.
   return(x)
 }
 
@@ -166,6 +166,19 @@ test_that("aggregation for subdimensions works properly", {
   expect_identical(getItems(toolAggregate(a, rel, dim = "species"), dim = 3, full = TRUE), "animal.sweet.black")
 })
 
+test_that("aggregation with missing rel argument works", {
+  a <- magclass::maxample("animal")
+  rel <- data.frame(from = getItems(a, dim = 1), country = getItems(a, dim = "country", full = TRUE), global = "GLO")
+  expect_identical(noC(toolAggregate(a, to = "country")), noC(toolAggregate(a, rel)))
+  expect_identical(noC(toolAggregate(a, to = "global+country")), noC(toolAggregate(a, to = "global+country")))
+  expect_identical(noC(toolAggregate(a, to = "species", dim = 3)), noC(dimSums(a, dim = c(3.1, 3.3))))
+  aSum <- dimSums(a, dim = 3)
+  getSets(aSum, fulldim = FALSE)[3] <- "all"
+  getItems(aSum, dim = 3) <- "all"
+  expect_identical(noC(toolAggregate(a, to = "all", dim = 3)), noC(aSum))
+  expect_equivalent(toolAggregate(a, to = "global"), toolAggregate(a, to = "all"))
+})
+
 test_that("Malformed inputs are properly detected", {
   expect_error(toolAggregate(1, 2), "Input is not a MAgPIE object")
   expect_error(toolAggregate(pm, map, weight = 1), "Weight is not a MAgPIE object")
@@ -180,6 +193,8 @@ test_that("Malformed inputs are properly detected", {
   expect_warning(toolAggregate(pm, map, weight = -pm), "Negative numbers in weight.")
   expect_error(toolAggregate(pm, map, weight = -pm, negative_weight = "stop"), "Negative numbers in weight.")
   expect_error(toolAggregate(pm, diag(1, 16, 16), dim = 2), "Missing dimnames for aggregated dimension")
+  expect_error(toolAggregate(magclass::maxample("animal"), to = "country", dim = 1.2),
+               "Subdimensions in dim not supported if relation mapping is missing!")
 })
 
 test_that("Edge cases work", {
