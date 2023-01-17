@@ -242,12 +242,11 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
     }
   }
 
+  toolendmessage(startinfo)
   with_dir(outputfolder, {
     suppressWarnings(tar(file.path("..", paste0(cfg$collectionName, ".tgz")), compression = "gzip"))
   })
   unlink(outputfolder, recursive = TRUE)
-
-  toolendmessage(startinfo)
 }
 
 
