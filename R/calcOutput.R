@@ -339,7 +339,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (x$mixed_aggregation) x$aggregationArguments$mixed_aggregation <- TRUE # nolint
 
     x$aggregationArguments$rel <- quote(map$rel)
-    if (!isTRUE(aggregate))  x$aggregationArguments$to <- map$aggregate
+    if (!isTRUE(aggregate)) x$aggregationArguments$to <- map$aggregate
     if (try || getConfig("debug") == TRUE) {
       x$x <- try(do.call(x$aggregationFunction, x$aggregationArguments), silent = TRUE)
       if ("try-error" %in% class(x$x)) {
@@ -458,14 +458,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     # remove region column (if available) to prevent a mix-up with the region column in the
     # default country2region mapping
-    rel$region <- NULL
+    rel[["items2rel"]]$region <- NULL
     relNames <- union(relNames, colnames(rel[["items2rel"]])[-1])
     # add mapping to regions if countries are present
     if (setequal(rel[["items2rel"]]$country, getISOlist())) {
-      if (!is.null(rel[["items2rel"]]$region)) rel[["items2rel"]]$region <- NULL
-      rel[["items2rel"]]$region <- merge(rel[["items2rel"]], rel[[1]], by = "country", sort = FALSE)$region
-      # sort region into 2nd place to set it as default aggregation if nothing else is specified (aggregate = TRUE)
       cn <- colnames(rel[["items2rel"]])
+      rel[["items2rel"]] <- merge(rel[["items2rel"]], rel[[1]], by = "country", sort = FALSE, suffixes = c("", ".y"))
+      # sort region into 2nd place to set it as default aggregation if nothing else is specified (aggregate = TRUE)
       rel[["items2rel"]] <- rel[["items2rel"]][union(c(cn[1], "region"), cn)]
     } else if (isTRUE(aggregate)) {
       stop("Cannot aggregate to regions as mapping is missing!")
@@ -505,12 +504,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
                                     " contain a mapping compatible to the provided data!")
-
-  # inform about mappings that don't fit and will be omitted
-  omit <- setdiff(names(rel), names(relFitting))
-  if (length(omit) > 0) {
-    vcat(verbosity = 2, "Ignoring region mapping ", omit, " because it does not fit the data")
-  }
 
   # keep mappings only that fit the data
   rel <- rel[relFitting]
