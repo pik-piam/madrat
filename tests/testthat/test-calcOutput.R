@@ -303,7 +303,7 @@ test_that("Aggregation works", {
   file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
   localConfig(extramappings = xtramap)
 
-  # use 'local' to have the change of verbosity level only local and let the rmainder of the script unaffected
+  # use 'local' to have the change of verbosity level only local and let the remainder of the script unaffected
   local({
     # set verbosity to a level that will produce the expected NOTE
     localConfig(verbosity = 1)
@@ -312,6 +312,38 @@ test_that("Aggregation works", {
       "already exist in another mapping\\."))
     expect_identical(a, glo)
   })
+})
+
+test_that("1on1 country mappings do not alter the data", {
+  map <- data.frame(country = getISOlist(), region = getISOlist())
+  tmpFile <- withr::local_tempfile(fileext = ".csv")
+  write.csv(map, tmpFile)
+  localConfig(outputfolder = withr::local_tempdir(),
+              regionmapping = tmpFile,
+              verbosity = 0, .verbose = FALSE)
+
+  expect_equal(nc(calcOutput("TauTotal")), nc(calcOutput("TauTotal", aggregate = FALSE)))
+
+
+  calc1on1Test <- function() {
+    x1 <- new.magpie(getISOlist(), fill = 1)
+    getSets(x1)[1] <- "country"
+    x2 <- new.magpie(1:4, fill = 2)
+    x <- x1 * x2
+    # fill with random numbers and mix order to test whether this
+    # affects the country-country mapping
+    x[, , ] <- unlist(randu)[seq_len(length(x))]
+    x <- x[order(x), , ]
+    return(list(x = x,
+                weight = NULL,
+                description = "Aggregation test data 3",
+                unit = "1"))
+  }
+  globalassign("calc1on1Test")
+  aCountry <- magpiesort(nc(calcOutput("1on1Test", aggregate = "country")))
+  getSets(aCountry)[1] <- "region"
+  aRegion <- magpiesort(nc(calcOutput("1on1Test")))
+  expect_equal(aRegion, aCountry)
 })
 
 test_that("Bilateral aggregation works", {

@@ -19,7 +19,7 @@
 calcTauTotal <- function(source = "paper") {
   tau    <- readSource("Tau", source) # nolint: undesirable_function_linter. source != base::source here
   x      <- collapseNames(tau[, , "tau.total"])
-  weight <- collapseNames(tau[, , "xref.total"])
+  weight <- collapseNames(tau[, , "xref.total"]) + 10^-10
   return(list(x = x,
               weight = weight,
               min = 0,

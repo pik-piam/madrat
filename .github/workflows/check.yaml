@@ -1,6 +1,6 @@
 # Run CI for R using https://eddelbuettel.github.io/r-ci/
 
-name: lucode2-check
+name: check
 
 on:
   push:
@@ -14,7 +14,7 @@ env:
   NO_BINARY_INSTALL_R_PACKAGES: 'c("madrat", "magclass", "citation", "gms", "goxygen", "GDPuc", "roxygen2")'
 
 jobs:
-  lucode2-check:
+  check:
     runs-on: ubuntu-latest
 
     steps:

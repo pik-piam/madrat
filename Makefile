@@ -28,7 +28,8 @@ format:         ## Apply auto-formatting to changed files and lint afterwards
 	Rscript -e 'lucode2::autoFormat()'
 
 install:        ## Install the package locally via devtools::install()
-	Rscript -e 'devtools::install()'
+	Rscript -e 'devtools::install(upgrade = "never")'
 
-docs:           ## Generate the package documentation via roxygen2::roxygenize()
+docs:           ## Generate the package documentation (man/*.Rd files) via roxygen2::roxygenize(),
+                ## view the generated documentation with `?package::function`
 	Rscript -e 'roxygen2::roxygenize()'
