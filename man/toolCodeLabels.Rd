@@ -21,7 +21,7 @@ This function replaces a hash code (e.g. regioncode) or another cryptic
 code with a human readable code via a given dictionary.
 This can be useful to make outputs better readable in cases where hash
 codes are already known to the user.
-If not entry exists in the dictionary the hash code is returned again.
+If no entry exists in the dictionary the hash code is returned again.
 }
 \examples{
 toolCodeLabels("62eff8f7")

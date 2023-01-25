@@ -30,6 +30,8 @@
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
 #' match settings in \code{setConfig}!)
+#' @return Invisibly, the path to the newly created tgz archive.
+#'
 #' @note The underlying full-functions can optionally provide a list of information back to
 #' \code{retrieveData}. Following list entries are currently supported:
 #' \itemize{
@@ -172,7 +174,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
     cfg$collectionName <- paste0(cfg$collectionName, "_", returnedValue$tag)
   }
 
-  nWarn <-  getOption("madratWarningsCounter")
+  nWarn <- getOption("madratWarningsCounter")
   if (strict && nWarn > 0) {
     cfg$collectionName <- paste0("WARNINGS", nWarn, "_", cfg$collectionName)
     if (puc) {
@@ -244,9 +246,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
 
   toolendmessage(startinfo)
   with_dir(outputfolder, {
-    suppressWarnings(tar(file.path("..", paste0(cfg$collectionName, ".tgz")), compression = "gzip"))
+    tgzPath <- file.path("..", paste0(cfg$collectionName, ".tgz"))
+    suppressWarnings(tar(tgzPath, compression = "gzip"))
+    tgzPath <- normalizePath(tgzPath, mustWork = TRUE)
   })
   unlink(outputfolder, recursive = TRUE)
+  return(invisible(tgzPath))
 }
 
 
