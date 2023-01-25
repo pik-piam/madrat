@@ -50,6 +50,9 @@ in the currently used environment are being used.}
 fullXYZ function (Please make sure that argument names in full functions do not
 match settings in \code{setConfig}!)}
 }
+\value{
+Invisibly, the path to the newly created tgz archive.
+}
 \description{
 Function to retrieve a predefined collection of calculations for a specific
 regionmapping.
