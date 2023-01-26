@@ -75,6 +75,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
   # check and structure settings
   cfg <- .prepConfig(model, rev, dev, ...)
 
+  outputfolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
+
   if (getConfig("debug") != TRUE) {
 
     matchingCollections <- .match(getConfig("outputfolder"), "tgz", cfg$collectionName)
@@ -83,7 +85,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
       startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
       vcat(-2, " - data is already available and not calculated again.", fill = 300)
       toolendmessage(startinfo)
-      return()
+      return(invisible(file.path(getConfig("outputfolder"), matchingCollections)))
     }
 
     if (puc) {
@@ -93,14 +95,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
         vcat(-2, " - data will be created from existing puc (", matchingPUCs, ").", fill = 300)
         do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)), renv = renv,
                                 strict = NULL, cfg$input[cfg$pucArguments]))
-        return()
+        return(invisible(paste0(outputfolder, ".tgz")))
       }
     }
   }
 
   # data not yet ready and has to be prepared first
-  outputfolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
-
   # create folder if required
   dir.create(outputfolder, recursive = TRUE, showWarnings = !file.exists(outputfolder))
 
@@ -242,6 +242,10 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
     } else {
       vcat(1, "puc file not created: could not find list of files to be added.")
     }
+  }
+
+  if (!is.null(renv::project())) {
+    renv::snapshot(lockfile = file.path(outputfolder, "renv.lock"), prompt = FALSE)
   }
 
   toolendmessage(startinfo)
