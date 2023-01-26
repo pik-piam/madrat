@@ -195,7 +195,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = iden
       }
       pucName <- paste0(cfg$pucName, ".puc")
       pucPath <- file.path(getConfig("pucfolder"), pucName)
-      if (!dir.exists(getConfig("pucfolder"))) dir.create(getConfig("pucfolder"), recursive = TRUE)
       if (!file.exists(pucPath)) {
         cacheFiles <- readLines(pucFiles)
         if (all(file.exists(cacheFiles))) {
