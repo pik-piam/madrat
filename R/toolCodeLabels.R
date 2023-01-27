@@ -19,7 +19,7 @@
 #' @export
 toolCodeLabels <- function(get = NULL, add = NULL) {
   labels <- getOption("madrat_codelabels")
-  if (is.null(labels)) add <- c(h12 = "62eff8f7", FSEC = "e2bdb6cd", add)
+  if (is.null(labels)) add <- c(h12 = "62eff8f7", add)
   if (!is.null(add) && is.vector(add) && !is.null(names(add))) {
     labels[add] <- names(add)
     options(madrat_codelabels = labels) # nolint
