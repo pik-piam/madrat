@@ -8,7 +8,7 @@ retrieveData(
   model,
   rev = 0,
   dev = "",
-  cachetype = "rev",
+  cachetype = "def",
   puc = identical(dev, ""),
   strict = FALSE,
   renv = TRUE,
