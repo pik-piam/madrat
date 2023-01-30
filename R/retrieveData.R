@@ -55,7 +55,7 @@
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir local_options local_tempdir
 #' @export
-retrieveData <- function(model, rev = 0, dev = "", cachetype = "rev", puc = identical(dev, ""),
+retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = identical(dev, ""),
                          strict = FALSE, renv = TRUE, ...) {
 
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
