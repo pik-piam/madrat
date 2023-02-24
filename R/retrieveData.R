@@ -104,27 +104,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   # create folder if required
   dir.create(outputfolder, recursive = TRUE, showWarnings = !file.exists(outputfolder))
 
-  # copy mappings to mapping folder and set config accordingly
-  regionmapping <- vapply(c(getConfig("regionmapping"), getConfig("extramappings")), toolGetMapping, type = "regional",
-                          returnPathOnly = TRUE, FUN.VALUE = character(1))
-  mappath <- vapply(paste0(cfg$regionscode, ".csv"), toolGetMapping, "regional", error.missing = FALSE,
-                    returnPathOnly = TRUE, FUN.VALUE = character(1))
-
-  for (i in seq_along(regionmapping)) {
-    # copy mapping to mapping folder
-    if (!file.exists(mappath[i])) {
-      dir.create(dirname(mappath[i]), recursive = TRUE, showWarnings = !dir.exists(dirname(mappath[i])))
-      file.copy(regionmapping[i], mappath[i])
-    }
-
-    # copy mapping to output folder
-    tryCatch({
-      file.copy(regionmapping[i], outputfolder, overwrite = TRUE)
-    },
-    error = function(error) {
-      warning("Copying regionmapping to output folder failed: ", error)
-    })
-  }
+  .copyMappings(cfg$regionscode, outputfolder)
 
   tryCatch({
     saveRDS(list(package = attr(cfg$functionName, "package"),
@@ -230,9 +210,15 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
               # in the created renv.lock might not match the version used to run the full functions
             }), collapse = "\n"))
 
-            # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
-            # required madrat cache files
-            suppressWarnings(tar(pucPath, compression = "gzip"))
+            missingFiles <- basename(cacheFiles)[!file.exists(basename(cacheFiles))]
+            if (length(missingFiles) == 0) {
+              # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
+              # required madrat cache files
+              suppressWarnings(tar(pucPath, compression = "gzip"))
+            } else {
+              vcat(1, "puc file not created, some cache files are missing:\n",
+                   paste(missingFiles, collapse = "\n"))
+            }
           })
         } else {
           vcat(1, "puc file not created: could not find all relevant files.")
@@ -344,4 +330,32 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   match <- match[(startsWith(match, paste0(pattern, "_")) | startsWith(match, paste0(pattern, "."))) &
                    !startsWith(match, paste0(pattern, "_debug"))]
   return(match)
+}
+
+.copyMappings <- function(regionscode, outputfolder) {
+  # copy mappings to mapping folder and set config accordingly
+  regionmapping <- vapply(c(getConfig("regionmapping"), getConfig("extramappings")),
+                          toolGetMapping,
+                          type = "regional", returnPathOnly = TRUE,
+                          FUN.VALUE = character(1))
+  mappath <- vapply(paste0(regionscode, ".csv"),
+                    toolGetMapping,
+                    "regional", error.missing = FALSE, returnPathOnly = TRUE,
+                    FUN.VALUE = character(1))
+
+  for (i in seq_along(regionmapping)) {
+    # copy mapping to mapping folder
+    if (!file.exists(mappath[i])) {
+      dir.create(dirname(mappath[i]), recursive = TRUE, showWarnings = !dir.exists(dirname(mappath[i])))
+      file.copy(regionmapping[i], mappath[i])
+    }
+
+    # copy mapping to output folder
+    tryCatch({
+      file.copy(regionmapping[i], outputfolder, overwrite = TRUE)
+    },
+    error = function(error) {
+      warning("Copying regionmapping to output folder failed: ", error)
+    })
+  }
 }
