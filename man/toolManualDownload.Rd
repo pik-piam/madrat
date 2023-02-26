@@ -6,12 +6,15 @@
 \usage{
 toolManualDownload(
   instructions,
-  request = "Enter the path to the downloaded data:"
+  intro = "Data must be downloaded manually",
+  request = "Enter path to the downloaded data:"
 )
 }
 \arguments{
 \item{instructions}{Download instructions in form of a character vector describing how to manually
 retrieve the data.}
+
+\item{intro}{Introductory sentence to be shown first. Will not show up if set to NULL.}
 
 \item{request}{A prompt which should show up after the instructions to ask for the local download location.}
 }
