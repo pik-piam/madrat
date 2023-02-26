@@ -18,7 +18,7 @@
 #' @importFrom withr local_connection
 #' @export
 toolManualDownload <- function(instructions, intro = "Data must be downloaded manually",
-                               request = "Enter path to the downloaded data:") {
+                               request = "Enter full path to the downloaded data:") {
   .getLine <- function() {
     if (interactive()) {
       # needed for e.g. RStudio and R in jupyter
@@ -26,11 +26,14 @@ toolManualDownload <- function(instructions, intro = "Data must be downloaded ma
     }
     return(readLines(withr::local_connection(file("stdin")), n = 1))
   }
-  if (!is.null(intro)) message(intro)
-  message(paste0(seq_along(instructions), ". ", instructions, collapse = "\n"))
-  message(request)
+  msg <- function(...) vcat(1, ..., show_prefix = FALSE)
+  if (!is.null(intro)) msg(intro)
+  for(m in paste0(seq_along(instructions), ". ", instructions)) {
+    msg(m)
+  }
+  msg(request)
   filePath <- .getLine()
   if (!file.exists(filePath)) stop("Data could not be found!")
   file.copy(filePath, ".")
-  message("Data has been succesfully copied. You can now delete ", normalizePath(filePath))
+  msg("Data has been succesfully copied. You can now delete ", normalizePath(filePath))
 }

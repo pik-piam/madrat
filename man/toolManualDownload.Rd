@@ -7,7 +7,7 @@
 toolManualDownload(
   instructions,
   intro = "Data must be downloaded manually",
-  request = "Enter path to the downloaded data:"
+  request = "Enter full path to the downloaded data:"
 )
 }
 \arguments{
