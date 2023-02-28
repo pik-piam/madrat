@@ -6,6 +6,7 @@
 #'
 #' @param instructions Download instructions in form of a character vector describing how to manually
 #' retrieve the data.
+#' @param intro Introductory sentence to be shown first. Will not show up if set to NULL.
 #' @param request A prompt which should show up after the instructions to ask for the local download location.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{downloadSource}}
@@ -16,7 +17,8 @@
 #' }
 #' @importFrom withr local_connection
 #' @export
-toolManualDownload <- function(instructions, request = "Enter the path to the downloaded data:") {
+toolManualDownload <- function(instructions, intro = "Data must be downloaded manually",
+                               request = "Enter full path to the downloaded data:") {
   .getLine <- function() {
     if (interactive()) {
       # needed for e.g. RStudio and R in jupyter
@@ -24,10 +26,14 @@ toolManualDownload <- function(instructions, request = "Enter the path to the do
     }
     return(readLines(withr::local_connection(file("stdin")), n = 1))
   }
-  message(paste0(seq_len(instructions), ". ", instructions, collapse = "\n"))
-  message(length(instructions) + 1, ". ", request)
+  msg <- function(...) vcat(1, ..., show_prefix = FALSE)
+  if (!is.null(intro)) msg(intro)
+  for(m in paste0(seq_along(instructions), ". ", instructions)) {
+    msg(m)
+  }
+  msg(request)
   filePath <- .getLine()
   if (!file.exists(filePath)) stop("Data could not be found!")
   file.copy(filePath, ".")
-  message("Data has been succesfully copied. You can now delete ", normalizePath(filePath))
+  msg("Data has been succesfully copied. You can now delete ", normalizePath(filePath))
 }
