@@ -169,7 +169,10 @@ fingerprintFiles <- function(paths) {
           dir.create(dirname(hashCacheFile), recursive = TRUE)
         }
         tryCatch({
-          saveRDS(files, hashCacheFile, version = 2)
+          # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+          tempfileName <- paste0(hashCacheFile, Sys.getenv("SLURM_JOB_ID", unset = ""))
+          saveRDS(files, file = tempfileName, compress = getConfig("cachecompression"))
+          file.rename(tempfileName, hashCacheFile)
           Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
         }, error = function(error) {
           warning("Saving hashCacheFile failed: ", error)
