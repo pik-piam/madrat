@@ -23,10 +23,10 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
 
   .spatRaster2Cache <- function(x, name, fname) {
     if (!requireNamespace("terra", quietly = TRUE)) stop("Package `terra` required for caching of SpatRaster objects!")
+    if (all(terra::inMemory(x))) return(x)
     if (length(terra::sources(x)) > 1) {
       stop("Multiple sources of SpatRaster objects in caching currently not supported!")
     }
-    if (terra::inMemory(x)) return(x)
     sourceName <- terra::sources(x)
     sourceType <- tools::file_ext(sourceName)
     targetName <- sub("\\..*$", paste0("-", name, ".", sourceType), fname)
