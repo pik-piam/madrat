@@ -51,7 +51,6 @@
 #' @importFrom callr r
 #' @importFrom methods formalArgs
 #' @importFrom renv init hydrate snapshot
-#' @importFrom tools package_dependencies
 #' @importFrom utils sessionInfo tar modifyList
 #' @importFrom withr with_dir with_tempdir local_options local_tempdir
 #' @export
@@ -184,31 +183,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
             otherFiles <- c("config.rds", "diagnostics.log")
             file.copy(file.path(outputfolder, otherFiles), ".")
 
-            requiredPackages <- attr(cfg$functionName, "package")
-            dependencies <- package_dependencies(requiredPackages, db = installed.packages(),
-                                                 which = "all", recursive = "strong")
-            requiredPackages <- unique(c("renv", requiredPackages, unlist(dependencies)))
-
-            vcat(3, paste(capture.output({
-              dummyProject <- withr::local_tempdir()
-              initRenv <- function() {
-                renv::init()
-                return(normalizePath(renv::paths$library()))
-              }
-              # init renv in separate session to prevent changes to current session's libpath
-              dummyLibPath <- callr::r(initRenv, wd = dummyProject, spinner = FALSE, show = TRUE)
-
-              # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
-              # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
-              renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject)
-
-              # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
-              renv::snapshot(project = dummyProject, library = dummyLibPath, prompt = FALSE,
-                             lockfile = file.path(normalizePath("."), "renv.lock"), type = "all")
-
-              # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
-              # in the created renv.lock might not match the version used to run the full functions
-            }), collapse = "\n"))
+            .fillRenvCache(requiredPackages = attr(cfg$functionName, "package"))
 
             missingFiles <- basename(cacheFiles)[!file.exists(basename(cacheFiles))]
             if (length(missingFiles) == 0) {
@@ -358,4 +333,40 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
       warning("Copying regionmapping to output folder failed: ", error)
     })
   }
+}
+
+.fillRenvCache <- function(requiredPackages) {
+  # make sure requiredPackages and all dependencies are available in the renv cache
+
+  if (requireNamespace("testthat", quietly = TRUE) && testthat::is_testing()) {
+    # callr + renv behaves differently in testing which leads to false warnings
+    # also during testing renv is not using global renv cache, so skip when testing
+    return(invisible(NULL))
+  }
+
+  dependencies <- tools::package_dependencies(requiredPackages, db = utils::installed.packages(),
+                                              which = "all", recursive = "strong")
+  requiredPackages <- unique(c("renv", requiredPackages, unlist(dependencies)))
+
+  vcat(3, paste(utils::capture.output({
+    dummyProject <- withr::local_tempdir()
+    initRenv <- function() {
+      renv::init()
+      return(normalizePath(renv::paths$library()))
+    }
+    # init renv in separate session to prevent changes to current session's libpath
+    dummyLibPath <- callr::r(initRenv, wd = dummyProject, spinner = FALSE, show = TRUE)
+
+    # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
+    # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
+    renv::hydrate(packages = requiredPackages, library = dummyLibPath, report = TRUE,
+                  project = dummyProject, prompt = FALSE)
+
+    # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
+    renv::snapshot(project = dummyProject, library = dummyLibPath, prompt = FALSE,
+                  lockfile = normalizePath("./renv.lock"), type = "all")
+
+    # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
+    # in the created renv.lock might not match the version used to run the full functions
+  }), collapse = "\n"))
 }

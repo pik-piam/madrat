@@ -56,7 +56,10 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
         }
       }
     }
-    saveRDS(x, file = fname, compress = getConfig("cachecompression"))
+    # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+    tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
+    saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
+    file.rename(tempfileName, fname)
     Sys.chmod(fname, mode = "0666", use_umask = FALSE)
   }
 }
