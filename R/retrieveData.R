@@ -359,8 +359,13 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
     # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
     # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
-    renv::hydrate(packages = requiredPackages, library = dummyLibPath, report = TRUE,
-                  project = dummyProject, prompt = FALSE)
+    if (utils::packageVersion("renv") >= "0.17.0") {
+      renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject,
+                    report = TRUE, prompt = FALSE)
+    } else {
+      # call without `report = TRUE, prompt = FALSE` as these were unavailable before renv 0.17.0
+      renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject)
+    }
 
     # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
     renv::snapshot(project = dummyProject, library = dummyLibPath, prompt = FALSE,
