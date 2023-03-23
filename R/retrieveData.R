@@ -369,7 +369,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
     # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
     renv::snapshot(project = dummyProject, library = dummyLibPath, prompt = FALSE,
-                  lockfile = normalizePath("./renv.lock"), type = "all")
+                   lockfile = "./renv.lock", type = "all")
 
     # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
     # in the created renv.lock might not match the version used to run the full functions
