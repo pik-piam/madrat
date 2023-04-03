@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using the metadata from this file.
+type: software
+title: 'madrat: May All Data be Reproducible and Transparent (MADRaT) *'
+version: 3.2.0
+date-released: '2023-03-30'
+abstract: Provides a framework which should improve reproducibility and transparency
+  in data processing. It provides functionality such as automatic meta data creation
+  and management, rudimentary quality management, data caching, work-flow management
+  and data aggregation. * The title is a wish not a promise. By no means we expect
+  this package to deliver everything what is needed to achieve full reproducibility
+  and transparency, but we believe that it supports efforts in this direction.
+authors:
+- family-names: Dietrich
+  given-names: Jan Philipp
+  email: dietrich@pik-potsdam.de
+- family-names: Baumstark
+  given-names: Lavinia
+  email: lavinia@pik-potsdam.de
+- family-names: Wirth
+  given-names: Stephen
+  email: wirth@pik-potsdam.de
+- family-names: Giannousakis
+  given-names: Anastasis
+  email: giannou@pik-potsdam.de
+- family-names: Rodrigues
+  given-names: Renato
+  email: Renato.Rodrigues@pik-potsdam.de
+- family-names: Bodirsky
+  given-names: Benjamin Leon
+  email: bodirsky@pik-potsdam.de
+- family-names: Kreidenweis
+  given-names: Ulrich
+  email: kreidenweis@pik-potsdam.de
+- family-names: Klein
+  given-names: David
+  email: dklein@pik-potsdam.de
+- family-names: Führlich
+  given-names: Pascal
+  email: pascal.fuehrlich@pik-potsdam.de
+license: BSD-2-Clause
+repository-code: https://github.com/pik-piam/madrat
+doi: 10.5281/zenodo.1115490
+
