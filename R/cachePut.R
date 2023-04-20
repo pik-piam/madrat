@@ -36,7 +36,7 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
       for (elem in c("x", "weight")) {
         if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
           if (!requireNamespace("terra", quietly = TRUE)) {
-            stop("Package `terra` required for caching of SpatRaster objects!")
+            stop("Package `terra` required for caching of SpatRaster/SpatVector objects!")
           }
           x[[elem]] <- terra::wrap(x[[elem]])
         }
