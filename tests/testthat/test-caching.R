@@ -129,4 +129,16 @@ test_that("terra objects can be cached", {
   expect_message(a <- readSource("MultiSource"), "writing cache")
   expect_message(b <- readSource("MultiSource"), "loading cache")
   expect_equal(a, b)
+
+  downloadSpatVector <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readSpatVector <- function() {
+    return(list(x = terra::vect(system.file("ex/lux.shp", package = "terra")),
+                class = "SpatVector"))
+  }
+  globalassign("downloadSpatVector", "readSpatVector")
+  expect_message(a <- readSource("SpatVector"), "writing cache")
+  expect_message(b <- readSource("SpatVector"), "loading cache")
+  expect_equal(a, b)
 })
