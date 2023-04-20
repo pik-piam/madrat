@@ -103,3 +103,29 @@ test_that("non-list cache files are supported for forcecache", {
   expect_identical(readSource("CacheExample", supplementary = TRUE),
                    list(x = readSource("CacheExample"), class = "magpie"))
 })
+
+test_that("terra objects can be cached", {
+  skip_if_not_installed("terra")
+  downloadSingleSource <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readSingleSource <- function() {
+    return(list(x = terra::rast(system.file("ex/meuse.tif", package = "terra")),
+                class = "SpatRaster"))
+  }
+  globalassign("downloadSingleSource", "readSingleSource")
+  expect_message(readSource("SingleSource"), "writing cache")
+  expect_message(readSource("SingleSource"), "loading cache")
+
+  downloadMultiSource <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readMultiSource <- function() {
+    a <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    return(list(x = c(a, a),
+                class = "SpatRaster"))
+  }
+  globalassign("downloadMultiSource", "readMultiSource")
+  expect_message(readSource("MultiSource"), "writing cache")
+  expect_message(readSource("MultiSource"), "loading cache")
+})
