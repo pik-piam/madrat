@@ -128,7 +128,9 @@ test_that("terra objects can be cached", {
   globalassign("downloadMultiSource", "readMultiSource")
   expect_message(a <- readSource("MultiSource"), "writing cache")
   expect_message(b <- readSource("MultiSource"), "loading cache")
-  expect_equal(a, b)
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, xy = TRUE),
+                   terra::as.data.frame(b, xy = TRUE))
 
   downloadSpatVector <- function() {
     return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
@@ -140,5 +142,7 @@ test_that("terra objects can be cached", {
   globalassign("downloadSpatVector", "readSpatVector")
   expect_message(a <- readSource("SpatVector"), "writing cache")
   expect_message(b <- readSource("SpatVector"), "loading cache")
-  expect_equal(a, b)
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, geom = "WKT"),
+                   terra::as.data.frame(b, geom = "WKT"))
 })

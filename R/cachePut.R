@@ -34,12 +34,11 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
     vcat(1, " - writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
     if (is.list(x)) {
       for (elem in c("x", "weight")) {
-        if (inherits(x[[elem]], "SpatRaster")) {
+        if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
           if (!requireNamespace("terra", quietly = TRUE)) {
             stop("Package `terra` required for caching of SpatRaster objects!")
           }
-
-          x[[elem]] <- terra::wrap(x[[elem]], proxy = TRUE)
+          x[[elem]] <- terra::wrap(x[[elem]])
         }
       }
     }
