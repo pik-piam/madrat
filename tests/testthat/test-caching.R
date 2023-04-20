@@ -126,6 +126,7 @@ test_that("terra objects can be cached", {
                 class = "SpatRaster"))
   }
   globalassign("downloadMultiSource", "readMultiSource")
-  expect_message(readSource("MultiSource"), "writing cache")
-  expect_message(readSource("MultiSource"), "loading cache")
+  expect_message(a <- readSource("MultiSource"), "writing cache")
+  expect_message(b <- readSource("MultiSource"), "loading cache")
+  expect_equal(a, b)
 })

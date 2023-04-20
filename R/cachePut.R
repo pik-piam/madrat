@@ -20,23 +20,6 @@
 #' @importFrom digest digest
 
 cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
-
-  .spatRaster2Cache <- function(x, name, fname) {
-    if (!requireNamespace("terra", quietly = TRUE)) stop("Package `terra` required for caching of SpatRaster objects!")
-    if (all(terra::inMemory(x))) return(x)
-    if (length(terra::sources(x)) > 1) {
-      stop("Multiple sources of SpatRaster objects in caching currently not supported!")
-    }
-    sourceName <- terra::sources(x)
-    sourceType <- tools::file_ext(sourceName)
-    targetName <- sub("\\..*$", paste0("-", name, ".", sourceType), fname)
-    file.copy(sourceName, targetName)
-    Sys.chmod(targetName, mode = "0666", use_umask = FALSE)
-    return(list(class = "SpatRaster",
-                names = names(x),
-                file = targetName))
-  }
-
   if (is.list(x) && isFALSE(x$cache)) {
     vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
     return()
@@ -52,7 +35,11 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
     if (is.list(x)) {
       for (elem in c("x", "weight")) {
         if (inherits(x[[elem]], "SpatRaster")) {
-          x[[elem]] <- .spatRaster2Cache(x[[elem]], elem, fname)
+          if (!requireNamespace("terra", quietly = TRUE)) {
+            stop("Package `terra` required for caching of SpatRaster objects!")
+          }
+
+          x[[elem]] <- terra::wrap(x[[elem]], proxy = TRUE)
         }
       }
     }
