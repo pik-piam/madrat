@@ -142,6 +142,7 @@ To have everything proper functioning there are some coding rules to follow:
 * always call download-/read-/calc-functions type explicitly (e.g. `calcOutput("TauTotal")` instead of `type<-"TauTotal";calcOutput(type)`). This is necessary so that the network of functions can be properly detected by the madrat framework
 * Use calcOutput, readSource and downloadSource call only from within other functions of that category or
 from within a retrieve function. Never use these calls in tool functions!
+* When you update a source with newer data, don't just replace the older source, but create a new file (or a new subfolder) for each new version of the data. For example, if "tau_data_1995-2000.mz" is replaced by "tau_data_1995-2010.mz", keep both files in the madrat source folder and update the reference in the code. By doing so, you ensure backwards compatibility.
 
 ## Use own functions with madrat
 
