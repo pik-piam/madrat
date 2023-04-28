@@ -9,11 +9,11 @@ setConfig(mainfolder = withr::local_tempdir(.local_envir = testthat::teardown_en
           globalenv = TRUE,
           .verbose = FALSE)
 withr::local_options(madrat_codelabels = NULL,
-                      MadratCache = NULL,
-                      renv.verbose = FALSE,
-                      magclass_expand_version = NULL,
-                      magclass_sizeLimit = NULL,
-                      .local_envir = testthat::teardown_env())
+                     MadratCache = NULL,
+                     renv.verbose = FALSE,
+                     magclass_expand_version = NULL,
+                     magclass_sizeLimit = NULL,
+                     .local_envir = testthat::teardown_env())
 
 withr::local_envvar(LANGUAGE = "EN",
                     .local_envir = testthat::teardown_env())

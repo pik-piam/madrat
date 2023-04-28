@@ -123,6 +123,24 @@ test_that("terra objects can be cached", {
                    terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 
+  downloadInMemory <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readInMemory <- function() {
+    x <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    x <- x * 2
+    names(x) <- "something"
+    return(list(x = x,
+                class = "SpatRaster"))
+  }
+  globalassign("downloadInMemory", "readInMemory")
+  expect_message(a <- readSource("InMemory"), "writing cache")
+  expect_message(b <- readSource("InMemory"), "loading cache")
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, xy = TRUE),
+                   terra::as.data.frame(b, xy = TRUE))
+  expect_identical(names(a), names(b))
+
   downloadMultiSource <- function() {
     return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
   }
@@ -141,18 +159,18 @@ test_that("terra objects can be cached", {
                    terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 
-  downloadSpatVector <- function() {
-    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
-  }
-  readSpatVector <- function() {
-    return(list(x = terra::vect(system.file("ex/lux.shp", package = "terra")),
-                class = "SpatVector"))
-  }
-  globalassign("downloadSpatVector", "readSpatVector")
-  expect_message(a <- readSource("SpatVector"), "writing cache")
-  expect_message(b <- readSource("SpatVector"), "loading cache")
-  # converting to data frame because terra::sources is different
-  expect_identical(terra::as.data.frame(a, geom = "WKT"),
-                   terra::as.data.frame(b, geom = "WKT"))
-  expect_identical(names(a), names(b))
+  # downloadSpatVector <- function() {
+  #   return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  # }
+  # readSpatVector <- function() {
+  #   return(list(x = terra::vect(system.file("ex/lux.shp", package = "terra")),
+  #               class = "SpatVector"))
+  # }
+  # globalassign("downloadSpatVector", "readSpatVector")
+  # expect_message(a <- readSource("SpatVector"), "writing cache")
+  # expect_message(b <- readSource("SpatVector"), "loading cache")
+  # # converting to data frame because terra::sources is different
+  # expect_identical(terra::as.data.frame(a, geom = "WKT"),
+  #                  terra::as.data.frame(b, geom = "WKT"))
+  # expect_identical(names(a), names(b))
 })

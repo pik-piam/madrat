@@ -22,19 +22,29 @@
 cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
 
   .spatRaster2Cache <- function(x, name, fname) {
-    if (!requireNamespace("terra", quietly = TRUE)) stop("Package `terra` required for caching of SpatRaster objects!")
-    if (all(terra::inMemory(x))) return(x)
-    if (length(terra::sources(x)) > 1) {
-      stop("Multiple sources of SpatRaster objects in caching currently not supported!")
+    if (!requireNamespace("terra", quietly = TRUE)) {
+      stop("Package `terra` required for caching of SpatRaster objects!")
     }
-    sourceName <- terra::sources(x)
-    sourceType <- tools::file_ext(sourceName)
-    targetName <- sub("\\..*$", paste0("-", name, ".", sourceType), fname)
-    file.copy(sourceName, targetName)
-    Sys.chmod(targetName, mode = "0666", use_umask = FALSE)
-    return(list(class = "SpatRaster",
-                names = names(x),
-                file = targetName))
+    if (all(terra::inMemory(x))) {
+      return(terra::wrap(x))
+    }
+
+    # copy all source files into the cache
+    sources <- terra::sources(x)
+    # the regex deals with sources such as 'NETCDF:"/PIK/inputdata/sources/LUH2v2h/states.nc":primf'
+    sourceFiles <- unique(gsub('^[^"]*"|"[^"]*$', "", sources))
+    for (sourceFile in sourceFiles) {
+      targetName <- paste0(tools::file_path_sans_ext(fname), "-", name, ".", tools::file_ext(sourceFile))
+      sources <- sub(sourceFile, targetName, sources, fixed = TRUE)
+      file.copy(sourceFile, targetName)
+      Sys.chmod(targetName, mode = "0666", use_umask = FALSE)
+    }
+    stopifnot(identical(intersect(sources, terra::sources(x)), character(0)))
+
+    # re-create x using sources copied to the cache
+    out <- terra::rast(sources)
+    names(out) <- names(x)
+    return(terra::wrap(out))
   }
 
   if (is.list(x) && isFALSE(x$cache)) {

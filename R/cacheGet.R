@@ -47,6 +47,11 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
     for (elem in c("x", "weight")) {
       if (is.list(x[[elem]]) && identical(x[[elem]]$class, "SpatRaster")) {
         x[[elem]] <- .spatRasterLoad(x[[elem]])
+      } else if (inherits(x[[elem]], "PackedSpatRaster")) {
+        if (!requireNamespace("terra", quietly = TRUE)) {
+          stop("Package `terra` is required for reading SpatRaster/SpatVector objects from cache!")
+        }
+        x[[elem]] <- terra::unwrap(x[[elem]])
       }
     }
   }
