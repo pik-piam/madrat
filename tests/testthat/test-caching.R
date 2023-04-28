@@ -110,19 +110,27 @@ test_that("terra objects can be cached", {
     return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
   }
   readSingleSource <- function() {
-    return(list(x = terra::rast(system.file("ex/meuse.tif", package = "terra")),
+    x <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    names(x) <- "something"
+    return(list(x = x,
                 class = "SpatRaster"))
   }
   globalassign("downloadSingleSource", "readSingleSource")
-  expect_message(readSource("SingleSource"), "writing cache")
-  expect_message(readSource("SingleSource"), "loading cache")
+  expect_message(a <- readSource("SingleSource"), "writing cache")
+  expect_message(b <- readSource("SingleSource"), "loading cache")
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, xy = TRUE),
+                   terra::as.data.frame(b, xy = TRUE))
+  expect_identical(names(a), names(b))
 
   downloadMultiSource <- function() {
     return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
   }
   readMultiSource <- function() {
     a <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
-    return(list(x = c(a, a),
+    a <- c(a, a)
+    names(a) <- c("something", "else")
+    return(list(x = a,
                 class = "SpatRaster"))
   }
   globalassign("downloadMultiSource", "readMultiSource")
@@ -131,6 +139,7 @@ test_that("terra objects can be cached", {
   # converting to data frame because terra::sources is different
   expect_identical(terra::as.data.frame(a, xy = TRUE),
                    terra::as.data.frame(b, xy = TRUE))
+  expect_identical(names(a), names(b))
 
   downloadSpatVector <- function() {
     return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
@@ -145,4 +154,5 @@ test_that("terra objects can be cached", {
   # converting to data frame because terra::sources is different
   expect_identical(terra::as.data.frame(a, geom = "WKT"),
                    terra::as.data.frame(b, geom = "WKT"))
+  expect_identical(names(a), names(b))
 })
