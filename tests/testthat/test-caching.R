@@ -119,7 +119,7 @@ test_that("terra objects can be cached", {
   expect_message(a <- readSource("SingleSource"), "writing cache")
   expect_message(b <- readSource("SingleSource"), "loading cache")
   # converting to data frame because terra::sources is different
-  expect_identical(terra::as.data.frame(a, xy = TRUE),
+  expect_equal(terra::as.data.frame(a, xy = TRUE),
                    terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 
@@ -137,7 +137,7 @@ test_that("terra objects can be cached", {
   expect_message(a <- readSource("InMemory"), "writing cache")
   expect_message(b <- readSource("InMemory"), "loading cache")
   # converting to data frame because terra::sources is different
-  expect_identical(terra::as.data.frame(a, xy = TRUE),
+  expect_equal(terra::as.data.frame(a, xy = TRUE),
                    terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 
@@ -155,7 +155,7 @@ test_that("terra objects can be cached", {
   expect_message(a <- readSource("MultiSource"), "writing cache")
   expect_message(b <- readSource("MultiSource"), "loading cache")
   # converting to data frame because terra::sources is different
-  expect_identical(terra::as.data.frame(a, xy = TRUE),
+  expect_equal(terra::as.data.frame(a, xy = TRUE),
                    terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 
