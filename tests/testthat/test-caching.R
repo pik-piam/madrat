@@ -103,3 +103,101 @@ test_that("non-list cache files are supported for forcecache", {
   expect_identical(readSource("CacheExample", supplementary = TRUE),
                    list(x = readSource("CacheExample"), class = "magpie"))
 })
+
+test_that("terra objects can be cached", {
+  skip_if_not_installed("terra")
+
+  downloadSingleSource <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readSingleSource <- function() {
+    x <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    names(x) <- "something"
+    return(list(x = x, class = "SpatRaster"))
+  }
+  globalassign("downloadSingleSource", "readSingleSource")
+  expect_message(a <- readSource("SingleSource"), "writing cache")
+  expect_message(b <- readSource("SingleSource"), "loading cache")
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, xy = TRUE),
+                   terra::as.data.frame(b, xy = TRUE))
+  expect_identical(names(a), names(b))
+
+
+  downloadInMemory <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readInMemory <- function() {
+    x <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    x <- x * 2
+    names(x) <- "something"
+    return(list(x = x, class = "SpatRaster"))
+  }
+  globalassign("downloadInMemory", "readInMemory")
+  expect_message(a <- readSource("InMemory"), "writing cache")
+  expect_message(b <- readSource("InMemory"), "loading cache")
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, xy = TRUE),
+                   terra::as.data.frame(b, xy = TRUE))
+  expect_identical(names(a), names(b))
+
+
+  downloadMultiSource <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readMultiSource <- function() {
+    a <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    a <- c(a, a) # one SpatRaster from source file, one in-memory
+    names(a) <- c("something", "else")
+    return(list(x = a, class = "SpatRaster"))
+  }
+  globalassign("downloadMultiSource", "readMultiSource")
+  expect_message(a <- readSource("MultiSource"), "writing cache")
+  expect_message(b <- readSource("MultiSource"), "loading cache")
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, xy = TRUE),
+                   terra::as.data.frame(b, xy = TRUE))
+  expect_identical(names(a), names(b))
+
+
+  readMultiSource <- function() {
+    a <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    a <- c(a, a * 2) # one SpatRaster from source file, one in-memory
+    return(list(x = a, class = "SpatRaster"))
+  }
+  globalassign("readMultiSource")
+  expect_error(readSource("MultiSource"),
+               "file-based and in-memory parts in the same terra object can currently not be cached")
+
+
+  downloadSpatVector <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readSpatVector <- function() {
+    return(list(x = terra::vect(system.file("ex/lux.shp", package = "terra")),
+                class = "SpatVector"))
+  }
+  globalassign("downloadSpatVector", "readSpatVector")
+  expect_message(a <- readSource("SpatVector"), "writing cache")
+  expect_message(b <- readSource("SpatVector"), "loading cache")
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, geom = "WKT"),
+                   terra::as.data.frame(b, geom = "WKT"))
+  expect_identical(names(a), names(b))
+
+
+  downloadInMemoryVector <- function() {
+    return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
+  }
+  readInMemoryVector <- function() {
+    return(list(x = terra::vect("POLYGON ((0 -5, 10 0, 10 -10, 0 -5))"),
+                class = "SpatVector"))
+  }
+  globalassign("downloadInMemoryVector", "readInMemoryVector")
+  expect_message(a <- readSource("InMemoryVector"), "writing cache")
+  expect_message(b <- readSource("InMemoryVector"), "loading cache")
+  # converting to data frame because terra::sources is different
+  expect_identical(terra::as.data.frame(a, geom = "WKT"),
+                   terra::as.data.frame(b, geom = "WKT"))
+  expect_identical(names(a), names(b))
+})
