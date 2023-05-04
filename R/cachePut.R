@@ -55,16 +55,16 @@ toolTerraToCache <- function(x, name, fname) {
     stop("Package `terra` required for caching terra objects!")
   }
   if (all(terra::sources(x) == "")) {
-    return(terra::wrap(x))
+    return(list(x = terra::wrap(x)))
   }
 
-  # copy all source files into the cache
   sources <- terra::sources(x)
   if ("" %in% sources) {
     stop("file-based and in-memory parts in the same terra object can currently not be cached")
   }
   # the regex deals with sources such as 'NETCDF:"/PIK/inputdata/sources/LUH2v2h/states.nc":primf'
   sourceFiles <- unique(gsub('^[^"]*"|"[^"]*$', "", sources))
+  # copy all source files into the cache
   for (sourceFile in sourceFiles) {
     targetName <- paste0(file_path_sans_ext(fname), "-", name, ".", file_ext(sourceFile))
     sources <- sub(sourceFile, targetName, sources, fixed = TRUE)
@@ -86,14 +86,29 @@ toolTerraToCache <- function(x, name, fname) {
   }
   stopifnot(identical(intersect(sources, terra::sources(x)), character(0)))
 
+  out <- list()
   # re-create x using sources copied to the cache
   if (inherits(x, "SpatVector")) {
-    out <- terra::vect(sources)
+    x2 <- terra::vect(sources)
+  } else if (inherits(x, "SpatRaster")) {
+    x2 <- terra::rast(sources)
+    if (length(terra::units(x2)) == length(terra::units(x))) {
+      terra::units(x2) <- terra::units(x)
+      out$units <- terra::units(x)
+    }
+    if (length(terra::time(x2)) == length(terra::time(x))) {
+      terra::time(x2) <- terra::time(x)
+      out$time <- terra::time(x)
+    }
   } else {
-    out <- terra::rast(sources)
-    terra::units(out) <- terra::units(x)
-    terra::time(out) <- terra::time(x)
+    stop("Expected x to be SpatVector or SpatRaster")
   }
-  names(out) <- names(x)
-  return(terra::wrap(out))
+
+  if (length(names(x2)) == length(names(x))) {
+    names(x2) <- names(x)
+    out$names <- names(x)
+  }
+
+  out$x <- terra::wrap(x2)
+  return(out)
 }
