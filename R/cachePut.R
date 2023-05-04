@@ -58,7 +58,47 @@ toolTerraToCache <- function(x, name, fname) {
     return(terra::wrap(x))
   }
 
-  # copy all source files into the cache
+  # write gpkg/tif to cache, then re-create SpatVector/SpatRaster referencing this new cache file
+  if (inherits(x, "SpatVector")) {
+    sourceFile <- paste0(file_path_sans_ext(fname), "-", name, ".gpkg")
+    if (file.exists(sourceFile)) {
+      message("Not writing ", sourceFile, " because it already exists.")
+    } else {
+      cat("copyTerraSources\n")
+      print(system.time({
+        copyTerraSources(x, name, fname)
+      }))
+      unlink(sourceFile)
+      cat("writeVector\n")
+      print(system.time({
+        terra::writeVector(x, sourceFile)
+      }))
+    }
+    out <- terra::vect(sourceFile)
+    return(terra::wrap(out))
+  } else if (inherits(x, "SpatRaster")) {
+    sourceFile <- paste0(file_path_sans_ext(fname), "-", name, ".tif")
+    if (file.exists(sourceFile)) {
+      message("Not writing ", sourceFile, " because it already exists.")
+    } else {
+      cat("copyTerraSources\n")
+      print(system.time({
+        copyTerraSources(x, name, fname)
+      }))
+      unlink(sourceFile)
+      cat("writeRaster\n")
+      print(system.time({
+        terra::writeRaster(x, sourceFile)
+      }))
+    }
+    out <- terra::rast(sourceFile)
+    return(terra::wrap(out, proxy = TRUE))
+  } else {
+    stop("madrat:::toolTerraToCache supports only SpatVector and SpatRaster")
+  }
+}
+
+copyTerraSources <- function(x, name, fname) {
   sources <- terra::sources(x)
   if ("" %in% sources) {
     stop("file-based and in-memory parts in the same terra object can currently not be cached")
@@ -84,10 +124,4 @@ toolTerraToCache <- function(x, name, fname) {
       }
     }
   }
-  stopifnot(identical(intersect(sources, terra::sources(x)), character(0)))
-
-  # re-create x using sources copied to the cache
-  out <- if (inherits(x, "SpatVector")) terra::vect(sources) else terra::rast(sources)
-  names(out) <- names(x)
-  return(terra::wrap(out))
 }
