@@ -107,6 +107,9 @@ toolTerraToCache <- function(x, name, fname) {
   if (length(names(x2)) == length(names(x))) {
     names(x2) <- names(x)
     out$names <- names(x)
+  } else {
+    stop("Cannot cache this terra object, because loading it from cache would yield a different number of layers. ",
+         "Add `cache = FALSE` to the returned list to disable caching.")
   }
 
   out$x <- terra::wrap(x2)
