@@ -163,6 +163,15 @@ test_that("terra objects can be cached", {
                terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 
+  readMultiSource <- function() {
+    a <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
+    a <- c(a, a * 2) # one SpatRaster from source file, one in-memory
+    return(list(x = a, class = "SpatRaster"))
+  }
+  globalassign("readMultiSource")
+  expect_error(readSource("MultiSource"),
+               "file-based and in-memory parts in the same terra object can currently not be cached")
+
 
   downloadSpatVector <- function() {
     return(list(url = 0, author = 0, title = 0, license = 0, description = 0, unit = 0))
