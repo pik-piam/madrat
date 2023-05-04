@@ -19,8 +19,9 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
 
   .terraLoad <- function(xList) {
     if (!requireNamespace("terra", quietly = TRUE)) {
-      stop("Package `terra` required for caching of SpatRaster objects!")
+      stop("Package `terra` required for caching of terra objects!")
     }
+
     if (inherits(xList$x, c("PackedSpatRaster", "PackedSpatVector"))) {
       out <- terra::unwrap(xList$x)
       if (!is.null(xList$units)) {
@@ -36,6 +37,7 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
     if (!is.null(xList$names)) {
       names(out) <- xList$names
     }
+
     return(out)
   }
 
