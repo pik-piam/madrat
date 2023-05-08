@@ -16,3 +16,4 @@ cran-comments.md
 ^.idea$
 ^Makefile$
 ^.*CITATION.cff$
+^CRAN-SUBMISSION$

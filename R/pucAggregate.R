@@ -79,6 +79,6 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
                 .verbose = FALSE)
       do.call(retrieveData, c(cfg$args, list(renv = FALSE)))
     }
-  })
+  }, tmpdir = madTempDir())
   toolendmessage(startinfo)
 }
