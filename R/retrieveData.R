@@ -194,7 +194,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
               vcat(1, "puc file not created, some cache files are missing:\n",
                    paste(missingFiles, collapse = "\n"))
             }
-          })
+          }, tmpdir = madTempDir())
         } else {
           vcat(1, "puc file not created: could not find all relevant files.")
         }
