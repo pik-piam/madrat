@@ -3,7 +3,7 @@ message: If you use this software, please cite it using the metadata from this f
 type: software
 title: 'madrat: May All Data be Reproducible and Transparent (MADRaT) *'
 version: 3.3.1
-date-released: '2023-05-04'
+date-released: '2023-05-08'
 abstract: Provides a framework which should improve reproducibility and transparency
   in data processing. It provides functionality such as automatic meta data creation
   and management, rudimentary quality management, data caching, work-flow management
