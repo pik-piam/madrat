@@ -17,25 +17,15 @@
 #' @importFrom digest digest
 cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
 
-  .terraLoad <- function(xList) {
+  .terraLoad <- function(x) {
     if (!requireNamespace("terra", quietly = TRUE)) {
       stop("Package `terra` required for caching of terra objects!")
     }
 
-    if (inherits(xList$x, c("PackedSpatRaster", "PackedSpatVector"))) {
-      out <- terra::unwrap(xList$x)
-      if (!is.null(xList$units)) {
-        terra::units(out) <- xList$units
-      }
-      if (!is.null(xList$time)) {
-        terra::time(out) <- xList$time
-      }
+    if (inherits(x, c("PackedSpatRaster", "PackedSpatVector"))) {
+      out <- terra::unwrap(x)
     } else {
-      out <- terra::rast(xList$file)
-    }
-
-    if (!is.null(xList$names)) {
-      names(out) <- xList$names
+      out <- terra::rast(x$file)
     }
 
     return(out)

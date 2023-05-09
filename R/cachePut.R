@@ -55,7 +55,7 @@ toolTerraToCache <- function(x, name, fname) {
     stop("Package `terra` required for caching terra objects!")
   }
   if (all(terra::sources(x) == "")) {
-    return(list(x = terra::wrap(x)))
+    return(terra::wrap(x))
   }
 
   sources <- terra::sources(x)
@@ -86,7 +86,6 @@ toolTerraToCache <- function(x, name, fname) {
   }
   stopifnot(identical(intersect(sources, terra::sources(x)), character(0)))
 
-  out <- list()
   # re-create x using sources copied to the cache
   if (inherits(x, "SpatVector")) {
     x2 <- terra::vect(sources)
@@ -94,11 +93,9 @@ toolTerraToCache <- function(x, name, fname) {
     x2 <- terra::rast(sources)
     if (length(terra::units(x2)) == length(terra::units(x))) {
       terra::units(x2) <- terra::units(x)
-      out$units <- terra::units(x)
     }
     if (length(terra::time(x2)) == length(terra::time(x))) {
       terra::time(x2) <- terra::time(x)
-      out$time <- terra::time(x)
     }
   } else {
     stop("Expected x to be SpatVector or SpatRaster")
@@ -106,12 +103,10 @@ toolTerraToCache <- function(x, name, fname) {
 
   if (length(names(x2)) == length(names(x))) {
     names(x2) <- names(x)
-    out$names <- names(x)
   } else {
     stop("Cannot cache this terra object, because loading it from cache would yield a different number of layers. ",
          "Add `cache = FALSE` to the returned list to disable caching.")
   }
 
-  out$x <- terra::wrap(x2)
-  return(out)
+  return(terra::wrap(x2))
 }
