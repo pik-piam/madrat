@@ -17,10 +17,17 @@
 #' @importFrom digest digest
 cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
 
-  .spatRasterLoad <- function(x) {
-    if (!requireNamespace("terra", quietly = TRUE)) stop("Package `terra` required for caching of SpatRaster objects!")
-    out <- terra::rast(x$file)
-    names(out) <- x$names
+  .terraLoad <- function(x) {
+    if (!requireNamespace("terra", quietly = TRUE)) {
+      stop("Package `terra` required for caching of terra objects!")
+    }
+
+    if (inherits(x, c("PackedSpatRaster", "PackedSpatVector"))) {
+      out <- terra::unwrap(x)
+    } else {
+      out <- terra::rast(x$file)
+    }
+
     return(out)
   }
 
@@ -43,16 +50,9 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
     vcat(0, " - corrupt cache file ", basename(fname), "! Continue without cache.")
     return(NULL)
   }
-  if (is.list(x)) {
-    for (elem in c("x", "weight")) {
-      if (is.list(x[[elem]]) && identical(x[[elem]]$class, "SpatRaster")) {
-        x[[elem]] <- .spatRasterLoad(x[[elem]])
-      } else if (inherits(x[[elem]], c("PackedSpatRaster", "PackedSpatVector"))) {
-        if (!requireNamespace("terra", quietly = TRUE)) {
-          stop("Package `terra` is required for reading SpatRaster/SpatVector objects from cache!")
-        }
-        x[[elem]] <- terra::unwrap(x[[elem]])
-      }
+  if (is.list(x) && isTRUE(x$class %in% c("SpatRaster", "SpatVector"))) {
+    for (elem in intersect(names(x), c("x", "weight"))) {
+      x[[elem]] <- .terraLoad(x[[elem]])
     }
   }
   attr(x, "id") <- fname

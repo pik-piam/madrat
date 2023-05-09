@@ -113,6 +113,8 @@ test_that("terra objects can be cached", {
   readSingleSource <- function() {
     x <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
     names(x) <- "something"
+    terra::units(x) <- "some unit"
+    terra::time(x) <- 1234
     return(list(x = x, class = "SpatRaster"))
   }
   globalassign("downloadSingleSource", "readSingleSource")
@@ -120,8 +122,10 @@ test_that("terra objects can be cached", {
   expect_message(b <- readSource("SingleSource"), "loading cache")
   # converting to data frame because terra::sources is different
   expect_equal(terra::as.data.frame(a, xy = TRUE),
-                   terra::as.data.frame(b, xy = TRUE))
+               terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
+  expect_identical(terra::units(a), terra::units(b))
+  expect_equal(terra::time(a), terra::time(b))
 
 
   downloadInMemory <- function() {
@@ -138,7 +142,7 @@ test_that("terra objects can be cached", {
   expect_message(b <- readSource("InMemory"), "loading cache")
   # converting to data frame because terra::sources is different
   expect_equal(terra::as.data.frame(a, xy = TRUE),
-                   terra::as.data.frame(b, xy = TRUE))
+               terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 
 
@@ -147,7 +151,7 @@ test_that("terra objects can be cached", {
   }
   readMultiSource <- function() {
     a <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
-    a <- c(a, a) # one SpatRaster from source file, one in-memory
+    a <- c(a, a)
     names(a) <- c("something", "else")
     return(list(x = a, class = "SpatRaster"))
   }
@@ -156,9 +160,8 @@ test_that("terra objects can be cached", {
   expect_message(b <- readSource("MultiSource"), "loading cache")
   # converting to data frame because terra::sources is different
   expect_equal(terra::as.data.frame(a, xy = TRUE),
-                   terra::as.data.frame(b, xy = TRUE))
+               terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
-
 
   readMultiSource <- function() {
     a <- terra::rast(system.file("ex/meuse.tif", package = "terra"))
@@ -181,8 +184,8 @@ test_that("terra objects can be cached", {
   expect_message(a <- readSource("SpatVector"), "writing cache")
   expect_message(b <- readSource("SpatVector"), "loading cache")
   # converting to data frame because terra::sources is different
-  expect_identical(terra::as.data.frame(a, geom = "WKT"),
-                   terra::as.data.frame(b, geom = "WKT"))
+  expect_equal(terra::as.data.frame(a, geom = "WKT"),
+               terra::as.data.frame(b, geom = "WKT"))
   expect_identical(names(a), names(b))
 
 
@@ -197,7 +200,7 @@ test_that("terra objects can be cached", {
   expect_message(a <- readSource("InMemoryVector"), "writing cache")
   expect_message(b <- readSource("InMemoryVector"), "loading cache")
   # converting to data frame because terra::sources is different
-  expect_identical(terra::as.data.frame(a, geom = "WKT"),
-                   terra::as.data.frame(b, geom = "WKT"))
+  expect_equal(terra::as.data.frame(a, geom = "WKT"),
+               terra::as.data.frame(b, geom = "WKT"))
   expect_identical(names(a), names(b))
 })
