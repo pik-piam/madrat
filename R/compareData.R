@@ -69,7 +69,7 @@ compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
         message("!= dimnames")
         out$diff <- out$diff + 1
       } else {
-        diff <- max(abs(x - y))
+        diff <- max(abs(x - y), na.rm = TRUE)
         if (!identical(x, y) && diff > tolerance) {
           message("!= values (max diff = ", round(diff, 8), ")")
           out$diff <- out$diff + 1
@@ -85,7 +85,9 @@ compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
 
 .rmag <- function(f, yearLim) {
   x <- try(read.magpie(f), silent = TRUE)
-  if (!is.magpie(x)) return(NULL) else {
+  if (!is.magpie(x)) {
+    return(NULL)
+  } else {
     if (!is.null(yearLim)) x <- x[, getYears(x, as.integer = TRUE) <= yearLim, ]
   }
   attr(x, "comment") <- NULL
