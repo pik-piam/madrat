@@ -207,8 +207,8 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
       # time span where the data need to be adjusted
       subTime <- getYears(z[, seq_len(which(getYears(z) == tr$fromY)), ])
       # disaggregation of countries
-  
-  
+
+
      bilatMapping <- mapping # mapping needs to be made bilateral
         if (mainDim == 1.1) {
           toISO <- as.vector(outer(bilatMapping$toISO, getItems(z, dim = secdDim), paste, sep = "."))
@@ -262,7 +262,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
             weight <- mbind(weight, addMiss)
           }
 
-        #set any other weight values to 0
+        # set any other weight values to 0
         weight[is.na(weight)] <- 0
 
         } else {
@@ -367,17 +367,18 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
            m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(m[getItems(mTr, dim = 1), getYears(mTr), ]),
                                                                      mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
          if (length(addM) > 0) {
-          m[is.na(m)] <- 0 }
+          m[is.na(m)] <- 0
+ }
       }
     }
 
     # delete old lines
     for (b in unique(mapping$fromISO)) {
       if (b %in% getItems(m, dim = 1.1)) {
-        m <- m[list(setNames(list(c(b)), getSets(m)[1])), , inv = TRUE]
+        m <- m[list(setNames(list(c(b)), getSets(m)[1])), , invert = TRUE]
       }
       if (b %in% getItems(m, dim = 1.2)) {
-        m <- m[list(setNames(list(c(b)), getSets(m)[2])), , inv = TRUE]
+        m <- m[list(setNames(list(c(b)), getSets(m)[2])), , invert = TRUE]
       }
     }
 
