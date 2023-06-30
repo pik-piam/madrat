@@ -11,8 +11,9 @@ HELP_PARSING = 'm <- readLines("Makefile");\
 help:           ## Show this help.
 	@Rscript -e $(HELP_PARSING)
 
-build:          ## Build the package using lucode2::buildLibrary().
-	Rscript -e 'lucode2::buildLibrary()'
+build:          ## Build the package using lucode2::buildLibrary(). You can pass the
+                ## updateType with 'make build u=3'
+	Rscript -e 'lucode2::buildLibrary(updateType = "$(u)")'
 
 check:          ## Build documentation and vignettes, run testthat tests,
                 ## and check if code etiquette is followed using lucode2::check().

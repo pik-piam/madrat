@@ -187,12 +187,12 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
       toISOmissing <- !all(is.element(tr$toISO, getItems(z, dim = mainDim)))
       if (toISOmissing) {
         if (mainDim == 1.1) {
-        missingISO <- as.vector(outer(tr$toISO[which(!is.element(tr$toISO, getItems(z, dim = mainDim)))],
-                                                   getItems(z, dim = secdDim), paste, sep = "."))
+          missingISO <- as.vector(outer(tr$toISO[which(!is.element(tr$toISO, getItems(z, dim = mainDim)))],
+                                        getItems(z, dim = secdDim), paste, sep = "."))
         } else if (mainDim == 1.2) {
-             missingISO <- as.vector(outer(getItems(z, dim = secdDim),
-                                             tr$toISO[which(!is.element(tr$toISO, getItems(z, dim = mainDim)))],
-                                           paste, sep = "."))
+          missingISO <- as.vector(outer(getItems(z, dim = secdDim),
+                                        tr$toISO[which(!is.element(tr$toISO, getItems(z, dim = mainDim)))],
+                                        paste, sep = "."))
         }
         missingNew <- new.magpie(cells_and_regions = missingISO,
                                  years = getItems(m, dim = 2),
@@ -207,18 +207,18 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
       # time span where the data need to be adjusted
       subTime <- getYears(z[, seq_len(which(getYears(z) == tr$fromY)), ])
       # disaggregation of countries
-  
-  
-     bilatMapping <- mapping # mapping needs to be made bilateral
-        if (mainDim == 1.1) {
-          toISO <- as.vector(outer(bilatMapping$toISO, getItems(z, dim = secdDim), paste, sep = "."))
-          fromISO <- as.vector(outer(bilatMapping$fromISO, getItems(z, dim = secdDim), paste, sep = "."))
-          bilatMapping <- data.frame(toISO, fromISO)
-        } else if (mainDim == 1.2) {
-          toISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$toISO, paste, sep = "."))
-          fromISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$fromISO, paste, sep = "."))
-          bilatMapping <- data.frame(toISO, fromISO)
-        }
+
+
+      bilatMapping <- mapping # mapping needs to be made bilateral
+      if (mainDim == 1.1) {
+        toISO <- as.vector(outer(bilatMapping$toISO, getItems(z, dim = secdDim), paste, sep = "."))
+        fromISO <- as.vector(outer(bilatMapping$fromISO, getItems(z, dim = secdDim), paste, sep = "."))
+        bilatMapping <- data.frame(toISO, fromISO)
+      } else if (mainDim == 1.2) {
+        toISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$toISO, paste, sep = "."))
+        fromISO <- as.vector(outer(getItems(z, dim = secdDim), bilatMapping$fromISO, paste, sep = "."))
+        bilatMapping <- data.frame(toISO, fromISO)
+      }
 
 
       if (length(tr$fromISO) == 1) {
@@ -262,8 +262,8 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
             weight <- mbind(weight, addMiss)
           }
 
-        #set any other weight values to 0
-        weight[is.na(weight)] <- 0
+          # set any other weight values to 0
+          weight[is.na(weight)] <- 0
 
         } else {
           stop("Additional_weight is not supported for bilateral data.")
@@ -300,10 +300,10 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
       } else {
         if (mainDim == 1.1) {
           isoTr <- as.vector(outer(tr$toISO, getItems(z[setNames(list(c(tr$fromISO)), mainDimName), , ], dim = secdDim),
-                                    paste, sep = "."))
+                                   paste, sep = "."))
         } else if (mainDim == 1.2) {
           isoTr <- as.vector(outer(getItems(z[setNames(list(c(tr$fromISO)), mainDimName), , ], dim = secdDim), tr$toISO,
-                                    paste, sep = "."))
+                                   paste, sep = "."))
         }
         zTr <- toolAggregate(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ],
                              bilatMapping[is.element(bilatMapping$toISO, isoTr),
@@ -334,7 +334,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(m[getItems(mTr, dim = 1), getYears(mTr), ]),
-                                                              mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
+                                                             mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
       }
     }
 
@@ -356,7 +356,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
         }
         m[getItems(mTr, dim = 1), getYears(mTr), ] <- mTr
       } else {
-          addM <- setdiff(getItems(mTr, dim = 1), getItems(m, dim = 1))
+        addM <- setdiff(getItems(mTr, dim = 1), getItems(m, dim = 1))
         if (length(addM) > 0) {
           addMissM <- new.magpie(cells_and_regions = addM,
                                  years = getItems(m, dim = 2),
@@ -364,20 +364,21 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
                                  fill = NA)
           m <- mbind(m, addMissM)
         }
-           m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(m[getItems(mTr, dim = 1), getYears(mTr), ]),
-                                                                     mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
-         if (length(addM) > 0) {
-          m[is.na(m)] <- 0 }
+        m[getItems(mTr, dim = 1), getYears(mTr), ] <- ifelse(is.na(m[getItems(mTr, dim = 1), getYears(mTr), ]),
+                                                             mTr, m[getItems(mTr, dim = 1), getYears(mTr)])
+        if (length(addM) > 0) {
+          m[is.na(m)] <- 0
+        }
       }
     }
 
     # delete old lines
     for (b in unique(mapping$fromISO)) {
       if (b %in% getItems(m, dim = 1.1)) {
-        m <- m[list(setNames(list(c(b)), getSets(m)[1])), , inv = TRUE]
+        m <- m[list(setNames(list(c(b)), getSets(m)[1])), , invert = TRUE]
       }
       if (b %in% getItems(m, dim = 1.2)) {
-        m <- m[list(setNames(list(c(b)), getSets(m)[2])), , inv = TRUE]
+        m <- m[list(setNames(list(c(b)), getSets(m)[2])), , invert = TRUE]
       }
     }
 
