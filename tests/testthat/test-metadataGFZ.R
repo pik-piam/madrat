@@ -1,4 +1,5 @@
 test_that("metadata can be extracted from GFZ dataservice", {
+  skip_on_cran()
   skip_if_offline("doi.org")
   expect_silent({
     m <- metadataGFZ("10.5880/pik.2019.004")
