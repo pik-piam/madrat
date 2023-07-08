@@ -1,21 +1,25 @@
 p <- magclass::maxample("pop")
 p[, , ] <- 1
 getYears(p) <- 1900 + seq_len(nyears(p))
+nc <- function(x) {
+  getComment(x) <- NULL
+  return(x)
+}
 
 test_that("Proper detection of time step completness", {
-  expect_equivalent(toolTimeAverage(p, averaging_range = 1, cut = FALSE), p)
+  expect_equivalent(nc(toolTimeAverage(p, averaging_range = 1, cut = FALSE)), nc(p))
 })
 
 test_that("Averaging works properly for trivial case", {
-  expect_equivalent(toolTimeAverage(p, averaging_range = 4, cut = FALSE), p)
+  expect_equivalent(nc(toolTimeAverage(p, averaging_range = 4, cut = FALSE)), nc(p))
 })
 
 test_that("Averaging works independent of time step length", {
   p2 <- p3 <-  magclass::maxample("pop")
   getYears(p2) <- 1900 + seq_len(nyears(p2))
   getYears(p3) <- 1900 + seq_len(nyears(p3)) * 5
-  expect_identical(toolTimeAverage(p2, averaging_range = 4, cut = FALSE),
-                   setYears(toolTimeAverage(p3, averaging_range = 4, cut = FALSE), getYears(p2)))
+  expect_identical(nc(toolTimeAverage(p2, averaging_range = 4, cut = FALSE)),
+                   nc(setYears(toolTimeAverage(p3, averaging_range = 4, cut = FALSE), getYears(p2))))
 })
 
 test_that("Error detection works", {

@@ -13,11 +13,10 @@ metadataGFZ(doi)
 a list with entries "license", "citation", "authors" and "year"
 }
 \description{
-Function to extract metadata information of a data set hosted at GFZ dataservices 
+Function to extract metadata information of a data set hosted at GFZ dataservices
 (https://dataservices.gfz-potsdam.de/portal/).
 }
 \examples{
-
 \dontrun{
 metadataGFZ("10.5880/pik.2019.004")
 }
