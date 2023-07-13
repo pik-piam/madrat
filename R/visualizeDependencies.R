@@ -145,7 +145,9 @@ visualizeDependencies <- function(functions, direction = "both", order = 2, #nol
   plot(fullGraph)
   graphics::legend("topright", legend = c(pkg, "Central functions"), pch = 16,
                                 col = c(colorsIn[seq_along(pkg)], "#c93535"), bty = "n")
-  graphics::legend("bottomright", legend = c("In", "Out"), pch = c(22, 21), bty = "n")
+  if (direction == "both") graphics::legend("bottomright", legend = c("In", "Out"), pch = c(22, 21), bty = "n")
+  if (direction == "in") graphics::legend("bottomright", legend = c("In"), pch = 22, bty = "n")
+  if (direction == "out") graphics::legend("bottomright", legend = c("Out"), pch = 21, bty = "n")
   if (!is.null(filename)) grDevices::dev.off()
 
   # return graph and list of relevant packages
