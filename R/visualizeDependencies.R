@@ -2,7 +2,7 @@
 #'
 #' Creates a graphical visualization of dependencies between functions in the mr-universe.
 #'
-#' @param functions function or vector of functions to be analyzed
+#' @param ... function(s) to be analyzed
 #' @param direction Character string, either “in”, “out” or "both". If “in” all sources
 #' feeding into the function are listed. If “out” consumer of the function are listed.
 #' If “both” the union of "in" and "out" is returned.
@@ -10,17 +10,18 @@
 #' of direction "in") or directly calling (in case of direction "out") are shown. Order 2 will also
 #' show direct dependencies of the order 1 dependencies, order 3 also the direct dependencies from
 #' order 2 dependencies, etc.
+#' @param filter regular expression to describe elements which should be excluded from visualization
+#' (e.g. "^tool" to exclude all tool functions)
 #' @param packages packages to use when searching dependencies
 #' @param filename If a filename is provided, the resulting graph will be saved
-#' @author Debbora Leip
+#' @author Debbora Leip, Jan Philipp Dietrich
 #' @seealso \code{\link{getDependencies}}, \code{\link{getMadratGraph}}, \code{\link{getMadratInfo}}
 #' @importFrom igraph make_ego_graph ego V V<- union
 #' @export
 
 
-visualizeDependencies <- function(functions, direction = "both", order = 2, #nolint
+visualizeDependencies <- function(..., direction = "both", order = 2, filter = NULL, # nolint: cyclocomp_linter
                                   packages = getConfig("packages"), filename = NULL) {
-
   # check for required packages
   if (!requireNamespace("graphics", quietly = TRUE)) {
     stop("Package \`graphics\` required to visualize dependencies")
@@ -28,6 +29,8 @@ visualizeDependencies <- function(functions, direction = "both", order = 2, #nol
   if (!is.null(filename) && !requireNamespace("grDevices", quietly = TRUE)) {
     stop("Package \`grDevices\` required to save dependency graph")
   }
+
+  functions <- c(...)
 
   # get next order of neighbors
   nextOrder <- function(graph, nodes, mode) {
@@ -40,8 +43,9 @@ visualizeDependencies <- function(functions, direction = "both", order = 2, #nol
   combineGraphs1 <- function(graphs) {
     graph <- graphs[[1]]
     if (length(graphs) > 1) {
-      for (i in 2:length(graphs))
+      for (i in 2:length(graphs)) {
         graph <- igraph::union(graph, graphs[[i]])
+      }
     }
     return(graph)
   }
@@ -61,7 +65,6 @@ visualizeDependencies <- function(functions, direction = "both", order = 2, #nol
 
     # find dependencies up to given order in both directions
     for (func in functions) {
-
       # direct neighbors incoming
       current <- nextOrder(graphMadrat, func, mode)
       graphTmp <- current[[1]][[1]]
@@ -87,6 +90,18 @@ visualizeDependencies <- function(functions, direction = "both", order = 2, #nol
 
   # get full graph
   dfGraphMadrat <- getMadratGraph(packages = packages)
+
+  if (!is.null(filter)) {
+    # exclude all entries which match the filter, but exclude target functions
+    # from filter
+    .filter <- function(x, filter, f) {
+      functionFilter <- paste0("^(", paste(f, collapse = "|"), ")$")
+      return(!grepl(filter, x) | grepl(functionFilter, x))
+    }
+    dfGraphMadrat <- dfGraphMadrat[.filter(dfGraphMadrat$to, filter, functions) &
+                                     .filter(dfGraphMadrat$from, filter, functions), ]
+  }
+
   graphMadrat <- graph_from_data_frame(dfGraphMadrat)
 
   # functions as list
@@ -121,8 +136,8 @@ visualizeDependencies <- function(functions, direction = "both", order = 2, #nol
   # add corresponding mr package to each vertex of graph
   for (i in seq_along(V(fullGraph))) {
     V(fullGraph)$color[i] <- ifelse(V(fullGraph)$name[i] %in% dfGraphMadrat$from,
-                                  dfGraphMadrat$from_package[which(dfGraphMadrat$from == V(fullGraph)$name[i])[1]],
-                                  dfGraphMadrat$to_package[which(dfGraphMadrat$to == V(fullGraph)$name[i])[1]])
+                                    dfGraphMadrat$from_package[which(dfGraphMadrat$from == V(fullGraph)$name[i])[1]],
+                                    dfGraphMadrat$to_package[which(dfGraphMadrat$to == V(fullGraph)$name[i])[1]])
   }
 
   # all packages that are relevant
@@ -144,7 +159,7 @@ visualizeDependencies <- function(functions, direction = "both", order = 2, #nol
   if (!is.null(filename)) grDevices::png(filename, 800, 800)
   plot(fullGraph)
   graphics::legend("topright", legend = c(pkg, "Central functions"), pch = 16,
-                                col = c(colorsIn[seq_along(pkg)], "#c93535"), bty = "n")
+                   col = c(colorsIn[seq_along(pkg)], "#c93535"), bty = "n")
   if (direction == "both") graphics::legend("bottomright", legend = c("In", "Out"), pch = c(22, 21), bty = "n")
   if (direction == "in") graphics::legend("bottomright", legend = c("In"), pch = 22, bty = "n")
   if (direction == "out") graphics::legend("bottomright", legend = c("Out"), pch = 21, bty = "n")
