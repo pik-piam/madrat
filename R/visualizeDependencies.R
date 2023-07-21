@@ -2,7 +2,7 @@
 #'
 #' Creates a graphical visualization of dependencies between functions in the mr-universe.
 #'
-#' @param ... function or vector of functions to be analyzed
+#' @param ... function(s) to be analyzed
 #' @param direction Character string, either “in”, “out” or "both". If “in” all sources
 #' feeding into the function are listed. If “out” consumer of the function are listed.
 #' If “both” the union of "in" and "out" is returned.
