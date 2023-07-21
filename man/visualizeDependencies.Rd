@@ -5,15 +5,16 @@
 \title{visualizeDependencies}
 \usage{
 visualizeDependencies(
-  functions,
+  ...,
   direction = "both",
   order = 2,
+  filter = NULL,
   packages = getConfig("packages"),
   filename = NULL
 )
 }
 \arguments{
-\item{functions}{function or vector of functions to be analyzed}
+\item{...}{function or vector of functions to be analyzed}
 
 \item{direction}{Character string, either “in”, “out” or "both". If “in” all sources
 feeding into the function are listed. If “out” consumer of the function are listed.
@@ -23,6 +24,9 @@ If “both” the union of "in" and "out" is returned.}
 of direction "in") or directly calling (in case of direction "out") are shown. Order 2 will also
 show direct dependencies of the order 1 dependencies, order 3 also the direct dependencies from
 order 2 dependencies, etc.}
+
+\item{filter}{regular expression to describe elements which should be excluded from visualization
+(e.g. "^tool" to exclude all tool functions)}
 
 \item{packages}{packages to use when searching dependencies}
 
@@ -35,5 +39,5 @@ Creates a graphical visualization of dependencies between functions in the mr-un
 \code{\link{getDependencies}}, \code{\link{getMadratGraph}}, \code{\link{getMadratInfo}}
 }
 \author{
-Debbora Leip
+Debbora Leip, Jan Philipp Dietrich
 }
