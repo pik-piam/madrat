@@ -55,6 +55,7 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
       x[[elem]] <- .terraLoad(x[[elem]])
     }
   }
+  putMadratNote(attr(x, "madratEnvironmentNote"))
   attr(x, "id") <- fname
   return(x)
 }
