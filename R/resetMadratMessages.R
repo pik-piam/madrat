@@ -1,4 +1,4 @@
-#' Tool: resetMadratMessages
+#' resetMadratMessages
 #'
 #' Delete stored madrat messages from the madrat environment. The madrat environment
 #' behaves similar like global options, except that 1) messages will also

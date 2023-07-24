@@ -1,4 +1,4 @@
-#' Tool: getMadratMessage
+#' getMadratMessage
 #'
 #' Read a madrat message from the madrat environment. The madrat environment
 #' behaves similar like global options, except that 1) messages will also

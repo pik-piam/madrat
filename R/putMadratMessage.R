@@ -1,4 +1,4 @@
-#' Tool: putMadratMessage
+#' putMadratMessage
 #'
 #' Store a madrat message in the madrat environment. The madrat environment
 #' behaves similar like global options, except that 1) messages will also
@@ -10,7 +10,8 @@
 #' @param value The message that should be recorded as character. Alternatively,
 #' if \code{name} is not set, it is also possible to provide a complete list
 #' of the structure value[[name]][[fname]] where name and fname correspond
-#' to the category name and function name entries.
+#' to the category name and function name entries (e.g.
+#' \code{value = list(test = list(readTau = "This is a toast"))}).
 #' @param fname function name the entry belongs to or the frame number from which
 #' the function name should be derived from (e.g. -1 to recieve function name
 #' from parent function).

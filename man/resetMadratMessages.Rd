@@ -2,7 +2,7 @@
 % Please edit documentation in R/resetMadratMessages.R
 \name{resetMadratMessages}
 \alias{resetMadratMessages}
-\title{Tool: resetMadratMessages}
+\title{resetMadratMessages}
 \usage{
 resetMadratMessages(name, fname)
 }

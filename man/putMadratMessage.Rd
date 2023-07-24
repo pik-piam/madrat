@@ -2,7 +2,7 @@
 % Please edit documentation in R/putMadratMessage.R
 \name{putMadratMessage}
 \alias{putMadratMessage}
-\title{Tool: putMadratMessage}
+\title{putMadratMessage}
 \usage{
 putMadratMessage(name, value, fname = -1, add = FALSE)
 }
@@ -12,7 +12,8 @@ putMadratMessage(name, value, fname = -1, add = FALSE)
 \item{value}{The message that should be recorded as character. Alternatively,
 if \code{name} is not set, it is also possible to provide a complete list
 of the structure value[[name]][[fname]] where name and fname correspond
-to the category name and function name entries.}
+to the category name and function name entries (e.g.
+\code{value = list(test = list(readTau = "This is a toast"))}).}
 
 \item{fname}{function name the entry belongs to or the frame number from which
 the function name should be derived from (e.g. -1 to recieve function name

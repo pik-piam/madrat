@@ -2,7 +2,7 @@
 % Please edit documentation in R/getMadratMessage.R
 \name{getMadratMessage}
 \alias{getMadratMessage}
-\title{Tool: getMadratMessage}
+\title{getMadratMessage}
 \usage{
 getMadratMessage(name = NULL, fname = NULL)
 }
