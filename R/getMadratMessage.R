@@ -8,22 +8,24 @@
 #'
 #' @param name The category in which the message should be stored
 #' @param fname function name. If specified only messages belonging to the
-#' functions history will be returned.
+#' functions history will be returned (this includes entries from the function
+#' itself, but also entries from functions which were called by this function).
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMadratMessage}}
 #' @examples
-#' madrat:::putMadratMessage("This is a test", "test")
-#' madrat:::getMadratMessage("test")
+#' putMadratMessage("test", "This is a toast", fname = "readTau")
+#' getMadratMessage("test", fname = "calcTauTotal")
+#' @export
 
 getMadratMessage <- function(name = NULL, fname = NULL) {
   x <- getOption("madratMessage")
-  if(!is.null(x) && !is.null(fname)) {
+  if (!is.null(x) && !is.null(fname)) {
     deps <- suppressWarnings(getDependencies(sub("^.*:::", "", fname),
-                                             packages = getConfig("packages"), self = TRUE)$call)
-    for(n in names(x)) {
-      x[[n]] <- x[[n]][names(x[[n]]) %in% deps]
+                                             packages = getConfig("packages"), self = TRUE)$func)
+    for (n in names(x)) {
+      x[[n]] <- x[[n]][sub("^.*:::", "", names(x[[n]])) %in% deps]
     }
   }
-  if(!is.null(name)) x <- x[[name]]
+  if (!is.null(name)) x <- x[[name]]
   return(x)
 }
