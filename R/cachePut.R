@@ -40,6 +40,9 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
         }
       }
     }
+
+    attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
+
     # write to tempfile to avoid corrupt cache files in parallel running preprocessings
     tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
     saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))

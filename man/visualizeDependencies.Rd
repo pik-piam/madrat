@@ -14,7 +14,7 @@ visualizeDependencies(
 )
 }
 \arguments{
-\item{...}{function or vector of functions to be analyzed}
+\item{...}{function(s) to be analyzed}
 
 \item{direction}{Character string, either “in”, “out” or "both". If “in” all sources
 feeding into the function are listed. If “out” consumer of the function are listed.
