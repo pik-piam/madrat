@@ -29,7 +29,7 @@ getMadratMessage <- function(name = NULL, fname = NULL) {
     if (length(readDeps) > 0) {
       convertDeps <- paste0("convert", readDeps)
       correctDeps <- paste0("correct", readDeps)
-      downloadDeps <- paste0("downloadt", readDeps)
+      downloadDeps <- paste0("download", readDeps)
       deps <- c(deps, convertDeps, correctDeps, downloadDeps)
     }
     for (n in names(x)) {
