@@ -42,7 +42,7 @@ test_that("Argument hashing works", {
   expect_null(cacheArgumentsHash(readTau, list(subtype = "paper")))
   expect_identical(cacheArgumentsHash(readTau, args = list(subtype = "historical")), "-50d72f51")
   expect_identical(cacheArgumentsHash(c(readTau, convertTau),
-                                               args = list(subtype = "historical")), "-50d72f51")
+                                      args = list(subtype = "historical")), "-50d72f51")
   # nonexisting arguments will be ignored if ... is missing
   expect_identical(cacheArgumentsHash(readTau, args = list(subtype = "historical", notthere = 42)),
                    "-50d72f51")
@@ -169,8 +169,8 @@ test_that("terra objects can be cached", {
     return(list(x = a, class = "SpatRaster"))
   }
   globalassign("readMultiSource")
-  expect_error(readSource("MultiSource"),
-               "file-based and in-memory parts in the same terra object can currently not be cached")
+  expect_warning(readSource("MultiSource"),
+                 "file-based and in-memory parts in the same terra object can currently not be cached")
 
 
   downloadSpatVector <- function() {

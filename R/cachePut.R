@@ -20,35 +20,38 @@
 #' @importFrom digest digest
 
 cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
-
-  if (is.list(x) && isFALSE(x$cache)) {
-    vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
-    return()
-  }
-
-  fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "put", ...)
-  if (!is.null(fname)) {
-    if (!dir.exists(dirname(fname))) {
-      dir.create(dirname(fname), recursive = TRUE)
+  tryCatch({
+    if (is.list(x) && isFALSE(x$cache)) {
+      vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
+      return()
     }
-    attr(x, "cachefile") <- basename(fname)
-    vcat(1, " - writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
-    if (is.list(x)) {
-      for (elem in c("x", "weight")) {
-        if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
-          x[[elem]] <- toolTerraToCache(x[[elem]], elem, fname)
+
+    fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "put", ...)
+    if (!is.null(fname)) {
+      if (!dir.exists(dirname(fname))) {
+        dir.create(dirname(fname), recursive = TRUE)
+      }
+      attr(x, "cachefile") <- basename(fname)
+      vcat(1, " - writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
+      if (is.list(x)) {
+        for (elem in c("x", "weight")) {
+          if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
+            x[[elem]] <- toolTerraToCache(x[[elem]], elem, fname)
+          }
         }
       }
+
+      attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
+
+      # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+      tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
+      saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
+      file.rename(tempfileName, fname)
+      Sys.chmod(fname, mode = "0666", use_umask = FALSE)
     }
-
-    attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
-
-    # write to tempfile to avoid corrupt cache files in parallel running preprocessings
-    tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
-    saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
-    file.rename(tempfileName, fname)
-    Sys.chmod(fname, mode = "0666", use_umask = FALSE)
-  }
+  }, error = function(e) {
+    vcat(0, " - could not write cache file: ", e$message, fill = 300, show_prefix = FALSE)
+  })
 }
 
 # madrat is confused when using tools::, maybe thinks this has to do with tool functions, so need to import
