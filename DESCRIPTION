@@ -1,7 +1,7 @@
 Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 3.6.1
+Version: 3.6.2
 Date: 2023-07-25
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre")),

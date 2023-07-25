@@ -20,9 +20,18 @@
 getMadratMessage <- function(name = NULL, fname = NULL) {
   x <- getOption("madratMessage")
   if (!is.null(x) && !is.null(fname)) {
-    deps <- try(suppressWarnings(getDependencies(sub("^.*:::", "", fname),
+    fname <- sub("^.*:::", "", fname)
+    fnameBase <- sub("^(download|correct|convert)", "read", fname)
+    deps <- try(suppressWarnings(getDependencies(fnameBase,
                                                  packages = getConfig("packages"), self = TRUE)$func))
     if (inherits(deps, "try-error")) return(NULL)
+    readDeps <- sub("^read", "", grep("^read", deps, value = TRUE))
+    if (length(readDeps) > 0) {
+      convertDeps <- paste0("convert", readDeps)
+      correctDeps <- paste0("correct", readDeps)
+      downloadDeps <- paste0("download", readDeps)
+      deps <- c(deps, convertDeps, correctDeps, downloadDeps)
+    }
     for (n in names(x)) {
       x[[n]] <- x[[n]][sub("^.*:::", "", names(x[[n]])) %in% deps]
     }

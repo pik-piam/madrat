@@ -8,6 +8,11 @@ test_that("getMadratMessage and putMadratMessage work", {
   expect_identical(getMadratMessage("test", fname = "calcTauTotal"), list(readTau = "This is a toast"))
   expect_silent(resetMadratMessages())
   expect_null(getMadratMessage())
+  expect_silent(putMadratMessage("test2", "another test", fname = "convertTau"))
+  expect_identical(getMadratMessage(fname = "calcTauTotal"), list(test2 = list(convertTau = "another test")))
+  expect_identical(getMadratMessage(fname = "readTau"), list(test2 = list(convertTau = "another test")))
+  expect_identical(getMadratMessage(fname = "convertTau"), list(test2 = list(convertTau = "another test")))
+  resetMadratMessages()
   test <- function() {
     putMadratMessage("level", "level 1")
     .tmp <- function() {
