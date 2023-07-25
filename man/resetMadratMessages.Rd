@@ -4,7 +4,7 @@
 \alias{resetMadratMessages}
 \title{resetMadratMessages}
 \usage{
-resetMadratMessages(name, fname)
+resetMadratMessages(name = NULL, fname = NULL)
 }
 \arguments{
 \item{name}{The category for which the messages should be reset (if not set

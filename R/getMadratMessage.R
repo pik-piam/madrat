@@ -20,8 +20,9 @@
 getMadratMessage <- function(name = NULL, fname = NULL) {
   x <- getOption("madratMessage")
   if (!is.null(x) && !is.null(fname)) {
-    deps <- suppressWarnings(getDependencies(sub("^.*:::", "", fname),
-                                             packages = getConfig("packages"), self = TRUE)$func)
+    deps <- try(suppressWarnings(getDependencies(sub("^.*:::", "", fname),
+                                                 packages = getConfig("packages"), self = TRUE)$func))
+    if (inherits(deps, "try-error")) return(NULL)
     for (n in names(x)) {
       x[[n]] <- x[[n]][sub("^.*:::", "", names(x[[n]])) %in% deps]
     }
