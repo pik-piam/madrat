@@ -18,9 +18,7 @@
 #' resetMadratMessages("test")
 #' @export
 
-resetMadratMessages <- function(name, fname) {
-  if (missing(name)) name <- NULL
-  if (missing(fname)) fname <- NULL
+resetMadratMessages <- function(name = NULL, fname = NULL) {
 
   madratMessage <- getOption("madratMessage")
 
