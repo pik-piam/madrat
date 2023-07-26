@@ -117,7 +117,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
 
   if (!dir.exists(getConfig("cachefolder"))) {
-      dir.create(getConfig("cachefolder"), recursive = TRUE)
+    dir.create(getConfig("cachefolder"), recursive = TRUE)
   }
 
   if (!is.null(regionmapping)) localConfig(regionmapping = regionmapping)
@@ -127,31 +127,44 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (length(type) != 1) stop("Invalid type (must be a single character string)!")
 
   .checkData <- function(x, functionname) {
-    if (!is.list(x)) stop("Output of function \"", functionname,
-      "\" is not list of two MAgPIE objects containing the values and corresponding weights!")
-    if (is.null(x$class)) x$class <- "magpie"
-    if (!is.character(x$class) || length(x$class) != 1) stop("x$class must be a single element of class",
-      " character or NULL!")
-    if (x$class == "magpie" && !is.magpie(x$x)) stop("Output x of function \"", functionname,
-      "\" is not a MAgPIE object!")
-    if (!(x$class %in% class(x$x))) stop("Output x of function \"", functionname, "\" is not of promised class \"",
-      x$class, "\"!")
-    if (x$class != "magpie" && !is.null(x$weight)) stop("Weights are currently not supported for objects of class \"",
-      x$class, "\"!")
-    if (!is.magpie(x$weight) && !is.null(x$weight)) stop("Output weight of function \"", functionname,
-      "\" is not a MAgPIE object!")
+    if (!is.list(x)) {
+      stop("Output of function \"", functionname,
+           "\" is not list of two MAgPIE objects containing the values and corresponding weights!")
+    }
+    if (is.null(x$class)) {
+      x$class <- "magpie"
+    }
+    if (!is.character(x$class) || length(x$class) != 1) {
+      stop("x$class must be a single element of class character or NULL!")
+    }
+    if (x$class == "magpie" && !is.magpie(x$x)) {
+      stop("Output x of function \"", functionname, "\" is not a MAgPIE object!")
+    }
+    if (!(x$class %in% class(x$x))) {
+      stop("Output x of function \"", functionname, "\" is not of promised class \"", x$class, "\"!")
+    }
+    if (x$class != "magpie" && !is.null(x$weight)) {
+      stop("Weights are currently not supported for objects of class \"", x$class, "\"!")
+    }
+    if (!is.magpie(x$weight) && !is.null(x$weight)) {
+      stop("Output weight of function \"", functionname, "\" is not a MAgPIE object!")
+    }
     if (!is.null(x$weight)) {
-      if (nyears(x$x) != nyears(x$weight) && nyears(x$weight) != 1) stop("Number of years disagree between data and ",
-        "weight of function \"", functionname, "\"!")
-      if (nyears(x$weight) == 1) getYears(x$weight) <- NULL
+      if (nyears(x$x) != nyears(x$weight) && nyears(x$weight) != 1) {
+        stop("Number of years disagree between data and ", "weight of function \"", functionname, "\"!")
+      }
+      if (nyears(x$weight) == 1) {
+        getYears(x$weight) <- NULL
+      }
     }
     x$package <- attr(functionname, "pkgcomment")
 
     # read and check x$isocountries value which describes whether the data is in
     # iso country resolution or not (affects aggregation and certain checks)
     if (x$class != "magpie") {
-      if (!is.null(x$isocountries) && x$isocountries != FALSE) stop("x$isocountries can only be set ",
-        "if x$class==\"magpie\"")
+      if (!is.null(x$isocountries) && x$isocountries != FALSE) {
+        stop("x$isocountries can only be set if x$class==\"magpie\"")
+      }
       x$isocountries <- FALSE
     }
     if (is.null(x$isocountries)) {
@@ -175,33 +188,40 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         isoCountry1 <- as.vector(isoCountry[, "x"])
         names(isoCountry1) <- isoCountry[, "X"]
         isocountries <- robustSort(isoCountry1)
-        if (length(isocountries) != length(datacountries)) stop("Wrong number of countries in ", name,
-          " returned by ", functionname, "!")
-        if (any(isocountries != datacountries)) stop("Countries in ", name, " returned by ", functionname,
-          " do not agree with iso country list!")
+        if (length(isocountries) != length(datacountries)) {
+          stop("Wrong number of countries in ", name, " returned by ", functionname, "!")
+        }
+        if (any(isocountries != datacountries)) {
+          stop("Countries in ", name, " returned by ", functionname, " do not agree with iso country list!")
+        }
       }
       .countrycheck(getItems(x$x, dim = 1.1), "x")
-      if (!is.null(x$weight) && nregions(x$weight) > 1) .countrycheck(getItems(x$weight, dim = 1.1), "weight")
+      if (!is.null(x$weight) && nregions(x$weight) > 1) {
+        .countrycheck(getItems(x$weight, dim = 1.1), "weight")
+      }
     }
     # perform additional checks
     if (x$class != "magpie" && (!is.null(x$min) || !is.null(x$max))) {
       stop("Min/Max checks cannot be used in combination with x$class!=\"magpie\"")
     }
-    if (!is.null(x$min) && any(x$x < x$min, na.rm = TRUE)) vcat(0, "Data returned by ", functionname,
-      " contains values smaller than the predefined minimum",
-      " (min = ", x$min, ")")
-    if (!is.null(x$max) && any(x$x > x$max, na.rm = TRUE)) vcat(0, "Data returned by ", functionname,
-      " contains values greater than the predefined maximum",
-      " (max = ", x$max, ")")
+    if (!is.null(x$min) && any(x$x < x$min, na.rm = TRUE)) {
+      vcat(0, "Data returned by ", functionname, " contains values smaller than the predefined minimum",
+           " (min = ", x$min, ")")
+    }
+    if (!is.null(x$max) && any(x$x > x$max, na.rm = TRUE)) {
+      vcat(0, "Data returned by ", functionname, " contains values greater than the predefined maximum",
+           " (max = ", x$max, ")")
+    }
     checkNameStructure <- function(x, structure, dim, class) {
-      if (class != "magpie" && !is.null(structure)) stop("Structure checks cannot be used in combination",
-        " with x$class!=\"magpie\"")
+      if (class != "magpie" && !is.null(structure)) {
+        stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
+      }
       if (!is.null(structure)) {
         if (is.null(getItems(x, dim))) {
           vcat(0, paste("Missing names in dimension", dim, "!"))
         } else if (!all(grepl(structure, getItems(x, dim)))) {
           vcat(0, paste0("Invalid names (dim=", dim, ', structure=\"', structure, '\"): '),
-            paste(grep(structure, getItems(x, dim), value = TRUE, invert = TRUE), collapse = ", "))
+               paste(grep(structure, getItems(x, dim), value = TRUE, invert = TRUE), collapse = ", "))
         }
       }
     }
@@ -262,8 +282,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (is.logical(x$putInPUC)) saveCache <- x$putInPUC
 
   if (saveCache) {
-   write(cacheName(prefix = "calc", type = type, args = args),
-         file = "pucFiles", append = TRUE)
+    write(cacheName(prefix = "calc", type = type, args = args),
+          file = "pucFiles", append = TRUE)
   }
 
 
@@ -272,8 +292,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     # check that years exist in provided data
     if (!all(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))) {
       stop("Some years are missing in the data provided by function ", functionname, "(",
-        paste(years[!(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))], collapse = ", "),
-        ")!")
+           paste(years[!(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))], collapse = ", "),
+           ")!")
     }
     x$x <- x$x[, years, ]
     if (!is.null(x$weight)) if (nyears(x$weight) > 1) x$weight <- x$weight[, years, ]
@@ -304,12 +324,12 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   unit        <- .prepComment(x$unit, "unit", paste0('Missing unit information for data set "', type, '"!'))
   description <- .prepComment(x$description, "description",
-    paste0('Missing description for data set "', type,
-      '"! Please add a description in the corresponding calc function!'))
+                              paste0('Missing description for data set "', type,
+                                     '"! Please add a description in the corresponding calc function!'))
   comment     <- .prepComment(.cleanComment(x$x), "comment")
   origin      <- .prepComment(paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()), collapse = "")),
-    " (madrat ", unname(getNamespaceVersion("madrat")), " | ", x$package, ")"),
-  "origin")
+                                     " (madrat ", unname(getNamespaceVersion("madrat")), " | ", x$package, ")"),
+                              "origin")
   date        <- .prepComment(date(), "creation date")
   note        <- .prepComment(x$note, "note")
 
@@ -366,11 +386,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
 
   extendedComment <- c(description,
-    unit,
-    note,
-    comment,
-    origin,
-    date)
+                       unit,
+                       note,
+                       comment,
+                       origin,
+                       date)
   if (x$class == "magpie") {
     getComment(x$x) <- extendedComment
     x$x <- clean_magpie(x$x)
@@ -502,8 +522,10 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   relFitting <- which(vapply(rel, nrow, FUN.VALUE = integer(1)) == length(items) &
                         !vapply(columnNameWithItems, identical, character(0), FUN.VALUE = logical(1)))
 
-  if (length(relFitting) == 0) stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
-                                    " contain a mapping compatible to the provided data!")
+  if (length(relFitting) == 0) {
+    stop("Neither getConfig(\"regionmapping\") nor getConfig(\"extramappings\")",
+         " contain a mapping compatible to the provided data!")
+  }
 
   # keep mappings only that fit the data
   rel <- rel[relFitting]
