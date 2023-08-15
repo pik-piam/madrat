@@ -31,6 +31,10 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
                            returnPathOnly = FALSE, activecalc = NULL) {
 
   setWrapperInactive("wrapperChecks")
+  if (is.null(where) && any(vapply(c("downloadSource", "readSource", "calcOutput",
+                                     "retrieveData"), isWrapperActive, logical(1)))) {
+    warning("argument 'where' should be set when calling toolGetMapping from within a madrat function.")
+  }
 
   fname <- .searchName(name = name, type = type, where = where, activecalc = activecalc)
 
