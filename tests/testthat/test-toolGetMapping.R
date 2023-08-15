@@ -45,5 +45,5 @@ test_that("toolGetMapping works", {
   }
   globalassign("readTest")
   expect_warning(readSource("Test", convert = "onlycorrect"),
-                "argument 'where' should be set when calling toolGetMapping from within a madrat function")
+                "No correct function for Test could be found. Set convert to FALSE.")
 })

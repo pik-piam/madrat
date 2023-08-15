@@ -31,10 +31,21 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
                            returnPathOnly = FALSE, activecalc = NULL) {
 
   setWrapperInactive("wrapperChecks")
-  if (is.null(where) && any(vapply(c("downloadSource", "readSource", "calcOutput",
-                                     "retrieveData"), isWrapperActive, logical(1)))) {
-    warning("argument 'where' should be set when calling toolGetMapping from within a madrat function.")
+  # if (is.null(where) && any(vapply(c("downloadSource", "readSource", "calcOutput",
+  #                                    "retrieveData"), isWrapperActive, logical(1)))) {
+  #   warning("argument 'where' should be set when calling toolGetMapping from within a madrat function.")
+  # }
+  if (isWrapperActive("wrapperChecks")) {
+  warningTriggered <- FALSE
+  for (w in c("downloadSource", "readSource", "calcOutput", "retrieveData")) {
+    if (isWrapperActive(w)) {
+      if (is.null(where) && !warningTriggered) {
+        warning("argument 'where' should be set when calling toolGetMapping from within a madrat function.")
+        warningTriggered <- TRUE
+      }
+    }
   }
+}
 
   fname <- .searchName(name = name, type = type, where = where, activecalc = activecalc)
 
