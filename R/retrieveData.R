@@ -69,7 +69,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     stop("Unknown cachetype \"", cachetype, "\"!")
   }
 
-  rev <- numeric_version(rev)
+  rev <- numeric_version(as.character(rev))
 
   # check and structure settings
   cfg <- .prepConfig(model, rev, dev, ...)
@@ -255,9 +255,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   # are arguments used in both - setConfig and the fullFunction? -> warning
   tmp <- intersect(formalArgs(setConfig), names(cfg$fullDefault))
   if (length(tmp) > 0) {
-    warning(
-      "Overlapping arguments between setConfig and retrieve function (\"",
-      paste(tmp, collapse = '", "'), '")')
+    warning("Overlapping arguments between setConfig and retrieve function (\"",
+            paste(tmp, collapse = '", "'), '")')
   }
 
   # create argument hash
@@ -295,7 +294,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     extraArgs <- paste0(paste(cfg$pucArguments, collapse = "_"), "_")
   }
   cfg$pucName     <- paste0("rev", rev, dev, "_", extraArgs, .argsHash(cfg$formalsPUC, useLabels),
-                               tolower(model), ifelse(getConfig("debug") == TRUE, "_debug", ""))
+                            tolower(model), ifelse(getConfig("debug") == TRUE, "_debug", ""))
 
   return(cfg)
 }
