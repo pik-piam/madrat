@@ -40,7 +40,7 @@ test_that("toolGetMapping works", {
   expect_error(toolGetMapping("test.xyz"), "Unsupported filetype")
 
   readTest <- function() {
-    toolGetMapping("test.csv", type = "regional")
+    toolGetMapping("regionmappingH12.csv", type = "regional")
     return(as.magpie(1))
   }
   globalassign("readTest")
