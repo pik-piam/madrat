@@ -4,7 +4,11 @@
 \alias{fullEXAMPLE}
 \title{fullExample}
 \usage{
-fullEXAMPLE(rev = 0, dev = "", extra = "Example argument")
+fullEXAMPLE(
+  rev = as.numeric_version("0"),
+  dev = "",
+  extra = "Example argument"
+)
 }
 \arguments{
 \item{rev}{data revision which should be used/produced. Format must be compatible to
