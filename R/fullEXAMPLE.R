@@ -19,14 +19,14 @@
 #' retrieveData("example", rev = "2.1.2", dev = "test", regionmapping = "regionmappingH12.csv")
 #' }
 #'
-fullEXAMPLE <- function(rev = 0, dev = "", extra = "Example argument") {
+fullEXAMPLE <- function(rev = as.numeric_version("0"), dev = "", extra = "Example argument") {
   # ATTENTION: name of the model in function name must be in capital letters!
 
   "!# @pucArguments extra"
 
   writeLines(extra, "test.txt")
 
-  if (rev >= 1) {
+  if (rev >= "1") {
     calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")
   }
   if (dev == "test") {
