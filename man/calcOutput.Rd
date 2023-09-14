@@ -51,7 +51,7 @@ Works only when a file name is given in the function call.}
 \item{na_warning}{deprecated, please use \code{warnNA} instead}
 
 \item{try}{if set to TRUE the calculation will only be tried and the script will continue even if
-the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
+the underlying calculation failed. If set to FALSE calculation will stop with an error in such a
 case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 always interpreted as TRUE.}
 
