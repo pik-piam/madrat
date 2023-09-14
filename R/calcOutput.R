@@ -24,7 +24,7 @@
 #' @param warnNA boolean deciding whether NAs in the data set should create a warning or not
 #' @param na_warning deprecated, please use \code{warnNA} instead
 #' @param try if set to TRUE the calculation will only be tried and the script will continue even if
-#' the underlying calculation failed. If set to TRUE calculation will stop with an error in such a
+#' the underlying calculation failed. If set to FALSE calculation will stop with an error in such a
 #' case. This setting will be overwritten by the global setting debug=TRUE, in which try will be
 #' always interpreted as TRUE.
 #' @param regionmapping alternative regionmapping to use for the given calculation. It will temporarily
