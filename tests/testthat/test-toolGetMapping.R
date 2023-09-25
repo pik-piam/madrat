@@ -40,10 +40,10 @@ test_that("toolGetMapping works", {
   expect_error(toolGetMapping("test.xyz"), "Unsupported filetype")
 
   readTest <- function() {
-    toolGetMapping("test.csv", type = "regional")
+    toolGetMapping("regionmappingH12.csv", type = "regional")
     return(as.magpie(1))
   }
   globalassign("readTest")
-  expect_warning(readSource("Test", convert = "onlycorrect"),
-                "No correct function for Test could be found. Set convert to FALSE.")
+  expect_warning(readSource("Test"),
+                "argument 'where' should be set when calling toolGetMapping from within a madrat function.")
 })
