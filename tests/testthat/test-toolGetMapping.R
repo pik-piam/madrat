@@ -45,5 +45,5 @@ test_that("toolGetMapping works", {
   }
   globalassign("readTest")
   expect_warning(readSource("Test"),
-                "argument 'where' should be set when calling toolGetMapping from within a madrat function.")
+                 "argument 'where' should be set when calling toolGetMapping from within a madrat function.")
 })

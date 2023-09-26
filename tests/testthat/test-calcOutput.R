@@ -117,11 +117,11 @@ test_that("Calculation for tau example data set works", {
   require(magclass)
   localConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2)
   expectedResult <- new("magpie",
-                         .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
-                                           .Dim = c(12L, 1L, 1L),
-                                           .Dimnames = list(region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA",
-                                                                       "REF", "CAZ", "CHA", "IND", "JPN", "USA"),
-                                                            year = NULL, data = NULL)))
+                        .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
+                                          .Dim = c(12L, 1L, 1L),
+                                          .Dimnames = list(region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA",
+                                                                      "REF", "CAZ", "CHA", "IND", "JPN", "USA"),
+                                                           year = NULL, data = NULL)))
   x <- calcOutput("TauTotal", source = "historical", years = 1995, round = 2, supplementary = TRUE)
   expect_true(is.list(x))
   expect_equivalent(x$x, expectedResult)
@@ -147,11 +147,11 @@ test_that("Standard workflow works", {
   }
   fullTEST2 <- function(rev = 0, dev = "") {
     expectedOutput <- new("magpie",
-                           .Data = structure(c(540, 490, 510, 331, 160, 210, 120, 50, 40, 10, 10, 10),
-                                             .Dim = c(12L, 1L, 1L),
-                                             .Dimnames = list(fake = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA", "REF",
-                                                                       "CAZ", "CHA", "IND", "JPN", "USA"),
-                                                              year = NULL, data = NULL)))
+                          .Data = structure(c(540, 490, 510, 331, 160, 210, 120, 50, 40, 10, 10, 10),
+                                            .Dim = c(12L, 1L, 1L),
+                                            .Dimnames = list(fake = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA", "REF",
+                                                                      "CAZ", "CHA", "IND", "JPN", "USA"),
+                                                             year = NULL, data = NULL)))
 
     expect_warning(co <- capture.output(a <- calcOutput("Test2", file = "test.mz")),
                    'Missing description for data set "Test2"')
@@ -268,15 +268,17 @@ test_that("Aggregation works", {
                                                                      "JPN", "USA"),
                                                           year = NULL, data = NULL)))
   glo <- new("magpie", .Data = structure(249, .Dim = c(1L, 1L, 1L),
-              .Dimnames = list(region = "GLO", year = NULL, data = NULL)))
+                                         .Dimnames = list(region = "GLO", year = NULL, data = NULL)))
 
-  country2 <- new("magpie", .Data = structure(rep(8, 249), .Dim = c(249L, 1L, 1L), .Dimnames = list(
-    country = unname(getISOlist()), year = NULL, data = NULL)))
+  country2 <- new("magpie", .Data = structure(rep(8, 249), .Dim = c(249L, 1L, 1L),
+                                              .Dimnames = list(country = unname(getISOlist()),
+                                                               year = NULL, data = NULL)))
 
   reg2 <- new("magpie", .Data = structure(c(432, 392, 408, 272, 128, 168,
-                                            96, 40, 32, 8, 8, 8), .Dim = c(12L, 1L, 1L), .Dimnames = list(
-                                            region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA", "REF",
-                                                       "CAZ", "CHA", "IND", "JPN", "USA"), year = NULL, data = NULL)))
+                                            96, 40, 32, 8, 8, 8), .Dim = c(12L, 1L, 1L),
+                                          .Dimnames = list(region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA",
+                                                                      "REF", "CAZ", "CHA", "IND", "JPN", "USA"),
+                                                           year = NULL, data = NULL)))
   glo2 <- new("magpie", .Data = structure(1992, .Dim = c(1L, 1L, 1L),
                                           .Dimnames = list(global = "GLO", year = NULL, data = NULL)))
 
@@ -308,8 +310,8 @@ test_that("Aggregation works", {
     # set verbosity to a level that will produce the expected NOTE
     localConfig(verbosity = 1)
     expect_message(a <- nc(calcOutput("AggregationTest", aggregate = "glo")),
-      paste0("Ignoring column\\(s\\) X, region, global from .* as the column\\(s\\) ",
-      "already exist in another mapping\\."))
+                   paste0("Ignoring column\\(s\\) X, region, global from .* as the column\\(s\\) ",
+                          "already exist in another mapping\\."))
     expect_identical(a, glo)
   })
 })
