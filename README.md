@@ -1,10 +1,6 @@
 # May All Data be Reproducible and Transparent (MADRaT) *
 
-<<<<<<< HEAD
-R package **madrat**, version **3.6.5**
-=======
 R package **madrat**, version **3.6.6**
->>>>>>> 3e8f87b (buildlibrary)
 
 [![CRAN status](https://www.r-pkg.org/badges/version/madrat)](https://cran.r-project.org/package=madrat) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1115490.svg)](https://doi.org/10.5281/zenodo.1115490) [![R build status](https://github.com/pik-piam/madrat/workflows/check/badge.svg)](https://github.com/pik-piam/madrat/actions) [![codecov](https://codecov.io/gh/pik-piam/madrat/branch/master/graph/badge.svg)](https://app.codecov.io/gh/pik-piam/madrat) [![r-universe](https://pik-piam.r-universe.dev/badges/madrat)](https://pik-piam.r-universe.dev/builds)
 
@@ -68,11 +64,7 @@ A BibTeX entry for LaTeX users is
   title = {madrat: May All Data be Reproducible and Transparent (MADRaT)},
   author = {Jan Philipp Dietrich and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Debbora Leip and Ulrich Kreidenweis and David Klein and Pascal Führlich},
   year = {2023},
-<<<<<<< HEAD
-  note = {R package version 3.6.5},
-=======
   note = {R package version 3.6.6},
->>>>>>> 3e8f87b (buildlibrary)
   doi = {10.5281/zenodo.1115490},
   url = {https://github.com/pik-piam/madrat},
 }
