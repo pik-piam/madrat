@@ -348,7 +348,7 @@ test_that("1on1 country mappings do not alter the data", {
 
 test_that("Bilateral aggregation works", {
   calcBilateral <- function() {
-    map <- toolGetMapping("regionmappingH12.csv")
+    map <- toolGetMapping("regionmappingH12.csv", where = "madrat")
     tmp <- expand.grid(map[[2]], map[[2]], stringsAsFactors = FALSE)
     x <- new.magpie(paste0(tmp[[1]], ".", tmp[[2]]))
     x[, , ] <- rep(seq_len(nrow(map)), nrow(map))
