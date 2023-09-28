@@ -30,8 +30,15 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
                            error.missing = TRUE, # nolint
                            returnPathOnly = FALSE, activecalc = NULL) {
 
+  if (isWrapperActive("wrapperChecks")) {
+    for (w in c("downloadSource", "readSource", "calcOutput", "retrieveData")) {
+      if (isWrapperActive(w) && is.null(where)) {
+        warning("argument 'where' should be set when calling toolGetMapping from within a madrat function.")
+        break
+      }
+    }
+  }
   setWrapperInactive("wrapperChecks")
-
   fname <- .searchName(name = name, type = type, where = where, activecalc = activecalc)
 
   if (error.missing && !file.exists(as.character(fname))) stop('Mapping "', name, '" not found!')

@@ -38,4 +38,12 @@ test_that("toolGetMapping works", {
   writeLines("abc", paste0(getConfig("mappingfolder"), "/test.xyz"))
   expect_error(toolGetMapping("test.rda", where = "mappingfolder"), "did not contain a object")
   expect_error(toolGetMapping("test.xyz"), "Unsupported filetype")
+
+  readTest <- function() {
+    toolGetMapping("regionmappingH12.csv", type = "regional")
+    return(as.magpie(1))
+  }
+  globalassign("readTest")
+  expect_warning(readSource("Test"),
+                 "argument 'where' should be set when calling toolGetMapping from within a madrat function.")
 })
