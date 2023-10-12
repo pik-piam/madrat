@@ -132,37 +132,45 @@ visualizeDependencies <- function(..., direction = "both", order = 2, filter = N
     V(fullGraph)$shape <- "circle"
   }
 
+  # make central vertices circles
+  V(fullGraph)$shape[V(fullGraph)$name %in% functions] <- "circle"
 
   # add corresponding mr package to each vertex of graph
   for (i in seq_along(V(fullGraph))) {
     V(fullGraph)$color[i] <- ifelse(V(fullGraph)$name[i] %in% dfGraphMadrat$from,
                                     dfGraphMadrat$from_package[which(dfGraphMadrat$from == V(fullGraph)$name[i])[1]],
                                     dfGraphMadrat$to_package[which(dfGraphMadrat$to == V(fullGraph)$name[i])[1]])
+    V(fullGraph)$frame.color[i] <- V(fullGraph)$color[i]
+    V(fullGraph)$frame.width[i] <- 1
   }
 
   # all packages that are relevant
   pkg <- unique(V(fullGraph)$color)
 
   # set default colors
-  colorsIn <- c("deepskyblue", "gold", "mediumpurple", "#33cbb9", "#219421")
+  colorsVertices <- c("deepskyblue", "gold", "mediumpurple", "#33cba8", "#219421",
+                      "#ff7700", "#d52580", "#3b3bab", "#237791", "#a61818", "#8cdb7d")
 
-  # set vertex colors according to package (different shades for incoming/outgoing)
+  # set vertex colors according to packages
   for (i in seq_along(pkg)) {
-    V(fullGraph)$color[which(V(fullGraph)$color == pkg[i])] <- colorsIn[i]
+    V(fullGraph)$color[which(V(fullGraph)$color == pkg[i])] <- colorsVertices[i]
+    V(fullGraph)$frame.color[which(V(fullGraph)$frame.color == pkg[i])] <- colorsVertices[i]
   }
 
-  # make central vertices red
-  V(fullGraph)$color[V(fullGraph)$name %in% functions] <- "#f84141"
-  V(fullGraph)$shape[V(fullGraph)$name %in% functions] <- "sphere"
+  # for non-central vetices only frame colored
+  V(fullGraph)$color[!(V(fullGraph)$name %in% functions)] <- "white"
+  V(fullGraph)$frame.width[!(V(fullGraph)$name %in% functions)] <- 3
 
   # plot graph
   if (!is.null(filename)) grDevices::png(filename, 800, 800)
   plot(fullGraph)
-  graphics::legend("topright", legend = c(pkg, "Central functions"), pch = 16,
-                   col = c(colorsIn[seq_along(pkg)], "#c93535"), bty = "n")
-  if (direction == "both") graphics::legend("bottomright", legend = c("In", "Out"), pch = c(22, 21), bty = "n")
-  if (direction == "in") graphics::legend("bottomright", legend = c("In"), pch = 22, bty = "n")
-  if (direction == "out") graphics::legend("bottomright", legend = c("Out"), pch = 21, bty = "n")
+  graphics::legend("topright", legend = pkg, pch = 16, col = colorsVertices[seq_along(pkg)], bty = "n")
+  if (direction == "both") graphics::legend("bottomright", legend = c("Central functions", "In", "Out"),
+                                            pch = c(16, 22, 21), bty = "n")
+  if (direction == "in") graphics::legend("bottomright", legend = c("Central functions", "In"),
+                                          pch = c(16, 22), bty = "n")
+  if (direction == "out") graphics::legend("bottomright", legend = c("Central functions", "Out"),
+                                           pch = c(16, 21), bty = "n")
   if (!is.null(filename)) grDevices::dev.off()
 
   # return graph and list of relevant packages
