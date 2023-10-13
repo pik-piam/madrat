@@ -39,13 +39,15 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
-  .aggregatePuc <- function(regionmapping, cfg, madratCfg, nestinglevel) {
+  .aggregatePuc <- function(regionmapping, cfg, madratCfg, madratCodelabels, nestinglevel) {
     # need to use `::` because this is run in another R session
     if (file.exists("puc/renv.lock")) {
       renv::init()
       renv::restore(lockfile = "puc/renv.lock", prompt = FALSE)
     }
-    withr::local_options(madrat_cfg = madratCfg, gdt_nestinglevel = nestinglevel)
+    withr::local_options(madrat_cfg = madratCfg,
+                         madrat_codelabels = madratCodelabels,
+                         gdt_nestinglevel = nestinglevel)
     madrat::localConfig(packages = "madrat", regionmapping = regionmapping,
                         forcecache = TRUE, .verbose = FALSE)
     if (!is.null(cfg$package)) withr::local_package(cfg$package)
@@ -67,6 +69,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     if (isTRUE(renv)) {
       out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
                                                   madratCfg = getOption("madrat_cfg"),
+                                                  madratCodelabels = getOption("madrat_codelabels"),
                                                   nestinglevel = getOption("gdt_nestinglevel")),
                               spinner = FALSE, show = TRUE))
       message(paste(out, "\n"))
@@ -75,8 +78,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
       if (!is.null(cfg$package) && !cfg$package %in% .packages()) {
         withr::local_package(cfg$package)
       }
-      localConfig(regionmapping = regionmapping, forcecache = TRUE,
-                .verbose = FALSE)
+      localConfig(regionmapping = regionmapping, forcecache = TRUE, .verbose = FALSE)
       do.call(retrieveData, c(cfg$args, list(renv = FALSE)))
     }
   }, tmpdir = madTempDir())
