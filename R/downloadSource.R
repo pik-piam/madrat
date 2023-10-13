@@ -35,7 +35,7 @@
 #' }
 #' Besides the names above (user-provided and automatically derived) it is possible to add custom metadata entries by
 #' extending the return list with additional, named entries.
-#' @author Jan Philipp Dietrich, David Klein, Pascal Führlich
+#' @author Jan Philipp Dietrich, David Klein, Pascal Sauer
 #' @examples
 #' \dontrun{
 #' a <- downloadSource("Tau", subtype = "historical")

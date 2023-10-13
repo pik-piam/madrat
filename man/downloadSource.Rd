@@ -58,5 +58,5 @@ a <- downloadSource("Tau", subtype = "historical")
 \code{\link{setConfig}}, \code{\link{readSource}}
 }
 \author{
-Jan Philipp Dietrich, David Klein, Pascal Führlich
+Jan Philipp Dietrich, David Klein, Pascal Sauer
 }

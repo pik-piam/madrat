@@ -42,5 +42,5 @@ compareMadratOutputs("madrat", "readTau", c("paper", "historical"))
 
 }
 \author{
-Pascal Führlich
+Pascal Sauer
 }

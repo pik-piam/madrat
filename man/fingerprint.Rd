@@ -49,5 +49,5 @@ madrat:::fingerprint("toolGetMapping", package = "madrat")
 \code{\link{readSource}}
 }
 \author{
-Jan Philipp Dietrich, Pascal Führlich
+Jan Philipp Dietrich, Pascal Sauer
 }
