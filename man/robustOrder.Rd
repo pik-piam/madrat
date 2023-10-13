@@ -28,5 +28,5 @@ same encoding as the input although internally character vectors are converted t
 \code{\link[base]{order}}
 }
 \author{
-Pascal Führlich
+Pascal Sauer
 }

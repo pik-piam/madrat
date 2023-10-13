@@ -41,5 +41,5 @@ outerFunction()
 \code{\link{toolendmessage}}, \code{\link{vcat}}
 }
 \author{
-Jan Philipp Dietrich, Pascal Führlich
+Jan Philipp Dietrich, Pascal Sauer
 }

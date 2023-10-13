@@ -13,7 +13,7 @@
 #' @param method Default is "radix", which is locale independent. The alternatives "auto" and "shell" should not be used
 #' in madrat because they are locale dependent.
 #' @seealso \code{\link[base]{order}}
-#' @author Pascal Führlich
+#' @author Pascal Sauer
 robustOrder <- function(...,
                         na.last = TRUE, # nolint: object_name_linter
                         decreasing = FALSE, method = "radix") {

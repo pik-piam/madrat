@@ -26,7 +26,7 @@
 #' compareMadratOutputs("madrat", "readTau", c("paper", "historical"))
 #' }
 #'
-#' @author Pascal Führlich
+#' @author Pascal Sauer
 #'
 #' @importFrom digest digest
 #' @importFrom magclass where

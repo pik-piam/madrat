@@ -73,5 +73,5 @@ will corrupt the PUC file. Use with care.
 }
 }
 \author{
-Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Führlich
+Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Sauer
 }
