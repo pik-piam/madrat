@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'madrat: May All Data be Reproducible and Transparent (MADRaT) *'
-version: 3.6.9
-date-released: '2023-10-16'
+version: 3.6.10
+date-released: '2023-10-17'
 abstract: Provides a framework which should improve reproducibility and transparency
   in data processing. It provides functionality such as automatic meta data creation
   and management, rudimentary quality management, data caching, work-flow management
