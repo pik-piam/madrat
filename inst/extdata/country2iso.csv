@@ -11,6 +11,7 @@ agypten;EGY
 AI;AIA
 AL;ALB
 Aland Islands;ALA
+Åland Islands;ALA
 Albania;ALB
 albanien;ALB
 Algeria;DZA
@@ -231,6 +232,7 @@ Dominican Republic;DOM
 Dominican_Republic;DOM
 DOMINICANR;DOM
 Dominika,Rep,;DOM
+DR Congo;COD
 DZ;DZA
 east & west pakistan;XXX
 East Timor;TLS
@@ -690,6 +692,7 @@ Republic of North Macedonia;MKD
 republic of south sudan;SSD
 republic of south vietnam;XXX
 republic of sudan;XXX
+Republic of the Congo;COG
 Reunion;REU
 Réunion;REU
 rhodesia-nyasaland;XXX
@@ -853,6 +856,7 @@ TH;THA
 Thailand;THA
 The former Yugoslav Rep. of Macedonia;MKD
 The former Yugoslav Republic of Macedonia;MKD
+The Gambia;GMB
 Timor Leste;TLS
 Timor-Leste;TLS
 timor-leste (formerly east timor);TLS
@@ -944,6 +948,7 @@ Virgin Islands, British;VGB
 Virgin Islands, U.S.;VIR
 Virgin Islands, US;VIR
 Virgin_Islands;VIR
+Virgin Islands (U_S_);VIR
 VN;VNM
 Volkrep,China;CHN
 VU;VUT
@@ -980,3 +985,4 @@ Zimbabwe;ZWE
 ZM;ZMB
 ZW;ZWE
 zypern;CYP
+
