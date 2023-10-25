@@ -36,7 +36,7 @@ test_that("toolGetMapping works", {
   a <- 1
   save(a, file = paste0(getConfig("mappingfolder"), "/test.rda"))
   writeLines("abc", paste0(getConfig("mappingfolder"), "/test.xyz"))
-  expect_error(toolGetMapping("test.rda", where = "mappingfolder"), "did not contain a object")
+  expect_error(toolGetMapping("test.rda", where = "mappingfolder"), "did not contain an object")
   expect_error(toolGetMapping("test.xyz"), "Unsupported filetype")
 
   readTest <- function() {

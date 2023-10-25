@@ -65,7 +65,7 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
       packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
     }
     for (i in packages) {
-      out <- .searchNamePackage(name, type = type, packageName = i)
+      out <- .searchNamePackage(name, type = type, pkgName = i)
       if (out != "") {
         fname <- out
       }
@@ -78,7 +78,7 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
   } else if (where == "local") {
     return(.searchNameLocal(name = name, type = type))
   } else {
-    return(.searchNamePackage(name = name, type = type, packageName = where))
+    return(.searchNamePackage(name = name, type = type, pkgName = where))
   }
 }
 
@@ -94,13 +94,16 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
   return(paste0(mf, "/", type, "/", name))
 }
 
-.searchNamePackage <- function(name, type, packageName) {
+.searchNamePackage <- function(name, type, pkgName) {
   tmpfname <- .typedName(name, type)
-  fname <- system.file("extdata", tmpfname, package = packageName)
-  if (fname == "" && !is_dev_package(packageName)) fname <- system.file("inst/extdata", tmpfname, package = packageName)
-  if (fname == "") fname <- system.file("extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
-  if (fname == "" && !is_dev_package(packageName))
-    fname <- system.file("inst/extdata", strsplit(tmpfname, split = "/")[[1]][2], package = packageName)
+  fname <- system.file("extdata", tmpfname, package = pkgName)
+  if (fname == "" && !is_dev_package(pkgName)) fname <- system.file("inst", "extdata", tmpfname, package = pkgName)
+  if (fname == "")                             fname <- system.file("extdata",         name,     package = pkgName)
+  if (fname == "" && !is_dev_package(pkgName)) fname <- system.file("inst", "extdata", name,     package = pkgName)
+  if (fname == "") {
+    fname <- tryCatch(system.file("inst", "extdata", tmpfname, package = pkgName),
+                      error = function(e) "")
+  }
   return(fname)
 }
 
@@ -108,21 +111,18 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
   if (is.null(type)) {
     return(name)
   }
-  return(paste0(type, "/", name))
+  return(file.path(type, name))
 }
 
 .readMapping <- function(fname) {
   filetype <- tolower(file_ext(fname))
   if (filetype == "csv") {
-    if (grepl(pattern = ";", x = readLines(fname, 1))) {
-      return(read.csv(fname, sep = ";", stringsAsFactors = FALSE, comment.char = "*"))
-    } else {
-      return(read.csv(fname, sep = ",", stringsAsFactors = FALSE, comment.char = "*"))
-    }
+    sep <- if (grepl(pattern = ";", x = readLines(fname, 1))) ";" else ","
+    return(read.csv(fname, sep = sep, stringsAsFactors = FALSE, comment.char = "*"))
   } else if (filetype == "rda") {
     data <- NULL
     load(fname)
-    if (is.null(data)) stop(fname, " did not contain a object named \"data\"!")
+    if (is.null(data)) stop(fname, " did not contain an object named \"data\"!")
     return(data)
   } else if (filetype == "rds") {
     return(readRDS(fname))
