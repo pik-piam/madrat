@@ -96,8 +96,8 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
 
 .searchNamePackage <- function(name, type, packageName) {
   packageLocation <- if (is_dev_package(packageName)) {
-    # If <packageName> was attached using devtool::load_all(), system.file()
-    # might nor might not be shimmed with pkgload:::shim_system.file()
+    # If <packageName> was attached using devtools::load_all(), system.file()
+    # might or might not be shimmed with pkgload:::shim_system.file()
     # (depending on whether madrat was loaded normally or
     # through devtools::load_all()), and will yield different results.
     # base::system.file() will return the directory from where <packageName> was
