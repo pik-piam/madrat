@@ -65,7 +65,7 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
       packages <- c(fp, grep(fp, packages, invert = TRUE, value = TRUE))
     }
     for (i in packages) {
-      out <- .searchNamePackage(name, type = type, pkgName = i)
+      out <- .searchNamePackage(name, type = type, packageName = i)
       if (out != "") {
         fname <- out
       }
@@ -78,7 +78,7 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
   } else if (where == "local") {
     return(.searchNameLocal(name = name, type = type))
   } else {
-    return(.searchNamePackage(name = name, type = type, pkgName = where))
+    return(.searchNamePackage(name = name, type = type, packageName = where))
   }
 }
 
@@ -94,17 +94,27 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
   return(paste0(mf, "/", type, "/", name))
 }
 
-.searchNamePackage <- function(name, type, pkgName) {
-  tmpfname <- .typedName(name, type)
-  fname <- system.file("extdata", tmpfname, package = pkgName)
-  if (fname == "" && !is_dev_package(pkgName)) fname <- system.file("inst", "extdata", tmpfname, package = pkgName)
-  if (fname == "")                             fname <- system.file("extdata",         name,     package = pkgName)
-  if (fname == "" && !is_dev_package(pkgName)) fname <- system.file("inst", "extdata", name,     package = pkgName)
-  if (fname == "") {
-    fname <- tryCatch(system.file("inst", "extdata", tmpfname, package = pkgName),
-                      error = function(e) "")
+.searchNamePackage <- function(name, type, packageName) {
+  packageLocation <- if (is_dev_package(packageName)) {
+    # If <packageName> was attached using devtool::load_all(), system.file()
+    # might nor might not be shimmed with pkgload:::shim_system.file()
+    # (depending on whether madrat was loaded normally or
+    # through devtools::load_all()), and will yield different results.
+    # base::system.file() will return the directory from where <packageName> was
+    # loaded, and we append inst/ manually.
+    file.path(base::system.file(package = packageName), "inst")
+  } else {
+    # If <packageName> was attached normally, system.file() (shimmed or not)
+    # will return correct results.
+    system.file(package = packageName)
   }
-  return(fname)
+
+  # From packageLocation/extdata, check both the subdirectory indicated by
+  # <type> and the extdata/ directory, picking the first over the second should
+  # both exist.  If nothing is found, return an empty string.
+  fname <- file.path(packageLocation, "extdata",
+                     c(.typedName(name, type), name))
+  return(c(fname[file.exists(fname)], "")[[1]])
 }
 
 .typedName <- function(name, type) {
