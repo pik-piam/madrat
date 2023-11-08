@@ -17,6 +17,7 @@ calcOutput(
   na_warning = NULL,
   try = FALSE,
   regionmapping = NULL,
+  writeArgs = NULL,
   ...
 )
 }
@@ -57,6 +58,9 @@ always interpreted as TRUE.}
 
 \item{regionmapping}{alternative regionmapping to use for the given calculation. It will temporarily
 overwrite the global setting just for this calculation.}
+
+\item{writeArgs}{a list of additional, named arguments to be supplied to
+the corresponding write function}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}

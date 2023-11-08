@@ -215,6 +215,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       vcat(0, "Data returned by ", functionname, " contains values greater than the predefined maximum",
            " (max = ", x$max, ")")
     }
+
+    # nolint start: undesirable_function_linter.
     checkNameStructure <- function(x, structure, dim, class) {
       if (class != "magpie" && !is.null(structure)) {
         stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
@@ -228,6 +230,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         }
       }
     }
+    # nolint end
+
     checkNameStructure(x$x, x$structure.spatial, 1, x$class)
     checkNameStructure(x$x, x$structure.temporal, 2, x$class)
     checkNameStructure(x$x, x$structure.data, 3, x$class)
