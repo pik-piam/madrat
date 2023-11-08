@@ -23,6 +23,7 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
+            gamstransfer=?ignore
             any::lucode2
             any::covr
             any::madrat

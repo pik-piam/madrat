@@ -29,6 +29,8 @@
 #' always interpreted as TRUE.
 #' @param regionmapping alternative regionmapping to use for the given calculation. It will temporarily
 #' overwrite the global setting just for this calculation.
+#' @param writeArgs a list of additional, named arguments to be supplied to
+#' the corresponding write function
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -101,7 +103,8 @@
 
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
-                       append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, regionmapping = NULL, ...) { # nolint
+                       append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
+                       regionmapping = NULL, writeArgs = NULL, ...) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
@@ -212,6 +215,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       vcat(0, "Data returned by ", functionname, " contains values greater than the predefined maximum",
            " (max = ", x$max, ")")
     }
+
+    # nolint start: undesirable_function_linter.
     checkNameStructure <- function(x, structure, dim, class) {
       if (class != "magpie" && !is.null(structure)) {
         stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
@@ -225,6 +230,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         }
       }
     }
+    # nolint end
+
     checkNameStructure(x$x, x$structure.spatial, 1, x$class)
     checkNameStructure(x$x, x$structure.temporal, 2, x$class)
     checkNameStructure(x$x, x$structure.data, 3, x$class)
@@ -402,20 +409,32 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     vcat(0, "The parameter append=TRUE works only when the file name is provided in the calcOutput() function call.")
   }
 
+  if (is.null(file) && !is.null(writeArgs)) {
+    vcat(0, "The parameter writeArgs works only when the file name is provided in the calcOutput() function call.")
+  }
+
   if (!is.null(file)) {
     if (x$class == "magpie") {
       if (grepl(".mif", file) == TRUE) {
         if (!is.null(getYears(x$x))) {
-          write.report(x$x, file = paste(getConfig("outputfolder"), file, sep = "/"), unit = x$unit, append = append)
+          do.call(write.report, c(
+            list(x$x, file = file.path(getConfig("outputfolder"), file), unit = x$unit, append = append),
+            writeArgs
+          ))
         } else {
           vcat(0, "Time dimension missing and data cannot be written to a mif-file. Skip data set!")
         }
       } else {
-        write.magpie(x$x, file_folder = getConfig("outputfolder"), file_name = file, mode = "777")
+        do.call(write.magpie, c(
+          list(x$x, file_folder = getConfig("outputfolder"), file_name = file, mode = "777"), writeArgs
+        ))
       }
     } else {
-      if ((grepl(".rds$", file) == TRUE)) saveRDS(x$x, paste(getConfig("outputfolder"), file, sep = "/"))
-      else stop("Unsupported file format (\"", file, "\") for x$class!=\"magpie\"")
+      if ((grepl(".rds$", file) == TRUE)) {
+        do.call(saveRDS, c(list(x$x, file.path(getConfig("outputfolder"), file)), writeArgs))
+      } else {
+        stop("Unsupported file format (\"", file, "\") for x$class!=\"magpie\"")
+      }
     }
   }
   if (supplementary) {
