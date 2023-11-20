@@ -242,6 +242,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   if (!is.null(cfg$fullDefault)) {
     cfg$fullNow <- modifyList(cfg$fullDefault, cfg$input, keep.null = TRUE)
     cfg$fullNow <- cfg$fullNow[names(cfg$fullDefault)]
+    cfg$fullNow <- cfg$fullNow[names(cfg$fullNow) != "..."]
   } else {
     cfg$fullNow <- list()
   }
