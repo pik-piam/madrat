@@ -127,7 +127,14 @@ test_that("Calculation for tau example data set works", {
   expect_equivalent(x$x, expectedResult)
   expect_message(x <- readSource("Tau", "historical"), "loading cache")
   expect_error(x <- readSource("Tau", "wtf"), "Unknown subtype")
-  expect_error(calcOutput("TauTotal", source = "historical", years = 1800), "Some years are missing")
+  expect_warning(calcOutput("TauTotal", source = "historical", years = 1800), "Some years are missing")
+
+  x <- suppressWarnings(calcOutput("TauTotal", source = "historical", years = seq(1970, 2050, 1),
+                                   round = 2, supplementary = FALSE))
+  expect_true(length(getYears(x, as.integer = TRUE)) == 38)
+  expect_true(1970 %in% getYears(x, as.integer = TRUE))
+  expect_true(2007 %in% getYears(x, as.integer = TRUE))
+  expect_false(2008 %in% getYears(x, as.integer = TRUE))
   sink()
 })
 

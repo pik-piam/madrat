@@ -298,9 +298,10 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (x$class != "magpie") stop("years argument can only be used in combination with x$class=\"magpie\"!")
     # check that years exist in provided data
     if (!all(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))) {
-      stop("Some years are missing in the data provided by function ", functionname, "(",
-           paste(years[!(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))], collapse = ", "),
-           ")!")
+      warning("Some years are missing in the data provided by function ", functionname, "(",
+              paste(years[!(as.integer(sub("y", "", years)) %in% getYears(x$x, as.integer = TRUE))],
+                    collapse = ", "), ")!")
+      years <- intersect(as.integer(sub("y", "", years)), getYears(x$x, as.integer = TRUE))
     }
     x$x <- x$x[, years, ]
     if (!is.null(x$weight)) if (nyears(x$weight) > 1) x$weight <- x$weight[, years, ]
