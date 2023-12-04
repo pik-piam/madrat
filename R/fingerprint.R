@@ -160,8 +160,16 @@ fingerprintFiles <- function(paths) {
     }
 
     if (!is.null(files)) {
-      # use the first 300 byte of each file and the file sizes for hashing
-      files$hash <- vapply(files$path, digest, character(1), algo = getConfig("hash"), file = TRUE, length = 300)
+      # hash the first 300 bytes of each file, or the entire file if a
+      # `.fullhash` file is present in the directory
+      files$hash <- vapply(
+        files$path,
+        digest,
+        character(1),
+        algo = getConfig("hash"),
+        file = TRUE,
+        length = ifelse(file.exists(file.path(path, ".fullhash")), Inf, 300)
+      )
       files$path <- NULL
       if (!is.null(hashCacheFile)) {
         if (!dir.exists(dirname(hashCacheFile))) {
