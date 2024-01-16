@@ -9,5 +9,4 @@
 #' 
 #' @name madrat-package
 #' @aliases madrat-package madrat
-#' @docType package
-NULL
+"_PACKAGE"
