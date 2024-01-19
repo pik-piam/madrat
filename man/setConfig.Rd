@@ -27,6 +27,7 @@ setConfig(
   diagnostics = NULL,
   debug = NULL,
   maxLengthLogMessage = NULL,
+  redirections = NULL,
   .cfgchecks = TRUE,
   .verbose = TRUE,
   .local = FALSE
@@ -113,7 +114,10 @@ Furthermore, with debug=TRUE calculations will be rerun even if a corresponding 
 already exists.}
 
 \item{maxLengthLogMessage}{in log messages evaluated arguments are printed if the resulting message
-is shorter than this value, otherwise arguments are shown as passed, potentially  with unevaluated variable names}
+is shorter than this value, otherwise arguments are shown as passed, potentially with unevaluated variable names}
+
+\item{redirections}{A list of source folder redirections, intended to be set
+by \code{\link{localRedirect}}. See that function's documentation for more details.}
 
 \item{.cfgchecks}{boolean deciding whether the given inputs to setConfig should be checked for
 consistency or just be accepted (latter is only necessary in very rare cases and should not be used
