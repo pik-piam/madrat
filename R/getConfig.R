@@ -79,7 +79,7 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
       dir.create(cfg[[folderName]], showWarnings = FALSE, recursive = TRUE)
     }
 
-    if (option == "redirections" && is.null(cfg[["redirections"]])) {
+    if (is.null(cfg[["redirections"]])) {
       cfg[["redirections"]] <- list()
     }
   }
