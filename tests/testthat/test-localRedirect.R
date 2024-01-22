@@ -12,12 +12,21 @@ test_that("localRedirect works", {
                    list(tau = normalizePath("tau3"), example = normalizePath("example2")))
   expect_identical(localRedirect("tau", NULL), list(example = normalizePath("example2")))
 
-  readExample <- function() {
-    return(readLines("example.txt"))
-  }
+  localConfig(redirections = list())
+  withr::local_dir(withr::local_tempdir())
+  localConfig(sourcefolder = ".")
 
-  # TODO:
-  # create temp sourcefolder
-  # run read function to check it reads of temp sourcefolder
-  # redirect, run read again, check it got redirected
+  dir.create("Example")
+  writeLines("123", "Example/Example.txt")
+  dir.create("Example2")
+  writeLines("456", "Example2/Example.txt")
+
+  readExample <- function() {
+    return(as.magpie(as.numeric(readLines("Example.txt"))))
+  }
+  globalassign("readExample")
+
+  expect_identical(as.vector(readSource("Example")), 123)
+  localRedirect("Example", "Example2")
+  expect_identical(as.vector(readSource("Example")), 456)
 })
