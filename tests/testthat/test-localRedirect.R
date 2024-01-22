@@ -12,8 +12,11 @@ test_that("localRedirect works", {
                    list(tau = normalizePath("tau3"), example = normalizePath("example2")))
   expect_identical(localRedirect("tau", NULL), list(example = normalizePath("example2")))
 
+  readExample <- function() {
+    return(readLines("example.txt"))
+  }
+
   # TODO:
-  # create dummy read function
   # create temp sourcefolder
   # run read function to check it reads of temp sourcefolder
   # redirect, run read again, check it got redirected
