@@ -52,11 +52,12 @@ fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
     fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
     # ignore functions mentioned in the ignore list
     fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
+
     sources <- substring(dependencies$func[dependencies$type == "read"], 5)
-    if (length(sources) > 0) {
-      sources <- paste0(getConfig("sourcefolder"), "/", robustSort(sources))
-    }
+    sources <- robustSort(sources)
+    sources <- vapply(sources, function(t) getSourceFolder(type = t, subtype = NULL), character(1))
     fingerprintSources <- fingerprintFiles(sources)
+
     fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
     fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
     fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]

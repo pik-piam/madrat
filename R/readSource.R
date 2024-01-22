@@ -112,24 +112,9 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     return(xList)
   }
 
-  .getSourceFolder <- function(type, subtype) {
-    redirections <- getConfig("redirections")
-    if (type %in% names(redirections)) {
-      sourcefolder <- normalizePath(redirections[[type]], mustWork = TRUE)
-    } else {
-      sourcefolder <- file.path(getConfig("sourcefolder"), make.names(type))
-    }
-
-    if (!is.null(subtype) && file.exists(file.path(sourcefolder, make.names(subtype), "DOWNLOAD.yml"))) {
-      sourcefolder <- file.path(sourcefolder, make.names(subtype))
-    }
-
-    return(sourcefolder)
-  }
-
   # get data either from cache or by calculating it from source
   .getData <- function(type, subtype, subset, args, prefix) {
-    sourcefolder <- .getSourceFolder(type, subtype)
+    sourcefolder <- getSourceFolder(type, subtype)
 
     xList <- .getFromCache(prefix, type, args, subtype, subset)
     if (!is.null(xList)) {
@@ -227,7 +212,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   }
 
   # Check whether source folder exists (ignore subtype for now) and try do download source data if it is missing
-  sourcefolder <- .getSourceFolder(type, subtype = NULL)
+  sourcefolder <- getSourceFolder(type, subtype = NULL)
 
   # if any DOWNLOAD.yml exists use these files as reference,
   # otherwise just check whether the sourcefolder exists

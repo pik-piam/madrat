@@ -1,5 +1,4 @@
 test_that("localRedirect works", {
-  localConfig(globalenv = T) # TODO
   localConfig(redirections = list())
   withr::local_dir(withr::local_tempdir())
 
@@ -29,6 +28,5 @@ test_that("localRedirect works", {
 
   expect_identical(as.vector(readSource("Example")), 123)
   localRedirect("Example", "Example2")
-  setConfig(ignorecache = TRUE) # TODO fingerprint should be different!
   expect_identical(as.vector(readSource("Example")), 456)
 })

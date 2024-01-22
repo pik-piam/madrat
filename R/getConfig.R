@@ -40,7 +40,6 @@
 getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE) { # nolint
   initializeConfig(verbose = verbose)
 
-  # TODO revisit
   allowedOptions <- list(downloadSource = c("debug", "tmpfolder"),
                          readSource = c("debug", "tmpfolder"),
                          calcOutput = c("regionmapping", "extramappings", "debug", "tmpfolder"),
