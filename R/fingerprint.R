@@ -136,6 +136,7 @@ fingerprintFiles <- function(paths) {
       # otherwise return NULL
       if (dir.exists(getConfig("sourcefolder")) &&
             startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
+        # TODO must not use fileHashCache when redirecting?
         return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))
       } else {
         return(NULL)

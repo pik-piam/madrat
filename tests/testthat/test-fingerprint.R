@@ -1,3 +1,5 @@
+# ensure redirect changes fingerprint (ignores hashcachefile) consistently to the same hash
+
 test_that("fingerprinting works as expected", {
   toolTest <- function() {
     this <- 1

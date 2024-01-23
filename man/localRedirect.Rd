@@ -4,10 +4,15 @@
 \alias{localRedirect}
 \title{localRedirect}
 \usage{
-localRedirect(type, target)
+localRedirect(type, subtype = NULL, ..., target)
 }
 \arguments{
 \item{type}{Dataset name, e.g. "Tau" for \code{\link{readTau}}}
+
+\item{subtype}{Not supported for now, must be NULL. This is here to simplify
+a potential later implementation of subtype redirections.}
+
+\item{...}{Additional arguments, passed on to source-specific inject function if it exists}
 
 \item{target}{Path to the new source folder, NULL to remove the redirection}
 }
@@ -23,7 +28,7 @@ example for more details.
 \examples{
 \dontrun{
 f <- function() {
-  localRedirect("Tau", "~/TauExperiment")
+  localRedirect("Tau", target = "~/TauExperiment")
   # the following call will change directory
   # into ~/TauExperiment instead of <getConfig("sourcefolder")>/Tau
   readSource("Tau")
