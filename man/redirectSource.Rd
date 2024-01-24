@@ -4,7 +4,7 @@
 \alias{redirectSource}
 \title{redirectSource}
 \usage{
-redirectSource(type, subtype = NULL, ..., target)
+redirectSource(type, subtype = NULL, ..., target, .local = TRUE)
 }
 \arguments{
 \item{type}{Dataset name, e.g. "Tau" for \code{\link{readTau}}}
@@ -15,6 +15,9 @@ a potential later implementation of subtype redirections.}
 \item{...}{Additional arguments, passed on to source-specific inject function if it exists}
 
 \item{target}{Path to the new source folder, NULL to remove the redirection}
+
+\item{.local}{The scope of the redirection, passed on to setConfig. Defaults to the current function.
+Set to an environment for more control or to FALSE for a permanent/global redirection.}
 }
 \value{
 Invisibly, a list of all redirections where names are types and
