@@ -1,7 +1,7 @@
 #' getSourceFolder
 #'
 #' Return the path to source data files for the given type and subtype. This
-#' applies redirections, see \code{\link{localRedirect}} for more details.
+#' applies redirections, see \code{\link{redirectSource}} for more details.
 #'
 #' @param type Dataset name, e.g. "Tau" for \code{\link{readTau}}
 #' @param subtype Subtype of the dataset, e.g. "paper" for \code{\link{readTau}}, NULL is allowed

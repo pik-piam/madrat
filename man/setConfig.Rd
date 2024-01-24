@@ -117,7 +117,7 @@ already exists.}
 is shorter than this value, otherwise arguments are shown as passed, potentially with unevaluated variable names}
 
 \item{redirections}{A list of source folder redirections, intended to be set
-by \code{\link{localRedirect}}. See that function's documentation for more details.}
+by \code{\link{redirectSource}}. See that function's documentation for more details.}
 
 \item{.cfgchecks}{boolean deciding whether the given inputs to setConfig should be checked for
 consistency or just be accepted (latter is only necessary in very rare cases and should not be used

@@ -67,7 +67,7 @@
 #' @param maxLengthLogMessage in log messages evaluated arguments are printed if the resulting message
 #' is shorter than this value, otherwise arguments are shown as passed, potentially with unevaluated variable names
 #' @param redirections A list of source folder redirections, intended to be set
-#' by \code{\link{localRedirect}}. See that function's documentation for more details.
+#' by \code{\link{redirectSource}}. See that function's documentation for more details.
 #' @param .cfgchecks boolean deciding whether the given inputs to setConfig should be checked for
 #' consistency or just be accepted (latter is only necessary in very rare cases and should not be used
 #' in regular cases)

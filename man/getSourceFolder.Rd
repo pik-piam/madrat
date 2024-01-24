@@ -16,7 +16,7 @@ Path to source data files
 }
 \description{
 Return the path to source data files for the given type and subtype. This
-applies redirections, see \code{\link{localRedirect}} for more details.
+applies redirections, see \code{\link{redirectSource}} for more details.
 }
 \author{
 Pascal Sauer
