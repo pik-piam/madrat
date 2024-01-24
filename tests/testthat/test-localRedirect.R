@@ -41,6 +41,13 @@ test_that("scope for localRedirect can be set", {
     localRedirect("tau", target = "tau2")
     expect_identical(getConfig("redirections"), list(tau = normalizePath("tau2")))
   }
-  f()
+  f1()
   expect_identical(getConfig("redirections"), list())
+
+  f2 <- function() {
+    localRedirect("tau", target = "tau2", .local = FALSE)
+    expect_identical(getConfig("redirections"), list(tau = normalizePath("tau2")))
+  }
+  f2()
+  expect_identical(getConfig("redirections"), list(tau = normalizePath("tau2")))
 })
