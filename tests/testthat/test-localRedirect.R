@@ -30,3 +30,17 @@ test_that("localRedirect works", {
   localRedirect("Example", target = "Example2")
   expect_identical(as.vector(readSource("Example")), 456)
 })
+
+test_that("scope for localRedirect can be set", {
+  localConfig(redirections = list())
+  withr::local_dir(withr::local_tempdir())
+  dir.create("tau2")
+  dir.create("tau3")
+
+  f1 <- function() {
+    localRedirect("tau", target = "tau2")
+    expect_identical(getConfig("redirections"), list(tau = normalizePath("tau2")))
+  }
+  f()
+  expect_identical(getConfig("redirections"), list())
+})

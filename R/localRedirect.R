@@ -10,6 +10,8 @@
 #' a potential later implementation of subtype redirections.
 #' @param ... Additional arguments, passed on to source-specific inject function if it exists
 #' @param target Path to the new source folder, NULL to remove the redirection
+#' @param .local The scope of the redirection, passed on to setConfig. Defaults to the current function.
+#' Set to FALSE for a permanent global redirection.
 #' @return Invisibly, a list of all redirections where names are types and
 #' values are the paths these types are redirected to.
 #' @author Pascal Sauer
@@ -26,7 +28,7 @@
 #' readSource("Tau")
 #' }
 #' @export
-localRedirect <- function(type, subtype = NULL, ..., target) {
+localRedirect <- function(type, subtype = NULL, ..., target, .local = parent.frame()) {
   # Redirecting only specific subtypes is not supported to avoid tricky cases
   # where the subtype is ignored (search for "getSourceFolder\(.*subtype = NULL\)").
 
@@ -39,7 +41,6 @@ localRedirect <- function(type, subtype = NULL, ..., target) {
 
   redirections <- getConfig("redirections")
   redirections[[type]] <- target
-  # TODO allow other scopes, e.g. global or parent.frame(2)
-  setConfig(redirections = redirections, .local = parent.frame())
+  setConfig(redirections = redirections, .local = .local)
   return(invisible(redirections))
 }
