@@ -49,6 +49,9 @@ redirectSource <- function(type, subtype = NULL, ..., target, .local = TRUE) {
       file.symlink(target, file.path(tempDir, basename(target)))
       target <- tempDir
     }
+    # paths inside the source folder use the fileHashCache system, see getHashCacheName,
+    # to prevent that we need to make sure that the target is not inside the source folder
+    stopifnot(!startsWith(normalizePath(target), normalizePath(getConfig("sourcefolder"))))
   }
 
   redirections <- getConfig("redirections")

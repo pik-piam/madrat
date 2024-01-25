@@ -1,5 +1,4 @@
-test_that("redirectSource works", {
-  localConfig(redirections = list())
+test_that("redirectSource writes to config as intended", {
   withr::local_dir(withr::local_tempdir())
 
   expect_error(redirectSource("tau", target = "tau2"), "No such file or directory")
@@ -11,15 +10,14 @@ test_that("redirectSource works", {
   expect_identical(redirectSource("example", target = "example2"),
                    list(tau = normalizePath("tau3"), example = normalizePath("example2")))
   expect_identical(redirectSource("tau", target = NULL), list(example = normalizePath("example2")))
+})
 
-  localConfig(redirections = list())
-  withr::local_dir(withr::local_tempdir())
-  localConfig(sourcefolder = ".")
-
-  dir.create("Example")
-  writeLines("123", "Example/Example.txt")
-  dir.create("Example2")
-  writeLines("456", "Example2/Example.txt")
+test_that("redirectSource works", {
+  localConfig(sourcefolder = withr::local_tempdir())
+  dir.create(file.path(getConfig("sourcefolder"), "Example"))
+  writeLines("123", file.path(getConfig("sourcefolder"), "Example", "Example.txt"))
+  target <- withr::local_tempdir()
+  writeLines("456", file.path(target, "Example.txt"))
 
   readExample <- function() {
     return(as.magpie(as.numeric(readLines("Example.txt"))))
@@ -27,12 +25,23 @@ test_that("redirectSource works", {
   globalassign("readExample")
 
   expect_identical(as.vector(readSource("Example")), 123)
-  redirectSource("Example", target = "Example2")
+  fp <- fingerprint("readExample", packages = "madrat")
+
+  redirectSource("Example", target = target)
   expect_identical(as.vector(readSource("Example")), 456)
+  nfp <- fingerprint("readExample", packages = "madrat")
+  expect_true(nfp != fp)
+
+  redirectSource("Example", target = NULL)
+  expect_identical(as.vector(readSource("Example")), 123)
+  expect_identical(fingerprint("readExample", packages = "madrat"), fp)
+
+  redirectSource("Example", target = target)
+  expect_identical(as.vector(readSource("Example")), 456)
+  expect_identical(fingerprint("readExample", packages = "madrat"), nfp)
 })
 
 test_that("scope for redirectSource can be set", {
-  localConfig(redirections = list())
   withr::local_dir(withr::local_tempdir())
   dir.create("tau2")
   dir.create("tau3")
@@ -53,7 +62,6 @@ test_that("scope for redirectSource can be set", {
 })
 
 test_that("redirect target can be files", {
-  localConfig(redirections = list())
   withr::local_dir(withr::local_tempdir())
   writeLines("123", "Example.txt")
   writeLines("456", "Example2.txt")

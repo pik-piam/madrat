@@ -132,11 +132,10 @@ fingerprintFiles <- function(paths) {
     }
 
     getHashCacheName <- function(path) {
-      # return file name for fileHash cache if the given path belongs to a source folder,
-      # otherwise return NULL
+      # return file name for fileHash cache if the given path belongs to the source folder
+      # (this is not the case for a redirected source folder), otherwise return NULL
       if (dir.exists(getConfig("sourcefolder")) &&
             startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
-        # TODO must not use fileHashCache when redirecting?
         return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))
       } else {
         return(NULL)
