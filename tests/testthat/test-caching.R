@@ -1,5 +1,3 @@
-# TODO add redirections
-
 test_that("Caching works", {
   calcCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-"))
   calcNoCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-", cache = FALSE))
