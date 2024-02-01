@@ -4,24 +4,22 @@
 \alias{redirectSource}
 \title{redirectSource}
 \usage{
-redirectSource(type, subtype = NULL, ..., target, .local = TRUE)
+redirectSource(type, target, ..., .local = TRUE)
 }
 \arguments{
 \item{type}{Dataset name, e.g. "Tau" for \code{\link{readTau}}}
 
-\item{subtype}{Not supported for now, must be NULL. This is here to simplify
-a potential later implementation of subtype redirections.}
+\item{target}{Either path to the new source folder that should be used instead of the default,
+or a list/vector of paths to files which are then symlinked into a temporary folder that is then
+used as target folder, or NULL to remove the redirection}
 
 \item{...}{Additional arguments, passed on to source-specific inject function if it exists}
-
-\item{target}{Path to the new source folder, NULL to remove the redirection}
 
 \item{.local}{The scope of the redirection, passed on to setConfig. Defaults to the current function.
 Set to an environment for more control or to FALSE for a permanent/global redirection.}
 }
 \value{
-Invisibly, a list of all redirections where names are types and
-values are the paths these types are redirected to.
+Invisibly, the source folder that is now used for the given type
 }
 \description{
 Redirect a given dataset type to a different source folder. The redirection
