@@ -47,51 +47,7 @@ redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
     target <- normalizePath(target, mustWork = TRUE)
     names(target) <- preservedNames
     if (length(target) >= 2 || !dir.exists(target)) {
-      # TODO pull out into separate function
-      # redirect to files
-      tempDir <- withr::local_tempdir(.local_envir = localEnvir)
-      if (is.null(names(target))) {
-        names(target) <- basename(target)
-      } else {
-        # append basename to target path if it ends with "/"
-        i <- endsWith(names(target), "/")
-        names(target)[i] <- paste0(names(target)[i], basename(target[i]))
-
-        for (p in file.path(tempDir, names(target))) {
-          if (!dir.exists(dirname(p))) {
-            dir.create(dirname(p), recursive = TRUE)
-          }
-        }
-      }
-      file.symlink(target, file.path(tempDir, names(target)))
-
-      if (linkOthers) {
-        # symlink all other (not in target) files in original source folder
-        parentFolders <- function(path, collected = NULL) {
-          if (path == ".") {
-            return(collected)
-          }
-          return(parentFolders(dirname(path), c(path, collected)))
-        }
-
-        dontlink <- lapply(names(target), parentFolders) # find all parent folders
-        dontlink <- unique(do.call(c, dontlink)) # flatten and remove duplicates
-
-        sourceFolder <- getSourceFolder(type, subtype = NULL)
-        withr::with_dir(sourceFolder, {
-          dirs <- Filter(dir.exists, dontlink)
-          linkThese <- lapply(c(".", dirs), dir, all.files = TRUE, no.. = TRUE, full.names = TRUE)
-        })
-        linkThese <- do.call(c, linkThese)
-        linkThese <- sub("^\\./", "", linkThese)
-        linkThese <- setdiff(linkThese, dontlink)
-        if (length(linkThese) > 0) {
-          file.symlink(file.path(sourceFolder, linkThese),
-                       file.path(tempDir, linkThese))
-        }
-      }
-
-      target <- tempDir
+      target <- redirectFiles(type, target, linkOthers, localEnvir)
     }
 
     # paths inside the source folder use the fileHashCache system, see getHashCacheName,
@@ -103,4 +59,51 @@ redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
   redirections[[type]] <- target
   setConfig(redirections = redirections, .local = localEnvir)
   return(invisible(target))
+}
+
+redirectFiles <- function(type, target, linkOthers, localEnvir) {
+  # redirect to files
+  tempDir <- withr::local_tempdir(.local_envir = localEnvir)
+  if (is.null(names(target))) {
+    names(target) <- basename(target)
+  } else {
+    # append basename to target path if it ends with "/"
+    i <- endsWith(names(target), "/")
+    names(target)[i] <- paste0(names(target)[i], basename(target[i]))
+
+    for (p in file.path(tempDir, names(target))) {
+      if (!dir.exists(dirname(p))) {
+        dir.create(dirname(p), recursive = TRUE)
+      }
+    }
+  }
+  file.symlink(target, file.path(tempDir, names(target)))
+
+  if (linkOthers) {
+    # symlink all other (not in target) files in original source folder
+    dontlink <- lapply(names(target), parentFolders) # find all parent folders
+    dontlink <- unique(do.call(c, dontlink)) # flatten and remove duplicates
+
+    sourceFolder <- getSourceFolder(type, subtype = NULL)
+    withr::with_dir(sourceFolder, {
+      dirs <- Filter(dir.exists, dontlink)
+      linkThese <- lapply(c(".", dirs), dir, all.files = TRUE, no.. = TRUE, full.names = TRUE)
+    })
+    linkThese <- do.call(c, linkThese)
+    linkThese <- sub("^\\./", "", linkThese)
+    linkThese <- setdiff(linkThese, dontlink)
+    if (length(linkThese) > 0) {
+      file.symlink(file.path(sourceFolder, linkThese),
+                   file.path(tempDir, linkThese))
+    }
+  }
+
+  return(tempDir)
+}
+
+parentFolders <- function(path, collected = NULL) {
+  if (path == ".") {
+    return(collected)
+  }
+  return(parentFolders(dirname(path), c(path, collected)))
 }
