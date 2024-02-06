@@ -69,8 +69,12 @@ test_that("redirectSource symlinks other files", {
   expect_identical(as.vector(readSource("Example")), 123789)
   redirectSource("Example", target = target)
   expect_identical(as.vector(readSource("Example")), 456789)
-  # TODO redirectSource("Example", target = target, bare = TRUE)
-  # expect_error(readSource("Example"), "cannot open file 'Example2.txt': No such file or directory", fixed = TRUE)
+  redirectSource("Example", target = target, linkOthers = FALSE)
+  expect_error({
+    expect_warning({
+      readSource("Example")
+    }, "cannot open file 'Example2.txt': No such file or directory", fixed = TRUE)
+  }, "cannot open the connection")
 })
 
 test_that("scope for redirectSource can be set", {
@@ -87,7 +91,7 @@ test_that("scope for redirectSource can be set", {
   expect_identical(getConfig("redirections"), list())
 
   f2 <- function() {
-    redirectSource("tau", target = "tau2", .local = FALSE)
+    redirectSource("tau", target = "tau2", local = FALSE)
     expect_identical(getConfig("redirections"), list(tau = normalizePath("tau2")))
   }
   f2()
@@ -105,8 +109,8 @@ test_that("redirect target can be files", {
   }
   globalassign("readExample")
 
-  f <- function(.local) {
-    redirectSource("Example", target = c("Example.txt", "Example2.txt"), .local = .local)
+  f <- function(local) {
+    redirectSource("Example", target = c("Example.txt", "Example2.txt"), local = local)
     sourceFolder <- normalizePath(getSourceFolder("Example", subtype = NULL))
     expect_true(sourceFolder != normalizePath("."))
     expect_setequal(dir(sourceFolder), c("Example.txt", "Example2.txt"))
@@ -114,11 +118,11 @@ test_that("redirect target can be files", {
     return(sourceFolder)
   }
 
-  sourceFolder <- f(.local = TRUE)
+  sourceFolder <- f(local = TRUE)
   # temporary sourcefolder should only exist while executing f, after f returned it should be deleted
   expect_true(!dir.exists(sourceFolder))
 
-  sourceFolder <- f(.local = FALSE)
+  sourceFolder <- f(local = FALSE)
   # not local, so temporary sourcefolder should exist until the R session closes
   expect_true(dir.exists(sourceFolder))
 

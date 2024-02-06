@@ -4,7 +4,7 @@
 \alias{redirectSource}
 \title{redirectSource}
 \usage{
-redirectSource(type, target, ..., .local = TRUE)
+redirectSource(type, target, ..., linkOthers = TRUE, local = TRUE)
 }
 \arguments{
 \item{type}{Dataset name, e.g. "Tau" for \code{\link{readTau}}}
@@ -15,7 +15,10 @@ used as target folder, or NULL to remove the redirection}
 
 \item{...}{Additional arguments, passed on to source-specific inject function if it exists}
 
-\item{.local}{The scope of the redirection, passed on to setConfig. Defaults to the current function.
+\item{linkOthers}{If target is a list of files, whether to symlink all other files in the original
+source folder to the temporary folder.}
+
+\item{local}{The scope of the redirection, passed on to setConfig. Defaults to the current function.
 Set to an environment for more control or to FALSE for a permanent/global redirection.}
 }
 \value{
