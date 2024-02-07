@@ -1,4 +1,4 @@
-#' redirect and redirectSource
+#' redirect
 #'
 #' Redirect a given dataset type to a different source folder. 
 #' The redirection is local, so it will be reset when the current function call returns. See

@@ -1,3 +1,5 @@
+pkgload::load_all() # TODO remove
+
 test_that("redirectSource writes to config as intended", {
   withr::local_dir(withr::local_tempdir())
 
@@ -227,3 +229,4 @@ test_that("redirectSource symlinks all other files", {
   expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "B/B2/B21")), file.path(sourceFolder, "B/B2/B21"))
   expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "C")), file.path(sourceFolder, "C"))
 })
+# TODO make sure this works on windows
