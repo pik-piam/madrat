@@ -1,14 +1,15 @@
-#' redirectSource
+#' redirect and redirectSource
 #'
-#' Redirect a given dataset type to a different source folder. The redirection
-#' is local, so it will be reset when the current function call returns. See
+#' Redirect a given dataset type to a different source folder. 
+#' The redirection is local, so it will be reset when the current function call returns. See
 #' example for more details.
 #'
 #' @param type Dataset name, e.g. "Tau" for \code{\link{readTau}}
 #' @param target Either path to the new source folder that should be used instead of the default,
-#' or a list/vector of paths to files which are then symlinked into a temporary folder that is then
-#' used as target folder, or NULL to remove the redirection
-#' @param ... Additional arguments, passed on to source-specific inject function if it exists
+#' or NULL to remove the redirection, or a vector of paths to files which are then symlinked
+#' into a temporary folder that is then used as target folder; if the vector is named the names
+#' are used as relative paths in the temporary folder, e.g. target = c(`a/b/c.txt` = "~/d/e/f.txt")
+#' would create a temporary folder with subfolders a/b and there symlink c.txt to ~/d/e/f.txt.
 #' @param local The scope of the redirection, passed on to setConfig. Defaults to the current function.
 #' Set to an environment for more control or to FALSE for a permanent/global redirection.
 #' @param linkOthers If target is a list of files, whether to symlink all other files in the original
@@ -17,7 +18,7 @@
 #' @author Pascal Sauer
 #' @examples \dontrun{
 #' f <- function() {
-#'   redirectSource("Tau", target = "~/TauExperiment")
+#'   redirect("Tau", target = "~/TauExperiment")
 #'   # the following call will change directory
 #'   # into ~/TauExperiment instead of <getConfig("sourcefolder")>/Tau
 #'   readSource("Tau")
@@ -28,12 +29,9 @@
 #' readSource("Tau")
 #' }
 #' @export
-redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
+redirect <- function(type, target, linkOthers = TRUE, local = TRUE) {
   # Redirecting only specific subtypes is not supported to avoid tricky cases
   # where the subtype is ignored (search for "getSourceFolder\(.*subtype = NULL\)").
-
-  # TODO call source-specific redirect function if it exists
-
   if (is.environment(local)) {
     localEnvir <- local
   } else if (local) {
@@ -59,6 +57,41 @@ redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
   redirections[[type]] <- target
   setConfig(redirections = redirections, .local = localEnvir)
   return(invisible(target))
+}
+
+#' redirectSource
+#'
+#' redirectSource will call a source specific redirect function if it exists
+#' (called e.g. redirectTau), in which case the arguments are passed on to that
+#' function. If such a function is not available \code{\link{redirect}} is called.
+#' @param type The source dataset type. Passed on to the specific redirect
+#' function or \code{\link{redirect}}.
+#' @param target The target folder or files. Passed on to the specific redirect
+#' function or \code{\link{redirect}}.
+#' @param ... Additional arguments, passed on to the specific redirect function.
+#' @param linkOthers Passed on to the specific redirect function or \code{\link{redirect}}.
+#' @param local Passed on to the specific redirect function or \code{\link{redirect}}.
+#' @return The result of the specific redirect function or \code{\link{redirect}}.
+#' @author Pascal Sauer
+#' @export
+redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
+  if (is.environment(local)) {
+    localEnvir <- local
+  } else if (local) {
+    localEnvir <- parent.frame()
+  } else {
+    localEnvir <- globalenv()
+  }
+
+  specificRedirect <- get0(paste0("redirect", type), mode = "function")
+  if (is.null(specificRedirect)) {
+    if (...length() > 0) {
+      warning("redirectSource calls madrat::redirect, so additional arguments are ignored.")
+    }
+    return(redirect(type = type, target = target, linkOthers = linkOthers, local = localEnvir))
+  } else {
+    return(specificRedirect(target = target, ..., linkOthers = linkOthers, local = localEnvir))
+  }
 }
 
 redirectFiles <- function(type, target, linkOthers, localEnvir) {

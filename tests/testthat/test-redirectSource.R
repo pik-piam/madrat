@@ -1,16 +1,16 @@
 test_that("redirectSource writes to config as intended", {
   withr::local_dir(withr::local_tempdir())
 
-  expect_error(redirectSource("tau", target = "tau2"), "No such file or directory")
-  dir.create("tau2")
-  dir.create("tau3")
+  expect_error(redirectSource("foo", target = "foo2"), "No such file or directory")
+  dir.create("foo2")
+  dir.create("foo3")
   dir.create("example2")
-  expect_identical(redirectSource("tau", target = "tau2"), normalizePath("tau2"))
-  expect_identical(redirectSource("tau", target = "tau3"), normalizePath("tau3"))
+  expect_identical(redirectSource("foo", target = "foo2"), normalizePath("foo2"))
+  expect_identical(redirectSource("foo", target = "foo3"), normalizePath("foo3"))
   expect_identical(redirectSource("example", target = "example2"), normalizePath("example2"))
   expect_identical(getConfig("redirections"),
-                   list(tau = normalizePath("tau3"), example = normalizePath("example2")))
-  expect_null(redirectSource("tau", target = NULL))
+                   list(foo = normalizePath("foo3"), example = normalizePath("example2")))
+  expect_null(redirectSource("foo", target = NULL))
   expect_identical(getConfig("redirections"), list(example = normalizePath("example2")))
 })
 
