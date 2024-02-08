@@ -1,5 +1,3 @@
-pkgload::load_all() # TODO remove
-
 test_that("redirectSource writes to config as intended", {
   withr::local_dir(withr::local_tempdir())
 

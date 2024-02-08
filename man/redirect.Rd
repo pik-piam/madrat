@@ -25,7 +25,7 @@ Set to an environment for more control or to FALSE for a permanent/global redire
 Invisibly, the source folder that is now used for the given type
 }
 \description{
-Redirect a given dataset type to a different source folder. 
+Redirect a given dataset type to a different source folder.
 The redirection is local, so it will be reset when the current function call returns. See
 example for more details.
 }
