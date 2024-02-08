@@ -1,4 +1,6 @@
 getLinkFunction <- function() {
+  # try symlinks, if they don't work (Windows) fall back to hardlinks/junctions/copying
+
   withr::local_dir(withr::local_tempdir())
 
   writeLines("a", "a")
@@ -11,13 +13,15 @@ getLinkFunction <- function() {
     fileLink <- file.copy
   }
 
+  # Sys.junction only exists on Windows
+  createJunction <- get0("Sys.junction", ifnotfound = function(...) FALSE)
+
   dir.create("aa")
   writeLines("c", "aa/c")
-
   if (suppressWarnings(file.symlink("aa", "bb")) && readLines("bb/c") == "c") {
     dirLink <- file.symlink
-  } else if (suppressWarnings(Sys.junction("aa", "bb")) && readLines("bb/c") == "c") {
-    dirLink <- Sys.junction
+  } else if (suppressWarnings(createJunction("aa", "bb")) && readLines("bb/c") == "c") {
+    dirLink <- createJunction
   } else {
     message("neither file.symlink nor Sys.junction work for directories, falling back to copying")
     dirLink <- function(...) file.copy(..., recursive = TRUE)

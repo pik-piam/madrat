@@ -7,41 +7,25 @@
 redirectSource(type, target, ..., linkOthers = TRUE, local = TRUE)
 }
 \arguments{
-\item{type}{Dataset name, e.g. "Tau" for \code{\link{readTau}}}
+\item{type}{The source dataset type. Passed on to the specific redirect
+function or \code{\link{redirect}}.}
 
-\item{target}{Either path to the new source folder that should be used instead of the default,
-or a list/vector of paths to files which are then symlinked into a temporary folder that is then
-used as target folder, or NULL to remove the redirection}
+\item{target}{The target folder or files. Passed on to the specific redirect
+function or \code{\link{redirect}}.}
 
-\item{...}{Additional arguments, passed on to source-specific inject function if it exists}
+\item{...}{Additional arguments, passed on to the specific redirect function.}
 
-\item{linkOthers}{If target is a list of files, whether to symlink all other files in the original
-source folder to the temporary folder.}
+\item{linkOthers}{Passed on to the specific redirect function or \code{\link{redirect}}.}
 
-\item{local}{The scope of the redirection, passed on to setConfig. Defaults to the current function.
-Set to an environment for more control or to FALSE for a permanent/global redirection.}
+\item{local}{Passed on to the specific redirect function or \code{\link{redirect}}.}
 }
 \value{
-Invisibly, the source folder that is now used for the given type
+The result of the specific redirect function or \code{\link{redirect}}.
 }
 \description{
-Redirect a given dataset type to a different source folder. The redirection
-is local, so it will be reset when the current function call returns. See
-example for more details.
-}
-\examples{
-\dontrun{
-f <- function() {
-  redirectSource("Tau", target = "~/TauExperiment")
-  # the following call will change directory
-  # into ~/TauExperiment instead of <getConfig("sourcefolder")>/Tau
-  readSource("Tau")
-}
-f()
-# Tau is only redirected in the local environment of f,
-# so it will use the usual source folder here
-readSource("Tau")
-}
+redirectSource will call a source specific redirect function if it exists
+(called e.g. redirectTau), in which case the arguments are passed on to that
+function. If such a function is not available \code{\link{redirect}} is called.
 }
 \author{
 Pascal Sauer
