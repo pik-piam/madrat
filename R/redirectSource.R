@@ -95,6 +95,7 @@ redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
 }
 
 redirectFiles <- function(type, target, linkOthers, localEnvir) {
+  link <- getLinkFunction()
   # redirect to files
   tempDir <- withr::local_tempdir(.local_envir = localEnvir)
   if (is.null(names(target))) {
@@ -110,7 +111,7 @@ redirectFiles <- function(type, target, linkOthers, localEnvir) {
       }
     }
   }
-  file.symlink(target, file.path(tempDir, names(target)))
+  link(target, file.path(tempDir, names(target)))
 
   if (linkOthers) {
     # symlink all other (not in target) files in original source folder
@@ -126,8 +127,8 @@ redirectFiles <- function(type, target, linkOthers, localEnvir) {
     linkThese <- sub("^\\./", "", linkThese)
     linkThese <- setdiff(linkThese, dontlink)
     if (length(linkThese) > 0) {
-      file.symlink(file.path(sourceFolder, linkThese),
-                   file.path(tempDir, linkThese))
+      link(file.path(sourceFolder, linkThese),
+           file.path(tempDir, linkThese))
     }
   }
 

@@ -3,7 +3,7 @@ pkgload::load_all() # TODO remove
 test_that("redirectSource writes to config as intended", {
   withr::local_dir(withr::local_tempdir())
 
-  expect_error(redirectSource("foo", target = "foo2"), "No such file or directory")
+  expect_error(redirectSource("foo", target = "foo2"), "No such file or directory|cannot find the file")
   dir.create("foo2")
   dir.create("foo3")
   dir.create("example2")
@@ -204,10 +204,10 @@ test_that("redirectSource symlinks all other files", {
   expect_identical(attr(readSource("Example"), "content"), "x.txt")
   redirectedSourceFolder <- redirectSource("Example", target = c(`x.txt` = target))
   expect_identical(attr(readSource("Example"), "content"), "redirected")
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "x.txt")), target)
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "A")), file.path(sourceFolder, "A"))
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "B")), file.path(sourceFolder, "B"))
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "C")), file.path(sourceFolder, "C"))
+  expect_identical(readLines(file.path(redirectedSourceFolder, "x.txt")), readLines(target))
+  expect_identical(dir(file.path(redirectedSourceFolder, "A")), dir(file.path(sourceFolder, "A")))
+  expect_identical(dir(file.path(redirectedSourceFolder, "B")), dir(file.path(sourceFolder, "B")))
+  expect_identical(dir(file.path(redirectedSourceFolder, "C")), dir(file.path(sourceFolder, "C")))
 
   readExample <- function() {
     x <- as.magpie(1)
@@ -219,14 +219,13 @@ test_that("redirectSource symlinks all other files", {
   expect_identical(attr(readSource("Example"), "content"), "B/B2/b.txt")
   redirectedSourceFolder <- redirectSource("Example", target = c(`B/B2/b.txt` = target))
   expect_identical(attr(readSource("Example"), "content"), "redirected")
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "x.txt")), file.path(sourceFolder, "x.txt"))
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "A")), file.path(sourceFolder, "A"))
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "B")), "")
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "B/B1")), file.path(sourceFolder, "B/B1"))
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "B/B2/b.txt")), target)
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "B/B2/.hidden")),
-                   file.path(sourceFolder, "B/B2/.hidden"))
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "B/B2/B21")), file.path(sourceFolder, "B/B2/B21"))
-  expect_identical(Sys.readlink(file.path(redirectedSourceFolder, "C")), file.path(sourceFolder, "C"))
+  expect_identical(readLines(file.path(redirectedSourceFolder, "x.txt")), readLines(file.path(sourceFolder, "x.txt")))
+  expect_identical(dir(file.path(redirectedSourceFolder, "A")), dir(file.path(sourceFolder, "A")))
+  expect_identical(dir(file.path(redirectedSourceFolder, "B/B1")), dir(file.path(sourceFolder, "B/B1")))
+  expect_identical(readLines(file.path(redirectedSourceFolder, "B/B2/b.txt")), readLines(target))
+  expect_identical(readLines(file.path(redirectedSourceFolder, "B/B2/.hidden")),
+                   readLines(file.path(sourceFolder, "B/B2/.hidden")))
+  expect_identical(dir(file.path(redirectedSourceFolder, "B/B2/B21")),
+                   dir(file.path(sourceFolder, "B/B2/B21")))
+  expect_identical(dir(file.path(redirectedSourceFolder, "C")), dir(file.path(sourceFolder, "C")))
 })
-# TODO make sure this works on windows
