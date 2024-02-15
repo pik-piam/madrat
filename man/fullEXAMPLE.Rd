@@ -4,15 +4,11 @@
 \alias{fullEXAMPLE}
 \title{fullExample}
 \usage{
-fullEXAMPLE(
-  rev = as.numeric_version("0"),
-  dev = "",
-  extra = "Example argument"
-)
+fullEXAMPLE(rev = 0, dev = "", extra = "Example argument")
 }
 \arguments{
-\item{rev}{data revision which should be used/produced. Format must be compatible to
-\code{\link[base]{numeric_version}}.}
+\item{rev}{data revision which should be used/produced. Will be converted to
+\code{\link[base]{numeric_version}} when called via \code{\link{retrieveData}}.}
 
 \item{dev}{development suffix to distinguish development versions for the same data
 revision. This can be useful to distinguish parallel lines of development.}
