@@ -55,8 +55,8 @@ these top-level cache-files are not the ones which should be put into the puc-fi
 
 ```{r, echo = TRUE, eval=FALSE}
 calcExample <- function() {
-return(list(x = data,
-            putInPUC = FALSE))
+  return(list(x = data,
+              putInPUC = FALSE))
 }
 ```
 
@@ -71,7 +71,7 @@ fullEXAMPLE <- function(rev = 0, dev = "", extra = "Example argument") {
 
   writeLines(extra, "test.txt")
 
-  if (rev >= 1) {
+  if (rev >= numeric_version("1")) {
     calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")
   }
   if (dev == "test") {
