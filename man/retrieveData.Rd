@@ -19,7 +19,7 @@ retrieveData(
 \item{model}{The names of the model for which the data should be provided
 (e.g. "magpie").}
 
-\item{rev}{data revision which should be used/produced. Format must be compatible to
+\item{rev}{data revision which should be used/produced. Will be converted to
 \code{\link[base]{numeric_version}}.}
 
 \item{dev}{development suffix to distinguish development versions for the same data

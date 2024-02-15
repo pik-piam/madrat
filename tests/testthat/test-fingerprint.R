@@ -11,7 +11,6 @@ test_that("fingerprinting works as expected", {
   emptyfolder <- paste0(withr::local_tempdir(), "/empty")
   dir.create(emptyfolder, recursive = TRUE, showWarnings = FALSE)
   expect_equal(unname(fingerprintFiles(emptyfolder)), "bc4159c0")
-  unlink(emptyfolder)
 })
 
 test_that("fingerprintFiles works as expected", {

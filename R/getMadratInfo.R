@@ -14,7 +14,7 @@
 #' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
-#' @importFrom igraph graph_from_data_frame components V delete.vertices
+#' @importFrom igraph graph_from_data_frame components V
 #' cluster_edge_betweenness as.undirected membership
 #' @export
 
@@ -143,7 +143,7 @@ getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
 
   message("\n.:: Check for sub-structures (tools ignored) ::.")
   fullfunc <- grep("^full", attr(igraph::V(ggraphNoTools), "names"), value = TRUE)
-  greduced <- igraph::delete.vertices(ggraphNoTools, fullfunc)
+  greduced <- igraph::delete_vertices(ggraphNoTools, fullfunc)
   comp <- igraph::components(greduced)
   out$sub_structures <- writeCommunities(comp$membership, # nolint
     what = "independent calculations cluster",

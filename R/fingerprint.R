@@ -52,11 +52,12 @@ fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
     fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
     # ignore functions mentioned in the ignore list
     fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
+
     sources <- substring(dependencies$func[dependencies$type == "read"], 5)
-    if (length(sources) > 0) {
-      sources <- paste0(getConfig("sourcefolder"), "/", robustSort(sources))
-    }
+    sources <- robustSort(sources)
+    sources <- vapply(sources, function(t) getSourceFolder(type = t, subtype = NULL), character(1))
     fingerprintSources <- fingerprintFiles(sources)
+
     fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
     fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
     fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
@@ -131,8 +132,8 @@ fingerprintFiles <- function(paths) {
     }
 
     getHashCacheName <- function(path) {
-      # return file name for fileHash cache if the given path belongs to a source folder,
-      # otherwise return NULL
+      # return file name for fileHash cache if the given path belongs to the source folder
+      # (this is not the case for a redirected source folder), otherwise return NULL
       if (dir.exists(getConfig("sourcefolder")) &&
             startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
         return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))

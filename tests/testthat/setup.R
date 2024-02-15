@@ -7,6 +7,7 @@ withr::defer({
 
 setConfig(mainfolder = withr::local_tempdir(.local_envir = testthat::teardown_env()),
           globalenv = TRUE,
+          redirections = list(),
           .verbose = FALSE)
 withr::local_options(madrat_codelabels = NULL,
                      MadratCache = NULL,

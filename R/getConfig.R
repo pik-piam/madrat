@@ -70,12 +70,16 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
 
   if (!raw) {
     folders <- c(sourcefolder = "sources", cachefolder = "cache/default", mappingfolder = "mappings",
-                outputfolder = "output", pucfolder = "puc", tmpfolder = "tmp")
+                 outputfolder = "output", pucfolder = "puc", tmpfolder = "tmp")
     for (folderName in names(folders)) {
       if (is.null(cfg[[folderName]]) || is.na(cfg[[folderName]])) {
         cfg[[folderName]] <- file.path(cfg$mainfolder, folders[folderName])
       }
       dir.create(cfg[[folderName]], showWarnings = FALSE, recursive = TRUE)
+    }
+
+    if (is.null(cfg[["redirections"]])) {
+      cfg[["redirections"]] <- list()
     }
   }
   if (verbose && print) {
