@@ -33,7 +33,7 @@ Depends:
 Imports:
     callr,
     digest,
-    igraph (>= 1.0.1),
+    igraph (>= 2.0.0),
     Matrix,
     methods,
     pkgload,
