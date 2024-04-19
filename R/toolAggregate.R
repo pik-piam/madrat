@@ -63,6 +63,8 @@
 #' will lead to summation.
 #' @param verbosity Verbosity level of messages coming from the function: -1 = error,
 #' 0 = warning, 1 = note, 2 = additional information, >2 = no message
+#' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
+#' "allow" means it is accepted (dangerous), "warn" throws a warning, "stop" throws an error.
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
@@ -70,7 +72,6 @@
 #' @importFrom magclass setComment getNames getNames<- as.array
 #' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<-
 #' @importFrom magclass getDim getSets getSets<- as.magpie getItems collapseNames
-#' @importFrom utils object.size
 #' @importFrom Matrix Matrix t rowSums
 #' @importFrom withr local_options
 #' @seealso \code{\link{calcOutput}}
@@ -79,9 +80,9 @@
 #' # create example mapping
 #' p <- magclass::maxample("pop")
 #' mapping <- data.frame(from = magclass::getItems(p, dim = 1.1),
-#'   region = rep(c("REG1", "REG2"), 5),
-#'   global = "GLO")
-#' mapping
+#'                       region = rep(c("REG1", "REG2"), 5),
+#'                       global = "GLO")
+#' print(mapping)
 #'
 #' # run aggregation
 #' toolAggregate(p, mapping)
@@ -91,7 +92,7 @@
 #' toolAggregate(p, mapping, to = "region+global")
 #'
 toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
-                          negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1) { # nolint
+                          negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1, zeroWeight = "warn") { # nolint
 
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
 
@@ -249,6 +250,15 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       }
     }
     tmp <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+    if (zeroWeight != "allow" && any(tmp == 0, na.rm = TRUE)) {
+      if (zeroWeight == "warn") {
+        warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
+                "aggregation targets. This changes the total sum of the magpie object! ",
+                'If this is really intended set zeroWeight = "allow".')
+      } else {
+        stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
+      }
+    }
     weight2 <- 1 / (tmp + 10^-100)
     if (mixed_aggregation) {
       weight2[is.na(weight2)] <- 1
