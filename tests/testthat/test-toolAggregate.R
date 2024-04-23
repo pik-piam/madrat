@@ -218,3 +218,11 @@ test_that("Edge cases work", {
   expect_silent(b <- toolAggregate(a, rel, weight = a))
   expect_setequal(getCells(b), c("NLD", "BEL", "LUX"))
 })
+
+test_that("columns with only zeros in weight produce a warning", {
+  weight <- pm
+  weight[, , ] <- 0
+  expect_warning(toolAggregate(pm, rel, weight = weight), "Weight sum is 0")
+  expect_error(toolAggregate(pm, rel, weight = weight, zeroWeight = "stop"), "Weight sum is 0")
+  expect_silent(toolAggregate(pm, rel, weight = weight, zeroWeight = "allow"))
+})
