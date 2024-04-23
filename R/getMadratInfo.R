@@ -143,7 +143,7 @@ getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
 
   message("\n.:: Check for sub-structures (tools ignored) ::.")
   fullfunc <- grep("^full", attr(igraph::V(ggraphNoTools), "names"), value = TRUE)
-  greduced <- igraph::delete.vertices(ggraphNoTools, fullfunc)
+  greduced <- igraph::delete_vertices(ggraphNoTools, fullfunc)
   comp <- igraph::components(greduced)
   out$sub_structures <- writeCommunities(comp$membership, # nolint
     what = "independent calculations cluster",

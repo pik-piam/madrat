@@ -63,6 +63,8 @@
 #' will lead to summation.
 #' @param verbosity Verbosity level of messages coming from the function: -1 = error,
 #' 0 = warning, 1 = note, 2 = additional information, >2 = no message
+#' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
+#' "allow" means it is accepted (dangerous), "warn" throws a warning, "stop" throws an error.
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
@@ -70,7 +72,6 @@
 #' @importFrom magclass setComment getNames getNames<- as.array
 #' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<-
 #' @importFrom magclass getDim getSets getSets<- as.magpie getItems collapseNames
-#' @importFrom utils object.size
 #' @importFrom Matrix Matrix t rowSums
 #' @importFrom withr local_options
 #' @seealso \code{\link{calcOutput}}
@@ -79,9 +80,9 @@
 #' # create example mapping
 #' p <- magclass::maxample("pop")
 #' mapping <- data.frame(from = magclass::getItems(p, dim = 1.1),
-#'   region = rep(c("REG1", "REG2"), 5),
-#'   global = "GLO")
-#' mapping
+#'                       region = rep(c("REG1", "REG2"), 5),
+#'                       global = "GLO")
+#' print(mapping)
 #'
 #' # run aggregation
 #' toolAggregate(p, mapping)
@@ -91,7 +92,7 @@
 #' toolAggregate(p, mapping, to = "region+global")
 #'
 toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
-                          negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1) { # nolint
+                          negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1, zeroWeight = "warn") { # nolint
 
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
 
@@ -167,7 +168,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       regions <- as.character(unique(rel[, to]))
       countries <- as.character(unique(rel[, from]))
       m <- Matrix(data = 0, nrow = length(regions), ncol = length(countries),
-        dimnames = list(regions = regions, countries = countries))
+                  dimnames = list(regions = regions, countries = countries))
       m[cbind(match(rel[, to], rownames(m)), match(rel[, from], colnames(m)))] <- 1
       if (is.numeric(to)) to <- dimnames(rel)[[2]][to]
       if (is.numeric(from)) from <- dimnames(rel)[[2]][from]
@@ -216,7 +217,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
 
     if (is.null(wdim)) {
       wdim <- union(getDim(rownames(rel), weight, fullmatch = TRUE),
-        getDim(colnames(rel), weight, fullmatch = TRUE))
+                    getDim(colnames(rel), weight, fullmatch = TRUE))
       # wdim must be in same main dimension as dim
       wdim <- wdim[floor(wdim) == floor(dim)]
     }
@@ -249,6 +250,15 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       }
     }
     tmp <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+    if (zeroWeight != "allow" && any(tmp == 0, na.rm = TRUE)) {
+      if (zeroWeight == "warn") {
+        warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
+                "aggregation targets. This changes the total sum of the magpie object! ",
+                'If this is really intended set zeroWeight = "allow".')
+      } else {
+        stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
+      }
+    }
     weight2 <- 1 / (tmp + 10^-100)
     if (mixed_aggregation) {
       weight2[is.na(weight2)] <- 1
@@ -288,13 +298,13 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
         maxdim <- nchar(gsub("[^\\.]", "", names[1])) + 1
 
         search <- paste0("^(", paste(rep("[^\\.]*\\.", subdim - 1), collapse = ""),
-          ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
+                         ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
         onlynames <- unique(sub(search, "\\2", names))
 
         if (!setequal(colnames(rel), onlynames)) {
           if (!setequal(rownames(rel), onlynames)) {
             stop("The provided mapping contains entries which could not be found in the data: ",
-              paste(setdiff(colnames(rel), onlynames), collapse = ", "))
+                 paste(setdiff(colnames(rel), onlynames), collapse = ", "))
           } else  {
             rel <- t(rel)
           }
@@ -312,8 +322,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
         cnames <- .tmp(add, colnames(rel))
         rnames <- .tmp(add, rownames(rel))
 
-        newRel <- Matrix(0, nrow = length(rnames), ncol = length(cnames),
-          dimnames = list(rnames, cnames))
+        newRel <- Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
 
         for (i in seq_along(additions)) {
           newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
@@ -327,7 +336,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     if (dim(x)[dim] != dim(rel)[2]) {
       if (dim(x)[dim] != dim(rel)[1]) {
         stop("Relation matrix has in both dimensions a different number of entries (",
-          dim(rel)[1], ", ", dim(rel)[2], ") than x has cells (", dim(x)[dim], ")!")
+             dim(rel)[1], ", ", dim(rel)[2], ") than x has cells (", dim(x)[dim], ")!")
       } else {
         rel <- t(rel)
       }
@@ -378,7 +387,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       # Compute region vector for outputs after aggregation via sending
       # factor values through the relation matrix
       regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
-        (rel %*% rep(1, dim(rel)[2])))))
+                                         (rel %*% rep(1, dim(rel)[2])))))
       levels(regOut) <- levels(regionList)
     } else {
       stop("Missing dimnames for aggregated dimension")

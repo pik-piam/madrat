@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -23,7 +23,6 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
-            gamstransfer=?ignore
             any::lucode2
             any::covr
             any::madrat
@@ -36,7 +35,7 @@ jobs:
           # gms, goxygen, GDPuc) will usually have an outdated binary version
           # available; by using extra-packages we get the newest version
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.9
 
@@ -48,6 +47,11 @@ jobs:
       - name: Verify validation key
         shell: Rscript {0}
         run: lucode2:::validkey(stopIfInvalid = TRUE)
+
+      - name: Verify that lucode2::buildLibrary was successful
+        if: github.event_name == 'pull_request'
+        shell: Rscript {0}
+        run: lucode2:::isVersionUpdated()
 
       - name: Checks
         shell: Rscript {0}
