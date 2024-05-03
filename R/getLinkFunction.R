@@ -1,15 +1,14 @@
 #' getLinkFunction
 #'
-#' Returns a function that symlinks, hardlinks, or copies files and
-#' directories, depending on OS capabilities.
+#' Returns a function that creates a symlink, hardlink, junction, or copy of
+#' files and directories, depending on OS capabilities (usually symlinks are
+#' not supported on Windows).
 #'
 #' @return A function with arguments "from" and "to" which should behave like
 #' file.symlink on all platforms.
 #' @author Pascal Sauer
 #' @export
 getLinkFunction <- function() {
-  # try symlinks, if they don't work (Windows) fall back to hardlinks/junctions/copying
-
   withr::local_dir(withr::local_tempdir())
 
   writeLines("a", "a")
