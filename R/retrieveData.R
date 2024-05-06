@@ -6,7 +6,7 @@
 #'
 #' @param model The names of the model for which the data should be provided
 #' (e.g. "magpie").
-#' @param rev data revision which should be used/produced. Format must be compatible to
+#' @param rev data revision which should be used/produced. Will be converted to
 #' \code{\link[base]{numeric_version}}.
 #' @param dev development suffix to distinguish development versions for the same data
 #' revision. This can be useful to distinguish parallel lines of development.
@@ -359,7 +359,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
     # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
     # run renv::hydrate outside of callr, otherwise site library would not be used if running in renv
-    if (utils::packageVersion("renv") >= "0.17.0") {
+    if (utils::packageVersion("renv") >= numeric_version("0.17.0")) {
       renv::hydrate(packages = requiredPackages, library = dummyLibPath, project = dummyProject,
                     report = TRUE, prompt = FALSE)
     } else {

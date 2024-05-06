@@ -14,7 +14,7 @@
 #' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
-#' @importFrom igraph graph_from_data_frame components V delete.vertices
+#' @importFrom igraph graph_from_data_frame components V
 #' cluster_edge_betweenness as.undirected membership
 #' @export
 

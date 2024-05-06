@@ -15,7 +15,7 @@ toolGetMapping(
 }
 \arguments{
 \item{name}{File name of the mapping file. Supported file types are currently csv (, or ; separated), rds
-and rda (which needs to have the data stored with the object name "data"!). Use code{\link{toolConvertMapping}}
+and rda (which needs to have the data stored with the object name "data"!). Use \code{\link{toolConvertMapping}}
 to convert between both formats}
 
 \item{type}{Mapping type (e.g. "regional", "cell", or "sectoral"). Can be set to NULL if file

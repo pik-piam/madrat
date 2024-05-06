@@ -43,7 +43,7 @@
 #' used}). If data should be aggregated based on more than one column these
 #' columns can be specified via "+", e.g. "region+global" if the data should
 #' be aggregated to column regional as well as column global.
-#' If {rel} is missing \code{to} refers to the aggregation target dimension name.
+#' If \code{rel} is missing \code{to} refers to the aggregation target dimension name.
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
 #' (1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
