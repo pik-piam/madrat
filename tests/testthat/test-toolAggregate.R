@@ -222,7 +222,7 @@ test_that("Edge cases work", {
 test_that("columns with only zeros in weight produce a warning", {
   weight <- pm
   weight[, , ] <- 0
-  expect_warning(toolAggregate(pm, rel, weight = weight), "Weight sum is 0")
+  expect_message(toolAggregate(pm, rel, weight = weight), "Weight sum is 0")
   expect_error(toolAggregate(pm, rel, weight = weight, zeroWeight = "stop"), "Weight sum is 0")
   expect_silent(toolAggregate(pm, rel, weight = weight, zeroWeight = "allow"))
 })
