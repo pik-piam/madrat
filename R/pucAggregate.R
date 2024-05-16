@@ -34,6 +34,9 @@
 #' @export
 pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE, strict = FALSE) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
+
+  setWrapperActive("pucAggregate")
+
   extraArgs <- list(...)
   startinfo <- toolstartmessage("pucAggregate", argumentValues, "+")
   puc <- normalizePath(puc)

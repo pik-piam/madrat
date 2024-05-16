@@ -30,6 +30,7 @@ setWrapperInactive <- function(name) {
                         readSource     = FALSE,
                         calcOutput     = FALSE,
                         retrieveData   = FALSE,
+                        pucAggregate   = FALSE,
                         saveCache      = FALSE,
                         callingHandler = FALSE,
                         vcat           = FALSE,
