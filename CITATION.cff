@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'madrat: May All Data be Reproducible and Transparent (MADRaT) *'
-version: 3.11.2
-date-released: '2024-05-15'
+version: 3.11.3
+date-released: '2024-05-21'
 abstract: Provides a framework which should improve reproducibility and transparency
   in data processing. It provides functionality such as automatic meta data creation
   and management, rudimentary quality management, data caching, work-flow management
@@ -14,34 +14,44 @@ authors:
 - family-names: Dietrich
   given-names: Jan Philipp
   email: dietrich@pik-potsdam.de
+  orcid: 0000-0002-4309-6431
+  affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Baumstark
   given-names: Lavinia
   email: lavinia@pik-potsdam.de
+  affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Wirth
   given-names: Stephen
   email: wirth@pik-potsdam.de
+  affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Giannousakis
   given-names: Anastasis
   email: giannou@pik-potsdam.de
 - family-names: Rodrigues
   given-names: Renato
   email: Renato.Rodrigues@pik-potsdam.de
+  affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Bodirsky
   given-names: Benjamin Leon
   email: bodirsky@pik-potsdam.de
+  affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Leip
   given-names: Debbora
   email: leip@pik-potsdam.de
+  affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Kreidenweis
   given-names: Ulrich
   email: kreidenweis@pik-potsdam.de
 - family-names: Klein
   given-names: David
   email: dklein@pik-potsdam.de
+  affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Sauer
   given-names: Pascal
   email: pascal.sauer@pik-potsdam.de
+  affiliation: Potsdam Institute for Climate Impact Research
 license: BSD-2-Clause
+keywords: tool
 repository-code: https://github.com/pik-piam/madrat
 doi: 10.5281/zenodo.1115490
 
