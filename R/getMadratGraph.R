@@ -52,7 +52,7 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
   out <- as.data.frame(out, stringsAsFactors = FALSE)
 
   # extract tool calls
-  pattern <- "tool([^( ]*)\\("
+  pattern <- "\\btool([^( :]*)\\("
   matches <- stri_match_all_regex(code, pattern, omit_no_match = TRUE)
   names(matches) <- names(code)
   tmpfun <- function(x, l) {
