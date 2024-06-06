@@ -255,7 +255,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
         msg <- paste0("Weight sum is 0, so cannot normalize and will return 0 for some ",
                       "aggregation targets. This changes the total sum of the magpie object! ",
                       'If this is really intended set zeroWeight = "allow".')
-        if (Sys.Date() < "2024-06-01") {
+        if (Sys.Date() < "2024-07-01") {
           message(msg)
         } else {
           warning(msg)
