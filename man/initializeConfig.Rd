@@ -11,7 +11,10 @@ initializeConfig(verbose = TRUE)
 }
 \description{
 Checks whether configuration already has been set. If not, it will be initialized
-with default settings or (if available) system settings.
+with default settings or (if available) system settings. All madrat folders (see
+\code{\link{setConfig}} for documentation which folders are available) will be set
+to the system environment variables MADRAT_SOURCEFOLDER, MADRAT_CACHEFOLDER, etc.
+if they exist, NA otherwise. NA means subfolders of the mainfolder are used.
 }
 \seealso{
 \code{\link{getMainfolder}}, \code{\link{getConfig}}, \code{\link{setConfig}}
