@@ -348,6 +348,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
                                               which = "all", recursive = "strong")
   requiredPackages <- unique(c("renv", requiredPackages, unlist(dependencies)))
 
+  vcat(3, paste(utils::capture.output({
     dummyProject <- withr::local_tempdir()
     initHydrateSnapshotRenv <- function(requiredPackages, lockfilePath) {
       renv::init()
@@ -368,5 +369,6 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
     # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
     # in the created renv.lock might not match the version used to run the full functions
+  }), collapse = "\n"))
   return(invisible(NULL))
 }
