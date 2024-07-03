@@ -350,7 +350,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   vcat(3, paste(utils::capture.output({
     dummyProject <- withr::local_tempdir()
-    initHydrateSnapshotRenv <- function(requiredPackages) {
+    initHydrateSnapshotRenv <- function(requiredPackages, lockfilePath) {
       renv::init()
       # hydrate requiredPackages into throwaway renv to ensure they can be restored from cache on this machine
       if (utils::packageVersion("renv") >= numeric_version("0.17.0")) {
@@ -360,11 +360,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
         renv::hydrate(packages = requiredPackages)
       }
       # create an renv.lock file documenting all package versions, see renv parameter of pucAggregate
-      renv::snapshot(type = "all", prompt = FALSE)
+      renv::snapshot(lockfile = file.path(lockfilePath, "renv.lock"), type = "all", prompt = FALSE)
     }
     # init renv in separate session to prevent changes to current session's libpath
-    callr::r(initHydrateSnapshotRenv, args = list(requiredPackages = requiredPackages),
-             wd = dummyProject, spinner = FALSE, show = TRUE)
+    callr::r(initHydrateSnapshotRenv, args = list(requiredPackages = requiredPackages,
+                                                  lockfilePath = normalizePath(".")),
+             wd = dummyProject, spinner = FALSE, show = TRUE, stderr = "2>&1")
 
     # (unlikely) caveat: if packages are updated while retrieveData is running a package's version
     # in the created renv.lock might not match the version used to run the full functions
