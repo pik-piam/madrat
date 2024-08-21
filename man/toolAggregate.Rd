@@ -75,7 +75,7 @@ will lead to summation.}
 0 = warning, 1 = note, 2 = additional information, >2 = no message}
 
 \item{zeroWeight}{Describes how a weight sum of 0 for a category/aggregation target should be treated.
-"allow" means it is accepted (dangerous), "warn" throws a warning, "stop" throws an error.}
+"allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error.}
 }
 \value{
 the aggregated data in magclass format

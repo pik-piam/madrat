@@ -64,7 +64,7 @@
 #' @param verbosity Verbosity level of messages coming from the function: -1 = error,
 #' 0 = warning, 1 = note, 2 = additional information, >2 = no message
 #' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
-#' "allow" means it is accepted (dangerous), "warn" throws a warning, "stop" throws an error.
+#' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error.
 #' @return the aggregated data in magclass format
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis
 #' @export
@@ -254,12 +254,14 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       if (zeroWeight == "warn") {
         msg <- paste0("Weight sum is 0, so cannot normalize and will return 0 for some ",
                       "aggregation targets. This changes the total sum of the magpie object! ",
-                      'If this is really intended set zeroWeight = "allow".')
+                      'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
         if (Sys.Date() < "2024-07-01") {
           message(msg)
         } else {
           warning(msg)
         }
+      } else if (zeroWeight == "setNA") {
+        tmp[tmp == 0] <- NA
       } else {
         stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
       }
