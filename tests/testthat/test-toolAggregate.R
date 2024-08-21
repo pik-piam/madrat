@@ -224,5 +224,8 @@ test_that("columns with only zeros in weight produce a warning", {
   weight[, , ] <- 0
   expect_warning(toolAggregate(pm, rel, weight = weight), "Weight sum is 0")
   expect_error(toolAggregate(pm, rel, weight = weight, zeroWeight = "stop"), "Weight sum is 0")
-  expect_silent(toolAggregate(pm, rel, weight = weight, zeroWeight = "allow"))
+  expect_silent(allZero <- toolAggregate(pm, rel, weight = weight, zeroWeight = "allow"))
+  expect_true(all(allZero == 0))
+  expect_silent(setNA <- toolAggregate(pm, rel, weight = weight, zeroWeight = "setNA"))
+  expect_true(all(is.na(setNA)))
 })
