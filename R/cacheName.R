@@ -54,7 +54,7 @@ cacheName <- function(prefix, type, args = NULL,  graph = NULL, mode = "put", pa
   .fname <- function(prefix, type, fp, args) {
     return(paste0(getConfig("cachefolder"), "/", prefix, type, fp, args, ".rds"))
   }
-  if (mode == "put" && getConfig("forcecache") != FALSE) {
+  if (mode == "put" && !isFALSE(getConfig("forcecache"))) {
     # forcecache was at least partly active -> data consistency with
     # calculated hash is not guaranteed -> ignore hash
     return(.fname(prefix, type, "", args))
