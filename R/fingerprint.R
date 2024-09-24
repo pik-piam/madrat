@@ -144,7 +144,7 @@ fingerprintFiles <- function(paths) {
     hashCacheFile <- getHashCacheName(path)
     orgFiles <- files
 
-    if (!is.null(hashCacheFile) && file.exists(hashCacheFile)) {
+    if (!is.null(files) && !is.null(hashCacheFile) && file.exists(hashCacheFile)) {
       tryResult <- try({
         filesCache <- readRDS(hashCacheFile)
         # keep only entries which are still up-to-date
