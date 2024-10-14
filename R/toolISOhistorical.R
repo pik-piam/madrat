@@ -149,7 +149,8 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
         }
 
         mTr <- toolAggregate(m[a$fromISO, subTime, ],
-                             mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = weight,
+                             mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")],
+                             weight = weight + 1e-12,
                              negative_weight = "allow")
         ## aggregation of countries
       } else {
@@ -241,15 +242,17 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
           # these countries are added below if missing, and given weight 0
           if (mainDim == 1.1) {
             addInd <- setdiff(as.vector(outer(
-              tr$toISO,
-              getItems(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ], dim = secdDim),
-              paste, sep = ".")),
-              getItems(weight, dim = 1))
+                                              tr$toISO,
+                                              getItems(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ],
+                                                       dim = secdDim),
+                                              paste, sep = ".")),
+            getItems(weight, dim = 1))
           } else if (mainDim == 1.2) {
             addInd <- setdiff(as.vector(outer(
-              getItems(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ], dim = secdDim),
-              tr$toISO, paste, sep = ".")),
-              getItems(weight, dim = 1))
+                                              getItems(z[setNames(list(c(tr$fromISO)), mainDimName), subTime, ],
+                                                       dim = secdDim),
+                                              tr$toISO, paste, sep = ".")),
+            getItems(weight, dim = 1))
           }
           if (length(addInd) > 0) {
             addR <- unique(c(addR, addInd))
