@@ -22,8 +22,9 @@
 installedMadratUniverse <- function() {
   pkgs <- installed.packages()
   robustSort(unique(c(
-    getConfig("packages"),
-    grep("^m[rs]", rownames(pkgs), value = TRUE),
-    rownames(pkgs)[  grepl("\\bmadrat\\b", pkgs[,"Depends"])
-                   | grepl("\\bmadrat\\b", pkgs[,"Imports"])])))
+                      getConfig("packages"),
+                      grep("^m[rs]", rownames(pkgs), value = TRUE),
+                      rownames(pkgs)[grepl("\\bmadrat\\b", pkgs[, "Depends"])
+                                     | grepl("\\bmadrat\\b",
+                                             pkgs[, "Imports"])])))
 }
