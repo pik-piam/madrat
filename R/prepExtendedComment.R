@@ -27,7 +27,8 @@ prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
     descriptionWarning <- paste0('Missing description for data set "', type,
                                  '"! Please add a description in the corresponding calc function!')
   } else {
-    unitWarning <- descriptionWarning <- NULL
+    unitWarning <- NULL
+    descriptionWarning <- NULL
   }
 
   unit        <- prepComment(x$unit, "unit", unitWarning)

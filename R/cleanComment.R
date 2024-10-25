@@ -3,12 +3,12 @@
 #' Helper function to clean a comment from additional metadata information
 #'
 #' @md
-#' @param x magclass object the comment shold be read from
+#' @param x magclass object the comment should be read from
 #' @param remove Vector of categories to be removed
 #' @author Jan Philipp Dietrich
 #' @examples
 #' x <- maxample("animal")
-#' getComment(x) <- c("unit: bla","comment: hallo","blub: ble")
+#' getComment(x) <- c("unit: bla", "comment: hallo", "blub: ble")
 #' madrat:::cleanComment(x)
 
 
