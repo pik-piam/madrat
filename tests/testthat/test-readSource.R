@@ -1,5 +1,8 @@
 nce <- function(x) {
-  getComment(x) <- NULL
+  if (is.list(x)) {
+    x$x <- nce(x$x)
+  }
+  attr(x, "comment") <- NULL
   attr(x, "cachefile") <- NULL
   attr(x, "id") <- NULL
   return(x)
@@ -92,7 +95,7 @@ test_that("forcecache works for readSource", {
                      "download script which could provide the missing data. Please check your settings!"),
                fixed = TRUE)
   dir.create(file.path(getConfig("sourcefolder"), "Test2"), recursive = TRUE)
-  expect_identical(readSource("Test2"), new.magpie())
+  expect_identical(nce(readSource("Test2")), new.magpie())
 
   # ensure forced cache file is used even though sourcefolder does not exist
   unlink(file.path(getConfig("sourcefolder"), "Test2"), recursive = TRUE)
@@ -102,6 +105,28 @@ test_that("forcecache works for readSource", {
   attributes(actual) <- NULL
   expect_identical(actual, "secret")
 })
+
+test_that("read functions can handle metadata", {
+  dir.create(file.path(getConfig("sourcefolder"), "MetadataTest"), recursive = TRUE)
+  readMetadataTest <- function() {
+    return(list(x = as.magpie(1),
+                description = "Metadata Test",
+                unit = "kg"))
+  }
+  correctMetadataTest <- function(x) {
+    expect_identical(getFromComment(x, "description"), "Metadata Test")
+    expect_identical(getFromComment(x, "unit"), "kg")
+    expect_null(getFromComment(x, "NonExisting"))
+    return(list(x = x, description = "Metadata Test 2", unit = "ton"))
+  }
+  globalassign("readMetadataTest", "correctMetadataTest")
+  x <- readSource("MetadataTest", convert = "onlycorrect")
+  expect_identical(getFromComment(x, "description"), "Metadata Test 2")
+  expect_identical(getFromComment(x, "unit"), "ton")
+  expect_null(getFromComment(x, "NonExisting"))
+
+})
+
 
 test_that("read functions can return non-magpie objects", {
   testReadSource <- function(readThis,
@@ -116,16 +141,16 @@ test_that("read functions can return non-magpie objects", {
     return(readSource("This", convert = convert, supplementary = supplementary))
   }
 
-  expect_identical(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE),
-                   list(x = 1, class = "numeric"))
+  expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE)),
+                   list(x = 1, class = "numeric", package = ".GlobalEnv"))
 
   # running second time -> loading from cache, will have additional attribute
   expect_false(identical(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE),
-                         list(x = 1, class = "numeric")))
+                         list(x = 1, class = "numeric", package = ".GlobalEnv")))
   expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE)),
-                   list(x = 1, class = "numeric"))
+                   list(x = 1, class = "numeric", package = ".GlobalEnv"))
 
-  expect_identical(testReadSource(function() list(x = 1, class = "numeric")), 1)
+  expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"))), 1)
   expect_error(testReadSource(function() list(x = 1, class = "character")),
                "Output of \"readThis()\" should have class \"character\" but it does not.",
                fixed = TRUE)
@@ -135,10 +160,11 @@ test_that("read functions can return non-magpie objects", {
                fixed = TRUE)
 
   convertThis <- function(x) {
-    expect_identical(x, 1)
+    expect_identical(nce(x), 1)
     return(list(x = 2, class = "numeric"))
   }
-  expect_identical(testReadSource(readThis = function() list(x = 1, class = "numeric"), convertThis = convertThis), 2)
+  expect_identical(nce(testReadSource(readThis = function() list(x = 1, class = "numeric"),
+                                      convertThis = convertThis)), 2)
   expect_error(testReadSource(readThis = function() list(x = 1, class = "numeric"),
                               correctThis = function() list(x = 1, class = "numeric"),
                               convertThis = function() list(x = 1, class = "character")),
@@ -162,7 +188,7 @@ test_that("read functions can return non-magpie objects", {
   brokenMagpie <- as.magpie(1)
   dimnames(brokenMagpie)[1] <- NULL
   expect_false(identical(brokenMagpie, clean_magpie(brokenMagpie)))
-  expect_identical(testReadSource(function() list(x = brokenMagpie, class = "magpie"), convert = FALSE),
+  expect_identical(nce(testReadSource(function() list(x = brokenMagpie, class = "magpie"), convert = FALSE)),
                    clean_magpie(brokenMagpie))
 })
 

@@ -153,6 +153,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     # set class to "magpie" if not set
     if (is.null(xList$class)) xList$class <- "magpie"
 
+    xList$package <- attr(functionname, "pkgcomment")
+
     # assert return list has the expected entries
     if (!all(c("class", "x") %in% names(xList))) {
       stop('Output of "', functionname,
@@ -169,6 +171,13 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       } else {
         vcat(2, "Non-magpie objects are not checked for ISO country level.")
       }
+    }
+
+    extendedComment <- prepExtendedComment(xList, type, n = 2, warn = FALSE)
+    if (xList$class == "magpie") {
+      getComment(xList$x) <- extendedComment
+    } else {
+      attr(xList$x, "comment") <- extendedComment
     }
 
     cachePut(xList, prefix = prefix, type = type, args = args)
