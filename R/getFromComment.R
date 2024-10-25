@@ -1,4 +1,4 @@
-#' getMetadataComment
+#' getFromComment
 #'
 #' Helper function extract a metadata comment
 #'
@@ -9,11 +9,11 @@
 #' @examples
 #' x <- as.magpie(1)
 #' getComment(x) <- c(" description: example description", " unit: kg")
-#' getMetadataComment(x, "unit")
-#' getMetadataComment(x, "description")
+#' getFromComment(x, "unit")
+#' getFromComment(x, "description")
 #' @export
 
-getMetadataComment <- function(x, name) {
+getFromComment <- function(x, name) {
   comment <- attr(x, "comment")
   key <- paste0("^ ", name, ": ")
   entry <- grep(key, comment)

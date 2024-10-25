@@ -114,16 +114,16 @@ test_that("read functions can handle metadata", {
                 unit = "kg"))
   }
   correctMetadataTest <- function(x) {
-    expect_identical(getMetadataComment(x, "description"), "Metadata Test")
-    expect_identical(getMetadataComment(x, "unit"), "kg")
-    expect_null(getMetadataComment(x, "NonExisting"))
+    expect_identical(getFromComment(x, "description"), "Metadata Test")
+    expect_identical(getFromComment(x, "unit"), "kg")
+    expect_null(getFromComment(x, "NonExisting"))
     return(list(x = x, description = "Metadata Test 2", unit = "ton"))
   }
   globalassign("readMetadataTest", "correctMetadataTest")
   x <- readSource("MetadataTest", convert = "onlycorrect")
-  expect_identical(getMetadataComment(x, "description"), "Metadata Test 2")
-  expect_identical(getMetadataComment(x, "unit"), "ton")
-  expect_null(getMetadataComment(x, "NonExisting"))
+  expect_identical(getFromComment(x, "description"), "Metadata Test 2")
+  expect_identical(getFromComment(x, "unit"), "ton")
+  expect_null(getFromComment(x, "NonExisting"))
 
 })
 

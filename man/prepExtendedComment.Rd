@@ -14,7 +14,8 @@ prepExtendedComment(x, type = "#undefined", warn = TRUE, n = 1)
 \item{warn}{boolean indicating whether warnings should be triggered
 if entries are missing, or not.}
 
-\item{n}{the number of generations to go back}
+\item{n}{the number of functions to go back for the extraction of the call
+information}
 }
 \description{
 Helper function condense metadata information into

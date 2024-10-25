@@ -10,7 +10,7 @@ cleanComment(
 )
 }
 \arguments{
-\item{x}{magclass object the comment shold be read from}
+\item{x}{magclass object the comment should be read from}
 
 \item{remove}{Vector of categories to be removed}
 }
@@ -19,7 +19,7 @@ Helper function to clean a comment from additional metadata information
 }
 \examples{
 x <- maxample("animal")
-getComment(x) <- c("unit: bla","comment: hallo","blub: ble")
+getComment(x) <- c("unit: bla", "comment: hallo", "blub: ble")
 madrat:::cleanComment(x)
 }
 \author{
