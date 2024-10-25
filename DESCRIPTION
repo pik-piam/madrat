@@ -1,7 +1,7 @@
 Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 3.15.0
+Version: 3.15.1
 Date: 2024-10-25
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre"),
@@ -41,7 +41,7 @@ Depends:
 Imports:
     callr,
     digest,
-    igraph (>= 2.0.0),
+    igraph (>= 2.1.1),
     Matrix,
     methods,
     pkgload,
