@@ -15,7 +15,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
 #' @importFrom igraph graph_from_data_frame components V
-#' cluster_edge_betweenness as.undirected membership
+#' cluster_edge_betweenness as_undirected membership
 #' @export
 
 getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
@@ -187,7 +187,7 @@ getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
 
   if (extended) {
     message("\n.:: Check for community structures (tools ignored) ::.")
-    ceb <- igraph::cluster_edge_betweenness(igraph::as.undirected(ggraphNoTools))
+    ceb <- igraph::cluster_edge_betweenness(igraph::as_undirected(ggraphNoTools))
     out$community_structrues <- writeCommunities(igraph::membership(ceb), # nolint
       what = "close communities",
       elem = "community", cutoff = cutoff
