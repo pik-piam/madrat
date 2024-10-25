@@ -8,7 +8,8 @@
 #' @param type output type, e.g. "TauTotal"
 #' @param warn boolean indicating whether warnings should be triggered
 #' if entries are missing, or not.
-#' @param n the number of generations to go back
+#' @param n the number of functions to go back for the extraction of the call
+#' information
 #' @author Jan Philipp Dietrich
 #' @examples
 #' test <- function(a = 1) {
@@ -18,6 +19,7 @@
 #'
 prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
 
+  # extract function call information for the parent call defined by n
   cl <- sys.call(-n)
   f <- get(as.character(cl[[1]]), mode = "function", sys.frame(-n - 1))
   cl <- match.call(definition = f, call = cl)
