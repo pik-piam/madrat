@@ -249,19 +249,19 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
         stop("Negative numbers in weight. Weight should be positive!")
       }
     }
-    tmp <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
-    if (zeroWeight != "allow" && any(tmp == 0, na.rm = TRUE)) {
+    weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+    if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
       if (zeroWeight == "warn") {
         warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
                 "aggregation targets. This changes the total sum of the magpie object! ",
                 'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
       } else if (zeroWeight == "setNA") {
-        tmp[tmp == 0] <- NA
+        weightSum[weightSum == 0] <- NA
       } else {
         stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
       }
     }
-    weight2 <- 1 / (tmp + 10^-100)
+    weight2 <- 1 / (weightSum + 10^-100)
     if (mixed_aggregation) {
       weight2[is.na(weight2)] <- 1
       weight[is.na(weight)] <- 1
@@ -342,6 +342,8 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       } else {
         rel <- t(rel)
       }
+    } else if (dim(x)[dim] == dim(rel)[1] && setequal(rownames(rel), getItems(x, dim))) {
+      rel <- t(rel)
     }
 
     # reorder MAgPIE object based on column names of relation matrix if available
