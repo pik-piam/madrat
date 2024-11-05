@@ -252,14 +252,9 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     tmp <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
     if (zeroWeight != "allow" && any(tmp == 0, na.rm = TRUE)) {
       if (zeroWeight == "warn") {
-        msg <- paste0("Weight sum is 0, so cannot normalize and will return 0 for some ",
-                      "aggregation targets. This changes the total sum of the magpie object! ",
-                      'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
-        if (Sys.Date() < "2024-07-01") {
-          message(msg)
-        } else {
-          warning(msg)
-        }
+        warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
+                "aggregation targets. This changes the total sum of the magpie object! ",
+                'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
       } else if (zeroWeight == "setNA") {
         tmp[tmp == 0] <- NA
       } else {
