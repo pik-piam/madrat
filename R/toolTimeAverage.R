@@ -7,17 +7,15 @@
 #' @param averaging_range number of time steps to average
 #' @param cut if TRUE, all time steps at the start and end that can not be averaged correctly, will be removed
 #'            if FALSE, time steps at the start and end will be averaged with high weights for start and end points
-#' @param annual deprecated. Please don't use it!
 #'
 #' @return the averaged data in magclass format
 #' @author Kristine Karstens, Jan Philipp Dietrich
 #' @importFrom utils head tail
 #' @export
 
-toolTimeAverage <- function(x, averaging_range = NULL, cut = TRUE, annual = NULL) { # nolint
+toolTimeAverage <- function(x, averaging_range = NULL, cut = TRUE) { # nolint
 
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
-  if (!is.null(annual)) warning("Argument \"annual\" is deprecated and will be removed soon!")
 
   if (is.null(averaging_range)) averaging_range <- 1 # nolint
   if (averaging_range < 1) {

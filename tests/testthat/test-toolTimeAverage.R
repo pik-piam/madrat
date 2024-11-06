@@ -27,5 +27,4 @@ test_that("Error detection works", {
   expect_warning(toolTimeAverage(p, 0), "Invalid choice of averaging_range")
   expect_error(toolTimeAverage(p[, 1:2, ], 3), "greater than number of time steps")
   expect_error(toolTimeAverage(p[, c(1, 3, 4), ]), "equires equidistant years")
-  expect_warning(toolTimeAverage(p[, c(1, 3), ], annual = FALSE), "deprecated")
 })
