@@ -342,7 +342,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       } else {
         rel <- t(rel)
       }
-    } else if (dim(x)[dim] == dim(rel)[1] && setequal(rownames(rel), getItems(x, dim))) {
+    } else if (dim(x)[dim] == dim(rel)[1] && !setequal(colnames(rel), getItems(x, dim))) {
       rel <- t(rel)
     }
 
