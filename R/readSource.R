@@ -7,20 +7,18 @@
 #' @note If a magpie object is returned magclass::clean_magpie is run and if convert = TRUE
 #' ISO code country level is checked.
 #'
-#' @param type Option 1. A character string referring to the source type, e.g. "IEA" which would
+#' @param type A character string referring to the source type, e.g. "IEA" which would
 #' internally call a function called `readIEA` (the "wrapped function"). A list of
 #' available source types can be retrieved with function \code{\link{getSources}}.
-#' Option 2. A function, e.g. `readIEA` (the "wrapped function").
 #' @param subtype A character string. For some sources there are subtypes of the source, for these
 #' sources the subtype can be specified with this argument. If a source does not
 #' have subtypes, subtypes should not be set.
 #' @param subset A character string. Similar to \code{subtype} a source can also have \code{subsets}.
 #' A \code{subsets} can be used to only read part of the data. This can in particular make sense
 #' for huge data sets where reading in the whole data set might be impractical or even infeasible.
-#' @param convert Option 1. Boolean indicating whether input data conversion to
-#' ISO countries should be done or not.
-#' Option 2. It can be set to "onlycorrect" for sources with a separate correctXXX-function.
-#' Option 3. A function, e.g. `convertIEA` that is called to convert or correct the data.
+#' @param convert Boolean indicating whether input data conversion to
+#' ISO countries should be done or not. In addition it can be set to "onlycorrect"
+#' for sources with a separate correctXXX-function.
 #' @param supplementary Boolean deciding whether a list including the actual data and metadata,
 #' or just the actual data is returned.
 #' @return The read-in data, usually a magpie object. If supplementary is TRUE a list including
@@ -63,31 +61,6 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   withr::defer({
     toolendmessage(startinfo, "-")
   })
-
-  # convert functions to strings, ensuring naming conventions are followed
-  if (is.function(type)) {
-    string_name <- deparse(substitute(type))
-    if ((substr(string_name, 1, 4)) != 'read') {
-      message <- sprintf(
-        "%s does not following the naming convention: it must start with 'read'.", string_name)
-      stop(message)
-    }
-    type <- substr(string_name, 5, nchar(string_name))
-  }
-  if (is.function(convert)) {
-    string_name <- deparse(substitute(type))
-    name <- substr(string_name, 8, nchar(string_name))
-    if (name != type) {
-      stop("Convert function does not fit naming convention.")
-    }
-    convert_type <- (substr(string_name, 1, 7))
-    if !(convert_type %in% c("convert", "correct")) {
-      message <- sprintf(
-        "%s does not following the naming convention: it must start with 'convert' or 'correct'.", string_name)
-      stop(message)
-    }
-    if (convert_type == "convert") {convert <- True} else {convert <- "onlycorrect"}
-  }
 
   # check type input
   if (!is.character(type) || length(type) != 1) {
