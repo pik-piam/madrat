@@ -14,22 +14,23 @@
 #' @export
 
 toolTimeAverage <- function(x, averaging_range = NULL, cut = TRUE) { # nolint
-
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
+  averagingRange <- averaging_range
 
-  if (is.null(averaging_range)) averaging_range <- 1 # nolint
-  if (averaging_range < 1) {
-    warning("Invalid choice of averaging_range. Value ", averaging_range, " is not allowed! Value is set to 1 instead!")
-    averaging_range <- 1 # nolint
+  if (is.null(averagingRange)) averagingRange <- 1
+  if (averagingRange < 1) {
+    warning("Invalid choice of averaging_range. Value ", averagingRange,
+            " is not allowed! Value is set to 1 instead!")
+    averagingRange <- 1
   }
   # in the case of an even number of time steps, that should be used for averaging, the average is not symmetric
   # to the corresponding year. In this case one time step more is taken in the past then in the future of
   # the corresponding year
-  averagingSteps <- -floor(averaging_range / 2) + (0:(averaging_range - 1))
+  averagingSteps <- -floor(averagingRange / 2) + (0:(averagingRange - 1))
   years           <- getItems(x, dim = 2)
 
   # check average_range < length(years)
-  if (averaging_range > length(years)) stop("Averaging range is greater than number of time steps.")
+  if (averagingRange > length(years)) stop("Averaging range is greater than number of time steps.")
 
   # check for equidistant years
   y <- getYears(x, as.integer = TRUE)
@@ -44,16 +45,16 @@ toolTimeAverage <- function(x, averaging_range = NULL, cut = TRUE) { # nolint
   mat[(col(mat) - row(mat)) %in% averagingSteps] <- 1
 
   if (cut == FALSE) {
-  # set weights at start and end points higher counts to offset missing years
-  # (behaves as if start/end values would be constant before/after start/end)
-    for (i in rownames(mat[averaging_range - rowSums(mat) != 0, ])) {
-      if (match(i, years) < length(years) / 2) mat[i, 1] <- averaging_range + 1 - sum(mat[i, ])
-      else mat[i, length(years)]  <- averaging_range + 1 - sum(mat[i, ])
+    # set weights at start and end points higher counts to offset missing years
+    # (behaves as if start/end values would be constant before/after start/end)
+    for (i in rownames(mat[averagingRange - rowSums(mat) != 0, ])) {
+      if (match(i, years) < length(years) / 2) mat[i, 1] <- averagingRange + 1 - sum(mat[i, ])
+      else mat[i, length(years)]  <- averagingRange + 1 - sum(mat[i, ])
     }
   }
 
-  out <- toolAggregate(x, rel = mat, dim = 2) / averaging_range
-  out <- out[, rowSums(mat) == averaging_range, ]
+  out <- toolAggregate(x, rel = mat, dim = 2) / averagingRange
+  out <- out[, rowSums(mat) == averagingRange, ]
 
   getComment(out) <- c(getComment(x), paste0("Data averaged (toolTimeAverage): ", date()))
   return(out)
