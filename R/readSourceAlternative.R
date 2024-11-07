@@ -22,7 +22,7 @@ readSourceAlternative <- function(read, correct = NULL, convert = NULL, subtype 
   #' check passed functions follow the naming conventions
   .checkNamingConventions <- function(read, correct, convert) {
     if (!grepl("read", deparse(substitute(read)))) {
-      stop(read "does not following the naming convention: it must start with 'read'.")
+      stop(read, "does not follow the naming convention: it must start with 'read'.")
     }
     type <- .getType()
 
@@ -47,7 +47,7 @@ readSourceAlternative <- function(read, correct = NULL, convert = NULL, subtype 
 
   #' get string from function for caching consistency with readSource
   .getType <- function(read) {
-    type <- sub(".*read", "", deparse(substitute(read)))
+    type <- sub("^.*?read", "", deparse(substitute(read)))
     return(type)
   }
 
