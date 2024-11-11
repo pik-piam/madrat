@@ -21,14 +21,16 @@ prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
 
   # extract function call information for the parent call defined by n
   cl <- sys.call(-n)
-  functionName <- as.character(cl[[1]])
+  functionCall <- as.character(cl[[1]])
 
   # if readSource is called as madrat::readSource functionName will
   # be in this unintuitive order c("::", "madrat", "readSource")
-  if (length(functionName) == 3 && grepl("^:::?$", functionName[[1]])) {
-    functionName <- functionName[[3]]
+  if (length(functionCall) == 3 && functionCall[[1]] %in% c("::", ":::")) {
+    f <- get(functionCall[[3]], envir = loadNamespace(functionCall[[2]]), mode = "function", sys.frame(-n - 1))
+  } else {
+    f <- get(functionCall, mode = "function", sys.frame(-n - 1))
   }
-  f <- get(functionName, mode = "function", sys.frame(-n - 1))
+
   cl <- match.call(definition = f, call = cl)
 
   if (isTRUE(warn)) {
@@ -58,6 +60,7 @@ prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
   return(extendedComment)
 }
 
+# this exists only for testing purposes
 testPrepExtendedComment <- function() {
   return(prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
 }
