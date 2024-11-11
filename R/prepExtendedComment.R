@@ -13,15 +13,22 @@
 #' @author Jan Philipp Dietrich
 #' @examples
 #' test <- function(a = 1) {
-#'    return(madrat:::prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
-#'  }
-#'  test(a = 42)
+#'   return(madrat:::prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
+#' }
+#' test(a = 42)
 #'
 prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
 
   # extract function call information for the parent call defined by n
   cl <- sys.call(-n)
-  f <- get(as.character(cl[[1]]), mode = "function", sys.frame(-n - 1))
+  functionName <- as.character(cl[[1]])
+
+  # if readSource is called as madrat::readSource functionName will
+  # be in this unintuitive order c("::", "madrat", "readSource")
+  if (length(functionName) == 3 && grepl("^:::?$", functionName[[1]])) {
+    functionName <- functionName[[3]]
+  }
+  f <- get(functionName, mode = "function", sys.frame(-n - 1))
   cl <- match.call(definition = f, call = cl)
 
   if (isTRUE(warn)) {
@@ -49,4 +56,8 @@ prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
                        origin,
                        date)
   return(extendedComment)
+}
+
+testPrepExtendedComment <- function() {
+  return(prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
 }

@@ -23,9 +23,9 @@ an extended comment entry
 }
 \examples{
 test <- function(a = 1) {
-   return(madrat:::prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
- }
- test(a = 42)
+  return(madrat:::prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
+}
+test(a = 42)
 
 }
 \author{
