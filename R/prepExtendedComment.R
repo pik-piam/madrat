@@ -25,7 +25,7 @@ prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
 
   # if readSource is called as madrat::readSource functionName will
   # be in this unintuitive order c("::", "madrat", "readSource")
-  if (length(functionCall) == 3 && functionCall[[1]] %in% c("::", ":::")) {
+  if (length(functionCall) == 3 && functionCall[[1]] == "::") {
     f <- get(functionCall[[3]], envir = loadNamespace(functionCall[[2]]), mode = "function", sys.frame(-n - 1))
   } else {
     f <- get(functionCall, mode = "function", sys.frame(-n - 1))
@@ -60,7 +60,11 @@ prepExtendedComment <- function(x, type = "#undefined", warn = TRUE, n = 1) {
   return(extendedComment)
 }
 
-# this exists only for testing purposes
-testPrepExtendedComment <- function() {
+#' .testPrepExtendedComment
+#'
+#' This function exists only for testing purposes.
+#'
+#' @export
+.testPrepExtendedComment <- function() {
   return(prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
 }
