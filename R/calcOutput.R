@@ -114,6 +114,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   saveCache <- isWrapperActive("saveCache")
   setWrapperInactive("saveCache")
 
+  callString <- functionCallString("calcOutput", argumentValues)
+
   if (!is.null(na_warning)) {
     warning('Argument "na_warning" is deprecated. Please use "warnNA" instead!')
     warnNA <- na_warning
@@ -129,7 +131,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (!is.character(type)) stop("Invalid type (must be a character)!")
   if (length(type) != 1) stop("Invalid type (must be a single character string)!")
 
-  .checkData <- function(x, functionname) {
+  .checkData <- function(x, functionname, callString) {
     if (!is.list(x)) {
       stop("Output of function \"", functionname,
            "\" is not list of two MAgPIE objects containing the values and corresponding weights!")
@@ -262,7 +264,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   x <- cacheGet(prefix = "calc", type = type, args = args)
 
   if (!is.null(x)) {
-    x <- try(.checkData(x, functionname), silent = TRUE)
+    x <- try(.checkData(x, functionname, callString), silent = TRUE)
     if ("try-error" %in% class(x)) {
       vcat(2, " - cache file corrupt for ", functionname, show_prefix = FALSE)
       x <- NULL
@@ -282,7 +284,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       x <- withMadratLogging(eval(parse(text = functionname)))
     }
     setWrapperInactive("wrapperChecks")
-    x <- .checkData(x, functionname)
+    x <- .checkData(x, functionname, callString)
     cachePut(x, prefix = "calc", type = type, args = args)
   }
 
@@ -307,7 +309,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (!is.null(x$weight)) if (nyears(x$weight) > 1) x$weight <- x$weight[, years, ]
   }
 
-  extendedComment <- prepExtendedComment(x, type)
+  extendedComment <- prepExtendedComment(x, type, callString)
 
   if (!isFALSE(aggregate)) {
 

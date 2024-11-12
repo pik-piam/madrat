@@ -27,9 +27,15 @@
 #' }
 #' outerFunction()
 toolstartmessage <- function(functionName, argumentValues, level = NULL) {
-
   setWrapperInactive("wrapperChecks")
 
+  functionCallString <- functionCallString(functionName, argumentValues)
+
+  vcat(1, "Run ", functionCallString, level = level, fill = 300, show_prefix = FALSE)
+  return(list(time1 = proc.time(), functionCallString = functionCallString))
+}
+
+functionCallString <- function(functionName, argumentValues) {
   nonDefaultArguments <- getNonDefaultArguments(functionName, argumentValues)
   argsString <- paste0(list(nonDefaultArguments)) # wrap everything in list for nicer string output
   argsString <- substr(argsString, 6, nchar(argsString) - 1) # remove superfluous list from string
@@ -37,17 +43,12 @@ toolstartmessage <- function(functionName, argumentValues, level = NULL) {
   callWithEvaluatedArgs <- paste0(functionName, "(", argsString, ")")
   if (nchar(callWithEvaluatedArgs) <= getConfig("maxLengthLogMessage")) {
     functionCallString <- callWithEvaluatedArgs
-    hint <- ""
   } else {
     functionCallString <- paste0(deparse(sys.call(-1)), collapse = "")
     if (nchar(functionCallString) > getConfig("maxLengthLogMessage")) {
       functionCallString <- paste0(substr(callWithEvaluatedArgs, 1,
                                           getConfig("maxLengthLogMessage") - 3), "...")
     }
-    hint <- paste0(" -- to print all evaluated arguments: setConfig(maxLengthLogMessage = ",
-                   nchar(callWithEvaluatedArgs), ")")
   }
-
-  vcat(1, "Run ", functionCallString, hint, level = level, fill = 300, show_prefix = FALSE)
-  return(list(time1 = proc.time(), functionCallString = functionCallString))
+  return(functionCallString)
 }
