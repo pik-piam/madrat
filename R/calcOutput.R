@@ -249,7 +249,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     vcat(-2, "")
   }
 
-  startinfo <- toolstartmessage("calcOutput", argumentValues, "+")
+  startinfo <- toolstartmessage(callString, "+")
   defer({
     toolendmessage(startinfo, "-")
   })

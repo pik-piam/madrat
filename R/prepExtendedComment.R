@@ -38,9 +38,3 @@ prepExtendedComment <- function(x, type, functionCallString, warn = TRUE) {
                        date)
   return(extendedComment)
 }
-
-# this exists only for testing purposes
-testPrepExtendedComment <- function() {
-  return(prepExtendedComment(list(unit = "m", description = "example", package = "blub"),
-                             "someType", "madrat:::testPrepExtendedComment()"))
-}

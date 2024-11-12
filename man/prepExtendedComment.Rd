@@ -4,30 +4,23 @@
 \alias{prepExtendedComment}
 \title{prepExtendedComment}
 \usage{
-prepExtendedComment(x, type = "#undefined", warn = TRUE, n = 1)
+prepExtendedComment(x, type, functionCallString, warn = TRUE)
 }
 \arguments{
 \item{x}{list containing the metadata to be condensed}
 
 \item{type}{output type, e.g. "TauTotal"}
 
+\item{functionCallString}{A string representation of the function call
+that created the object this comment is attached to}
+
 \item{warn}{boolean indicating whether warnings should be triggered
 if entries are missing, or not.}
-
-\item{n}{the number of functions to go back for the extraction of the call
-information}
 }
 \description{
 Helper function condense metadata information into
 an extended comment entry
 }
-\examples{
-test <- function(a = 1) {
-  return(madrat:::prepExtendedComment(list(unit = "m", description = "example", package = "blub")))
-}
-test(a = 42)
-
-}
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Pascal Sauer
 }

@@ -59,7 +59,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   callString <- functionCallString("readSource", argumentValues)
 
   withr::local_dir(getConfig("mainfolder"))
-  startinfo <- toolstartmessage("readSource", argumentValues, "+")
+  startinfo <- toolstartmessage(callString, "+")
   withr::defer({
     toolendmessage(startinfo, "-")
   })
