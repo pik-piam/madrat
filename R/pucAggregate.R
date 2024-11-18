@@ -38,7 +38,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
   setWrapperActive("pucAggregate")
 
   extraArgs <- list(...)
-  startinfo <- toolstartmessage("pucAggregate", argumentValues, "+")
+  startinfo <- toolstartmessage(functionCallString("pucAggregate", argumentValues), "+")
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 

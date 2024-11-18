@@ -50,7 +50,7 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
   setWrapperActive("downloadSource")
   setWrapperInactive("wrapperChecks")
 
-  startinfo <- toolstartmessage("downloadSource", argumentValues, "+")
+  startinfo <- toolstartmessage(functionCallString("downloadSource", argumentValues), "+")
   defer({
     toolendmessage(startinfo, "-")
   })

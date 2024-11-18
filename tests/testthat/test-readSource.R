@@ -124,7 +124,9 @@ test_that("read functions can handle metadata", {
   expect_identical(getFromComment(x, "description"), "Metadata Test 2")
   expect_identical(getFromComment(x, "unit"), "ton")
   expect_null(getFromComment(x, "NonExisting"))
-
+  expect_true(startsWith(getFromComment(x, "origin"),
+                         "readSource(type = \"MetadataTest\", convert = \"onlycorrect\") (madrat "))
+  expect_true(endsWith(getFromComment(x, "origin"), " | .GlobalEnv)"))
 })
 
 
