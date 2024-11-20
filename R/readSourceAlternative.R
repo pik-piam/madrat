@@ -28,19 +28,19 @@ readSourceAlternative <- function(read, correct = NULL, convert = NULL, subtype 
 
     if (!is.null(correct)) {
       if (!grepl("correct", deparse(substitute(correct)))) {
-        stop(correct "does not follow the naming convention: it must start with 'correct'.")
+        stop(correct, "does not follow the naming convention: it must start with 'correct'.")
       }
       if (sub(".*correct", "", deparse(subsitute(correct))) != type) {
-        stop(correct "does not follow the naming convention: it must match" type)
+        stop(correct, "does not follow the naming convention: it must match", type)
       }
     }
 
     if (!is.null(convert)) {
       if (!grepl("convert", deparse(substitute(convert)))) {
-        stop(convert "does not follow the naming convention: it must start with 'convert'.")
+        stop(convert, "does not follow the naming convention: it must start with 'convert'.")
       }
       if (sub(".*convert", "", deparse(subsitute(convert))) != type) {
-        stop(convert "does not follow the naming convention: it must match" type)
+        stop(convert, "does not follow the naming convention: it must match", type)
       }
     }
   }
@@ -156,7 +156,7 @@ readSourceAlternative <- function(read, correct = NULL, convert = NULL, subtype 
     return(x)
   }
 
-  .testISO <- function(x, ) {
+  .testISO <- function(x) {
     isoCountry  <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
     isoCountry1 <- as.vector(isoCountry[, "x"])
     names(isoCountry1) <- isoCountry[, "X"]
@@ -187,7 +187,7 @@ readSourceAlternative <- function(read, correct = NULL, convert = NULL, subtype 
       stop('Output of "', callable, '" should have class "', xList$class, '" but it does not.')
     }
 
-    if !is.null(convert) {
+    if (!is.null(convert)) {
       if (magclass::is.magpie(xList$x)) {
         .testISO(magclass::getItems(xList$x, dim = 1.1))
       } else {
@@ -230,7 +230,7 @@ readSourceAlternative <- function(read, correct = NULL, convert = NULL, subtype 
   # try a cache of an earlier step in the preprocessing routine and run remaining steps
   if (!is.null(convert)) {
     xList <- .getFromCache(type, subtype, subset, args, "correct")
-    if !is.null(xList) {
+    if (!is.null(xList)) {
       xList <- .runWithLoggingandCaching(xList, callable=convert, subtype=subtype, subset=subset)
     }
     return(.clean(xList))
