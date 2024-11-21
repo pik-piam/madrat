@@ -19,6 +19,10 @@ rest of the function name determines the 'type'.}
 \item{correct}{A function to correct the data. Optional. Function name must start with 'correct'
 and end with the type, same as for read.}
 
+\item{convert}{Boolean indicating whether input data conversion to
+ISO countries should be done or not. In addition it can be set to "onlycorrect"
+for sources with a separate correctXXX-function.}
+
 \item{subtype}{A character string. For some sources there are subtypes of the source, for these
 sources the subtype can be specified with this argument. If a source does not
 have subtypes, subtypes should not be set.}
@@ -29,6 +33,12 @@ for huge data sets where reading in the whole data set might be impractical or e
 
 \item{covert}{A function to convert the data (putting it at country level). Optional. Function 
 name must start with 'convert' and end with the type, same as for read.}
+}
+\value{
+The read-in data, usually a magpie object. If supplementary is TRUE a list including
+the data and metadata is returned instead. The temporal and data dimensionality
+should match the source data. The spatial dimension should either match the source data or,
+if the convert argument is set to TRUE, should be on ISO code country level.
 }
 \description{
 Minimal wrapper for readSource.
