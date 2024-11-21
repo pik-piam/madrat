@@ -33,74 +33,7 @@
 #' the corresponding write function
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
-#' @return magpie object with the requested output data either on country or on
-#' regional level depending on the choice of argument "aggregate" or a list of information
-#' if supplementary is set to TRUE.
-#' @note The underlying calc-functions are required to provide a list of information back to
-#' \code{calcOutput}. Following list entries should be provided:
-#' \itemize{
-#' \item \bold{x} - the data itself as magclass object
-#' \item \bold{weight} - a weight for the spatial aggregation
-#' \item \bold{unit} - unit of the provided data
-#' \item \bold{description} - a short description of the data
-#' \item \bold{note} (optional) - additional notes related to the data
-#' \item \bold{class} (optional | default = "magpie") - Class of the returned object. If set to
-#' something other than "magpie" most functionality, such as aggregation or unit tests will not
-#' be available and is switched off!
-#' \item \bold{isocountries} (optional | default = TRUE (mostly) or FALSE (if global)) - a boolean
-#' indicating whether data is in iso countries or not (the latter will deactivate several
-#' features such as aggregation)
-#' \item \bold{mixed_aggregation} (optional | default = FALSE) - boolean which allows for mixed
-#' aggregation (weighted mean mixed with summations). If set to TRUE weight columns
-#' filled with NA will lead to summation, otherwise they will trigger an error.
-#' \item \bold{min} (optional) - Minimum value which can appear in the data. If provided calcOutput
-#' will check whether there are any values below the given threshold and warn in this case
-#' \item \bold{max} (optional) - Maximum value which can appear in the data. If provided calcOutput
-#' will check whether there are any values above the given threshold and warn in this case
-#' \item \bold{structure.spatial} (optional) - regular expression describing the name structure of all
-#' names in the spatial dimension (e.g. `"^[A-Z]\{3\}$"`). Names will be checked against this regular expression and
-#' disagreements will be reported via a warning.
-#' \item \bold{structure.temporal} (optional) - regular expression describing the name structure of all
-#' names in the temporal dimension (e.g. `"^y[0-9]\{4\}$"`). Names will be checked against this regular expression and
-#' disagreements will be reported via a warning.
-#' \item \bold{structure.data} (optional) - regular expression describing the name structure of all
-#' names in the data dimension (e.g. `"^[a-z]*\\\\.[a-z]*$"`). Names will be checked against this regular expression and
-#' disagreements will be reported via a warning.
-#' \item \bold{aggregationFunction} (optional | default = toolAggregate) - Function to be used to
-#' aggregate data from country to regions. The function must have the argument \code{x} for
-#' the data itself and \code{rel} for the relation mapping between countries and regions and
-#' must return the data as magpie object in the spatial resolution as defined in rel.
-#' \item \bold{aggregationArguments} (optional) - List of additional, named arguments to be supplied
-#' to the aggregation function. In addition to the arguments set here, the function will be
-#' supplied with the arguments \code{x}, \code{rel} and if provided/deviating from the default
-#' also \code{weight} and \code{mixed_aggregation}.
-#' \item \bold{putInPUC} (optional) boolean which decides whether this calculation should be added to a puc file
-#' which contains non-aggregated data and can be used to later on aggregate the data to resolutions of own choice.
-#' If not set \code{calcOutput} will try to determine automatically, whether a file is being required for the puc file
-#' or not, but in more complex cases (e.g. if calculations below top-level have to be run as well) this setting can
-#' be used to manually tweak the puc file list. CAUTION: Incorrect settings will cause corrupt puc files,
-#' so use this setting with extreme care and only if necessary.
-#' \item \bold{cache} (optional) boolean which decides whether a cache file should be written (if caching is active)
-#' or not. Default setting is TRUE. This can be for instance useful, if the calculation itself is quick, but
-#' the corresponding file sizes are huge. Or if the caching for the given data type does not support storage
-#' in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
-#' will corrupt the PUC file. Use with care.
-#' }
-#' @author Jan Philipp Dietrich
-#' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
-#' @examples
-#' \dontrun{
-#'
-#' a <- calcOutput(type = "TauTotal")
-#' }
-#'
-#' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
-#' getCells getYears<- is.magpie dimSums
-#' @importFrom utils packageDescription read.csv2 read.csv
-#' @importFrom digest digest
-#' @importFrom withr defer local_dir
 #' @export
-
 wrappedCalcOutput <- function(
     calc, aggregate = TRUE, file = NULL, years = NULL, round = NULL, signif = NULL,
     supplementary = FALSE, append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE,
@@ -110,6 +43,6 @@ wrappedCalcOutput <- function(
     calcOutput(
         type, aggregate=aggregate, file=file, years=years, round=round, signif=signif,
         supplementary=supplementary, append=append, warnNA=warnNA, na_warning=na_warning, try=try,
-        regionmapping=regionmapping, writeArgs=writeArgs, ...=...
+        regionmapping=regionmapping, writeArgs=writeArgs, ...
     )
     }
