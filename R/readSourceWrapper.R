@@ -18,7 +18,7 @@
 #' @export
 readSourceWrapper <- function(read, correct = NULL, convert = NULL, subtype = NULL, subset = NULL) {
 
-  #' get string/bool from function(s) for use in readSource
+  # get string/bool from function(s) for use in readSource
   .getConvert <- function(convert, correct) {
     if (!is.null(convert)) {do_convert <- TRUE}
     else if (!is.null(correct)) {do_convert <- "onlycorrect"}
