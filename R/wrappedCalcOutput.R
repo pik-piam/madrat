@@ -1,4 +1,4 @@
-#' calcOutputWrapper
+#' wrappedCalcOutput
 #'
 #' Minimal wrapper for calcOutput.
 #' Beware that no checks are done that the input follows the required naming conventions.
@@ -101,7 +101,7 @@
 #' @importFrom withr defer local_dir
 #' @export
 
-calcOutputWrapper <- function(
+wrappedCalcOutput <- function(
     calc, aggregate = TRUE, file = NULL, years = NULL, round = NULL, signif = NULL,
     supplementary = FALSE, append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE,
     regionmapping = NULL, writeArgs = NULL, ...) {

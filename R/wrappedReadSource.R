@@ -1,4 +1,4 @@
-#' readSourceWrapper
+#' wrappedReadSource
 #'
 #' Minimal wrapper for readSource.
 #' Beware that no checks are done that the input follows the required naming conventions.
@@ -16,7 +16,7 @@
 #' A \code{subsets} can be used to only read part of the data. This can in particular make sense
 #' for huge data sets where reading in the whole data set might be impractical or even infeasible.
 #' @export
-readSourceWrapper <- function(read, correct = NULL, convert = NULL, subtype = NULL, subset = NULL) {
+wrappedReadSource <- function(read, correct = NULL, convert = NULL, subtype = NULL, subset = NULL) {
 
   # get string/bool from function(s) for use in readSource
   .getConvert <- function(convert, correct) {
