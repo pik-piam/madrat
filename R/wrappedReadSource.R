@@ -1,7 +1,6 @@
 #' wrappedReadSource
 #'
-#' Minimal wrapper for readSource.
-#' Beware that no checks are done that the input follows the required naming conventions.
+#' Wrapper for readSource accepting a source object instead of string.
 #'
 #' @param sourceObject A list with the following elements:
 #' \itemize{
@@ -16,12 +15,20 @@
 #' @author Pascal Sauer
 #'
 #' @export
-wrappedReadSource <- function(sourceObject, subtype = NULL, subset = NULL) {
+wrappedReadSource <- function(sourceObject, subtype = NULL, subset = NULL,
+                              convert = TRUE, supplementary = FALSE) {
   stopifnot(is.function(sourceObject$read))
-  return(wrappedReadSourceFunctions(sourceObject$read,
-                                    sourceObject$correct,
-                                    sourceObject$convert,
-                                    sourceObject$download,
-                                    subtype,
-                                    subset))
+  read <- sourceObject$read
+  envList <- as.list(environment(read))
+  envList <- envList[startsWith(names(envList), "read")]
+  functionName <- names(envList)[Position(function(f) identical(f, read), envList)]
+  type <- sub("^read", "", functionName)
+
+  # get default subtype
+  if (is.null(subtype)) {
+    subtype <- formals(read)[["subtype"]]
+  }
+
+  return(readSource(type = type, subtype = subtype, subset = subset,
+                    convert = convert, supplementary = supplementary))
 }
