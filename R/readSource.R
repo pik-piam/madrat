@@ -144,9 +144,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     # run the actual read/correct/convert function
     # if prefix is correct or convert the locally defined x is passed, so check it exists
     stopifnot(prefix == "read" || exists("x"))
-    withr::with_dir(sourcefolder, {
-      x <- withMadratLogging(eval(parse(text = functionname)))
-    })
+    withr::local_dir(sourcefolder)
+    x <- withMadratLogging(eval(parse(text = functionname)))
     setWrapperInactive("wrapperChecks")
 
     # ensure we are always working with a list with entries "x" and "class"
