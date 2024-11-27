@@ -11,13 +11,15 @@ A name vector of installed packages which supposedly belong
 to the madrat universe
 }
 \description{
-Returns a name vector of installed packages which
-supposedly belong to the madrat universe.
-They are currently derived as the union of
-all loaded madrat packages and all packages
-with a name starting with "mr" or "ms"
-(as the usual indicator for madrat-packages and
-madrat-support-packages).
+Returns a name vector of installed packages which supposedly belong to the
+madrat universe.   They are currently derived as the union of
+\itemize{
+\item all packages registered under \code{getConfig("packages")},
+\item all packages with a name starting with "mr" or "ms" (as the usual
+indicator for madrat-packages and madrat-support-packages), and
+\item all packages having \code{madrat} as either a \code{Depends} or \code{Imports}
+dependency.
+}
 }
 \examples{
 \dontrun{

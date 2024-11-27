@@ -63,6 +63,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   setWrapperActive("saveCache")
   setWrapperInactive("wrapperChecks")
 
+  callString <- functionCallString("retrieveData", argumentValues)
+
   local_options(madratWarningsCounter = 0)
 
   if (!(cachetype %in% c("rev", "def"))) {
@@ -81,7 +83,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     matchingCollections <- .match(getConfig("outputfolder"), "tgz", cfg$collectionName)
 
     if (length(matchingCollections) > 0) {
-      startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
+      startinfo <- toolstartmessage(callString, 0)
       vcat(-2, " - data is already available and not calculated again.", fill = 300)
       toolendmessage(startinfo)
       return(invisible(file.path(getConfig("outputfolder"), matchingCollections)))
@@ -133,7 +135,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   vcat(3, paste(c("sessionInfo:", capture.output(sessionInfo()), "\n"), collapse = "\n"))
 
   # run full* functions
-  startinfo <- toolstartmessage("retrieveData", argumentValues, 0)
+  startinfo <- toolstartmessage(callString, 0)
 
   vcat(2, " - execute function ", cfg$functionName, fill = 300, show_prefix = FALSE)
 

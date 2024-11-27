@@ -114,6 +114,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   saveCache <- isWrapperActive("saveCache")
   setWrapperInactive("saveCache")
 
+  callString <- functionCallString("calcOutput", argumentValues)
+
   if (!is.null(na_warning)) {
     warning('Argument "na_warning" is deprecated. Please use "warnNA" instead!')
     warnNA <- na_warning
@@ -129,7 +131,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (!is.character(type)) stop("Invalid type (must be a character)!")
   if (length(type) != 1) stop("Invalid type (must be a single character string)!")
 
-  .checkData <- function(x, functionname) {
+  .checkData <- function(x, functionname, callString) {
     if (!is.list(x)) {
       stop("Output of function \"", functionname,
            "\" is not list of two MAgPIE objects containing the values and corresponding weights!")
@@ -247,7 +249,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     vcat(-2, "")
   }
 
-  startinfo <- toolstartmessage("calcOutput", argumentValues, "+")
+  startinfo <- toolstartmessage(callString, "+")
   defer({
     toolendmessage(startinfo, "-")
   })
@@ -262,7 +264,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   x <- cacheGet(prefix = "calc", type = type, args = args)
 
   if (!is.null(x)) {
-    x <- try(.checkData(x, functionname), silent = TRUE)
+    x <- try(.checkData(x, functionname, callString), silent = TRUE)
     if ("try-error" %in% class(x)) {
       vcat(2, " - cache file corrupt for ", functionname, show_prefix = FALSE)
       x <- NULL
@@ -282,7 +284,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
       x <- withMadratLogging(eval(parse(text = functionname)))
     }
     setWrapperInactive("wrapperChecks")
-    x <- .checkData(x, functionname)
+    x <- .checkData(x, functionname, callString)
     cachePut(x, prefix = "calc", type = type, args = args)
   }
 
@@ -307,40 +309,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (!is.null(x$weight)) if (nyears(x$weight) > 1) x$weight <- x$weight[, years, ]
   }
 
-  .prepComment <- function(x, name, warning = NULL) {
-    if (!is.null(x)) {
-      x[1] <- paste0(" ", name, ": ", x[1])
-      if (length(x) > 1) {
-        x[2:length(x)] <- paste0(paste(rep(" ", 3 + nchar(name)), collapse = ""), x[2:length(x)])
-      }
-    } else {
-      if (!is.null(warning)) {
-        vcat(0, warning)
-        x <- paste0(" ", name, ": not provided")
-      }
-    }
-    return(x)
-  }
-
-  .cleanComment <- function(x, remove = c("unit", "description", "comment", "origin", "creation date", "note")) {
-    # remove old descriptors
-    x <- getComment(x)
-    out <- grep(paste0("^ *(", paste(remove, collapse = "|"), "):"), x, value = TRUE, invert = TRUE)
-    if (length(out) == 0) return(NULL)
-    return(out)
-  }
-
-  unit        <- .prepComment(x$unit, "unit", paste0('Missing unit information for data set "', type, '"!'))
-  description <- .prepComment(x$description, "description",
-                              paste0('Missing description for data set "', type,
-                                     '"! Please add a description in the corresponding calc function!'))
-  comment     <- .prepComment(.cleanComment(x$x), "comment")
-  origin      <- .prepComment(paste0(gsub("\\s{2,}", " ", paste(deparse(match.call()), collapse = "")),
-                                     " (madrat ", unname(getNamespaceVersion("madrat")), " | ", x$package, ")"),
-                              "origin")
-  date        <- .prepComment(date(), "creation date")
-  note        <- .prepComment(x$note, "note")
-
+  extendedComment <- prepExtendedComment(x, type, callString)
 
   if (!isFALSE(aggregate)) {
 
@@ -393,12 +362,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     x$x <- signif(x$x, signif)
   }
 
-  extendedComment <- c(description,
-                       unit,
-                       note,
-                       comment,
-                       origin,
-                       date)
   if (x$class == "magpie") {
     getComment(x$x) <- extendedComment
     x$x <- clean_magpie(x$x)

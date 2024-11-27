@@ -4,12 +4,10 @@
 \alias{toolstartmessage}
 \title{Tool: Start message}
 \usage{
-toolstartmessage(functionName, argumentValues, level = NULL)
+toolstartmessage(functionCallString, level = NULL)
 }
 \arguments{
-\item{functionName}{The name of the calling function as a string.}
-
-\item{argumentValues}{A list of the evaluated arguments of the calling function.}
+\item{functionCallString}{A string representing the function call that should be logged}
 
 \item{level}{This argument allows to establish a hierarchy of print statements. The hierarchy is preserved for the
 next vcat executions. Currently this setting can have 4 states: NULL (nothing will be changed), 0 (reset
@@ -25,12 +23,12 @@ time, so the corresponding call to \code{\link{toolendmessage}} can calculate th
 \examples{
 
 innerFunction <- function() {
-  startinfo <- madrat:::toolstartmessage("innerFunction", list(argumentsToPrint = 123), "+")
+  startinfo <- madrat:::toolstartmessage("innerFunction(argumentsToPrint = 123)", "+")
   vcat(1, "inner")
   madrat:::toolendmessage(startinfo, "-")
 }
 outerFunction <- function() {
-  startinfo <- madrat:::toolstartmessage("outerFunction", list(), "+")
+  startinfo <- madrat:::toolstartmessage("outerFunction()", "+")
   vcat(1, "outer")
   innerFunction()
   madrat:::toolendmessage(startinfo, "-")

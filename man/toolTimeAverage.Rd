@@ -4,7 +4,7 @@
 \alias{toolTimeAverage}
 \title{toolTimeAverage}
 \usage{
-toolTimeAverage(x, averaging_range = NULL, cut = TRUE, annual = NULL)
+toolTimeAverage(x, averaging_range = NULL, cut = TRUE)
 }
 \arguments{
 \item{x}{magclass object that should be averaged with equidistant time steps}
@@ -13,8 +13,6 @@ toolTimeAverage(x, averaging_range = NULL, cut = TRUE, annual = NULL)
 
 \item{cut}{if TRUE, all time steps at the start and end that can not be averaged correctly, will be removed
 if FALSE, time steps at the start and end will be averaged with high weights for start and end points}
-
-\item{annual}{deprecated. Please don't use it!}
 }
 \value{
 the averaged data in magclass format

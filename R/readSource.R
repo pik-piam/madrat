@@ -56,8 +56,10 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   setWrapperActive("readSource")
   setWrapperInactive("wrapperChecks")
 
+  callString <- functionCallString("readSource", argumentValues)
+
   withr::local_dir(getConfig("mainfolder"))
-  startinfo <- toolstartmessage("readSource", argumentValues, "+")
+  startinfo <- toolstartmessage(callString, "+")
   withr::defer({
     toolendmessage(startinfo, "-")
   })
@@ -113,7 +115,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   }
 
   # get data either from cache or by calculating it from source
-  .getData <- function(type, subtype, subset, args, prefix) {
+  .getData <- function(type, subtype, subset, args, prefix, callString) {
     sourcefolder <- getSourceFolder(type, subtype)
 
     xList <- .getFromCache(prefix, type, args, subtype, subset)
@@ -129,7 +131,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       } else {
         upstreamPrefix <- "read"
       }
-      xList <- .getData(type, subtype, subset, args, upstreamPrefix)
+      xList <- .getData(type, subtype, subset, args, upstreamPrefix, callString)
       # this x is passed to correct or convert function
       x <- xList$x
     }
@@ -142,9 +144,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     # run the actual read/correct/convert function
     # if prefix is correct or convert the locally defined x is passed, so check it exists
     stopifnot(prefix == "read" || exists("x"))
-    withr::with_dir(sourcefolder, {
-      x <- withMadratLogging(eval(parse(text = functionname)))
-    })
+    withr::local_dir(sourcefolder)
+    x <- withMadratLogging(eval(parse(text = functionname)))
     setWrapperInactive("wrapperChecks")
 
     # ensure we are always working with a list with entries "x" and "class"
@@ -152,6 +153,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
 
     # set class to "magpie" if not set
     if (is.null(xList$class)) xList$class <- "magpie"
+
+    xList$package <- attr(functionname, "pkgcomment")
 
     # assert return list has the expected entries
     if (!all(c("class", "x") %in% names(xList))) {
@@ -169,6 +172,13 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       } else {
         vcat(2, "Non-magpie objects are not checked for ISO country level.")
       }
+    }
+
+    extendedComment <- prepExtendedComment(xList, type, callString, warn = FALSE)
+    if (xList$class == "magpie") {
+      getComment(xList$x) <- extendedComment
+    } else {
+      attr(xList$x, "comment") <- extendedComment
     }
 
     cachePut(xList, prefix = prefix, type = type, args = args)
@@ -245,7 +255,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
   }
 
-  xList <- .getData(type, subtype, subset, args, prefix)
+  xList <- .getData(type, subtype, subset, args, prefix, callString)
   if (magclass::is.magpie(xList$x)) {
     xList$x <- clean_magpie(xList$x)
   }

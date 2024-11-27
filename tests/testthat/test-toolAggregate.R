@@ -229,3 +229,10 @@ test_that("columns with only zeros in weight produce a warning", {
   expect_silent(setNA <- toolAggregate(pm, rel, weight = weight, zeroWeight = "setNA"))
   expect_true(all(is.na(setNA)))
 })
+
+test_that("trivial renaming works with weight", {
+  mapping <- data.frame(a = c("A2", "B1"), b = c("C", "D"))
+  weight <- pm
+  getItems(weight, 3) <- c("C", "D")
+  expect_silent(toolAggregate(pm, mapping, from = "a", to = "b", dim = 3, weight = weight))
+})
