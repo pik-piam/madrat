@@ -49,7 +49,7 @@
 #' }
 #'
 #' @export
-readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_linter
+readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_linter.
                        convert = TRUE, supplementary = FALSE) {
   argumentValues <- as.list(environment())  # capture arguments for logging
 

@@ -15,7 +15,7 @@
 #' @seealso \code{\link[base]{order}}
 #' @author Pascal Sauer
 robustOrder <- function(...,
-                        na.last = TRUE, # nolint: object_name_linter
+                        na.last = TRUE, # nolint: object_name_linter.
                         decreasing = FALSE, method = "radix") {
   args <- list(...)
   if (any(lapply(args, length) == 0)) {

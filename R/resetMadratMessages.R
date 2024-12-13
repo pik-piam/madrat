@@ -34,5 +34,5 @@ resetMadratMessages <- function(name = NULL, fname = NULL) {
     madratMessage[[name]][[fname]] <- NULL
   }
   if (length(madratMessage) == 0) madratMessage <- NULL
-  options(madratMessage = madratMessage) # nolint: undesirable_function_linter
+  options(madratMessage = madratMessage) # nolint: undesirable_function_linter.
 }
