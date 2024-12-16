@@ -9,7 +9,7 @@ prepFunctionName(type, prefix = "calc", ignore = NULL, error_on_missing = TRUE)
 \arguments{
 \item{type}{name of calculation/source}
 
-\item{prefix}{Type of calculations. Available options are "download" (source download), 
+\item{prefix}{Type of calculations. Available options are "download" (source download),
 "read" (source read), "correct" (source corrections), "convert" (source conversion to ISO countries),
 "calc" (further calculations), and "full" (collections of calculations)}
 
@@ -25,9 +25,9 @@ Function to prepare a function call for a given type and prefix
 }
 \examples{
 
-print(madrat:::prepFunctionName("Tau","read"))
-print(madrat:::prepFunctionName("TauTotal","calc"))
-print(madrat:::prepFunctionName("EXAMPLE","full"))
+print(madrat:::prepFunctionName("Tau", "read"))
+print(madrat:::prepFunctionName("TauTotal", "calc"))
+print(madrat:::prepFunctionName("EXAMPLE", "full"))
 }
 \seealso{
 \code{\link{readSource}}, \code{\link{setConfig}}

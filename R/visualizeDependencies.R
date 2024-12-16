@@ -20,7 +20,7 @@
 #' @export
 
 
-visualizeDependencies <- function(..., direction = "both", order = 2, filter = NULL, # nolint: cyclocomp_linter
+visualizeDependencies <- function(..., direction = "both", order = 2, filter = NULL, # nolint: cyclocomp_linter.
                                   packages = getConfig("packages"), filename = NULL) {
   # check for required packages
   if (!requireNamespace("graphics", quietly = TRUE)) {

@@ -39,6 +39,6 @@ putMadratMessage <- function(name, value, fname = -1, add = FALSE) {
     for (n in name) {
       madratMessage[[name]][[fname]] <- if (add) c(madratMessage[[name]][[fname]], value) else value
     }
-    options(madratMessage = madratMessage) # nolint: undesirable_function_linter
+    options(madratMessage = madratMessage) # nolint: undesirable_function_linter.
   }
 }
