@@ -1,7 +1,8 @@
 test_that("redirectSource writes to config as intended", {
   withr::local_dir(withr::local_tempdir())
 
-  expect_error(redirectSource("foo", target = "foo2"), "No such file or directory|cannot find the file")
+  expect_error(redirectSource("foo", target = "foo2"),
+               "No such file or directory|cannot find the file|Datei nicht finden")
   dir.create("foo2")
   dir.create("foo3")
   dir.create("example2")
@@ -70,11 +71,9 @@ test_that("redirectSource symlinks other files", {
   redirectSource("Example", target = target)
   expect_identical(as.vector(readSource("Example")), 456789)
   redirectSource("Example", target = target, linkOthers = FALSE)
-  expect_error({
-    expect_warning({
-      readSource("Example")
-    }, "cannot open file 'Example2.txt': No such file or directory", fixed = TRUE)
-  }, "cannot open the connection")
+  expect_error(expect_warning(readSource("Example"),
+                              "cannot open file 'Example2.txt': No such file or directory",
+                              fixed = TRUE), "cannot open the connection")
 })
 
 test_that("scope for redirectSource can be set", {
