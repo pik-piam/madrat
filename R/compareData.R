@@ -51,6 +51,17 @@ compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
     return(equal)
   }
 
+  .rmag <- function(f, yearLim) {
+    x <- try(read.magpie(f), silent = TRUE)
+    if (!is.magpie(x)) {
+      return(NULL)
+    } else {
+      if (!is.null(yearLim)) x <- x[, getYears(x, as.integer = TRUE) <= yearLim, ]
+    }
+    attr(x, "comment") <- NULL
+    return(x)
+  }
+
   i <- 1
   for (f in out$files$inBoth) {
     counter <- format(paste0("(", i, "/", length(out$files$inBoth), ") "), width = 10)
@@ -81,15 +92,4 @@ compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
     }
   }
   message("[OK ", out$ok, " | DIFF ", out$diff, " | SKIP ", out$skip, " | MISS ", out$miss, "]")
-}
-
-.rmag <- function(f, yearLim) {
-  x <- try(read.magpie(f), silent = TRUE)
-  if (!is.magpie(x)) {
-    return(NULL)
-  } else {
-    if (!is.null(yearLim)) x <- x[, getYears(x, as.integer = TRUE) <= yearLim, ]
-  }
-  attr(x, "comment") <- NULL
-  return(x)
 }
