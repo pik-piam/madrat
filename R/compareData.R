@@ -14,7 +14,8 @@
 #' @importFrom withr local_tempdir
 #' @export
 
-compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
+compareData <- function(x, y, tolerance = 10^-5, # nolint: cyclocomp_linter
+                        yearLim = NULL) {
   tDir <- local_tempdir()
 
   .getDir <- function(tDir, file, name) {
