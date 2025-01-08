@@ -14,7 +14,8 @@
 #' @importFrom withr local_tempdir
 #' @export
 
-compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
+compareData <- function(x, y, tolerance = 10^-5, # nolint: cyclocomp_linter
+                        yearLim = NULL) {
   tDir <- local_tempdir()
 
   .getDir <- function(tDir, file, name) {
@@ -51,45 +52,65 @@ compareData <- function(x, y, tolerance = 10^-5, yearLim = NULL) {
     return(equal)
   }
 
+  .rmag <- function(f, yearLim) {
+    x <- try(read.magpie(f), silent = TRUE)
+    if (!is.magpie(x)) {
+      return(NULL)
+    } else {
+      if (!is.null(yearLim)) x <- x[, getYears(x, as.integer = TRUE) <= yearLim, ]
+    }
+    attr(x, "comment") <- NULL
+    return(x)
+  }
+
+  .hashFile <- function(f) {
+    x <- system(paste("test -f", f, "&& grep -v '^\\*'", f, "| md5sum"),
+                intern = TRUE)
+
+    if (is.null(attr(x, "status"))) x else NULL
+  }
+
   i <- 1
   for (f in out$files$inBoth) {
     counter <- format(paste0("(", i, "/", length(out$files$inBoth), ") "), width = 10)
     message(counter, format(f, width = maxchar), " ... ", appendLF = FALSE)
     i <- i + 1
-    x <- .rmag(file.path(xDir, f), yearLim)
-    y <- .rmag(file.path(yDir, f), yearLim)
-    if (is.null(x) && is.null(y)) {
-      message("skipped")
-      out$skip <- out$skip + 1
+
+    xFile <- file.path(xDir, f)
+    yFile <- file.path(yDir, f)
+
+    if (all(Sys.which(c("test", "grep", "md5sum")) != "")
+        && .hashFile(xFile) == .hashFile(yFile)) {
+      # checking hashes of all but the file header is much faster then checking
+      # all the data
+      message("OK")
+      out$ok <- out$ok + 1
     } else {
-      if (!identical(dim(x), dim(y))) {
-        message("!= dim")
-        out$diff <- out$diff + 1
-      } else if (!.dimEqual(x, y)) {
-        message("!= dimnames")
-        out$diff <- out$diff + 1
+      x <- .rmag(xFile, yearLim)
+      y <- .rmag(yFile, yearLim)
+      if (is.null(x) && is.null(y)) {
+        message("skipped")
+        out$skip <- out$skip + 1
       } else {
-        diff <- max(abs(x - y), na.rm = TRUE)
-        if (!identical(x, y) && diff > tolerance) {
-          message("!= values (max diff = ", round(diff, 8), ")")
+        if (!identical(dim(x), dim(y))) {
+          message("!= dim")
+          out$diff <- out$diff + 1
+        } else if (!.dimEqual(x, y)) {
+          message("!= dimnames")
           out$diff <- out$diff + 1
         } else {
-          message("OK")
-          out$ok <- out$ok + 1
+          diff <- max(abs(x - y), na.rm = TRUE)
+          if (!identical(x, y) && diff > tolerance) {
+            message("!= values (max diff = ", round(diff, 8), ")")
+            out$diff <- out$diff + 1
+          } else {
+            message("OK")
+            out$ok <- out$ok + 1
+          }
         }
       }
     }
   }
-  message("[OK ", out$ok, " | DIFF ", out$diff, " | SKIP ", out$skip, " | MISS ", out$miss, "]")
-}
 
-.rmag <- function(f, yearLim) {
-  x <- try(read.magpie(f), silent = TRUE)
-  if (!is.magpie(x)) {
-    return(NULL)
-  } else {
-    if (!is.null(yearLim)) x <- x[, getYears(x, as.integer = TRUE) <= yearLim, ]
-  }
-  attr(x, "comment") <- NULL
-  return(x)
+  message("[OK ", out$ok, " | DIFF ", out$diff, " | SKIP ", out$skip, " | MISS ", out$miss, "]")
 }
