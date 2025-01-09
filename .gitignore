@@ -27,3 +27,4 @@ vignettes/*.pdf
 inst/doc
 # jetbrains project files
 .idea/
+madrat.Rproj
