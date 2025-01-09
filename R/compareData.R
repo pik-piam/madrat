@@ -80,7 +80,7 @@ compareData <- function(x, y, tolerance = 10^-5, # nolint: cyclocomp_linter
     yFile <- file.path(yDir, f)
 
     if (all(Sys.which(c("test", "grep", "md5sum")) != "")
-        && .hashFile(xFile) == .hashFile(yFile)) {
+        && identical(.hashFile(xFile), .hashFile(yFile))) {
       # checking hashes of all but the file header is much faster then checking
       # all the data
       message("OK")
