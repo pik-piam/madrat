@@ -4,6 +4,9 @@
 #' The redirection is local by default, so it will be reset when the current
 #' function call returns. See example for more details.
 #'
+#' Redirecting only specific subtypes is not supported to avoid tricky cases
+#' where the subtype is ignored (search for "getSourceFolder\(.*subtype = NULL\)").
+#'
 #' @param type Dataset name, e.g. "Tau" to set the source folder that \code{\link{readTau}} will use
 #' @param target Either path to the new source folder that should be used instead of the default,
 #' or NULL to remove the redirection, or a vector of paths to files which are then symlinked
@@ -30,14 +33,8 @@
 #' readSource("Tau")
 #' }
 redirect <- function(type, target, linkOthers = TRUE, local = TRUE) {
-  # Redirecting only specific subtypes is not supported to avoid tricky cases
-  # where the subtype is ignored (search for "getSourceFolder\(.*subtype = NULL\)").
-  if (is.environment(local)) {
-    localEnvir <- local
-  } else if (local) {
-    localEnvir <- parent.frame()
-  } else {
-    localEnvir <- FALSE
+  if (isTRUE(local)) {
+    local <- parent.frame()
   }
 
   if (!is.null(target)) {
@@ -45,7 +42,7 @@ redirect <- function(type, target, linkOthers = TRUE, local = TRUE) {
     target <- normalizePath(target, mustWork = TRUE)
     names(target) <- preservedNames
     if (length(target) >= 2 || !dir.exists(target)) {
-      target <- redirectFiles(type, target, linkOthers, localEnvir)
+      target <- redirectFiles(type, target, linkOthers, local)
     }
 
     # paths inside the source folder use the fileHashCache system, see getHashCacheName,
@@ -55,17 +52,18 @@ redirect <- function(type, target, linkOthers = TRUE, local = TRUE) {
 
   redirections <- getConfig("redirections")
   redirections[[type]] <- target
-  setConfig(redirections = redirections, .local = localEnvir)
+  setConfig(redirections = redirections, .local = local)
   return(invisible(target))
 }
 
-redirectFiles <- function(type, target, linkOthers, localEnvir) {
+redirectFiles <- function(type, target, linkOthers, local) {
   link <- getLinkFunction()
   # redirect to files
-  if (isFALSE(localEnvir)) {
-    tempDir <- tempdir()
+  if (isFALSE(local)) {
+    tempDir <- tempfile()
+    dir.create(tempDir)
   } else {
-    tempDir <- withr::local_tempdir(.local_envir = localEnvir)
+    tempDir <- withr::local_tempdir(.local_envir = local)
   }
   if (is.null(names(target))) {
     names(target) <- basename(target)

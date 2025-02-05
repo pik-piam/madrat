@@ -21,12 +21,8 @@
 #' }
 #' @export
 redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
-  if (is.environment(local)) {
-    localEnvir <- local
-  } else if (local) {
-    localEnvir <- parent.frame()
-  } else {
-    localEnvir <- FALSE
+  if (isTRUE(local)) {
+    local <- parent.frame()
   }
 
   specificRedirect <- get0(paste0("redirect", type), mode = "function")
@@ -34,8 +30,8 @@ redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
     if (...length() > 0) {
       warning("redirectSource calls madrat::redirect, so additional arguments are ignored.")
     }
-    return(redirect(type = type, target = target, linkOthers = linkOthers, local = localEnvir))
+    return(redirect(type = type, target = target, linkOthers = linkOthers, local = local))
   } else {
-    return(specificRedirect(target = target, ..., linkOthers = linkOthers, local = localEnvir))
+    return(specificRedirect(target = target, ..., linkOthers = linkOthers, local = local))
   }
 }
