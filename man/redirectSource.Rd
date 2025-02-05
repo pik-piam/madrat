@@ -7,17 +7,22 @@
 redirectSource(type, target, ..., linkOthers = TRUE, local = TRUE)
 }
 \arguments{
-\item{type}{The source dataset type. Passed on to the specific redirect
-function or \code{\link{redirect}}.}
+\item{type}{Dataset name, e.g. "Tau" to set the source folder that \code{\link{readTau}} will use}
 
-\item{target}{The target folder or files. Passed on to the specific redirect
-function or \code{\link{redirect}}.}
+\item{target}{Either path to the new source folder that should be used instead of the default,
+or NULL to remove the redirection, or a vector of paths to files which are then symlinked
+into a temporary folder that is then used as target folder; if the vector is named the names
+are used as relative paths in the temporary folder, e.g. target = c(`a/b/c.txt` = "~/d/e/f.txt")
+would create a temporary folder with subfolders a/b and there symlink c.txt to ~/d/e/f.txt.}
 
 \item{...}{Additional arguments, passed on to the specific redirect function.}
 
-\item{linkOthers}{Passed on to the specific redirect function or \code{\link{redirect}}.}
+\item{linkOthers}{If target is a list of files, whether to symlink all other files in the original
+source folder to the temporary folder.}
 
-\item{local}{Passed on to the specific redirect function or \code{\link{redirect}}.}
+\item{local}{If TRUE the redirection is only temporary and will be reset
+when the function which calls redirect is finished. Set to FALSE for a
+permanent/global redirection or to an environment for more control.}
 }
 \value{
 The result of the specific redirect function or \code{\link{redirect}}.
@@ -26,6 +31,20 @@ The result of the specific redirect function or \code{\link{redirect}}.
 redirectSource will call a source specific redirect function if it exists
 (called e.g. redirectTau), in which case the arguments are passed on to that
 function. If such a function is not available \code{\link{redirect}} is called.
+}
+\examples{
+\dontrun{
+f <- function() {
+  redirectSource("Tau", target = "~/TauExperiment")
+  # the following call will change directory
+  # into ~/TauExperiment instead of <getConfig("sourcefolder")>/Tau
+  readSource("Tau")
+}
+f()
+# Tau is only redirected in the local environment of f,
+# so it will use the usual source folder here
+readSource("Tau")
+}
 }
 \author{
 Pascal Sauer

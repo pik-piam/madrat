@@ -28,6 +28,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Pascal Sauer \email{pascal.sauer@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Lavinia Baumstark \email{lavinia@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Stephen Wirth \email{wirth@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Anastasis Giannousakis \email{giannou@pik-potsdam.de}
@@ -36,7 +37,6 @@ Authors:
   \item Debbora Leip \email{leip@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Ulrich Kreidenweis \email{kreidenweis@pik-potsdam.de}
   \item David Klein \email{dklein@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
-  \item Pascal Sauer \email{pascal.sauer@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
 }
 
 }
