@@ -1,19 +1,20 @@
 #' redirect
 #'
 #' Redirect a given dataset type to a different source folder.
-#' The redirection is local, so it will be reset when the current function call returns. See
-#' example for more details.
+#' The redirection is local by default, so it will be reset when the current
+#' function call returns. See example for more details.
 #'
-#' @param type Dataset name, e.g. "Tau" for \code{\link{readTau}}
+#' @param type Dataset name, e.g. "Tau" to set the source folder that \code{\link{readTau}} will use
 #' @param target Either path to the new source folder that should be used instead of the default,
 #' or NULL to remove the redirection, or a vector of paths to files which are then symlinked
 #' into a temporary folder that is then used as target folder; if the vector is named the names
 #' are used as relative paths in the temporary folder, e.g. target = c(`a/b/c.txt` = "~/d/e/f.txt")
 #' would create a temporary folder with subfolders a/b and there symlink c.txt to ~/d/e/f.txt.
-#' @param local The scope of the redirection, passed on to setConfig. Defaults to the current function.
-#' Set to an environment for more control or to FALSE for a permanent/global redirection.
 #' @param linkOthers If target is a list of files, whether to symlink all other files in the original
 #' source folder to the temporary folder.
+#' @param local If TRUE the redirection is only temporary and will be reset
+#' when the function which calls redirect is finished. Set to FALSE for a
+#' permanent/global redirection or to an environment for more control.
 #' @return Invisibly, the source folder that is now used for the given type
 #' @author Pascal Sauer
 #' @examples \dontrun{
@@ -36,7 +37,7 @@ redirect <- function(type, target, linkOthers = TRUE, local = TRUE) {
   } else if (local) {
     localEnvir <- parent.frame()
   } else {
-    localEnvir <- globalenv()
+    localEnvir <- FALSE
   }
 
   if (!is.null(target)) {
@@ -61,7 +62,11 @@ redirect <- function(type, target, linkOthers = TRUE, local = TRUE) {
 redirectFiles <- function(type, target, linkOthers, localEnvir) {
   link <- getLinkFunction()
   # redirect to files
-  tempDir <- withr::local_tempdir(.local_envir = localEnvir)
+  if (isFALSE(localEnvir)) {
+    tempDir <- tempdir()
+  } else {
+    tempDir <- withr::local_tempdir(.local_envir = localEnvir)
+  }
   if (is.null(names(target))) {
     names(target) <- basename(target)
   } else {

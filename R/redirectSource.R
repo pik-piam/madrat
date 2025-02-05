@@ -3,15 +3,22 @@
 #' redirectSource will call a source specific redirect function if it exists
 #' (called e.g. redirectTau), in which case the arguments are passed on to that
 #' function. If such a function is not available \code{\link{redirect}} is called.
-#' @param type The source dataset type. Passed on to the specific redirect
-#' function or \code{\link{redirect}}.
-#' @param target The target folder or files. Passed on to the specific redirect
-#' function or \code{\link{redirect}}.
 #' @param ... Additional arguments, passed on to the specific redirect function.
-#' @param linkOthers Passed on to the specific redirect function or \code{\link{redirect}}.
-#' @param local Passed on to the specific redirect function or \code{\link{redirect}}.
+#' @inheritParams redirect
 #' @return The result of the specific redirect function or \code{\link{redirect}}.
 #' @author Pascal Sauer
+#' @examples \dontrun{
+#' f <- function() {
+#'   redirectSource("Tau", target = "~/TauExperiment")
+#'   # the following call will change directory
+#'   # into ~/TauExperiment instead of <getConfig("sourcefolder")>/Tau
+#'   readSource("Tau")
+#' }
+#' f()
+#' # Tau is only redirected in the local environment of f,
+#' # so it will use the usual source folder here
+#' readSource("Tau")
+#' }
 #' @export
 redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
   if (is.environment(local)) {
@@ -19,7 +26,7 @@ redirectSource <- function(type, target, ..., linkOthers = TRUE, local = TRUE) {
   } else if (local) {
     localEnvir <- parent.frame()
   } else {
-    localEnvir <- globalenv()
+    localEnvir <- FALSE
   }
 
   specificRedirect <- get0(paste0("redirect", type), mode = "function")
