@@ -2,8 +2,8 @@ cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata from this file.
 type: software
 title: 'madrat: May All Data be Reproducible and Transparent (MADRaT) *'
-version: 3.16.1
-date-released: '2025-01-09'
+version: 3.16.2
+date-released: '2025-02-05'
 abstract: Provides a framework which should improve reproducibility and transparency
   in data processing. It provides functionality such as automatic meta data creation
   and management, rudimentary quality management, data caching, work-flow management
@@ -15,6 +15,10 @@ authors:
   given-names: Jan Philipp
   email: dietrich@pik-potsdam.de
   orcid: https://orcid.org/0000-0002-4309-6431
+  affiliation: Potsdam Institute for Climate Impact Research
+- family-names: Sauer
+  given-names: Pascal
+  email: pascal.sauer@pik-potsdam.de
   affiliation: Potsdam Institute for Climate Impact Research
 - family-names: Baumstark
   given-names: Lavinia
@@ -45,10 +49,6 @@ authors:
 - family-names: Klein
   given-names: David
   email: dklein@pik-potsdam.de
-  affiliation: Potsdam Institute for Climate Impact Research
-- family-names: Sauer
-  given-names: Pascal
-  email: pascal.sauer@pik-potsdam.de
   affiliation: Potsdam Institute for Climate Impact Research
 license: BSD-2-Clause
 keywords:

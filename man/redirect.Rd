@@ -30,6 +30,10 @@ Redirect a given dataset type to a different source folder.
 The redirection is local by default, so it will be reset when the current
 function call returns. See example for more details.
 }
+\details{
+Redirecting only specific subtypes is not supported to avoid tricky cases
+where the subtype is ignored (search for "getSourceFolder\(.*subtype = NULL\)").
+}
 \examples{
 \dontrun{
 f <- function() {
