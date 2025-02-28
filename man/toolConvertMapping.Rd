@@ -7,7 +7,7 @@
 toolConvertMapping(name, format = "rds", type = NULL, where = "mappingfolder")
 }
 \arguments{
-\item{name}{File name of the mapping file. Supported file types are currently csv (, or ; separated), rds 
+\item{name}{File name of the mapping file. Supported file types are currently csv (, or ; separated), rds
 and rda (which needs to have the data stored with the object name "data"!).}
 
 \item{format}{format it should be converted to. Available is "csv", "rds" or "rda".}

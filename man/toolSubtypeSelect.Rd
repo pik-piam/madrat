@@ -23,10 +23,10 @@ consistency checks.
 }
 \examples{
 
-files <-  c(protection="protection.csv",
-              production="production.csv",
-              extent="forest_extent.csv")
-toolSubtypeSelect("extent",files)
+files <-  c(protection = "protection.csv",
+              production = "production.csv",
+              extent = "forest_extent.csv")
+toolSubtypeSelect("extent", files)
 
 }
 \seealso{

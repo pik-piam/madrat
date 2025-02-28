@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("toolCountryFill works as expected", {
   x <- new.magpie("DEU", 1994, "bla", 0)
   expect_message(y <- toolCountryFill(x, 99), "toolCountryFill set missing values for IMPORTANT")

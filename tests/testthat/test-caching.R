@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("Caching works", {
   calcCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-"))
   calcNoCacheExample <- function() return(list(x = as.magpie(1), description = "-", unit = "-", cache = FALSE))

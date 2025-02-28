@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("Country-to-ISO mapping works", {
   expect_equal(toolCountry2isocode("Germany"), "DEU")
   expect_equal(toolCountry2isocode(c("France", "Fantasyland"), mapping = c("Fantasyland" = "BLA")),

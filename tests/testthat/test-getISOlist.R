@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("getISOlist works", {
   expect_equal(length(getISOlist()), 249)
   expect_mapequal(c(getISOlist("important"), getISOlist("dispensable")), getISOlist())

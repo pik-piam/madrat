@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("getMadratGraph works", {
   calcTest1 <- function() return(1)
   calcTest2 <- function() return(calcOutput("Test1"))

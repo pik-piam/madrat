@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' @title toolFillYears
 #' @description Inter- and extrapolates a historical dataset for a given time period.
 #'
@@ -25,7 +28,7 @@ toolFillYears <- function(x, years) {
   interpolateYears          <- intersect(interpolateYears, years)
 
   out[, interpolateYears, ] <- time_interpolate(x, interpolateYears,
-                                                  integrate_interpolated_years = TRUE)[, interpolateYears, ]
+                                                integrate_interpolated_years = TRUE)[, interpolateYears, ]
 
   # Hold constant before and after contained years, if requested by argument years
   missingyears               <- setdiff(years, interpolateYears)

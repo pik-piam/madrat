@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("Historic data is properly translated", {
   localConfig(.verbose = FALSE)
   newcountries <- c("ARM", "AZE", "BLR", "EST", "GEO", "KAZ", "KGZ",
