@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("toolSplitSubtype works as expected", {
   ref <- list(model = c("mymodel", "notmymodel"), version = c("myversion", "42"), world = "myworld")
   expect_identical(toolSplitSubtype("mymodel:myversion:myworld", ref),

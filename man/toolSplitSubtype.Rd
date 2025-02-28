@@ -19,13 +19,13 @@ of that given entity. If all values are allowed use NULL as entry.}
 A named list with the different entities of the given subtype
 }
 \description{
-This function can split a subtype string into smaller entities based on 
+This function can split a subtype string into smaller entities based on
 a given separator and check whether these entities exist in a reference list
 }
 \examples{
-toolSplitSubtype("mymodel:myversion:myworld", list(model=c("mymodel","notmymodel"), 
-                                                   version=c("myversion","42"), 
-                                                   world="myworld"))
+toolSplitSubtype("mymodel:myversion:myworld", list(model = c("mymodel", "notmymodel"),
+                                                   version = c("myversion", "42"),
+                                                   world = "myworld"))
 
 }
 \author{

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("metadata can be extracted from GFZ dataservice", {
   skip_on_cran()
   skip_if_offline("doi.org")

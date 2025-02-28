@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' addMapping
 #'
 #' Function whichs adds another mapping to the current list of extramappings
@@ -20,34 +23,34 @@
 #' @export
 addMapping <- function(filename, mapping = NULL) {
 
- setWrapperInactive("wrapperChecks")
+  setWrapperInactive("wrapperChecks")
 
- if (!is.character(filename)) {
-   stop("Provided filename is not a character!")
- }
+  if (!is.character(filename)) {
+    stop("Provided filename is not a character!")
+  }
 
- if (is.null(mapping)) {
-   mapping <- toolGetMapping(filename, type = "regional")
- } else if (!is.data.frame(mapping)) {
-   stop("Cannot handle this mapping format!")
- }
+  if (is.null(mapping)) {
+    mapping <- toolGetMapping(filename, type = "regional")
+  } else if (!is.data.frame(mapping)) {
+    stop("Cannot handle this mapping format!")
+  }
 
- fnames <- c(file.path(getConfig("mappingfolder"), "regional", filename),
-             file.path(getConfig("outputfolder"), filename))
+  fnames <- c(file.path(getConfig("mappingfolder"), "regional", filename),
+              file.path(getConfig("outputfolder"), filename))
 
- filetype <- tolower(file_ext(filename))
+  filetype <- tolower(file_ext(filename))
 
- for (fname in fnames) {
-   d <- dirname(fname)
-   if (!dir.exists(d)) dir.create(d, recursive = TRUE)
-   if (filetype == "csv") {
-     write.table(mapping, fname, sep = ";", quote = FALSE)
-   } else if (filetype == "rds") {
-     saveRDS(mapping, fname, compress = "xz")
-   } else {
-     stop("Unsupported filetype \"", filetype, "\"")
-   }
- }
- setConfig(extramappings = unique(c(getConfig("extramappings"), filename)), .local = parent.frame())
+  for (fname in fnames) {
+    d <- dirname(fname)
+    if (!dir.exists(d)) dir.create(d, recursive = TRUE)
+    if (filetype == "csv") {
+      write.table(mapping, fname, sep = ";", quote = FALSE)
+    } else if (filetype == "rds") {
+      saveRDS(mapping, fname, compress = "xz")
+    } else {
+      stop("Unsupported filetype \"", filetype, "\"")
+    }
+  }
+  setConfig(extramappings = unique(c(getConfig("extramappings"), filename)), .local = parent.frame())
 
 }

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' Tool: Start message
 #'
 #' This function writes a process start message (what function was called with which arguments) and stores the current

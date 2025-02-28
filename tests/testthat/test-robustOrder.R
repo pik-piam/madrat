@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("robustOrder sorts locale independent", {
   x <- c("a", "b", "C")
   withr::local_locale(LC_COLLATE = "C")
@@ -18,6 +21,8 @@ test_that("robustOrder sorts locale independent", {
 })
 
 test_that("robustOrder can deal with non-UTF-8 strings", {
+  # the following makes the linter throw a warning about invalid UTF-8,
+  # so temporarily remove this code block when linting this file
   x <- c("2Mor\xe9e et al_2013.pdf", "1Mor\xe9e et al_2013.pdf")
   expect_error(order(x, method = "radix"), "Character encoding must be UTF-8, Latin-1 or bytes")
   expect_equal(robustOrder(x), c(2, 1))

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 # set madrat mainfolder and options before running tests, cleanup after all tests are finished
 
 previousMadratConfig <- getOption("madrat_cfg")

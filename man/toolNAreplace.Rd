@@ -11,8 +11,8 @@ toolNAreplace(x, weight = NULL, replaceby = 0, val.rm = NULL)
 
 \item{weight}{aggregation weight}
 
-\item{replaceby}{value which should be used instead of NA. Either a single 
-value or a MAgPIE object which can be expanded to the size of x (either same 
+\item{replaceby}{value which should be used instead of NA. Either a single
+value or a MAgPIE object which can be expanded to the size of x (either same
 size or with lower dimensionality).}
 
 \item{val.rm}{vector of values that should in addition be removed in x}

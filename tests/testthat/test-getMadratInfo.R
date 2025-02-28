@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("getMadratInfo works without error", {
   localConfig(globalenv = FALSE, .verbose = FALSE)
   expect_message(a <- getMadratInfo(packages = "madrat", cutoff = -1, extended = TRUE), "passed")
@@ -25,7 +28,8 @@ test_that("getMadratInfo properly detects problems", {
   }
   globalassign("calcBla2")
   expect_warning(a <- getMadratInfo(packages = "madrat"),
-      "Following functions could not be found in the scope of packages to be checked.: .* calcUnknownType->calcBla2")
+                 paste0("Following functions could not be found in the scope ",
+                        "of packages to be checked.: .* calcUnknownType->calcBla2"))
 })
 
 

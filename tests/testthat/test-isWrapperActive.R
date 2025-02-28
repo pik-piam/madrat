@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
 
 test_that("wrapper activity setting and detection works", {
 

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("vcat can handle lists", {
   expect_warning(vcat(0, list(a = 3, b = "blub")), "3blub")
 })

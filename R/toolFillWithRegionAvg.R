@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' Tool: FillWithRegionAvg
 #'
 #' This function fills missing values for countries with the (weighted) average
@@ -124,7 +127,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
             paste(names(aboveThreshold$warning), collapse = ", "))
   } else if (length(aboveThreshold$note) > 0) {
     message("More than ", 100 * noteThreshold, "% missing values for: ",
-         paste(names(aboveThreshold$note), collapse = ", "))
+            paste(names(aboveThreshold$note), collapse = ", "))
   }
 
   return(xNew)

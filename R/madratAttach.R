@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' madratAttach / madratDetach
 #'
 #' Attaches the madrat functions of a package to the currently active madrat

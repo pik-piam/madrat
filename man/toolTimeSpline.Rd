@@ -9,7 +9,7 @@ toolTimeSpline(x, dof = NULL)
 \arguments{
 \item{x}{magclass object that should be smoothed via a spline approximation}
 
-\item{dof}{degrees of freedom per 100 years (similiar to an average range), is a proxy for the smoothness of the 
+\item{dof}{degrees of freedom per 100 years (similiar to an average range), is a proxy for the smoothness of the
 spline (smaller values = smoother)}
 }
 \value{

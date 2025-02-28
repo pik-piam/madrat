@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
 
 #' @title madlapply
 #'
@@ -5,6 +7,6 @@
 #' @param ... placeholder
 #' @author Jan Philipp Dietrich
 #' @export
-madlapply <- function(...){
+madlapply <- function(...) {
   .Defunct("future.apply::future_lapply")
 }

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' @importFrom utils download.file unzip
 downloadTau <- function(subtype = "paper") {
   # Define subtype-specific elements of the meta data. Elements that are common to all subtypes are added further down.

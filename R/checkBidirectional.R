@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 .checkBidirectional <- function(graph, details = FALSE, cutoff = 1000) {
   pkgdeps <- unique(graph[c("from_package", "to_package")])
   pkgdeps <- pkgdeps[pkgdeps$from_package != pkgdeps$to_package & pkgdeps$from_package != "UNKNOWN", ]
@@ -24,7 +27,7 @@
         }
         message("[warning]     ", paste0(hintsShort, collapse = "\n[warning]     "))
       }
-      if (nrow(tmp) < 5 & nrow(tmp) > 0) {
+      if (nrow(tmp) < 5 && nrow(tmp) > 0) {
         hints <- paste0(hints, paste0(tmp$from, "->", tmp$to, collapse = ", "), collapse = ", ")
       }
       warning("Bidirectional package dependencies detected: ",
