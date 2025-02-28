@@ -9,15 +9,13 @@
 ^\.git$
 ^\.pre-commit-config\.yaml$
 ^workflow$
-^\.lintr$
-^tests/\.lintr$
-^vignettes/\.lintr$
 ^\.vscode$
 ^\.idea$
 ^Makefile$
-^.*CITATION\.cff$
+^.*CITATION.cff$
 ^CRAN-SUBMISSION$
 ^REUSE\.toml$
 ^.lintr$
 ^tests/.lintr$
 ^vignettes/.lintr$
+^LICENSES$
