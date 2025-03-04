@@ -30,7 +30,7 @@
 #' if the convert argument is set to TRUE, should be on ISO code country level.
 #' @author Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Sauer
 #' @seealso \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
-#' #' @note The underlying read-functions can return a magpie object or a list of information
+#' @note The underlying read-functions can return a magpie object or a list of information
 #' (preferred) back to \code{readSource}. In list format the object should have the following
 #' structure:
 #' \itemize{
