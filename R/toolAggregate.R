@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' toolAggregate
 #'
 #' (Dis-)aggregates a magclass object from one resolution to another based on a

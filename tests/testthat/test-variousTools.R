@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("toolFillYears works", {
   p <- magclass::maxample("pop")[1, , 1]
   expected <- new("magpie",

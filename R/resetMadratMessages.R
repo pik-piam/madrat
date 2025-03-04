@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' resetMadratMessages
 #'
 #' Delete stored madrat messages from the madrat environment. The madrat environment

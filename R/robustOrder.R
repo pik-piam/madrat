@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' robustOrder, robustSort
 #'
 #' robustOrder: A wrapper around base::order that always uses the locale independent method = "radix". If the

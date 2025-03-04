@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' Tool: ManualDownload
 #'
 #' Support tool for the creation of download functions in cases where a fully automated data download is not
@@ -28,7 +31,7 @@ toolManualDownload <- function(instructions, intro = "Data must be downloaded ma
   }
   msg <- function(...) vcat(1, ..., show_prefix = FALSE)
   if (!is.null(intro)) msg(intro)
-  for(m in paste0(seq_along(instructions), ". ", instructions)) {
+  for (m in paste0(seq_along(instructions), ". ", instructions)) {
     msg(m)
   }
   msg(request)

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 log <- c('Run calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")',
          '> Run readSource("Tau", source)',
          '> Exit readSource("Tau", source) in 5.15 seconds',

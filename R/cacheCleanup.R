@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' cacheCleanup
 #'
 #' Delete files older than the specified number of days, based on file time metadata (per default atime = last access

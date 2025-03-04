@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' cacheCopy
 #'
 #' Copy cache files which were used for a given preprocessing.
@@ -8,7 +11,7 @@
 #' @return A vector of cache files which match the given log information and filter.
 #' @author Jan Philipp Dietrich
 #' @export
-cacheCopy <- function(file, target=NULL, filter=NULL) {
+cacheCopy <- function(file, target = NULL, filter = NULL) {
   if (length(file) > 1 || any(grepl("\n", file))) {
     f <- unlist(strsplit(file, "\n"))
   } else {

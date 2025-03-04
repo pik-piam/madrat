@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 p <- magclass::maxample("pop")
 
 test_that("Fill with regional average works as expected", {
@@ -9,8 +12,9 @@ test_that("Fill with regional average works as expected", {
   expect_equal(as.vector(xfilled["C", 2005, 1]), 11 / 2)
   expect_true(all(!is.na(xfilled)))
   ref <- new("magpie", .Data = structure(c(1, 2.5, 3, 4, 5, 6, 5.55, 8),
-             .Dim = c(4L, 2L, 1L), .Dimnames = list(region = c("A", "B", "C", "D"),
-                                            year = c("y2000", "y2005"), data = NULL)))
+                                         .Dim = c(4L, 2L, 1L), .Dimnames = list(region = c("A", "B", "C", "D"),
+                                                                                year = c("y2000", "y2005"),
+                                                                                data = NULL)))
   expect_identical(round(toolFillWithRegionAvg(x, regionmapping = rel, verbose = FALSE, weight = x), 2), ref)
 
   x <- new.magpie(c("DEU", "FRA"))

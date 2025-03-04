@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' getMadratGraph
 #'
 #' Function returns the madrat graph of all linkages of full, calc, and read functions of the given madrat

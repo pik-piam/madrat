@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' Tool: CountryFill
 #'
 #' This function expects a MAgPIE object with ISO country codes in the spatial
@@ -77,13 +80,13 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
     if (any(map %in% missingCountries)) {
       tmp <- map[map %in% missingCountries]
       stop("Try to fill a country with data from another country which is non-existent in the data set (",
-        paste(tmp, names(tmp), sep = " -> ", collapse = " | "), ").")
+           paste(tmp, names(tmp), sep = " -> ", collapse = " | "), ").")
     }
     if (!all(names(map) %in% missingCountries)) {
       if (overwrite) {
         tmp <- map[!(names(map) %in% missingCountries)]
         vcat(1, "Existing data overwritten with data from another country (",
-          paste(tmp, names(tmp), sep = " -> ", collapse = " | "), ").")
+             paste(tmp, names(tmp), sep = " -> ", collapse = " | "), ").")
       } else {
         map <- map[(names(map) %in% missingCountries)]
         if (length(map) == 0) map <- NULL

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+
+SPDX-License-Identifier: BSD-2-Clause
+-->
+
 ## NOTES
 
 The R precheck complains that "Author field differs from that derived from Authors@R". We checked

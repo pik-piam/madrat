@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' Tool: Verbosity Cat
 #'
 #' Function which returns information based on the verbosity setting
@@ -84,9 +87,9 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE, 
     }
     if (verbosity == -1) {
       base::message(paste(capture.output(base::cat(c(prefix, messages),
-                                                   fill = fill, sep = "",
-                                                   labels = getOption("gdt_nestinglevel")
-      )), collapse = "\n"))
+                            fill = fill, sep = "",
+                            labels = getOption("gdt_nestinglevel")
+                          )), collapse = "\n"))
       if (!logOnly) {
         base::stop(..., call. = FALSE)
       }

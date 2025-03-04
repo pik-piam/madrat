@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' installedMadratUniverse
 #'
 #' Returns a name vector of installed packages which supposedly belong to the

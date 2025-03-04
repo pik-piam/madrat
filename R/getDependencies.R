@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' getDependencies
 #'
 #' Returns information about dependencies of a
@@ -41,7 +44,7 @@ getDependencies <- function(name, direction = "in", graph = NULL, type = NULL, s
     out[!aggr] <- lapply(l[!aggr], .tmp, filter = owncall)
     if (all(vapply(out, length, integer(1)) == 0)) return(NULL)
     return(out)
-   }
+  }
 
   fpool <- attr(graph, "fpool")
   fpool$shortcall <- sub("^.*:::", "", fpool$call)
