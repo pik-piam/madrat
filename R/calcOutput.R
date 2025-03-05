@@ -291,16 +291,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         return(x)
       }
     } else {
-      # TODO this will fail as soon as any lib (out of our control) uses partial matching :(
-      x <- withMadratLogging(withCallingHandlers({
-        withr::with_options(list(warnPartialMatchArgs = TRUE), {
-          eval(parse(text = functionname))
-        })
-      }, warning = function(w) {
-        if (grepl("^partial argument match", w$message)) {
-          stop(w$message, " - this is not allowed in calcOutput")
-        }
-      }))
+      x <- withMadratLogging(eval(parse(text = functionname)))
     }
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname, callString)
