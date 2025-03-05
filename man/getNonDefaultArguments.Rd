@@ -4,10 +4,11 @@
 \alias{getNonDefaultArguments}
 \title{getNonDefaultArguments}
 \usage{
-getNonDefaultArguments(call, args = NULL)
+getNonDefaultArguments(functionName, args = NULL)
 }
 \arguments{
-\item{call}{A function name as a string or symbol. Passing a vector of functions is possible, but is only intended
+\item{functionName}{A function name as a string (usually in the form package:::fun, e.g. madrat:::calcTauTotal).
+Passing a vector of functions is possible, but is only intended
 for corresponding read/correct/convert functions. If multiple functions in a vector define arguments with the same
 name but different default values only the default defined in the first function is considered.}
 
@@ -23,12 +24,12 @@ Given a function and an argument list, identify which arguments are different fr
 \examples{
 madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "historical"))
 madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "paper"))
-calls <- c(madrat:::readTau, madrat:::convertTau)
-madrat:::getNonDefaultArguments(calls, args = list(subtype = "historical"))
+functionNames <- c(madrat:::readTau, madrat:::convertTau)
+madrat:::getNonDefaultArguments(functionNames, args = list(subtype = "historical"))
 }
 \seealso{
 \code{\link{cacheArgumentsHash}}, \code{\link{toolstartmessage}}
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Pascal Sauer
 }

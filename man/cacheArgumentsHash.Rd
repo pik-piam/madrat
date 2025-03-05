@@ -4,12 +4,13 @@
 \alias{cacheArgumentsHash}
 \title{Tool: cacheArgumentsHash}
 \usage{
-cacheArgumentsHash(call, args = NULL)
+cacheArgumentsHash(functionName, args = NULL)
 }
 \arguments{
-\item{call}{A function as a string or symbol. Passing a vector of functions is possible, but is only intended for
-corresponding read/correct/convert functions. If multiple functions in a vector define arguments with the same name
-but different default values only the default defined in the first function is considered.}
+\item{functionName}{A function name as a string (usually in the form package:::fun, e.g. madrat:::calcTauTotal).
+Passing a vector of functions is possible, but is only intended
+for corresponding read/correct/convert functions. If multiple functions in a vector define arguments with the same
+name but different default values only the default defined in the first function is considered.}
 
 \item{args}{A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
 occurrence of the argument will be used.}
@@ -24,8 +25,8 @@ Calculate hash from given function arguments for given call
 \examples{
 madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historical"))
 madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "paper"))
-calls <- c(madrat:::readTau, madrat:::convertTau)
-madrat:::cacheArgumentsHash(calls, args = list(subtype = "historical"))
+functionNames <- c("madrat:::readTau", "madrat:::convertTau")
+madrat:::cacheArgumentsHash(functionNames, args = list(subtype = "historical"))
 }
 \seealso{
 \code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
