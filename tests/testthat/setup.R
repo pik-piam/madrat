@@ -1,11 +1,14 @@
 # set madrat mainfolder and options before running tests, cleanup after all tests are finished
 
+# enable sourcing this file during interactive development of tests
+teardownEnv <- tryCatch(testthat::teardown_env(), error = function(e) .GlobalEnv)
+
 previousMadratConfig <- getOption("madrat_cfg")
 withr::defer({
   options(madrat_cfg = previousMadratConfig) # nolint
-}, envir = testthat::teardown_env())
+}, envir = teardownEnv)
 
-setConfig(mainfolder = withr::local_tempdir(.local_envir = testthat::teardown_env()),
+setConfig(mainfolder = withr::local_tempdir(.local_envir = teardownEnv),
           globalenv = TRUE,
           redirections = list(),
           .verbose = FALSE)
@@ -14,10 +17,10 @@ withr::local_options(madrat_codelabels = NULL,
                      renv.verbose = FALSE,
                      magclass_expand_version = NULL,
                      magclass_sizeLimit = NULL,
-                     .local_envir = testthat::teardown_env())
+                     .local_envir = teardownEnv)
 
 withr::local_envvar(LANGUAGE = "EN",
-                    .local_envir = testthat::teardown_env())
+                    .local_envir = teardownEnv)
 
 globalassign <- function(...) {
   withr::defer({
