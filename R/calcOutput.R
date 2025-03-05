@@ -121,15 +121,16 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     warnNA <- na_warning
   }
 
-  if (!dir.exists(getConfig("cachefolder"))) {
-    dir.create(getConfig("cachefolder"), recursive = TRUE)
+  if (!is.null(regionmapping)) {
+    localConfig(regionmapping = regionmapping)
   }
 
-  if (!is.null(regionmapping)) localConfig(regionmapping = regionmapping)
-
   # check type input
-  if (!is.character(type)) stop("Invalid type (must be a character)!")
-  if (length(type) != 1) stop("Invalid type (must be a single character string)!")
+  if (!is.character(type)) {
+    stop("Invalid type (must be a character)!")
+  } else if (length(type) != 1) {
+    stop("Invalid type (must be a single character string)!")
+  }
 
   .checkData <- function(x, functionname, callString) {
     if (!is.list(x)) {
@@ -179,11 +180,17 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         x$isocountries <- TRUE
       }
     }
-    if (!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
+    if (!is.logical(x$isocountries)) {
+      stop("x$isocountries must be a logical!")
+    }
     # read and check x$mixed_aggregation value which describes whether the data is in
     # mixed aggregation (weighted mean mixed with summation) is allowed or not
-    if (is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE # nolint
-    if (!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
+    if (is.null(x$mixed_aggregation)) {
+      x$mixed_aggregation <- FALSE # nolint
+    }
+    if (!is.logical(x$mixed_aggregation)) {
+      stop("x$mixed_aggregation must be a logical!")
+    }
 
     # check that data is returned for ISO countries except if x$isocountries=FALSE
     if (x$isocountries) {
@@ -239,8 +246,12 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     checkNameStructure(x$x, x$structure.data, 3, x$class)
 
     if (x$class == "magpie") {
-      if (warnNA && anyNA(x$x)) vcat(0, "Data returned by ", functionname, " contains NAs")
-      if (any(is.infinite(x$x))) vcat(0, "Data returned by ", functionname, " contains infinite values")
+      if (warnNA && anyNA(x$x)) {
+        vcat(0, "Data returned by ", functionname, " contains NAs")
+      }
+      if (any(is.infinite(x$x))) {
+        vcat(0, "Data returned by ", functionname, " contains infinite values")
+      }
     }
     return(x)
   }
@@ -254,7 +265,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     toolendmessage(startinfo, "-")
   })
 
-  if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
   local_dir(getConfig("outputfolder"))
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
@@ -281,12 +291,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         return(x)
       }
     } else {
+      # TODO this will fail as soon as any lib (out of our control) uses partial matching :(
       x <- withMadratLogging(withCallingHandlers({
         withr::with_options(list(warnPartialMatchArgs = TRUE), {
           eval(parse(text = functionname))
         })
       }, warning = function(w) {
-        if (grepl("^partial argument match of ", w$message)) {
+        if (grepl("^partial argument match", w$message)) {
           stop(w$message, " - this is not allowed in calcOutput")
         }
       }))
@@ -361,12 +372,15 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (length(years) == 1) getYears(x$x) <- NULL
   }
   if (!is.null(round)) {
-    if (x$class != "magpie") stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    if (x$class != "magpie") {
+      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    }
     x$x <- round(x$x, round)
   }
   if (!is.null(signif)) {
-    if (x$class != "magpie")
-      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    if (x$class != "magpie") {
+      stop("rounding (signif) can only be used in combination with x$class=\"magpie\"!")
+    }
     x$x <- signif(x$x, signif)
   }
 
