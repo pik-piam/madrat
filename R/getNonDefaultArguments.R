@@ -19,8 +19,7 @@
 getNonDefaultArguments <- function(functionName, args = NULL) {
   if (length(args) == 0) {
     return(NULL)
-  }
-  if (length(functionName) == 0) {
+  } else if (length(functionName) == 0) {
     stop("No functionName provided for argument hash calculation!")
   }
 
@@ -31,7 +30,7 @@ getNonDefaultArguments <- function(functionName, args = NULL) {
     return(formals(functionName))
   }
   if (length(functionName) > 1) {
-    defargs <- unlist(lapply(functionName, .tmp))
+    defargs <- do.call(c, lapply(functionName, .tmp))
     defargs <- defargs[!duplicated(names(defargs))]
   } else {
     defargs <- .tmp(functionName)
@@ -40,9 +39,11 @@ getNonDefaultArguments <- function(functionName, args = NULL) {
   commonargs <- intersect(names(defargs), names(args))
   unmatchedArgs <- setdiff(args, args[commonargs])
   if (!("..." %in% names(defargs)) && length(unmatchedArgs) >= 1) {
-    stop("The following unexpected arguments were passed to ", functionName, ": ",
+    stop("The following unexpected arguments were passed to ",
+         paste(functionName, collapse = " / "), ": ",
          paste(names(unmatchedArgs), collapse = ", "),
-         "\n(", functionName, " only accepts the following arguments: ",
+         "\n(", paste(functionName, collapse = " / "),
+         " only accepts the following arguments: ",
          paste(names(defargs), collapse = ", "), ")")
   }
 
