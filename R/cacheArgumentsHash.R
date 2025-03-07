@@ -10,6 +10,7 @@
 #' occurrence of the argument will be used.
 #' @return A hash representing the given arguments hash for the given call. NULL, if no argument deviates from the
 #' default argument settings.
+#'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
 #' @examples
@@ -17,7 +18,6 @@
 #' madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "paper"))
 #' functionNames <- c("madrat:::readTau", "madrat:::convertTau")
 #' madrat:::cacheArgumentsHash(functionNames, args = list(subtype = "historical"))
-#' @importFrom digest digest
 cacheArgumentsHash <- function(functionName, args = NULL) {
   setWrapperInactive("wrapperChecks")
 
@@ -27,5 +27,5 @@ cacheArgumentsHash <- function(functionName, args = NULL) {
   if (length(nonDefaultArguments) == 0) {
     return(NULL)
   }
-  return(paste0("-", digest(nonDefaultArguments, algo = getConfig("hash"))))
+  return(paste0("-", digest::digest(nonDefaultArguments, algo = getConfig("hash"))))
 }

@@ -28,7 +28,6 @@
 #'
 #' @author Pascal Sauer
 #'
-#' @importFrom digest digest
 #' @importFrom magclass where
 #' @importFrom utils askYesNo
 #' @export
@@ -47,7 +46,7 @@ compareMadratOutputs <- function(package, functionName, subtypes, overwriteOld =
     }
   }
 
-  functionHash <- digest(eval(str2expression(paste0(package, ":::", functionName))), "xxhash32")
+  functionHash <- digest::digest(eval(str2expression(paste0(package, ":::", functionName))), "xxhash32")
   if (length(oldRds) == 1 && sub(paste0("^", functionName, "-old-(.+)[.]rds$"), "\\1", oldRds) == functionHash) {
     stop("Your are using the same version of ", functionName, " that ", oldRds, " was created with. ",
          "Please apply your changes, re-install ", package, " with your changes, and restart the R session.")

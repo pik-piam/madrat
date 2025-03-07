@@ -10,6 +10,7 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
+#'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
@@ -17,8 +18,6 @@
 #' example <- 1
 #' madrat:::cachePut(example, "calc", "Example", packages = "madrat")
 #' }
-#' @importFrom digest digest
-
 cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
   tryCatch({
     if (is.list(x) && isFALSE(x$cache)) {

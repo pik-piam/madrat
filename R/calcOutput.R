@@ -36,6 +36,7 @@
 #' @return magpie object with the requested output data either on country or on
 #' regional level depending on the choice of argument "aggregate" or a list of information
 #' if supplementary is set to TRUE.
+#'
 #' @note The underlying calc-functions are required to provide a list of information back to
 #' \code{calcOutput}. Following list entries should be provided:
 #' \itemize{
@@ -90,17 +91,14 @@
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @examples
 #' \dontrun{
-#'
 #' a <- calcOutput(type = "TauTotal")
 #' }
 #'
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
 #' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
-#' @importFrom digest digest
 #' @importFrom withr defer local_dir
 #' @export
-
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint

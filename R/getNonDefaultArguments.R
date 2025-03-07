@@ -23,17 +23,17 @@ getNonDefaultArguments <- function(functionName, args = NULL) {
     stop("No functionName provided for argument hash calculation!")
   }
 
-  .tmp <- function(functionName) {
+  .getFormals <- function(functionName) {
     if (is.character(functionName)) {
       functionName <- eval(parse(text = functionName))
     }
     return(formals(functionName))
   }
   if (length(functionName) > 1) {
-    defargs <- do.call(c, lapply(functionName, .tmp))
+    defargs <- do.call(c, lapply(functionName, .getFormals))
     defargs <- defargs[!duplicated(names(defargs))]
   } else {
-    defargs <- .tmp(functionName)
+    defargs <- .getFormals(functionName)
   }
 
   commonargs <- intersect(names(defargs), names(args))
