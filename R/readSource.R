@@ -116,8 +116,6 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
 
   # get data either from cache or by calculating it from source
   .getData <- function(type, subtype, subset, args, prefix, callString) {
-    sourcefolder <- getSourceFolder(type, subtype)
-
     xList <- .getFromCache(prefix, type, args, subtype, subset)
     if (!is.null(xList)) {
       # cache hit, return
@@ -139,12 +137,13 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
     if (length(ignore) == 0) ignore <- NULL
     functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
+
+    withr::local_dir(getSourceFolder(type, subtype))
     setWrapperActive("wrapperChecks")
 
     # run the actual read/correct/convert function
-    # if prefix is correct or convert the locally defined x is passed, so check it exists
+    # if prefix is "correct" or "convert" the locally defined x is passed, so check it exists
     stopifnot(prefix == "read" || exists("x"))
-    withr::local_dir(sourcefolder)
     x <- withMadratLogging(eval(parse(text = functionname)))
     setWrapperInactive("wrapperChecks")
 

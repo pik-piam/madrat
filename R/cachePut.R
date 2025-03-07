@@ -31,7 +31,6 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
         dir.create(dirname(fname), recursive = TRUE)
       }
       attr(x, "cachefile") <- basename(fname)
-      vcat(1, " - writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
       if (is.list(x)) {
         for (elem in c("x", "weight")) {
           if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
@@ -47,6 +46,7 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
       saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
       file.rename(tempfileName, fname)
       Sys.chmod(fname, mode = "0666", use_umask = FALSE)
+      vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
     }
   }, error = function(e) {
     vcat(0, " - could not write cache file: ", e$message, fill = 300, show_prefix = FALSE)
