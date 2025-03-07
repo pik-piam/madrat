@@ -46,7 +46,8 @@ cacheName <- function(prefix, type, args = NULL, graph = NULL, mode = "put",
   if (prefix %in% c("convert", "correct")) {
     call <- c(call, sub(paste0(fpprefix, type), paste0(prefix, type), attr(fp, "call"), fixed = TRUE))
   }
-  args <- cacheArgumentsHash(call, args)
+  args <- cacheArgumentsHash(call, args,
+                             errorOnMismatch = !(prefix %in% c("read", "correct")))
 
   .isSet <- function(prefix, type, setting) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))

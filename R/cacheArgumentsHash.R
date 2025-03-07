@@ -18,10 +18,10 @@
 #' madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "paper"))
 #' functionNames <- c("madrat:::readTau", "madrat:::convertTau")
 #' madrat:::cacheArgumentsHash(functionNames, args = list(subtype = "historical"))
-cacheArgumentsHash <- function(functionName, args = NULL) {
+cacheArgumentsHash <- function(functionName, args = NULL, errorOnMismatch = TRUE) {
   setWrapperInactive("wrapperChecks")
 
-  nonDefaultArguments <- getNonDefaultArguments(functionName, args)
+  nonDefaultArguments <- getNonDefaultArguments(functionName, args, errorOnMismatch)
   nonDefaultArguments <- nonDefaultArguments[robustOrder(names(nonDefaultArguments))]
 
   if (length(nonDefaultArguments) == 0) {

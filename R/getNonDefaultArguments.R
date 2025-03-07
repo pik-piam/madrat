@@ -16,7 +16,8 @@
 #' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "paper"))
 #' functionNames <- c(madrat:::readTau, madrat:::convertTau)
 #' madrat:::getNonDefaultArguments(functionNames, args = list(subtype = "historical"))
-getNonDefaultArguments <- function(functionName, args = NULL) {
+getNonDefaultArguments <- function(functionName, args = NULL, errorOnMismatch = TRUE) {
+  # TODO make this interface simple: functionName (1 string), func (1 function), args
   if (length(args) == 0) {
     return(NULL)
   } else if (length(functionName) == 0) {
@@ -38,13 +39,18 @@ getNonDefaultArguments <- function(functionName, args = NULL) {
 
   commonargs <- intersect(names(defargs), names(args))
   unmatchedArgs <- setdiff(args, args[commonargs])
-  if (!("..." %in% names(defargs)) && length(unmatchedArgs) >= 1) {
+  if (errorOnMismatch && !("..." %in% names(defargs)) && length(unmatchedArgs) >= 1) {
+    if (length(names(defargs)) == 0) {
+      acceptedArgs <- " does not support any arguments)"
+    } else {
+      acceptedArgs <- paste0(" only accepts the following arguments: ",
+                             paste(names(defargs), collapse = ", "), ")")
+    }
     stop("The following unexpected arguments were passed to ",
          paste(functionName, collapse = " / "), ": ",
          paste(names(unmatchedArgs), collapse = ", "),
          "\n(", paste(functionName, collapse = " / "),
-         " only accepts the following arguments: ",
-         paste(names(defargs), collapse = ", "), ")")
+         acceptedArgs)
   }
 
   for (i in commonargs) {
