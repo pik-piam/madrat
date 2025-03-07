@@ -46,9 +46,9 @@ cacheName <- function(prefix, type, args = NULL, graph = NULL, mode = "put",
   if (prefix %in% c("convert", "correct")) {
     call <- c(call, sub(paste0(fpprefix, type), paste0(prefix, type), attr(fp, "call"), fixed = TRUE))
   }
-  args <- cacheArgumentsHash(call, args)
+  args <- try(cacheArgumentsHash(call, args))
   if ("try-error" %in% class(args)) {
-    return(NULL) # TODO check if it was invalid arg error - if yes throw it
+    return(NULL)
   }
 
   .isSet <- function(prefix, type, setting) {
