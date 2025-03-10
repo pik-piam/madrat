@@ -17,7 +17,6 @@
 #' functionNames <- c(madrat:::readTau, madrat:::convertTau)
 #' madrat:::getNonDefaultArguments(functionNames, args = list(subtype = "historical"))
 getNonDefaultArguments <- function(functionName, args = NULL, errorOnMismatch = TRUE) {
-  # TODO make this interface simple: functionName (1 string), func (1 function), args
   if (length(args) == 0) {
     return(NULL)
   } else if (length(functionName) == 0) {
@@ -46,7 +45,7 @@ getNonDefaultArguments <- function(functionName, args = NULL, errorOnMismatch = 
       acceptedArgs <- paste0(" only accepts the following arguments: ",
                              paste(names(defargs), collapse = ", "), ")")
     }
-    stop("The following unexpected arguments were passed to ",
+    warning("The following unexpected arguments were passed to ",
          paste(functionName, collapse = " / "), ": ",
          paste(names(unmatchedArgs), collapse = ", "),
          "\n(", paste(functionName, collapse = " / "),
