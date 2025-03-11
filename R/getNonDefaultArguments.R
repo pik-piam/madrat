@@ -45,7 +45,7 @@ getNonDefaultArguments <- function(functionName, args = NULL, errorOnMismatch = 
       acceptedArgs <- paste0(" only accepts the following arguments: ",
                              paste(names(defargs), collapse = ", "), ")")
     }
-    warning("The following unexpected arguments were passed to ",
+    warning("AAAA The following unexpected arguments were passed to ",
          paste(functionName, collapse = " / "), ": ",
          paste(names(unmatchedArgs), collapse = ", "),
          "\n(", paste(functionName, collapse = " / "),
