@@ -4,7 +4,7 @@
 \alias{getNonDefaultArguments}
 \title{getNonDefaultArguments}
 \usage{
-getNonDefaultArguments(functionName, args = NULL)
+getNonDefaultArguments(functionName, args = NULL, errorOnMismatch = TRUE)
 }
 \arguments{
 \item{functionName}{A function name as a string (usually in the form package:::fun, e.g. madrat:::calcTauTotal).
@@ -14,6 +14,8 @@ name but different default values only the default defined in the first function
 
 \item{args}{A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
 occurrence of the argument will be used.}
+
+\item{errorOnMismatch}{Whether an error is thrown in case an argument in args is not accepted by functionName.}
 }
 \value{
 A subset of args that is used by the function/s and is different from default values.

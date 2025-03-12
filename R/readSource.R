@@ -101,11 +101,11 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
 
 
   if (!is.null(subtype) && !argumentAccepted("subtype", type, prefixes)) {
-    warning("AAAA Argument 'subtype' was given, but is not used by ",
+    stop("Argument 'subtype' was given, but is not used by ",
          paste0(prefixes, type, collapse = " / "))
   }
   if (!is.null(subset) && !argumentAccepted("subset", type, prefixes)) {
-    warning("AAAA Argument 'subset' was given, but is not used by ",
+    stop("Argument 'subset' was given, but is not used by ",
          paste0(prefixes, type, collapse = " / "))
   }
 

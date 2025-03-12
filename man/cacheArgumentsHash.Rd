@@ -4,7 +4,7 @@
 \alias{cacheArgumentsHash}
 \title{Tool: cacheArgumentsHash}
 \usage{
-cacheArgumentsHash(functionName, args = NULL)
+cacheArgumentsHash(functionName, args = NULL, errorOnMismatch = TRUE)
 }
 \arguments{
 \item{functionName}{A function name as a string (usually in the form package:::fun, e.g. madrat:::calcTauTotal).
@@ -14,6 +14,8 @@ name but different default values only the default defined in the first function
 
 \item{args}{A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
 occurrence of the argument will be used.}
+
+\item{errorOnMismatch}{Whether an error is thrown in case an argument in args is not accepted by functionName.}
 }
 \value{
 A hash representing the given arguments hash for the given call. NULL, if no argument deviates from the

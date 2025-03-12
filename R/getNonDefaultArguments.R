@@ -8,6 +8,7 @@
 #' name but different default values only the default defined in the first function is considered.
 #' @param args A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
 #' occurrence of the argument will be used.
+#' @param errorOnMismatch Whether an error is thrown in case an argument in args is not accepted by functionName.
 #' @return A subset of args that is used by the function/s and is different from default values.
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cacheArgumentsHash}}, \code{\link{toolstartmessage}}
@@ -45,7 +46,7 @@ getNonDefaultArguments <- function(functionName, args = NULL, errorOnMismatch = 
       acceptedArgs <- paste0(" only accepts the following arguments: ",
                              paste(names(defargs), collapse = ", "), ")")
     }
-    warning("AAAA The following unexpected arguments were passed to ",
+    stop("The following unexpected arguments were passed to ",
          paste(functionName, collapse = " / "), ": ",
          paste(names(unmatchedArgs), collapse = ", "),
          "\n(", paste(functionName, collapse = " / "),

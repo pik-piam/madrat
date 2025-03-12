@@ -8,6 +8,7 @@
 #' name but different default values only the default defined in the first function is considered.
 #' @param args A list of named arguments used to call the given function(s). If duplicates of arguments exists the first
 #' occurrence of the argument will be used.
+#' @param errorOnMismatch Whether an error is thrown in case an argument in args is not accepted by functionName.
 #' @return A hash representing the given arguments hash for the given call. NULL, if no argument deviates from the
 #' default argument settings.
 #'
