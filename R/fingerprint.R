@@ -27,12 +27,11 @@
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
 #' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
+#'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' madrat:::fingerprint("toolGetMapping", package = "madrat")
-#' @importFrom digest digest
-
 fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
   dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
   result <- tryCatch({
@@ -67,7 +66,7 @@ fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
     # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
     # Old madrat versions will never read/write these new cache files, and new madrat versions will never
     # read/write cache files created with an old madrat version.
-    out <- digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
+    out <- digest::digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
 
     if (details) {
       attr(out, "details") <- fingerprint
@@ -92,7 +91,7 @@ fingerprintCall <- function(name) {
     if ("try-error" %in% class(f)) {
       return(NULL)
     }
-    return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
+    return(digest::digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
   }
   return(unlist(sapply(name, .tmp))) # nolint
 }
@@ -126,9 +125,7 @@ fingerprintFiles <- function(paths) {
       files$size <- file.size(files$path)
       # create key to identify entries which require recalculation
       files$key <- apply(files[c("name", "mtime", "size")], 1,
-        digest,
-        algo = getConfig("hash")
-      )
+                         digest::digest, algo = getConfig("hash"))
     }
 
     getHashCacheName <- function(path) {
@@ -166,7 +163,7 @@ fingerprintFiles <- function(paths) {
       # `.fullhash` file is present in the directory
       files$hash <- vapply(
         files$path,
-        digest,
+        digest::digest,
         character(1),
         algo = getConfig("hash"),
         file = TRUE,
@@ -188,7 +185,7 @@ fingerprintFiles <- function(paths) {
     files <- rbind(filesCache, files)
     files$mtime <- NULL
     files$key <- NULL
-    return(digest(files[robustOrder(files$name), ], algo = getConfig("hash")))
+    return(digest::digest(files[robustOrder(files$name), ], algo = getConfig("hash")))
   }
   return(sapply(paths, .tmp)) # nolint
 }

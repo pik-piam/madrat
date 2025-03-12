@@ -36,6 +36,7 @@
 #' @return magpie object with the requested output data either on country or on
 #' regional level depending on the choice of argument "aggregate" or a list of information
 #' if supplementary is set to TRUE.
+#'
 #' @note The underlying calc-functions are required to provide a list of information back to
 #' \code{calcOutput}. Following list entries should be provided:
 #' \itemize{
@@ -90,17 +91,14 @@
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @examples
 #' \dontrun{
-#'
 #' a <- calcOutput(type = "TauTotal")
 #' }
 #'
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
 #' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
-#' @importFrom digest digest
 #' @importFrom withr defer local_dir
 #' @export
-
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
@@ -121,15 +119,16 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     warnNA <- na_warning
   }
 
-  if (!dir.exists(getConfig("cachefolder"))) {
-    dir.create(getConfig("cachefolder"), recursive = TRUE)
+  if (!is.null(regionmapping)) {
+    localConfig(regionmapping = regionmapping)
   }
 
-  if (!is.null(regionmapping)) localConfig(regionmapping = regionmapping)
-
   # check type input
-  if (!is.character(type)) stop("Invalid type (must be a character)!")
-  if (length(type) != 1) stop("Invalid type (must be a single character string)!")
+  if (!is.character(type)) {
+    stop("Invalid type (must be a character)!")
+  } else if (length(type) != 1) {
+    stop("Invalid type (must be a single character string)!")
+  }
 
   .checkData <- function(x, functionname, callString) {
     if (!is.list(x)) {
@@ -179,11 +178,17 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         x$isocountries <- TRUE
       }
     }
-    if (!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
+    if (!is.logical(x$isocountries)) {
+      stop("x$isocountries must be a logical!")
+    }
     # read and check x$mixed_aggregation value which describes whether the data is in
     # mixed aggregation (weighted mean mixed with summation) is allowed or not
-    if (is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE # nolint
-    if (!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
+    if (is.null(x$mixed_aggregation)) {
+      x$mixed_aggregation <- FALSE # nolint
+    }
+    if (!is.logical(x$mixed_aggregation)) {
+      stop("x$mixed_aggregation must be a logical!")
+    }
 
     # check that data is returned for ISO countries except if x$isocountries=FALSE
     if (x$isocountries) {
@@ -239,8 +244,12 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     checkNameStructure(x$x, x$structure.data, 3, x$class)
 
     if (x$class == "magpie") {
-      if (warnNA && anyNA(x$x)) vcat(0, "Data returned by ", functionname, " contains NAs")
-      if (any(is.infinite(x$x))) vcat(0, "Data returned by ", functionname, " contains infinite values")
+      if (warnNA && anyNA(x$x)) {
+        vcat(0, "Data returned by ", functionname, " contains NAs")
+      }
+      if (any(is.infinite(x$x))) {
+        vcat(0, "Data returned by ", functionname, " contains infinite values")
+      }
     }
     return(x)
   }
@@ -254,7 +263,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     toolendmessage(startinfo, "-")
   })
 
-  if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
   local_dir(getConfig("outputfolder"))
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
@@ -353,12 +361,15 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (length(years) == 1) getYears(x$x) <- NULL
   }
   if (!is.null(round)) {
-    if (x$class != "magpie") stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    if (x$class != "magpie") {
+      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    }
     x$x <- round(x$x, round)
   }
   if (!is.null(signif)) {
-    if (x$class != "magpie")
-      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    if (x$class != "magpie") {
+      stop("rounding (signif) can only be used in combination with x$class=\"magpie\"!")
+    }
     x$x <- signif(x$x, signif)
   }
 

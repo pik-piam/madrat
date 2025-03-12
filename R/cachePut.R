@@ -10,6 +10,7 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
+#'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
@@ -17,8 +18,6 @@
 #' example <- 1
 #' madrat:::cachePut(example, "calc", "Example", packages = "madrat")
 #' }
-#' @importFrom digest digest
-
 cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
   tryCatch({
     if (is.list(x) && isFALSE(x$cache)) {
@@ -32,7 +31,6 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
         dir.create(dirname(fname), recursive = TRUE)
       }
       attr(x, "cachefile") <- basename(fname)
-      vcat(1, " - writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
       if (is.list(x)) {
         for (elem in c("x", "weight")) {
           if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
@@ -48,6 +46,7 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
       saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
       file.rename(tempfileName, fname)
       Sys.chmod(fname, mode = "0666", use_umask = FALSE)
+      vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
     }
   }, error = function(e) {
     vcat(0, " - could not write cache file: ", e$message, fill = 300, show_prefix = FALSE)

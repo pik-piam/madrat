@@ -75,10 +75,38 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
          paste(getSources(type = "read"), collapse = '", "'), '"')
   }
 
+  if (!(isTRUE(convert) || isFALSE(convert) || convert == "onlycorrect")) {
+    stop("'convert' argument must be set to one of: TRUE, 'onlycorrect', FALSE")
+  }
+
+  if (isFALSE(convert)) {
+    prefixes <- "read"
+  } else if (convert == "onlycorrect") {
+    prefixes <- c("read",
+                  if (type %in% getSources(type = "correct")) "correct")
+  } else if (isTRUE(convert)) {
+    prefixes <- c("read",
+                  if (type %in% getSources(type = "correct")) "correct",
+                  if (type %in% getSources(type = "convert")) "convert")
+  } else {
+    stop("'convert' must be set to one of: TRUE, 'onlycorrect', FALSE")
+  }
+
   # Does a correctTYPE function exist?
-  if (convert == "onlycorrect" && !(type %in% getSources(type = "correct"))) {
-    warning("No correct function for ", type, " could be found. Set convert to FALSE.")
+  if (convert == "onlycorrect" && !("correct" %in% prefixes)) {
+    warning("Could not find correct", type,
+            " function. Setting 'convert' argument from 'onlycorrect' to FALSE.")
     convert <- FALSE
+  }
+
+
+  if (!is.null(subtype) && !argumentAccepted("subtype", type, prefixes)) {
+    stop("Argument 'subtype' was given, but is not used by ",
+         paste0(prefixes, type, collapse = " / "))
+  }
+  if (!is.null(subset) && !argumentAccepted("subset", type, prefixes)) {
+    stop("Argument 'subset' was given, but is not used by ",
+         paste0(prefixes, type, collapse = " / "))
   }
 
   .testISO <- function(x, functionname = "function") {
@@ -116,8 +144,6 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
 
   # get data either from cache or by calculating it from source
   .getData <- function(type, subtype, subset, args, prefix, callString) {
-    sourcefolder <- getSourceFolder(type, subtype)
-
     xList <- .getFromCache(prefix, type, args, subtype, subset)
     if (!is.null(xList)) {
       # cache hit, return
@@ -139,12 +165,13 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     ignore <- c("subtype", "subset")[c(is.null(subtype), is.null(subset))]
     if (length(ignore) == 0) ignore <- NULL
     functionname <- prepFunctionName(type = type, prefix = prefix, ignore = ignore)
+
+    withr::local_dir(getSourceFolder(type, subtype))
     setWrapperActive("wrapperChecks")
 
     # run the actual read/correct/convert function
-    # if prefix is correct or convert the locally defined x is passed, so check it exists
+    # if prefix is "correct" or "convert" the locally defined x is passed, so check it exists
     stopifnot(prefix == "read" || exists("x"))
-    withr::local_dir(sourcefolder)
     x <- withMadratLogging(eval(parse(text = functionname)))
     setWrapperInactive("wrapperChecks")
 
@@ -186,9 +213,9 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   }
 
   # determine prefix
-  if (isTRUE(convert) && (type %in% getSources(type = "convert"))) {
+  if (isTRUE(convert) && "convert" %in% prefixes) {
     prefix <- "convert"
-  } else if ((isTRUE(convert) || convert == "onlycorrect") && (type %in% getSources(type = "correct"))) {
+  } else if ((isTRUE(convert) || convert == "onlycorrect") && "correct" %in% prefixes) {
     prefix <- "correct"
   } else {
     prefix <- "read"
@@ -251,13 +278,24 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     }
   }
 
-  if (!is.logical(convert) && convert != "onlycorrect") {
-    stop('Unknown convert setting "', convert, '" (allowed: TRUE, FALSE and "onlycorrect")')
-  }
-
   xList <- .getData(type, subtype, subset, args, prefix, callString)
   if (magclass::is.magpie(xList$x)) {
     xList$x <- clean_magpie(xList$x)
   }
   return(if (supplementary) xList else xList$x)
+}
+
+argumentAccepted <- function(argument, type, prefixes) {
+  stopifnot(argument %in% c("subtype", "subset"),
+            prefixes %in% c("read", "correct", "convert"))
+
+  for (prefix in prefixes) {
+    functionName <- sub("\\(.*$", "", prepFunctionName(type = type, prefix = prefix))
+    argNames <- names(formals(eval(parse(text = functionName))))
+    if (argument %in% argNames) {
+      return(TRUE)
+    }
+  }
+
+  return(FALSE)
 }

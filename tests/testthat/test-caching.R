@@ -38,14 +38,15 @@ test_that("Caching works", {
 })
 
 test_that("Argument hashing works", {
-  expect_null(cacheArgumentsHash(readTau))
-  expect_null(cacheArgumentsHash(readTau, list(subtype = "paper")))
-  expect_identical(cacheArgumentsHash(readTau, args = list(subtype = "historical")), "-50d72f51")
-  expect_identical(cacheArgumentsHash(c(readTau, convertTau),
+  expect_null(cacheArgumentsHash("madrat:::readTau"))
+  expect_null(cacheArgumentsHash("madrat:::readTau", list(subtype = "paper")))
+  expect_identical(cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historical")), "-50d72f51")
+  expect_identical(cacheArgumentsHash(c("madrat:::readTau", convertTau),
                                       args = list(subtype = "historical")), "-50d72f51")
-  # nonexisting arguments will be ignored if ... is missing
-  expect_identical(cacheArgumentsHash(readTau, args = list(subtype = "historical", notthere = 42)),
-                   "-50d72f51")
+  expect_error(cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historical", notthere = 42)),
+               paste0("The following unexpected arguments were passed to madrat:::readTau: notthere\n",
+                      "(madrat:::readTau only accepts the following arguments: subtype)"),
+               fixed = TRUE)
   # if ... exists all arguments will get considered
   expect_null(cacheArgumentsHash(calcOutput, args = list(try = FALSE)))
   expect_identical(cacheArgumentsHash(calcOutput, args = list(try = TRUE)), "-01df3eb2")
@@ -54,7 +55,8 @@ test_that("Argument hashing works", {
   expect_null(cacheArgumentsHash(calcArgs))
   expect_null(cacheArgumentsHash(calcArgs, args = list(a = NULL)))
   expect_identical(cacheArgumentsHash(calcArgs, args = list(a = 12)), "-8bb64daf")
-  expect_error(cacheArgumentsHash(NULL, args = list(no = "call")), "No call")
+  expect_error(cacheArgumentsHash(NULL, args = list(no = "call")),
+               "No functionName provided for argument hash calculation!")
 })
 
 test_that("Cache naming and identification works correctly", {

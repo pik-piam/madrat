@@ -275,7 +275,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   .argsHash <- function(formals, useLabels) {
     if (length(formals) > 0) {
-      hashs <- digest(formals, algo = getConfig("hash"))
+      hashs <- digest::digest(formals, algo = getConfig("hash"))
       if (useLabels) {
         hashs <- toolCodeLabels(hashs)
       }

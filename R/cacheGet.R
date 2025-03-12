@@ -10,11 +10,11 @@
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
 #' @return cached data, if cache is available, otherwise NULL
+#'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheGet("calc", "TauTotal", packages = "madrat")
-#' @importFrom digest digest
 cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
 
   .terraLoad <- function(x) {
@@ -32,15 +32,21 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
   }
 
   .isSet <- function(prefix, type, setting) {
-    if (is.null(getConfig(setting))) return(FALSE)
+    if (is.null(getConfig(setting))) {
+      return(FALSE)
+    }
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))
   }
 
-  if (.isSet(prefix, type, "ignorecache")) return(NULL)
+  if (.isSet(prefix, type, "ignorecache")) {
+    return(NULL)
+  }
 
-  fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "get", ...)
+  fname <- cacheName(prefix = prefix, type = type, args = args, graph = graph, mode = "get", ...)
 
-  if (is.null(fname)) return(NULL)
+  if (is.null(fname)) {
+    return(NULL)
+  }
 
   stopifnot(isTRUE(getConfig("forcecache")) || !endsWith(fname, "FfingerprintError.rds"))
 
