@@ -547,3 +547,72 @@ test_that("Data check works as expected", {
   expect_message(calcOutput("MatchingStruct"), "cache file corrupt")
   expect_warning(calcOutput("Infinite", aggregate = FALSE), "infinite values")
 })
+
+
+test_that("Temporal aggregation works", {
+
+  localConfig(outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
+
+  calcTemporalAggregationTest <- function() {
+    x <- new.magpie(getISOlist(), years = seq(2003, 2007, 1), fill = NA)
+    x["USA", c(2003, 2004, 2005, 2006, 2007), ] <- c(5, 7, 3, 3, 7)
+    x["JPN", c(2003, 2005, 2007), ] <- c(5, 3, 7)
+    x["IND", c(2005, 2006, 2007), ] <- c(3, 3, 7)
+    return(list(
+      x = x,
+      weight = NULL,
+      description = "Temporal aggregation test data",
+      unit = "1"
+    ))
+  }
+
+  globalassign("calcTemporalAggregationTest")
+
+  # invalid input parameters ----
+
+  ## no weight in temporalmapping
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1))
+  expect_error(
+    calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE),
+    "temporalmapping must have columns 'period', 'year', 'weight'"
+  )
+
+  ## weight column is not a number in temporalmapping
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = "1")
+  expect_error(
+    calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE),
+    "temporalmapping column 'weight' must be numeric"
+  )
+
+  ## no overlap between data and temporalmapping
+  map <- data.frame("period" = 2000, "year" = seq(1998, 2002, 1), "weight" = 1)
+  expect_error(
+    calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE),
+    "some years in temporalmapping not found in data"
+  )
+
+  # yields expected results ----
+
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
+
+  ## all years in mapping are found in data (non-NA)
+  expect_equal(as.numeric(x["USA", 2005, ]), 5)
+
+  ## NAs in data lead to NA for temporal aggregation
+  expect_true(is.na(as.numeric(x["JPN", 2005, ])))
+  expect_true(is.na(as.numeric(x["IND", 2005, ])))
+
+  ## non-trivial weights
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = c(1, 2, 2, 2, 1))
+  x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
+  expect_equal(as.numeric(x["USA", 2005, ]), 4.75)
+
+  ## temporalmapping only includes non-NA years
+  map <- data.frame("period" = 2005, "year" = c(2003, 2005, 2007), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
+  expect_true(is.na(as.numeric(x["IND", 2005, ])))
+  expect_equal(as.numeric(x["USA", 2005, ]), 5)
+  expect_equal(as.numeric(x["JPN", 2005, ]), 5)
+
+})
