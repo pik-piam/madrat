@@ -38,7 +38,7 @@ getNonDefaultArguments <- function(functionName, args = NULL, errorOnMismatch = 
   }
 
   commonargs <- intersect(names(defargs), names(args))
-  unmatchedArgs <- setdiff(args, args[commonargs])
+  unmatchedArgs <- args[!(args %in% args[commonargs])]
   if (errorOnMismatch && !("..." %in% names(defargs)) && length(unmatchedArgs) >= 1) {
     if (length(names(defargs)) == 0) {
       acceptedArgs <- " does not support any arguments)"
