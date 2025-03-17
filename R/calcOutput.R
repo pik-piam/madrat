@@ -223,21 +223,19 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
            " (max = ", x$max, ")")
     }
 
-    # nolint start: undesirable_function_linter.
-    checkNameStructure <- function(x, structure, dim, class) {
-      if (class != "magpie" && !is.null(structure)) {
+    checkNameStructure <- function(x, struct, dim, class) {
+      if (class != "magpie" && !is.null(struct)) {
         stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
       }
-      if (!is.null(structure)) {
+      if (!is.null(struct)) {
         if (is.null(getItems(x, dim))) {
           vcat(0, paste("Missing names in dimension", dim, "!"))
-        } else if (!all(grepl(structure, getItems(x, dim)))) {
-          vcat(0, paste0("Invalid names (dim=", dim, ', structure=\"', structure, '\"): '),
-               paste(grep(structure, getItems(x, dim), value = TRUE, invert = TRUE), collapse = ", "))
+        } else if (!all(grepl(struct, getItems(x, dim)))) {
+          vcat(0, paste0("Invalid names (dim=", dim, ', structure=\"', struct, '\"): '),
+               paste(grep(struct, getItems(x, dim), value = TRUE, invert = TRUE), collapse = ", "))
         }
       }
     }
-    # nolint end
 
     checkNameStructure(x$x, x$structure.spatial, 1, x$class)
     checkNameStructure(x$x, x$structure.temporal, 2, x$class)
@@ -293,7 +291,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname, callString)
-    cachePut(x, prefix = "calc", type = type, args = args)
+    cachePut(x, prefix = "calc", type = type, args = args, callString = callString)
   }
 
   if (is.logical(x$putInPUC)) saveCache <- x$putInPUC
