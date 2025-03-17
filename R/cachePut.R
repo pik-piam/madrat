@@ -6,6 +6,8 @@
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
 #' @param args a list of named arguments used to call the given function
+#' @param callString A string representation of the function call that leads
+#' to the cache file being written. Will be attached as an attribute.
 #'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}

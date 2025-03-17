@@ -4,7 +4,7 @@
 \alias{getNonDefaultArguments}
 \title{getNonDefaultArguments}
 \usage{
-getNonDefaultArguments(functionName, args = NULL, errorOnMismatch = TRUE)
+getNonDefaultArguments(functionName, args, errorOnMismatch = TRUE)
 }
 \arguments{
 \item{functionName}{A function name as a string (usually in the form package:::fun, e.g. madrat:::calcTauTotal).

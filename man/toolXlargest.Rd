@@ -4,7 +4,7 @@
 \alias{toolXlargest}
 \title{toolXlargest}
 \usage{
-toolXlargest(x, range = 1:20, years = NULL, elements = NULL, ...)
+toolXlargest(x, range = 1:20, years = NULL, elements = NULL)
 }
 \arguments{
 \item{x}{magclass object that shall be used for ranking}
@@ -14,8 +14,6 @@ toolXlargest(x, range = 1:20, years = NULL, elements = NULL, ...)
 \item{years}{range of years that shall be summed for ranking.  If NULL, the sum of all years is used.}
 
 \item{elements}{range of elements that shall be summed for ranking. If NULL, all elements are used.}
-
-\item{...}{further parameters will be handed on to calcOutput function type.}
 }
 \value{
 vector with ISO country codes
