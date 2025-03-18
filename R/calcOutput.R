@@ -29,15 +29,13 @@
 #' always interpreted as TRUE.
 #' @param regionmapping alternative regionmapping to use for the given calculation. It will temporarily
 #' overwrite the global setting just for this calculation.
-#' @param temporalmapping apply temporal mapping to the given calculation.
-#' A data frame consisting of the columns 'period', 'year' and 'weight'.
-#' Years in the magclass object will be mapped from years to periods as indicated in temporalmapping by
-#' calculating the weighted average using the 'weight' column.
-#' Requires magclass object to have exactly one temporal sub-dimension. All years in temporalmapping
-#' must exist in magclass object (be careful when using in combination with the `years` parameter!).
-#' NAs produce NAs in aggregation.
 #' @param writeArgs a list of additional, named arguments to be supplied to
 #' the corresponding write function
+#' @param temporalmapping to aggregate yearly values in the produced magpie object to period values.
+#' A data frame consisting of the columns 'period', 'year' and 'weight'.
+#' Years in the magpie object will be mapped from years to periods as indicated in `temporalmapping` by
+#' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
+#' one temporal sub-dimension.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -111,7 +109,7 @@
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
-                       regionmapping = NULL, temporalmapping = NULL, writeArgs = NULL, ...) {
+                       regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL, ...) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
@@ -359,13 +357,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (!is.null(temporalmapping)) {
 
     if (ndim(x$x, dim = 2) != 1)
-      stop("temporalmapping expects a magclass object with exactly one temporal sub-dimension")
+      stop("`temporalmapping` expects a magclass object with exactly one temporal sub-dimension")
 
     if (!all(c("period", "year", "weight") %in% colnames(temporalmapping)))
-      stop("temporalmapping must have columns 'period', 'year', 'weight'")
+      stop("`temporalmapping` must have columns 'period', 'year', 'weight'")
 
     if (!is.numeric(temporalmapping$weight))
-      stop("temporalmapping column 'weight' must be numeric")
+      stop("`temporalmapping` column 'weight' must be numeric")
 
     if (is.numeric(temporalmapping$period))
       temporalmapping$period <- paste0("y", temporalmapping$period)
@@ -373,8 +371,15 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (is.numeric(temporalmapping$year))
       temporalmapping$year <- paste0("y", temporalmapping$year)
 
-    if (!all(unique(temporalmapping$year) %in% getYears(x$x)))
-      stop("some years in temporalmapping not found in data")
+    if (!any(unique(temporalmapping$year) %in% getYears(x$x)))
+      stop("None of the years in `temporalmapping` found in data")
+
+    tmp <- paste(temporalmapping$period, temporalmapping$year, sep = "/")
+    if (any(duplicated(tmp))) {
+      tmp <- unique(tmp[duplicated(tmp)])
+      stop(cli::pluralize(
+        "Duplicate period/year combination{?s} in `temporalmapping`: {tmp}"))
+    }
 
     temporalmapping <- temporalmapping[temporalmapping$year %in% getYears(x$x), ]
 
@@ -382,7 +387,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
     x$x <- toolAggregate(x$x, dim = 2, rel = temporalmapping,
                          from = "year", to = "period", partrel = TRUE,
-                         weight = weight, verbosity = 2, wdim = 2)
+                         weight = weight, wdim = 2, verbosity = 2)
 
   }
 
