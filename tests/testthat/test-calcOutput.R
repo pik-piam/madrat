@@ -16,7 +16,18 @@ test_that("calcOutput will stop if unused arguments are provided", {
   }
   globalassign("calcTest1")
   expect_error(co <- capture.output(calcOutput("Test1", testarg = TRUE, blubba = 1, aggregate = FALSE)),
-               "unused argument \\(blubba = 1\\)")
+               paste0("The following unexpected arguments were passed to calcTest1: blubba\n",
+                      "(calcTest1 only accepts the following arguments: testarg)"),
+               fixed = TRUE)
+  expect_error(co <- capture.output(calcOutput("Test1", blubba = 1, aggregate = FALSE)),
+               paste0("The following unexpected arguments were passed to calcTest1: blubba\n",
+                      "(calcTest1 only accepts the following arguments: testarg)"),
+               fixed = TRUE)
+  # make sure no partial matching is done
+  expect_error(co <- capture.output(calcOutput("Test1", testa = 1, aggregate = FALSE)),
+               paste0("The following unexpected arguments were passed to calcTest1: testa\n",
+                      "(calcTest1 only accepts the following arguments: testarg)"),
+               fixed = TRUE)
 })
 
 test_that("Malformed inputs are properly detected", {

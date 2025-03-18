@@ -34,7 +34,6 @@ checks are performed to make sure that the given input is a proper
 regionmapping
 }
 \examples{
-
 file <- system.file("extdata", "regionmappingH12.csv", package = "madrat")
 regionscode(file)
 }

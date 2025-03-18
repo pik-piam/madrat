@@ -1,6 +1,7 @@
 #' Tool: cacheName
 #'
-#' Load fitting cache data (if available)
+#' Get the name of a cache file corresponding to the given args
+#'
 #' @note \code{setConfig(forcecache=TRUE)} strongly affects the behavior
 #' of \code{cacheName}. In read model it will also return cache names
 #' with deviating hashes if no fitting cache file is found (in that case
@@ -16,20 +17,20 @@
 #' @param mode Context in which the function is used. Either "get" (loading) or
 #' "put" (writing). In case of "put" the potential file name is returned.
 #' When set to "get", a file name will only be returned if the file exists
-#' (otherwise NULL) and in combination which \code{setConfig(forcecache=TRUE)}
+#' (otherwise NULL). In combination with \code{setConfig(forcecache=TRUE)}
 #' even a cache file with deviating hash might get selected.
 #' @param packages A character vector with packages for which the available
 #' Sources/Calculations should be returned
 #' @param globalenv	Boolean deciding whether sources/calculations in the global
 #' environment should be included or not
 #' @return Name of fitting cache file, if available, otherwise NULL
+#'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheName("calc", "TauTotal")
-#' @importFrom digest digest
-
-cacheName <- function(prefix, type, args = NULL,  graph = NULL, mode = "put", packages = getConfig("packages"),
+cacheName <- function(prefix, type, args = NULL, graph = NULL, mode = "put",
+                      packages = getConfig("packages"),
                       globalenv = getConfig("globalenv")) {
   fpprefix <- prefix
   if (prefix %in% c("convert", "correct")) fpprefix <- "read"
@@ -45,8 +46,8 @@ cacheName <- function(prefix, type, args = NULL,  graph = NULL, mode = "put", pa
   if (prefix %in% c("convert", "correct")) {
     call <- c(call, sub(paste0(fpprefix, type), paste0(prefix, type), attr(fp, "call"), fixed = TRUE))
   }
-  args <- try(cacheArgumentsHash(call, args))
-  if ("try-error" %in% class(args)) return(NULL)
+  args <- cacheArgumentsHash(call, args,
+                             errorOnMismatch = !(prefix %in% c("read", "correct")))
 
   .isSet <- function(prefix, type, setting) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))

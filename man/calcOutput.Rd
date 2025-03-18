@@ -128,7 +128,6 @@ will corrupt the PUC file. Use with care.
 }
 \examples{
 \dontrun{
-
 a <- calcOutput(type = "TauTotal")
 }
 
