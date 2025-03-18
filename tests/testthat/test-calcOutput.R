@@ -628,10 +628,12 @@ test_that("Temporal aggregation works", {
   ## no duplicates in temporalmapping
   map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = 1)
   expect_error(
-    calcOutput("TemporalAggregationTest", temporalmapping = rbind(map, map),
-               warnNA = FALSE),
-    paste("Duplicate period/year combinations in `temporalmapping`:",
-          "y2005/y2003, y2005/y2004, y2005/y2005, y2005/y2006, and y2005/y2007"))
+    calcOutput("TemporalAggregationTest", temporalmapping = rbind(map, map), warnNA = FALSE),
+    paste(
+      "Duplicate period/year combinations in `temporalmapping`:",
+      "y2005/y2003, y2005/y2004, y2005/y2005, y2005/y2006, and y2005/y2007"
+    )
+  )
 
   ## magpie object has more than one temporal dimension
   map <- data.frame("period" = 2000, "year" = seq(1998, 2002, 1), "weight" = 1)
@@ -665,14 +667,14 @@ test_that("Temporal aggregation works", {
   expect_equal(as.numeric(x["JPN", 2005, ]), 5)
 
   ## years in temporalmapping are ignored, if not in data
-  map <-  data.frame("period" = c(rep(2000, 5), rep(2005,5)), "year" = seq(1998, 2007, 1), "weight" = 1)
+  map <-  data.frame("period" = c(rep(2000, 5), rep(2005, 5)), "year" = seq(1998, 2007, 1), "weight" = 1)
   x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
   expect_false("y2000" %in% getYears(x))
 
   ## if only a subset of years is in the data, aggregate over that subset
   ## (here, 2003..2007 maps to 2005, but only 2005..2007 are in the data)
   ## years in temporalmapping are ignored, if not in data
-  map <-  data.frame("period" = c(rep(2005, 5), rep(2010,5)), "year" = seq(2003, 2012, 1), "weight" = 1)
+  map <-  data.frame("period" = c(rep(2005, 5), rep(2010, 5)), "year" = seq(2003, 2012, 1), "weight" = 1)
   x <- calcOutput("TemporalAggregationTest2", temporalmapping = map, warnNA = FALSE)
   expect_equal(as.numeric(x["USA", 2005, ]), 5)
   expect_equal(as.numeric(x["USA", 2010, ]), 1)
