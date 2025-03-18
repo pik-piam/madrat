@@ -666,18 +666,24 @@ test_that("Temporal aggregation works", {
   expect_equal(as.numeric(x["USA", 2005, ]), 5)
   expect_equal(as.numeric(x["JPN", 2005, ]), 5)
 
-  ## years in temporalmapping are ignored, if not in data
+  ## years in mapping not present in the magclass object will be ignored in the aggregation
   map <-  data.frame("period" = c(rep(2000, 5), rep(2005, 5)), "year" = seq(1998, 2007, 1), "weight" = 1)
   x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
   expect_false("y2000" %in% getYears(x))
 
   ## if only a subset of years is in the data, aggregate over that subset
   ## (here, 2003..2007 maps to 2005, but only 2005..2007 are in the data)
-  ## years in temporalmapping are ignored, if not in data
   map <-  data.frame("period" = c(rep(2005, 5), rep(2010, 5)), "year" = seq(2003, 2012, 1), "weight" = 1)
   x <- calcOutput("TemporalAggregationTest2", temporalmapping = map, warnNA = FALSE)
   expect_equal(as.numeric(x["USA", 2005, ]), 5)
   expect_equal(as.numeric(x["USA", 2010, ]), 1)
   expect_equal(getYears(x), c("y2005", "y2010"))
+
+  ## years in the magclass object not present in the mapping will be ignored by the aggregation
+  map <-  data.frame("period" = rep(2005, 5), "year" = seq(2003, 2007, 1), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest2", temporalmapping = map, warnNA = FALSE)
+  expect_equal(as.numeric(x["USA", 2005, ]), 5)
+  # 2010 is ignored because it is not in the mapping
+  expect_equal(getYears(x), c("y2005"))
 
 })
