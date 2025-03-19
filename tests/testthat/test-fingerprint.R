@@ -17,8 +17,14 @@ test_that("fingerprintFiles works as expected", {
   localConfig(verbosity = 1, .verbose = FALSE)
   withr::local_dir(withr::local_tempdir())
   writeLines("this is a test", "test.txt", sep = "")
-  fp <- fingerprintFiles("test.txt")
-  expect_identical(fp, c(test.txt = "e495aa95"))
+  expect_identical(fingerprintFiles("test.txt"), c(test.txt = "e495aa95"))
+
+  # need to write into sourcefolder to use hash cache system
+  f <- withr::local_tempfile(tmpdir = getConfig("sourcefolder"))
+  writeLines("this is a test", f, sep = "")
+  fp <- fingerprintFiles(f)
+  # check result stays the same second time when using hash cache:
+  expect_identical(fingerprintFiles(f), fp)
 })
 
 test_that("fingerprinting works for edge cases", {
