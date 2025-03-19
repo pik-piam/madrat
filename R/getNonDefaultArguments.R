@@ -17,7 +17,7 @@
 #' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "paper"))
 #' functionNames <- c(madrat:::readTau, madrat:::convertTau)
 #' madrat:::getNonDefaultArguments(functionNames, args = list(subtype = "historical"))
-getNonDefaultArguments <- function(functionName, args = NULL, errorOnMismatch = TRUE) {
+getNonDefaultArguments <- function(functionName, args, errorOnMismatch = TRUE) {
   if (length(args) == 0) {
     return(NULL)
   } else if (length(functionName) == 0) {

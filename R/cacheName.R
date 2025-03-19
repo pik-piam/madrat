@@ -46,42 +46,44 @@ cacheName <- function(prefix, type, args = NULL, graph = NULL, mode = "put",
   if (prefix %in% c("convert", "correct")) {
     call <- c(call, sub(paste0(fpprefix, type), paste0(prefix, type), attr(fp, "call"), fixed = TRUE))
   }
-  args <- cacheArgumentsHash(call, args,
-                             errorOnMismatch = !(prefix %in% c("read", "correct")))
+  argsHash <- cacheArgumentsHash(call, args,
+                                 errorOnMismatch = !(prefix %in% c("read", "correct")))
 
-  .isSet <- function(prefix, type, setting) {
-    return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))
+  .fname <- function(prefix, type, fp, argsHash) {
+    return(paste0(getConfig("cachefolder"), "/", prefix, type, fp, argsHash, ".rds"))
   }
-  .fname <- function(prefix, type, fp, args) {
-    return(paste0(getConfig("cachefolder"), "/", prefix, type, fp, args, ".rds"))
-  }
+
   if (mode == "put" && !isFALSE(getConfig("forcecache"))) {
     # forcecache was at least partly active -> data consistency with
     # calculated hash is not guaranteed -> ignore hash
-    return(.fname(prefix, type, "", args))
+    return(.fname(prefix, type, "", argsHash))
   }
-  fname <- .fname(prefix, type, paste0("-F", fp), args)
-  if (file.exists(fname) || mode == "put") return(fname)
-  if (!.isSet(prefix, type, "forcecache")) {
+  fname <- .fname(prefix, type, paste0("-F", fp), argsHash)
+  if (file.exists(fname) || mode == "put") {
+    return(fname)
+  }
+  if (!(isTRUE(getConfig("forcecache")) ||
+          any(c(type, paste0(prefix, type)) %in% getConfig("forcecache")))) {
     vcat(2, " - Cache file ", basename(fname), " does not exist", show_prefix = FALSE)
     return(NULL)
   }
-  # no perfectly fitting file exists, try to find a similar one
+
+  # no perfectly fitting file exists, try to find a similar one for forcecache
   # (either with no fingerprint hash or with differing fingerprint)
-  files <- Sys.glob(c(.fname(prefix, type, "-F*", args),
-                      .fname(prefix, type, "", args)))
+  files <- Sys.glob(c(.fname(prefix, type, "-F*", argsHash),
+                      .fname(prefix, type, "", argsHash)))
 
   # remove false positives
-  if (is.null(args)) files <- files[!grepl("-[^F].*$", basename(files))]
+  if (is.null(argsHash)) {
+    files <- files[!grepl("-[^F].*$", basename(files))]
+  }
 
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
-    vcat(3, " - Search pattern ", basename(.fname(prefix, type, "-F*", args)), show_prefix = FALSE)
+    vcat(3, " - Search pattern ", basename(.fname(prefix, type, "-F*", argsHash)), show_prefix = FALSE)
     return(NULL)
-  }
-  if (length(files) == 1) {
-    file <- files
   } else {
+    # found one or more similar files, use the newest one
     file <- files[robustOrder(paste(file.mtime(files), basename(files)), decreasing = TRUE)][1]
   }
   if (!isWrapperActive("pucAggregate")) {
