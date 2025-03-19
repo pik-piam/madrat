@@ -168,19 +168,22 @@ fingerprintFiles <- function(paths) {
         length = ifelse(file.exists(file.path(path, ".fullhash")), Inf, 300)
       )
       files$path <- NULL
-      if (!is.null(hashCacheFile)) {
-        tryCatch({
-          saveRDS(files, file = hashCacheFile, compress = getConfig("cachecompression"))
-          Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
-        }, error = function(error) {
-          warning("Saving hashCacheFile failed: ", error)
-        })
-      }
     }
     files <- rbind(filesCache, files)
+    files <- files[robustOrder(files$name), ]
+
+    if (!is.null(hashCacheFile)) {
+      tryCatch({
+        saveRDS(files, file = hashCacheFile, compress = getConfig("cachecompression"))
+        Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
+      }, error = function(error) {
+        warning("Saving hashCacheFile failed: ", error)
+      })
+    }
+
     files$mtime <- NULL
     files$key <- NULL
-    return(digest::digest(files[robustOrder(files$name), ], algo = getConfig("hash")))
+    return(digest::digest(files, algo = getConfig("hash")))
   }
   return(sapply(paths, .tmp)) # nolint
 }
