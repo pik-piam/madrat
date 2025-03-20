@@ -208,7 +208,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
       attr(xList$x, "comment") <- extendedComment
     }
 
-    cachePut(xList, prefix = prefix, type = type, args = args)
+    cachePut(xList, prefix = prefix, type = type, args = args, callString = callString)
     return(xList)
   }
 

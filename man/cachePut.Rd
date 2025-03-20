@@ -2,9 +2,9 @@
 % Please edit documentation in R/cachePut.R
 \name{cachePut}
 \alias{cachePut}
-\title{Tool: cachePut}
+\title{cachePut}
 \usage{
-cachePut(x, prefix, type, args = NULL, graph = NULL, ...)
+cachePut(x, prefix, type, args, callString)
 }
 \arguments{
 \item{x}{data that should be written to cache}
@@ -15,19 +15,15 @@ cachePut(x, prefix, type, args = NULL, graph = NULL, ...)
 
 \item{args}{a list of named arguments used to call the given function}
 
-\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}
-Will be created with \code{\link{getMadratGraph}} if not provided.}
-
-\item{...}{Additional arguments for \code{\link{getMadratGraph}} in case
-that no graph is provided (otherwise ignored)}
+\item{callString}{A string representation of the function call that leads
+to the cache file being written. Will be attached as an attribute.}
 }
 \description{
 Save data to cache
 }
 \examples{
 \dontrun{
-example <- 1
-madrat:::cachePut(example, "calc", "Example", packages = "madrat")
+madrat:::cachePut(1, "calc", "Example", NULL, 'calcOutput("Example")')
 }
 }
 \seealso{
