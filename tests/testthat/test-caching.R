@@ -99,7 +99,7 @@ test_that("Cache naming and identification works correctly", {
   expect_message(readSource("CacheExample", subtype = "blub", convert = "onlycorrect"),
                  "writing cache correctCacheExample-F[^-]*.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect"),
-                 "loading cache correctCacheExample-F[^-]*.rds") # fails, cacheName is different here (likely because of read/correct interaction)
+                 "loading cache correctCacheExample-F[^-]*.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"),
                  "correctCacheExample-F[^-]*-d0d19d80.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),

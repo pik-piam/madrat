@@ -24,8 +24,7 @@
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheName("calc", "TauTotal")
-cacheName <- function(prefix, type, args = NULL,
-                      mode = "put") { # TODO remove graph, mode, packages, globalenv
+cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove mode (only used in testing)
   fpprefix <- prefix
   if (prefix %in% c("convert", "correct")) {
     fpprefix <- "read"
@@ -36,7 +35,7 @@ cacheName <- function(prefix, type, args = NULL,
   # as.character to strip attributes from fp
   if (identical(as.character(fp), "fingerprintError") && !isTRUE(getConfig("forcecache"))) {
     vcat(2, " - cacheName = NULL, because fingerprinting failed", show_prefix = FALSE)
-    browser() # TODO do we ever reach this?
+    warning(" - cacheName = NULL, because fingerprinting failed") # TODO do we ever reach this?
     return(NULL)
   }
 
@@ -51,6 +50,7 @@ cacheName <- function(prefix, type, args = NULL,
     return(paste0(getConfig("cachefolder"), "/", prefix, type, fp, argsHash, ".rds"))
   }
 
+  # TODO ensure we don't write regular cache files with forcecache
   if (mode == "put" && !isFALSE(getConfig("forcecache"))) {
     # forcecache was at least partly active -> data consistency with
     # calculated hash is not guaranteed -> ignore hash

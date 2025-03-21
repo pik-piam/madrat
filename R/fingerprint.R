@@ -1,4 +1,4 @@
-#' Tool: fingerprint
+#' fingerprint
 #'
 #' Function which creates a unique fingerprint for a madrat function based on
 #' the code of the function itself, other madrat functions which are called by
