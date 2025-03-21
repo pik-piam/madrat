@@ -9,13 +9,14 @@
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
-#' @return cached data, if cache is available, otherwise NULL
+#' @return cached data if available, otherwise NA
+#' attr(, "id") will be set to the cache file name that was (tried to be) loaded
 #'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheGet("calc", "TauTotal", packages = "madrat")
-cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
+cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) { # TODO remove graph and ...
 
   .terraLoad <- function(x) {
     if (!requireNamespace("terra", quietly = TRUE)) {
@@ -38,24 +39,25 @@ cacheGet <- function(prefix, type, args = NULL, graph = NULL, ...) {
     return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))
   }
 
-  if (.isSet(prefix, type, "ignorecache")) {
-    return(NULL)
-  }
-
+  x <- NA
   fname <- cacheName(prefix = prefix, type = type, args = args, graph = graph, mode = "get", ...)
 
-  if (is.null(fname)) {
-    return(NULL)
+  if (.isSet(prefix, type, "ignorecache") || !file.exists(fname)) {
+    attr(x, "id") <- fname
+    return(x)
   }
 
-  stopifnot(isTRUE(getConfig("forcecache")) || !endsWith(fname, "FfingerprintError.rds"))
+  stopifnot(file.exists(fname),
+            isTRUE(getConfig("forcecache")) || !endsWith(fname, "FfingerprintError.rds"))
 
   vcat(1, " - loading cache ", basename(fname), fill = 300, show_prefix = FALSE)
-  x <- try(readRDS(fname), silent = TRUE)
-  if ("try-error" %in% class(x)) {
-    vcat(0, " - corrupt cache file ", basename(fname), "! Continue without cache.")
-    return(NULL)
-  }
+  tryCatch({
+    x <- readRDS(fname)
+  }, error = function(e) {
+    vcat(0, " - corrupt cache file ", basename(fname),
+         ". Will recalculate and overwrite corrupt cache file.")
+  })
+
   if (is.list(x) && isTRUE(x$class %in% c("SpatRaster", "SpatVector"))) {
     for (elem in intersect(names(x), c("x", "weight"))) {
       x[[elem]] <- .terraLoad(x[[elem]])

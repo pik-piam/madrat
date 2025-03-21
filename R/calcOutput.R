@@ -268,15 +268,18 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   args <- c(extraArgs, list(...))
 
   x <- cacheGet(prefix = "calc", type = type, args = args)
+  cacheFileName <- attr(x, "id")
 
-  if (!is.null(x)) {
-    x <- try(.checkData(x, functionname, callString), silent = TRUE)
-    if ("try-error" %in% class(x)) {
+  if (!isTRUE(is.na(x))) {
+    x <- tryCatch({
+      .checkData(x, functionname, callString)
+    }, error = function(e) {
       vcat(2, " - cache file corrupt for ", functionname, show_prefix = FALSE)
-      x <- NULL
-    }
+      return(NA)
+    })
   }
-  if (is.null(x)) {
+
+  if (isTRUE(is.na(x))) {
     debugMode <- getConfig("debug")
     setWrapperActive("wrapperChecks")
     vcat(2, " - execute function ", functionname, show_prefix = FALSE)
@@ -291,14 +294,15 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname, callString)
-    cachePut(x, prefix = "calc", type = type, args = args, callString = callString)
+    cachePut(x, prefix = "calc", type = type, fname = cacheFileName, callString = callString)
   }
 
-  if (is.logical(x$putInPUC)) saveCache <- x$putInPUC
+  if (is.logical(x$putInPUC)) {
+    saveCache <- x$putInPUC
+  }
 
   if (saveCache) {
-    write(cacheName(prefix = "calc", type = type, args = args),
-          file = "pucFiles", append = TRUE)
+    write(cacheFileName, file = "pucFiles", append = TRUE)
   }
 
 

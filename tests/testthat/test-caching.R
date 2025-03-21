@@ -7,20 +7,26 @@ test_that("Caching works", {
   readNoCacheExample <- function() return(list(x = as.magpie(1), class = "magpie", cache = FALSE))
   globalassign("calcCacheExample", "calcNoCacheExample", "readNoCacheExample", "downloadNoCacheExample")
   localConfig(ignorecache = FALSE, .verbose = FALSE)
-  expect_null(cacheGet("calc", "CacheExample"))
+
+  a <- cacheGet("calc", "CacheExample")
+  expect_match(attr(a, "id"), "\\.rds$")
+  expected <- NA
+  attr(expected, "id") <- attr(a, "id")
+  expect_identical(a, expected)
   expect_message(calcOutput("CacheExample", aggregate = FALSE), "writing cache")
   expect_message(calcOutput("NoCacheExample", aggregate = FALSE), "cache disabled for calcNoCacheExample")
   expect_message(readSource("NoCacheExample", convert = FALSE), "cache disabled for readNoCacheExample")
   expect_identical(cacheGet("calc", "CacheExample")$x, as.magpie(1))
+
   localConfig(ignorecache = TRUE, .verbose = FALSE)
-  expect_null(cacheGet("calc", "CacheExample"))
+  expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
   localConfig(ignorecache = FALSE, .verbose = FALSE)
 
   expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Ff5d41fca.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  expect_null(cacheName("calc", "CacheExample", mode = "get"))
+  expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
   localConfig(forcecache = TRUE, .verbose = FALSE)
   expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample.rds")
   expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
@@ -35,6 +41,27 @@ test_that("Caching works", {
   localConfig(forcecache = TRUE, .verbose = FALSE)
   expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-Fad6287a7.rds")
+})
+
+test_that("caching works with SpatRaster args", {
+  localConfig(ignorecache = FALSE, .verbose = FALSE)
+
+  calcCacheExampleWithArg <- function(raster) {
+    digestBefore <- digest::digest(raster)
+    # terra::minmax(raster) changes the raster object in-place, so even after calcCacheExampleWithArg
+    # returned the raster that was passed to it will be different
+    terra::minmax(raster)
+    testthat::expect_true(digest::digest(raster) != digestBefore)
+    return(list(x = as.magpie(1), description = "-", unit = "-"))
+  }
+  globalassign("calcCacheExampleWithArg")
+
+  raster <- terra::rast(system.file("ex/elev.tif", package = "terra"))
+  expect_message(calcOutput("CacheExampleWithArg", raster = raster, aggregate = FALSE), "writing cache")
+
+  # load again to ensure we pass the same object as before
+  raster <- terra::rast(system.file("ex/elev.tif", package = "terra"))
+  expect_message(calcOutput("CacheExampleWithArg", raster = raster, aggregate = FALSE), "loading cache")
 })
 
 test_that("Argument hashing works", {
@@ -60,7 +87,6 @@ test_that("Argument hashing works", {
 })
 
 test_that("Cache naming and identification works correctly", {
-  localConfig(forcecache = FALSE, .verbose = FALSE)
   downloadCacheExample <- function() {
     return(list(url = 1, author = 1, title = 1, license = 1, description = 1, unit = 1))
   }
@@ -73,7 +99,7 @@ test_that("Cache naming and identification works correctly", {
   expect_message(readSource("CacheExample", subtype = "blub", convert = "onlycorrect"),
                  "writing cache correctCacheExample-F[^-]*.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect"),
-                 "loading cache correctCacheExample-F[^-]*.rds")
+                 "loading cache correctCacheExample-F[^-]*.rds") # fails, cacheName is different here (likely because of read/correct interaction)
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"),
                  "correctCacheExample-F[^-]*-d0d19d80.rds")
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),

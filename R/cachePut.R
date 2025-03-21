@@ -5,24 +5,23 @@
 #' @param x data that should be written to cache
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
-#' @param args a list of named arguments used to call the given function
+#' @param fname The name of the cache file to be written.
 #' @param callString A string representation of the function call that leads
 #' to the cache file being written. Will be attached as an attribute.
 #'
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' \dontrun{
 #' madrat:::cachePut(1, "calc", "Example", NULL, 'calcOutput("Example")')
 #' }
-cachePut <- function(x, prefix, type, args, callString) {
+cachePut <- function(x, prefix, type, fname, callString) {
   tryCatch({
     if (is.list(x) && isFALSE(x$cache)) {
       vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
       return()
     }
 
-    fname <- cacheName(prefix = prefix, type = type, args = args,  graph = NULL, mode = "put")
     if (!is.null(fname)) {
       if (!dir.exists(dirname(fname))) {
         dir.create(dirname(fname), recursive = TRUE)

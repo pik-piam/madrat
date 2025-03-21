@@ -123,11 +123,13 @@ fingerprintFiles <- function(paths) {
       files$path <- paste0(path, "/", files$name)
       files$mtime <- file.mtime(files$path)
       files$size <- file.size(files$path)
-      # create key to identify entries which require recalculation
+      # create key to identify entries in the hashcache which require recalculation
       files$key <- apply(files[c("name", "mtime", "size")], 1,
                          digest::digest, algo = getConfig("hash"))
     }
 
+    # TODO check how much faster running the full preprocessing twice on local
+    # cache (starting empty) is with vs without hashcache
     getHashCacheName <- function(path) {
       # return file name for fileHash cache if the given path belongs to the source folder
       # (this is not the case for a redirected source folder), otherwise return NULL
