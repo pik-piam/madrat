@@ -42,7 +42,7 @@ The fingerprinting function creates hashes of all these functions and all source
 
 ```{r, echo = TRUE, eval=TRUE}
 setConfig(verbosity = 3)
-fp <- madrat:::fingerprint("calcTauTotal", packages = "madrat")
+fp <- madrat:::fingerprint("calcTauTotal")
 ```
 
 As a hash has the characteristic to change when its input changes, an unchanged hash means that also the respective function or source folder did not change. Hence, an identical fingerprint means that the involved functions and source data did not change. So, if the fingerprint of the cache file agrees with the fingerprint calculated for the calculation it is quite likely that the data contained in the cache file also agrees with the output of the calculation one would run it again.
@@ -94,16 +94,16 @@ calcExample2 <- function() {
 In this example are two source data sets and two calculation functions. `calcExample` only depends on `readData` while `calcExample2` depends on both data sources.
 
 ```{r, echo = TRUE, eval=TRUE}
-fp <- madrat:::fingerprint("calcExample", packages = "madrat")
-fp2 <- madrat:::fingerprint("calcExample2", packages = "madrat")
+fp <- madrat:::fingerprint("calcExample")
+fp2 <- madrat:::fingerprint("calcExample2")
 ```
 
 Looking at the fingerprints this is reflected in the hash components of each fingerprint (please NOTE that the source folders are not hashed in this example as they do not exist yet. If they exist they would show up here as well as hash components). One can see, that the hash for `readData` is the same in both fingerprints but as the other hashes differ also the resulting fingerprint for both calculations is different.
 
 ```{r, echo = TRUE, eval=TRUE}
 readData <- function() return(99)
-fp <- madrat:::fingerprint("calcExample", packages = "madrat")
-fp2 <- madrat:::fingerprint("calcExample2", packages = "madrat")
+fp <- madrat:::fingerprint("calcExample")
+fp2 <- madrat:::fingerprint("calcExample2")
 ```
 
 Changing the `readData` function changes the hash of this function and thereby also the fingerprints of both calc functions even so the hash of the calc functions itself did not change.
@@ -114,8 +114,8 @@ readData2 <- function() {
   "!# @monitor madrat:::toolAggregate"
   return(99)
 }
-fp <- madrat:::fingerprint("calcExample", packages = "madrat")
-fp2 <- madrat:::fingerprint("calcExample2", packages = "madrat")
+fp <- madrat:::fingerprint("calcExample")
+fp2 <- madrat:::fingerprint("calcExample2")
 ```
 
 Adding a monitor control flag in `readData` also add this hash component to all subsequent fingerprint calculations.
@@ -134,8 +134,8 @@ calcExample3 <- function() {
   return(a)
 }
 
-fp2 <- madrat:::fingerprint("calcExample2", packages = "madrat")
-fp3 <- madrat:::fingerprint("calcExample3", packages = "madrat")
+fp2 <- madrat:::fingerprint("calcExample2")
+fp3 <- madrat:::fingerprint("calcExample3")
 ```
 
 The `ignore` flag in `calcExample2` excludes `readData2` from the fingerprint calculation. But in contrast to the `monitor` statement this information is not forwarded to `calcExample3`. Hence, the latter does not only monitor `madrat:::toolAggregate` but also `readData2`!

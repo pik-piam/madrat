@@ -30,27 +30,27 @@ test_that("redirectSource works", {
   globalassign("readExample")
 
   expect_identical(as.vector(readSource("Example")), 123)
-  fp <- fingerprint("readExample", packages = "madrat")
+  fp <- fingerprint("readExample")
 
   # ensure fingerprint is different after redirecting
   redirectSource("Example", target = target)
   expect_identical(as.vector(readSource("Example")), 456)
-  nfp <- fingerprint("readExample", packages = "madrat")
+  nfp <- fingerprint("readExample")
   expect_true(nfp != fp)
 
   # ensure original fingerprint after resetting redirection
   redirectSource("Example", target = NULL)
   expect_identical(as.vector(readSource("Example")), 123)
-  expect_identical(fingerprint("readExample", packages = "madrat"), fp)
+  expect_identical(fingerprint("readExample"), fp)
 
   redirectSource("Example", target = target2)
   expect_identical(as.vector(readSource("Example")), 456)
-  expect_identical(fingerprint("readExample", packages = "madrat"), nfp)
+  expect_identical(fingerprint("readExample"), nfp)
 
   # ensure same fingerprint after redirecting to the same target again
   redirectSource("Example", target = target)
   expect_identical(as.vector(readSource("Example")), 456)
-  expect_identical(fingerprint("readExample", packages = "madrat"), nfp)
+  expect_identical(fingerprint("readExample"), nfp)
 })
 
 test_that("redirectSource symlinks other files", {

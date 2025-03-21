@@ -20,15 +20,14 @@
 #' (as the dependencies are sometimes overestimated).
 #'
 #' @param name Name of the function to be analyzed
-#' @param ... Optional, arguments for \code{\link{getDependencies}}
 #' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{readSource}}
 #' @examples
-#' madrat:::fingerprint("toolGetMapping", packages = "madrat")
-fingerprint <- function(name, ...) {
-  dependencies <- getDependencies(name, direction = "in", self = TRUE, ...)
+#' madrat:::fingerprint("toolGetMapping")
+fingerprint <- function(name) {
+  dependencies <- getDependencies(name, direction = "in", self = TRUE, packages = getConfig("packages"))
   result <- tryCatch({
     fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
     names(fingerprintFunctions) <- dependencies$call[robustOrder(dependencies$call)]

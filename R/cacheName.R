@@ -31,7 +31,7 @@ cacheName <- function(prefix, type, args = NULL,
     fpprefix <- "read"
   }
 
-  fp <- fingerprint(name = paste0(fpprefix, type), packages = getConfig("packages"))
+  fp <- fingerprint(name = paste0(fpprefix, type))
 
   # as.character to strip attributes from fp
   if (identical(as.character(fp), "fingerprintError") && !isTRUE(getConfig("forcecache"))) {
