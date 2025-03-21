@@ -95,7 +95,7 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
             "\n  Please make sure that they exist and adjust the scope of packages accordingly!")
   }
   # check for bidirectional package connections
-  .checkBidirectional(out, details = FALSE)
+  checkBidirectional(out, details = FALSE)
 
   for (a in c("fpool", "hash", "mappings", "flags")) attr(out, a) <- attr(code, a)
   assign(gHash, out, envir = getOption("MadratCache"))

@@ -39,7 +39,7 @@ cacheName <- function(prefix, type, args = NULL,
     fpprefix <- "read"
   }
 
-  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph, details = TRUE,
+  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph,
                     packages = packages, globalenv = globalenv)
 
   # as.character to strip attributes from fp

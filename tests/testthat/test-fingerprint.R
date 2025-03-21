@@ -39,7 +39,7 @@ test_that("fingerprintFiles works as expected", {
 })
 
 test_that("fingerprinting works for edge cases", {
-  localConfig(verbosity = 1, .verbose = FALSE)
+  localConfig(verbosity = 3, .verbose = FALSE)
   withr::local_dir(withr::local_tempdir())
   writeLines("this is a test", "map.csv", sep = "")
   readFingerprintTest <- function() {
@@ -47,10 +47,9 @@ test_that("fingerprinting works for edge cases", {
     return(1)
   }
   globalassign("readFingerprintTest")
-  expect_silent({
-    fp <- fingerprint("readFingerprintTest", packages = getConfig("packages"), details = TRUE)
-  })
-  expect_identical(attr(fp, "details")[-1], c("map.csv" = "59eab5b3", readFingerprintTest = "b5efba0b"))
+  fp <- fingerprint("readFingerprintTest", packages = getConfig("packages"))
+  expect_identical(attr(fp, "details")[-1],
+                   c("map.csv" = "59eab5b3", readFingerprintTest = "b5efba0b"))
   expect_null(fingerprintCall("blub"))
 })
 
@@ -65,7 +64,7 @@ test_that("empty hash cache file is handled properly", {
 })
 
 test_that("fingerprinting works with control flags", {
-  localConfig(verbosity = 1, .verbose = FALSE)
+  localConfig(verbosity = 3, .verbose = FALSE)
   readData <- function() {
     return(1)
   }
@@ -85,7 +84,7 @@ test_that("fingerprinting works with control flags", {
       readData2 = "041bef7f"
     )
   )
-  expect_identical(fingerprint("calcExample2", details = TRUE, packages = "madrat"), fpExpected)
+  expect_identical(fingerprint("calcExample2", packages = "madrat"), fpExpected)
   readData3 <- function() {
     return(3)
   }
@@ -128,7 +127,7 @@ test_that("fingerprinting works with control flags", {
       readData2 = "041bef7f"
     )
   )
-  expect_identical(fingerprint("calcExample2", details = TRUE, packages = "madrat"), fp2Expected)
-  expect_identical(fingerprint("calcExample3", details = TRUE, packages = "madrat"), fp3Expected)
-  expect_identical(fingerprint("calcExample4", details = TRUE, packages = "madrat"), fp4Expected)
+  expect_identical(fingerprint("calcExample2", packages = "madrat"), fp2Expected)
+  expect_identical(fingerprint("calcExample3", packages = "madrat"), fp3Expected)
+  expect_identical(fingerprint("calcExample4", packages = "madrat"), fp4Expected)
 })

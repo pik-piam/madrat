@@ -20,8 +20,6 @@
 #' (as the dependencies are sometimes overestimated).
 #'
 #' @param name Name of the function to be analyzed
-#' @param details Boolean indicating whether additional details in form
-#' of an attribute with underlying hash information should be added or not
 #' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}.
 #' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
@@ -32,7 +30,7 @@
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' madrat:::fingerprint("toolGetMapping", package = "madrat")
-fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
+fingerprint <- function(name, graph = NULL, ...) {
   dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
   result <- tryCatch({
     fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
@@ -68,8 +66,8 @@ fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
     # read/write cache files created with an old madrat version.
     out <- digest::digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
 
-    if (details) {
-      attr(out, "details") <- fingerprint
+    if (getConfig("verbosity") >= 3) {
+      attr(out, "details") <- fingerprint # for testing
       vcat(3, "hash components (", out, "):", show_prefix = FALSE)
       for (n in names(fingerprint)) {
         vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
