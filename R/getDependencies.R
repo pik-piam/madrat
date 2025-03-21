@@ -3,7 +3,6 @@
 #' Returns information about dependencies of a
 #' madrat-based calc- read- or full-function.
 #'
-#'
 #' @param name name of the function to be analyzed
 #' @param direction Character string, either “in”, “out”, "both", “full”, "din" or
 #' "dout". If “in” all sources feeding into the function are listed. If “out”
@@ -25,7 +24,6 @@
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}},  \code{\link{getMadratInfo}}
 #' @importFrom igraph graph_from_data_frame subcomponent
 #' @export
-
 getDependencies <- function(name, direction = "in", graph = NULL, type = NULL, self = FALSE, ...) {
   if (is.null(graph)) graph <- getMadratGraph(...)
   packages <- c(graph$from_package, graph$to_package)
@@ -41,7 +39,7 @@ getDependencies <- function(name, direction = "in", graph = NULL, type = NULL, s
     out[!aggr] <- lapply(l[!aggr], .tmp, filter = owncall)
     if (all(vapply(out, length, integer(1)) == 0)) return(NULL)
     return(out)
-   }
+  }
 
   fpool <- attr(graph, "fpool")
   fpool$shortcall <- sub("^.*:::", "", fpool$call)

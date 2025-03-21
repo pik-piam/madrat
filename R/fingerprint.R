@@ -20,18 +20,15 @@
 #' (as the dependencies are sometimes overestimated).
 #'
 #' @param name Name of the function to be analyzed
-#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}.
-#' Will be created with \code{\link{getMadratGraph}} if not provided.
-#' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
-#' that no graph is provided (otherwise ignored)
+#' @param ... Optional, arguments for \code{\link{getDependencies}}
 #' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{readSource}}
 #' @examples
-#' madrat:::fingerprint("toolGetMapping", package = "madrat")
-fingerprint <- function(name, graph = NULL, ...) {
-  dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
+#' madrat:::fingerprint("toolGetMapping", packages = "madrat")
+fingerprint <- function(name, ...) {
+  dependencies <- getDependencies(name, direction = "in", self = TRUE, ...)
   result <- tryCatch({
     fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
     names(fingerprintFunctions) <- dependencies$call[robustOrder(dependencies$call)]
