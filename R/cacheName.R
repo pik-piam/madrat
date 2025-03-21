@@ -13,34 +13,25 @@
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
 #' @param args a list of named arguments used to call the given function
-#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}.
-#' Will be created with \code{\link{getMadratGraph}} if not provided.
 #' @param mode Context in which the function is used. Either "get" (loading) or
 #' "put" (writing). In case of "put" the potential file name is returned.
 #' When set to "get", a file name will only be returned if the file exists
 #' (otherwise NULL). In combination with \code{setConfig(forcecache=TRUE)}
 #' even a cache file with deviating hash might get selected.
-#' @param packages A character vector with packages for which the available
-#' Sources/Calculations should be returned
-#' @param globalenv	Boolean deciding whether sources/calculations in the global
-#' environment should be included or not
 #' @return cache file name, that file does not necessarily exist
 #'
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheName("calc", "TauTotal")
 cacheName <- function(prefix, type, args = NULL,
-                      graph = NULL, mode = "put", # TODO remove graph, mode, packages, globalenv
-                      packages = getConfig("packages"),
-                      globalenv = getConfig("globalenv")) {
+                      mode = "put") { # TODO remove graph, mode, packages, globalenv
   fpprefix <- prefix
   if (prefix %in% c("convert", "correct")) {
     fpprefix <- "read"
   }
 
-  fp <- fingerprint(name = paste0(fpprefix, type), graph = graph,
-                    packages = packages, globalenv = globalenv)
+  fp <- fingerprint(name = paste0(fpprefix, type), packages = getConfig("packages"))
 
   # as.character to strip attributes from fp
   if (identical(as.character(fp), "fingerprintError") && !isTRUE(getConfig("forcecache"))) {

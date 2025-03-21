@@ -8,7 +8,7 @@
 #' @return cached data if available, otherwise NA
 #' attr(, "id") will be set to the cache file name that was (tried to be) loaded
 #'
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' madrat:::cacheGet("calc", "TauTotal")
