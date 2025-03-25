@@ -206,3 +206,22 @@ test_that("terra objects can be cached", {
                terra::as.data.frame(b, geom = "WKT"))
   expect_identical(names(a), names(b))
 })
+
+test_that("caching works with SpatRaster args", {
+  calcCacheExampleWithArg <- function(raster) {
+    digestBefore <- digest::digest(raster)
+    # terra::minmax(raster) changes the raster object in-place, so even after calcCacheExampleWithArg
+    # returned the raster that was passed to it will be different
+    terra::minmax(raster)
+    testthat::expect_true(digest::digest(raster) != digestBefore)
+    return(list(x = as.magpie(1), description = "-", unit = "-"))
+  }
+  globalassign("calcCacheExampleWithArg")
+
+  raster <- terra::rast(system.file("ex/elev.tif", package = "terra"))
+  expect_message(calcOutput("CacheExampleWithArg", raster = raster, aggregate = FALSE), "writing cache")
+
+  # load again to ensure we pass the same object as before
+  raster <- terra::rast(system.file("ex/elev.tif", package = "terra"))
+  expect_message(calcOutput("CacheExampleWithArg", raster = raster, aggregate = FALSE), "loading cache")
+})
