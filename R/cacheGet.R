@@ -43,8 +43,7 @@ cacheGet <- function(prefix, type, args = NULL) {
     return(x)
   }
 
-  stopifnot(file.exists(fname),
-            isTRUE(getConfig("forcecache")) || !endsWith(fname, "FfingerprintError.rds"))
+  stopifnot(file.exists(fname))
 
   vcat(1, " - loading cache ", basename(fname), fill = 300, show_prefix = FALSE)
   tryCatch({

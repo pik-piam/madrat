@@ -32,13 +32,6 @@ cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove m
 
   fp <- fingerprint(name = paste0(fpprefix, type))
 
-  # as.character to strip attributes from fp
-  if (identical(as.character(fp), "fingerprintError") && !isTRUE(getConfig("forcecache"))) {
-    vcat(2, " - cacheName = NULL, because fingerprinting failed", show_prefix = FALSE)
-    warning(" - cacheName = NULL, because fingerprinting failed") # TODO do we ever reach this?
-    return(NULL)
-  }
-
   call <- attr(fp, "call")
   if (prefix %in% c("convert", "correct")) {
     call <- c(call, sub(paste0(fpprefix, type), paste0(prefix, type), attr(fp, "call"), fixed = TRUE))
@@ -81,7 +74,7 @@ cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove m
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
     vcat(3, " - Search pattern ", basename(.fname(prefix, type, "-F*", argsHash)), show_prefix = FALSE)
-    return(NULL)
+    return(.fname(prefix, type, "", argsHash))
   } else {
     # found one or more similar files, use the newest one
     file <- files[robustOrder(paste(file.mtime(files), basename(files)), decreasing = TRUE)][1]

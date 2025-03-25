@@ -20,7 +20,7 @@
 #' (as the dependencies are sometimes overestimated).
 #'
 #' @param name Name of the function to be analyzed
-#' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
+#' @return A fingerprint (hash) of all provided sources
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{readSource}}
@@ -28,53 +28,47 @@
 #' madrat:::fingerprint("toolGetMapping")
 fingerprint <- function(name) {
   dependencies <- getDependencies(name, direction = "in", self = TRUE, packages = getConfig("packages"))
-  result <- tryCatch({
-    fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
-    names(fingerprintFunctions) <- dependencies$call[robustOrder(dependencies$call)]
 
-    # handle special requests via flags
-    .tmp <- function(x) {
-      return(robustSort(sub(":+", ":::", x)))
+  fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
+  names(fingerprintFunctions) <- dependencies$call[robustOrder(dependencies$call)]
+
+  # handle special requests via flags
+  .tmp <- function(x) {
+    return(robustSort(sub(":+", ":::", x)))
+  }
+  ignore <- .tmp(attr(dependencies, "flags")$ignore)
+  monitor <- .tmp(attr(dependencies, "flags")$monitor)
+  # if conflicting information is giving (monitor and ignore at the same time,
+  # prioritize monitor request)
+  ignore <- setdiff(ignore, monitor)
+  # add calls from the monitor list which are not already monitored
+  fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
+  # ignore functions mentioned in the ignore list
+  fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
+
+  sources <- substring(dependencies$func[dependencies$type == "read"], 5)
+  sources <- robustSort(sources)
+  sources <- vapply(sources, function(t) getSourceFolder(type = t, subtype = NULL), character(1))
+  fingerprintSources <- fingerprintFiles(sources)
+
+  fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
+  fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
+  fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
+
+  # Cache files became incompatible when readSource was allowed to return non-magpie objects.
+  # Referring to madrat versions before this change as "old" and after this change as "new" here:
+  # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
+  # Old madrat versions will never read/write these new cache files, and new madrat versions will never
+  # read/write cache files created with an old madrat version.
+  result <- digest::digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
+
+  if (getConfig("verbosity") >= 3) {
+    attr(result, "details") <- fingerprint # for testing
+    vcat(3, "hash components (", result, "):", show_prefix = FALSE)
+    for (n in names(fingerprint)) {
+      vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
     }
-    ignore <- .tmp(attr(dependencies, "flags")$ignore)
-    monitor <- .tmp(attr(dependencies, "flags")$monitor)
-    # if conflicting information is giving (monitor and ignore at the same time,
-    # prioritize monitor request)
-    ignore <- setdiff(ignore, monitor)
-    # add calls from the monitor list which are not already monitored
-    fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
-    # ignore functions mentioned in the ignore list
-    fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
-
-    sources <- substring(dependencies$func[dependencies$type == "read"], 5)
-    sources <- robustSort(sources)
-    sources <- vapply(sources, function(t) getSourceFolder(type = t, subtype = NULL), character(1))
-    fingerprintSources <- fingerprintFiles(sources)
-
-    fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
-    fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
-    fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
-
-    # Cache files became incompatible when readSource was allowed to return non-magpie objects.
-    # Referring to madrat versions before this change as "old" and after this change as "new" here:
-    # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
-    # Old madrat versions will never read/write these new cache files, and new madrat versions will never
-    # read/write cache files created with an old madrat version.
-    out <- digest::digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
-
-    if (getConfig("verbosity") >= 3) {
-      attr(out, "details") <- fingerprint # for testing
-      vcat(3, "hash components (", out, "):", show_prefix = FALSE)
-      for (n in names(fingerprint)) {
-        vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
-      }
-    }
-    out
-  },
-  error = function(error) {
-    vcat(2, paste(" - Fingerprinting failed:", error), show_prefix = FALSE)
-    return("fingerprintError")
-  })
+  }
   attr(result, "call") <- dependencies$call[dependencies$func == name]
   return(result)
 }
