@@ -22,13 +22,13 @@ test_that("Caching works", {
   expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
   localConfig(ignorecache = FALSE, .verbose = FALSE)
 
-  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Ff5d41fca.rds")
+  expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-Ff5d41fca.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
   localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample.rds")
+  expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample.rds")
   expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
   localConfig(forcecache = FALSE, .verbose = FALSE)

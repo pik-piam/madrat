@@ -23,7 +23,7 @@
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
-#' madrat:::cacheName("calc", "TauTotal")
+#' madrat:::cacheName("calc", "TauTotal", mode = "get")
 cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove mode (only used in testing)
   fpprefix <- prefix
   if (prefix %in% c("convert", "correct")) {
@@ -34,7 +34,11 @@ cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove m
 
   call <- attr(fp, "call")
   if (prefix %in% c("convert", "correct")) {
-    call <- c(call, sub(paste0(fpprefix, type), paste0(prefix, type), attr(fp, "call"), fixed = TRUE))
+    call <- c(call,
+              sub(paste0(fpprefix, type),
+                  paste0(prefix, type),
+                  attr(fp, "call"),
+                  fixed = TRUE))
   }
   argsHash <- cacheArgumentsHash(call, args,
                                  errorOnMismatch = !(prefix %in% c("read", "correct")))
@@ -43,13 +47,14 @@ cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove m
     return(paste0(getConfig("cachefolder"), "/", prefix, type, fp, argsHash, ".rds"))
   }
 
+  fname <- .fname(prefix, type, paste0("-F", fp), argsHash)
+
   # TODO ensure we don't write regular cache files with forcecache
   if (mode == "put" && !isFALSE(getConfig("forcecache"))) {
     # forcecache was at least partly active -> data consistency with
-    # calculated hash is not guaranteed -> ignore hash
+    # calculated fingerprint is not guaranteed -> ignore fingerprint
     return(.fname(prefix, type, "", argsHash))
   }
-  fname <- .fname(prefix, type, paste0("-F", fp), argsHash)
   if (file.exists(fname) || mode == "put") {
     return(fname)
   }

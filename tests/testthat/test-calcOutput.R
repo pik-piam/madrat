@@ -550,7 +550,7 @@ test_that("Data check works as expected", {
   expect_warning(calcOutput("MalformedStruct"), "Invalid names")
   expect_warning(calcOutput("MalformedStruct2"), "Missing names")
   expect_silent(suppressMessages(calcOutput("MatchingStruct")))
-  cache <- cacheName("calc", "MatchingStruct")
+  cache <- cacheName("calc", "MatchingStruct", mode = "get")
   a <- readRDS(cache)
   getCells(a$x)[1] <- "BLA"
   saveRDS(a, cache)
