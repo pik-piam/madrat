@@ -28,17 +28,10 @@ cacheGet <- function(prefix, type, args = NULL) {
     return(out)
   }
 
-  .isSet <- function(prefix, type, setting) {
-    if (is.null(getConfig(setting))) {
-      return(FALSE)
-    }
-    return(all(getConfig(setting) == TRUE) || any(c(type, paste0(prefix, type)) %in% getConfig(setting)))
-  }
-
   x <- NA
   fname <- cacheName(prefix = prefix, type = type, args = args, mode = "get")
 
-  if (.isSet(prefix, type, "ignorecache") || !file.exists(fname)) {
+  if (isConfigSet(prefix, type, "ignorecache") || !file.exists(fname)) {
     attr(x, "id") <- fname
     return(x)
   }

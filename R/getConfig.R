@@ -99,3 +99,9 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
   if (is.null(option)) return(cfg)
   return(cfg[[option]])
 }
+
+# check if a config like forcecache or ignorecache applies to the given prefix + type
+isConfigSet <- function(prefix, type, option) {
+  stopifnot(option %in% c("forcecache", "ignorecache"))
+  return(isTRUE(getConfig(option)) || any(c(type, paste0(prefix, type)) %in% getConfig(option)))
+}

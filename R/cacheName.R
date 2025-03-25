@@ -48,28 +48,33 @@ cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove m
   }
 
   fname <- .fname(prefix, type, paste0("-F", fp), argsHash)
+  fnameNoFingerprint <- .fname(prefix, type, "", argsHash)
 
-  # TODO ensure we don't write regular cache files with forcecache
   if (mode == "put" && !isFALSE(getConfig("forcecache"))) {
     # forcecache was at least partly active -> data consistency with
     # calculated fingerprint is not guaranteed -> ignore fingerprint
-    return(.fname(prefix, type, "", argsHash))
+    return(fnameNoFingerprint)
   }
   if (file.exists(fname) || mode == "put") {
     return(fname)
   }
-  if (!(isTRUE(getConfig("forcecache")) ||
-          any(c(type, paste0(prefix, type)) %in% getConfig("forcecache")))) {
+  if (!isConfigSet(prefix, type, "forcecache")) {
     vcat(2, " - Cache file ", basename(fname), " does not exist", show_prefix = FALSE)
     # returning fname even though that file does not exist -> calling function must
     # check whether the returned file exist
     return(fname)
   }
 
+  if (isConfigSet(prefix, type, "ignorecache")) {
+    # the returned path won't be read, but it's used for writing
+    vcat(2, " - forcecache and ignorecache are both active", show_prefix = FALSE)
+    return(fnameNoFingerprint)
+  }
+
   # no perfectly fitting file exists, try to find a similar one for forcecache
   # (either with no fingerprint hash or with differing fingerprint)
   files <- Sys.glob(c(.fname(prefix, type, "-F*", argsHash),
-                      .fname(prefix, type, "", argsHash)))
+                      fnameNoFingerprint))
 
   # remove false positives
   if (is.null(argsHash)) {
@@ -79,14 +84,14 @@ cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove m
   if (length(files) == 0) {
     vcat(2, " - No fitting cache file available", show_prefix = FALSE)
     vcat(3, " - Search pattern ", basename(.fname(prefix, type, "-F*", argsHash)), show_prefix = FALSE)
-    return(.fname(prefix, type, "", argsHash))
+    return(fnameNoFingerprint)
   } else {
     # found one or more similar files, use the newest one
-    file <- files[robustOrder(paste(file.mtime(files), basename(files)), decreasing = TRUE)][1]
+    fname <- files[robustOrder(paste(file.mtime(files), basename(files)), decreasing = TRUE)][1]
   }
   if (!isWrapperActive("pucAggregate")) {
     vcat(1, " - forced cache does not match fingerprint ", fp,
          fill = 300, show_prefix = FALSE)
   }
-  return(file)
+  return(fname)
 }

@@ -6,7 +6,6 @@ test_that("Caching works", {
   }
   readNoCacheExample <- function() return(list(x = as.magpie(1), class = "magpie", cache = FALSE))
   globalassign("calcCacheExample", "calcNoCacheExample", "readNoCacheExample", "downloadNoCacheExample")
-  localConfig(ignorecache = FALSE, .verbose = FALSE)
 
   a <- cacheGet("calc", "CacheExample")
   expect_match(attr(a, "id"), "\\.rds$")
@@ -18,20 +17,27 @@ test_that("Caching works", {
   expect_message(readSource("NoCacheExample", convert = FALSE), "cache disabled for readNoCacheExample")
   expect_identical(cacheGet("calc", "CacheExample")$x, as.magpie(1))
 
-  localConfig(ignorecache = TRUE, .verbose = FALSE)
-  expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
-  localConfig(ignorecache = FALSE, .verbose = FALSE)
+  local({
+    localConfig(ignorecache = TRUE, .verbose = FALSE)
+    expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
+  })
 
   expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-Ff5d41fca.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
-  localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample.rds")
-  expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
-  expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
-  localConfig(forcecache = FALSE, .verbose = FALSE)
+  local({
+    localConfig(forcecache = TRUE, .verbose = FALSE)
+
+    local({
+      localConfig(ignorecache = TRUE, .verbose = FALSE)
+      expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample.rds")
+    })
+
+    expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
+    expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
+  })
   Sys.sleep(1) # wait a second to ensure this second cache file has newer mtime, so forcecache reproducibly takes it
   expect_message(a <- calcOutput("CacheExample", aggregate = FALSE), "writing cache")
   expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-Fad6287a7.rds")
@@ -44,8 +50,6 @@ test_that("Caching works", {
 })
 
 test_that("caching works with SpatRaster args", {
-  localConfig(ignorecache = FALSE, .verbose = FALSE)
-
   calcCacheExampleWithArg <- function(raster) {
     digestBefore <- digest::digest(raster)
     # terra::minmax(raster) changes the raster object in-place, so even after calcCacheExampleWithArg
