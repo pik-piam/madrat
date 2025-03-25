@@ -13,7 +13,8 @@
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' \dontrun{
-#' madrat:::cachePut(1, "calc", "Example", NULL, 'calcOutput("Example")')
+#' fname <- madrat:::cacheName("calc", "Example")
+#' madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 #' }
 cachePut <- function(x, prefix, type, fname, callString) {
   tryCatch({
@@ -22,29 +23,28 @@ cachePut <- function(x, prefix, type, fname, callString) {
       return()
     }
 
-    if (!is.null(fname)) {
-      if (!dir.exists(dirname(fname))) {
-        dir.create(dirname(fname), recursive = TRUE)
-      }
-      attr(x, "cachefile") <- basename(fname)
-      if (is.list(x)) {
-        for (elem in c("x", "weight")) {
-          if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
-            x[[elem]] <- toolTerraToCache(x[[elem]], elem, fname)
-          }
+    # ensure fname includes a fingerprint if and only if forcecache is FALSE
+    stopifnot(identical(isFALSE(getConfig("forcecache")),
+                        grepl("-F", fname)))
+
+    attr(x, "cachefile") <- basename(fname)
+    if (is.list(x)) {
+      for (elem in c("x", "weight")) {
+        if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
+          x[[elem]] <- toolTerraToCache(x[[elem]], elem, fname)
         }
       }
-
-      attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
-      attr(x, "callString") <- callString
-
-      # write to tempfile to avoid corrupt cache files in parallel running preprocessings
-      tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
-      saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
-      file.rename(tempfileName, fname)
-      Sys.chmod(fname, mode = "0666", use_umask = FALSE)
-      vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
     }
+
+    attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
+    attr(x, "callString") <- callString
+
+    # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+    tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
+    saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
+    file.rename(tempfileName, fname)
+    Sys.chmod(fname, mode = "0666", use_umask = FALSE)
+    vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
   }, error = function(e) {
     vcat(0, " - could not write cache file: ", e$message, fill = 300, show_prefix = FALSE)
   })

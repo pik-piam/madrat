@@ -126,6 +126,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   # try to get from cache and check
   .getFromCache <- function(prefix, type, args, subtype, subset) {
     xList <- cacheGet(prefix = prefix, type = type, args = args)
+    cacheFileName <- attr(xList, "id")
     if (!isTRUE(is.na(xList))) {
       if (!is.list(xList)) {
         xList <- list(x = xList, class = "magpie")
@@ -141,6 +142,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     }
     stopifnot(isTRUE(is.na(xList)) ||
                 (is.list(xList) && "x" %in% names(xList) && is.character(xList$class)))
+    attr(xList, "id") <- cacheFileName
     return(xList)
   }
 
@@ -245,7 +247,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
                               paste0(prefix, type) %in% getConfig("forcecache")))
   if (forcecacheActive) {
     xList <- .getFromCache(prefix, type, args, subtype, subset)
-    if (!is.null(xList)) {
+    attr(xList, "id") <- NULL
+    if (!isTRUE(is.na(xList))) {
       return(if (supplementary) xList else xList$x)
     }
   }
