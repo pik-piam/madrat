@@ -4,6 +4,7 @@ nce <- function(x) {
   }
   attr(x, "comment") <- NULL
   attr(x, "cachefile") <- NULL
+  attr(x, "callString") <- NULL
   attr(x, "id") <- NULL
   return(x)
 }
@@ -151,8 +152,9 @@ test_that("read functions can return non-magpie objects", {
   # running second time -> loading from cache, will have additional attribute
   expect_false(identical(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE),
                          list(x = 1, class = "numeric", package = ".GlobalEnv")))
-  expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE)),
-                   list(x = 1, class = "numeric", package = ".GlobalEnv"))
+  a <- testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE)
+  expect_identical(nce(a), list(x = 1, class = "numeric", package = ".GlobalEnv"))
+  expect_identical(attr(a, "callString"), "readSource(type = \"This\", supplementary = TRUE)")
 
   expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"))), 1)
   expect_error(testReadSource(function() list(x = 1, class = "character")),

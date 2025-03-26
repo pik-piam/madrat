@@ -1,4 +1,4 @@
-#' Tool: cachePut
+#' cachePut
 #'
 #' Save data to cache
 #'
@@ -6,26 +6,23 @@
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
 #' @param args a list of named arguments used to call the given function
-#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}
-#' Will be created with \code{\link{getMadratGraph}} if not provided.
-#' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
-#' that no graph is provided (otherwise ignored)
+#' @param callString A string representation of the function call that leads
+#' to the cache file being written. Will be attached as an attribute.
 #'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' \dontrun{
-#' example <- 1
-#' madrat:::cachePut(example, "calc", "Example", packages = "madrat")
+#' madrat:::cachePut(1, "calc", "Example", NULL, 'calcOutput("Example")')
 #' }
-cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
+cachePut <- function(x, prefix, type, args, callString) {
   tryCatch({
     if (is.list(x) && isFALSE(x$cache)) {
       vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
       return()
     }
 
-    fname <- cacheName(prefix = prefix, type = type, args = args,  graph = graph, mode = "put", ...)
+    fname <- cacheName(prefix = prefix, type = type, args = args,  graph = NULL, mode = "put")
     if (!is.null(fname)) {
       if (!dir.exists(dirname(fname))) {
         dir.create(dirname(fname), recursive = TRUE)
@@ -40,6 +37,7 @@ cachePut <- function(x, prefix, type, args = NULL, graph = NULL, ...) {
       }
 
       attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
+      attr(x, "callString") <- callString
 
       # write to tempfile to avoid corrupt cache files in parallel running preprocessings
       tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))

@@ -131,15 +131,13 @@ fingerprintFiles <- function(paths) {
     getHashCacheName <- function(path) {
       # return file name for fileHash cache if the given path belongs to the source folder
       # (this is not the case for a redirected source folder), otherwise return NULL
-      if (dir.exists(getConfig("sourcefolder")) &&
-            startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
+      if (startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
         return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))
       } else {
         return(NULL)
       }
     }
     hashCacheFile <- getHashCacheName(path)
-    orgFiles <- files
 
     if (!is.null(files) && !is.null(hashCacheFile) && file.exists(hashCacheFile)) {
       tryResult <- try({
@@ -170,22 +168,22 @@ fingerprintFiles <- function(paths) {
         length = ifelse(file.exists(file.path(path, ".fullhash")), Inf, 300)
       )
       files$path <- NULL
-      if (!is.null(hashCacheFile)) {
-        if (!dir.exists(dirname(hashCacheFile))) {
-          dir.create(dirname(hashCacheFile), recursive = TRUE)
-        }
-        tryCatch({
-          saveRDS(orgFiles, file = hashCacheFile, compress = getConfig("cachecompression"))
-          Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
-        }, error = function(error) {
-          warning("Saving hashCacheFile failed: ", error)
-        })
-      }
     }
     files <- rbind(filesCache, files)
+    files <- files[robustOrder(files$name), ]
+
+    if (!is.null(hashCacheFile)) {
+      tryCatch({
+        saveRDS(files, file = hashCacheFile, compress = getConfig("cachecompression"))
+        Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
+      }, error = function(error) {
+        warning("Saving hashCacheFile failed: ", error)
+      })
+    }
+
     files$mtime <- NULL
     files$key <- NULL
-    return(digest::digest(files[robustOrder(files$name), ], algo = getConfig("hash")))
+    return(digest::digest(files, algo = getConfig("hash")))
   }
   return(sapply(paths, .tmp)) # nolint
 }
