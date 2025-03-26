@@ -631,7 +631,7 @@ test_that("Temporal aggregation works", {
     calcOutput("TemporalAggregationTest", temporalmapping = rbind(map, map), warnNA = FALSE),
     paste(
       "Duplicate period/year combinations in `temporalmapping`:",
-      "y2005/y2003, y2005/y2004, y2005/y2005, y2005/y2006, and y2005/y2007"
+      "y2005/y2003, y2005/y2004, y2005/y2005, y2005/y2006, y2005/y2007"
     )
   )
 

@@ -385,7 +385,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     tmp <- paste(temporalmapping$period, temporalmapping$year, sep = "/")
     if (any(duplicated(tmp))) {
       tmp <- unique(tmp[duplicated(tmp)])
-      stop(cli::pluralize("Duplicate period/year combination{?s} in `temporalmapping`: {tmp}"))
+      stop(paste0("Duplicate period/year combinations in `temporalmapping`: ", paste(tmp, collapse = ", ")))
     }
 
     temporalmapping <- temporalmapping[temporalmapping$year %in% getYears(x$x), ]
