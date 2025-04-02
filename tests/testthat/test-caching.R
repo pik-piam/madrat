@@ -50,6 +50,8 @@ test_that("Caching works", {
 })
 
 test_that("caching works with SpatRaster args", {
+  skip_if_not_installed("terra")
+
   calcCacheExampleWithArg <- function(raster) {
     digestBefore <- digest::digest(raster)
     # terra::minmax(raster) changes the raster object in-place, so even after calcCacheExampleWithArg
