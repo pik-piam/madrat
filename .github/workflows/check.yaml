@@ -35,15 +35,6 @@ jobs:
           # gms, goxygen, GDPuc) will usually have an outdated binary version
           # available; by using extra-packages we get the newest version
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.9
-
-      - name: Install python dependencies if applicable
-        run: |
-          [ -f requirements.txt ] && python -m pip install --upgrade pip wheel || true
-          [ -f requirements.txt ] && pip install -r requirements.txt || true
-
       - name: Run pre-commit checks
         shell: bash
         run: |

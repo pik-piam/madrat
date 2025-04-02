@@ -18,6 +18,7 @@ calcOutput(
   try = FALSE,
   regionmapping = NULL,
   writeArgs = NULL,
+  temporalmapping = NULL,
   ...
 )
 }
@@ -61,6 +62,12 @@ overwrite the global setting just for this calculation.}
 
 \item{writeArgs}{a list of additional, named arguments to be supplied to
 the corresponding write function}
+
+\item{temporalmapping}{to aggregate yearly values in the produced magpie object to period values.
+A data frame consisting of the columns 'period', 'year' and 'weight'.
+Years in the magpie object will be mapped from years to periods as indicated in \code{temporalmapping} by
+calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
+one temporal sub-dimension.}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}
