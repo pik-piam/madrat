@@ -558,3 +558,132 @@ test_that("Data check works as expected", {
   expect_message(calcOutput("MatchingStruct"), "cache file corrupt")
   expect_warning(calcOutput("Infinite", aggregate = FALSE), "infinite values")
 })
+
+
+test_that("Temporal aggregation works", {
+
+  localConfig(outputfolder = withr::local_tempdir(), verbosity = 0, .verbose = FALSE)
+
+  calcMalformedStruct <- function() {
+    x <- new.magpie(getISOlist(), years = c("1.2001", "2.2001", "3.2001"), fill = 1)
+    return(list(
+      x = x,
+      weight = NULL,
+      description = "Temporal aggregation test data",
+      unit = "1"
+    ))
+  }
+
+  calcTemporalAggregationTest <- function() {
+    x <- new.magpie(getISOlist(), years = seq(2003, 2007, 1), fill = NA)
+    x["USA", c(2003, 2004, 2005, 2006, 2007), ] <- c(5, 7, 3, 3, 7)
+    x["JPN", c(2003, 2005, 2007), ] <- c(5, 3, 7)
+    x["IND", c(2005, 2006, 2007), ] <- c(3, 3, 7)
+    return(list(
+      x = x,
+      weight = NULL,
+      description = "Temporal aggregation test data",
+      unit = "1"
+    ))
+  }
+
+  calcTemporalAggregationTest2 <- function() {
+    x <- new.magpie(getISOlist(), years = seq(2005, 2010, 1), fill = NA)
+    x["USA", seq(2005, 2010, 1), ] <- c(5, 7, 3, 1, 1, 1)
+
+    return(list(
+      x = x,
+      weight = NULL,
+      description = "Temporal aggregation test data",
+      unit = "1"
+    ))
+  }
+
+
+  globalassign("calcMalformedStruct", "calcTemporalAggregationTest", "calcTemporalAggregationTest2")
+
+  # invalid input parameters ----
+
+  ## no weight in temporalmapping
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1))
+  expect_error(
+    calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE),
+    "`temporalmapping` must have columns 'period', 'year', 'weight'"
+  )
+
+  ## weight column is not a number in temporalmapping
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = "1")
+  expect_error(
+    calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE),
+    "`temporalmapping` column 'weight' must be numeric"
+  )
+
+  ## no overlap between data and temporalmapping
+  map <- data.frame("period" = 2000, "year" = seq(1998, 2002, 1), "weight" = 1)
+  expect_error(
+    calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE),
+    "None of the years in `temporalmapping` found in data"
+  )
+
+  ## no duplicates in temporalmapping
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = 1)
+  expect_error(
+    calcOutput("TemporalAggregationTest", temporalmapping = rbind(map, map), warnNA = FALSE),
+    paste(
+      "Duplicate period/year combinations in `temporalmapping`:",
+      "y2005/y2003, y2005/y2004, y2005/y2005, y2005/y2006, y2005/y2007"
+    )
+  )
+
+  ## magpie object has more than one temporal dimension
+  map <- data.frame("period" = 2000, "year" = seq(1998, 2002, 1), "weight" = 1)
+  expect_error(
+    calcOutput("MalformedStruct", temporalmapping = map, warnNA = FALSE),
+    "`temporalmapping` expects a magclass object with exactly one temporal sub-dimension"
+  )
+
+  # yields expected results ----
+
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
+
+  ## all years in mapping are found in data (non-NA)
+  expect_equal(as.numeric(x["USA", 2005, ]), 5)
+
+  ## NAs in data lead to NA for temporal aggregation
+  expect_true(is.na(as.numeric(x["JPN", 2005, ])))
+  expect_true(is.na(as.numeric(x["IND", 2005, ])))
+
+  ## non-trivial weights
+  map <- data.frame("period" = 2005, "year" = seq(2003, 2007, 1), "weight" = c(1, 2, 2, 2, 1))
+  x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
+  expect_equal(as.numeric(x["USA", 2005, ]), 4.75)
+
+  ## temporalmapping only includes non-NA years
+  map <- data.frame("period" = 2005, "year" = c(2003, 2005, 2007), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
+  expect_true(is.na(as.numeric(x["IND", 2005, ])))
+  expect_equal(as.numeric(x["USA", 2005, ]), 5)
+  expect_equal(as.numeric(x["JPN", 2005, ]), 5)
+
+  ## years in mapping not present in the magclass object will be ignored in the aggregation
+  map <-  data.frame("period" = c(rep(2000, 5), rep(2005, 5)), "year" = seq(1998, 2007, 1), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest", temporalmapping = map, warnNA = FALSE)
+  expect_false("y2000" %in% getYears(x))
+
+  ## if only a subset of years is in the data, aggregate over that subset
+  ## (here, 2003..2007 maps to 2005, but only 2005..2007 are in the data)
+  map <-  data.frame("period" = c(rep(2005, 5), rep(2010, 5)), "year" = seq(2003, 2012, 1), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest2", temporalmapping = map, warnNA = FALSE)
+  expect_equal(as.numeric(x["USA", 2005, ]), 5)
+  expect_equal(as.numeric(x["USA", 2010, ]), 1)
+  expect_equal(getYears(x), c("y2005", "y2010"))
+
+  ## years in the magclass object not present in the mapping will be ignored by the aggregation
+  map <-  data.frame("period" = rep(2005, 5), "year" = seq(2003, 2007, 1), "weight" = 1)
+  x <- calcOutput("TemporalAggregationTest2", temporalmapping = map, warnNA = FALSE)
+  expect_equal(as.numeric(x["USA", 2005, ]), 5)
+  # 2010 is ignored because it is not in the mapping
+  expect_equal(getYears(x), c("y2005"))
+
+})
