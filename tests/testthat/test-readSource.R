@@ -48,7 +48,7 @@ test_that("readSource detects common problems", {
   expect_identical(nce(readSource("Test", convert = "onlycorrect")), clean_magpie(as.magpie(2)))
   expect_identical(nce(readSource("Test")), clean_magpie(new.magpie(getISOlist(), fill = 1)))
 
-  cache <- cacheName("convert", "Test", mode = "get")
+  cache <- cacheName("convert", "Test")
   a <- readRDS(cache)
   getCells(a$x)[1] <- "BLA"
   saveRDS(a, cache)
@@ -103,7 +103,7 @@ test_that("forcecache works for readSource", {
   # ensure forced cache file is used even though sourcefolder does not exist
   unlink(file.path(getConfig("sourcefolder"), "Test2"), recursive = TRUE)
   localConfig(forcecache = TRUE)
-  saveRDS("secret", cacheName("read", "Test2", mode = "get"))
+  saveRDS("secret", cacheName("read", "Test2"))
   actual <- readSource("Test2")
   attributes(actual) <- NULL
   expect_identical(actual, "secret")

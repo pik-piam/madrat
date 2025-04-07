@@ -19,33 +19,33 @@ test_that("Caching works", {
 
   local({
     localConfig(ignorecache = TRUE, .verbose = FALSE)
-    expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
+    expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
   })
 
-  expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-Ff5d41fca.rds")
+  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Ff5d41fca.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  expect_identical(as.logical(cacheName("calc", "CacheExample", mode = "get")), NA)
+  expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
   local({
     localConfig(forcecache = TRUE, .verbose = FALSE)
 
     local({
       localConfig(ignorecache = TRUE, .verbose = FALSE)
-      expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample.rds")
+      expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample.rds")
     })
 
-    expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
+    expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
     expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
   })
   Sys.sleep(1) # wait a second to ensure this second cache file has newer mtime, so forcecache reproducibly takes it
   expect_message(a <- calcOutput("CacheExample", aggregate = FALSE), "writing cache")
-  expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-Fad6287a7.rds")
+  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Fad6287a7.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(3), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
+  expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-Fad6287a7.rds")
 })
 

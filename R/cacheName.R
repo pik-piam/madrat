@@ -2,29 +2,20 @@
 #'
 #' Get the name of a cache file corresponding to the given args
 #'
-#' @note \code{setConfig(forcecache=TRUE)} strongly affects the behavior
-#' of \code{cacheName}. If mode == "get" it will also return cache names
-#' with deviating hashes if no fitting cache file is found (in that case
-#' it will just return the newest one). If mode == "put" the fingerpring
-#' (but not the argument hash) in the name
-#' will be left out since due to cache forcing it cannot be guaranteed
-#' that the cache file agrees with the state represented by the hash.
+#' @note With \code{setConfig(forcecache=TRUE)} cacheName will also return
+#' cache file names with deviating fingerprint if no fitting cache file is found
+#' (if there are multiple it will just return the newest one).
 #'
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
 #' @param args a list of named arguments used to call the given function
-#' @param mode Context in which the function is used. Either "get" (loading) or
-#' "put" (writing). In case of "put" the potential file name is returned.
-#' When set to "get", a file name will only be returned if the file exists
-#' (otherwise NULL). In combination with \code{setConfig(forcecache=TRUE)}
-#' even a cache file with deviating hash might get selected.
-#' @return cache file name, that file does not necessarily exist
+#' @return absolute path to a cache file that does not necessarily exist
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
-#' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
+#' @seealso \code{\link{cachePut}}
 #' @examples
-#' madrat:::cacheName("calc", "TauTotal", mode = "get")
-cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove mode (only used in testing)
+#' madrat:::cacheName("calc", "TauTotal")
+cacheName <- function(prefix, type, args = NULL) {
   fpprefix <- prefix
   if (prefix %in% c("convert", "correct")) {
     fpprefix <- "read"
@@ -50,12 +41,7 @@ cacheName <- function(prefix, type, args = NULL, mode = "put") { # TODO remove m
   fname <- .fname(prefix, type, paste0("-F", fp), argsHash)
   fnameNoFingerprint <- .fname(prefix, type, "", argsHash)
 
-  if (mode == "put" && !isFALSE(getConfig("forcecache"))) {
-    # forcecache was at least partly active -> data consistency with
-    # calculated fingerprint is not guaranteed -> ignore fingerprint
-    return(fnameNoFingerprint)
-  }
-  if (file.exists(fname) || mode == "put") {
+  if (file.exists(fname)) {
     return(fname)
   }
   if (!isConfigSet(prefix, type, "forcecache")) {

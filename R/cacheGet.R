@@ -29,7 +29,7 @@ cacheGet <- function(prefix, type, args = NULL) {
   }
 
   x <- NA
-  fname <- cacheName(prefix = prefix, type = type, args = args, mode = "get")
+  fname <- cacheName(prefix = prefix, type = type, args = args)
 
   if (isConfigSet(prefix, type, "ignorecache") || !file.exists(fname)) {
     attr(x, "id") <- fname
