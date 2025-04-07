@@ -92,7 +92,9 @@ fingerprintFiles <- function(paths) {
   if (length(paths) == 0) {
     return(NULL)
   }
-  .tmp <- function(path) {
+
+  # side effect: fileHashCache*.rds is written
+  return(vapply(paths, FUN.VALUE = character(1), FUN = function(path) {
     if (file.exists(paste0(path, "/DONTFINGERPRINT"))) {
       return("SKIPPED")
     }
@@ -106,37 +108,42 @@ fingerprintFiles <- function(paths) {
       path <- dirname(path)
     }
     if (nrow(files) == 0) {
-      files <- NULL
-    } else {
-      files$path <- paste0(path, "/", files$name)
-      files$mtime <- file.mtime(files$path)
-      files$size <- file.size(files$path)
-      # create key to identify entries in the hashcache which require recalculation
-      files$key <- apply(files[c("name", "mtime", "size")], 1,
-                         digest::digest, algo = getConfig("hash"))
+      return(digest::digest(NULL, algo = getConfig("hash")))
     }
+
+    files$path <- paste0(path, "/", files$name)
+    files$mtime <- file.mtime(files$path)
+    files$size <- file.size(files$path)
+    # create key to identify entries in the hashcache which require recalculation
+    files$key <- apply(files[c("name", "mtime", "size")], 1,
+                       digest::digest, algo = getConfig("hash"))
 
     # TODO check how much faster running the full preprocessing twice on local
     # cache (starting empty) is with vs without hashcache
-    getHashCacheName <- function(path) {
-      # return file name for fileHash cache if the given path belongs to the source folder
-      # (this is not the case for a redirected source folder), otherwise return NULL
-      if (startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
-        return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))
-      } else {
-        return(NULL)
-      }
-    }
-    hashCacheFile <- getHashCacheName(path)
 
+    # get hash cache file name if the given path belongs to the source folder
+    # (this is not the case for a redirected source folder)
+    if (startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
+      hashCacheFile <- paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds")
+    } else {
+      hashCacheFile <- NULL
+    }
+
+    # hash cache files must have these columns, otherwise they are ignored/overwritten
+    hashCacheColumns <- c("name", "mtime", "size", "key", "hash")
     if (!is.null(files) && !is.null(hashCacheFile) && file.exists(hashCacheFile)) {
       tryResult <- try({
         filesCache <- readRDS(hashCacheFile)
         # keep only entries which are still up-to-date
         filesCache <- filesCache[filesCache$key %in% files$key, ]
-        files <- files[!(files$key %in% filesCache$key), ]
-        if (nrow(filesCache) == 0) filesCache <- NULL
-        if (nrow(files) == 0) files <- NULL
+        if (nrow(filesCache) == 0 || !setequal(colnames(filesCache), hashCacheColumns)) {
+          filesCache <- NULL
+        } else {
+          files <- files[!(files$key %in% filesCache$key), ]
+        }
+        if (nrow(files) == 0) {
+          files <- NULL
+        }
       }, silent = TRUE)
       if (inherits(tryResult, "try-error")) {
         warning("Ignoring corrupt hashCacheFile: ", as.character(tryResult))
@@ -164,6 +171,7 @@ fingerprintFiles <- function(paths) {
 
     if (!is.null(hashCacheFile)) {
       tryCatch({
+        stopifnot(setequal(colnames(files), hashCacheColumns))
         saveRDS(files, file = hashCacheFile, compress = getConfig("cachecompression"))
         Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
       }, error = function(error) {
@@ -174,6 +182,5 @@ fingerprintFiles <- function(paths) {
     files$mtime <- NULL
     files$key <- NULL
     return(digest::digest(files, algo = getConfig("hash")))
-  }
-  return(sapply(paths, .tmp)) # nolint
+  }))
 }
