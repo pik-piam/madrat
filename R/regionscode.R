@@ -24,13 +24,12 @@
 #' differ with strict mode on or off!
 #' @return A md5-based regionscode which describes the given mapping or, if \code{label=TRUE}
 #' and a corresponding label is available, the label belonging to the regionscode
+#'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link[digest]{digest}}
 #' @examples
-#'
 #' file <- system.file("extdata", "regionmappingH12.csv", package = "madrat")
 #' regionscode(file)
-#' @importFrom digest digest
 #' @export
 regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
 
@@ -86,7 +85,7 @@ regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
   } else {
     tmp <- mapping
   }
-  out <- digest(tmp, algo = getConfig("hash"))
+  out <- digest::digest(tmp, algo = getConfig("hash"))
 
   setWrapperActive("wrapperChecks")
 

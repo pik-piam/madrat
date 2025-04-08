@@ -67,8 +67,15 @@ compareData <- function(x, y, tolerance = 10^-5, # nolint: cyclocomp_linter
   }
 
   .hashFile <- function(f) {
-    x <- system(paste("test -f", f, "&& grep -v '^\\*'", f, "| md5sum"),
-                intern = TRUE)
+    if (!file.exists(f)) {
+      return(NULL)
+    }
+
+    if (1 == system(paste("file -b", f, "| grep -q text"))) {
+      x <- system(paste("md5sum", f), intern = TRUE)
+    } else {
+      x <- system(paste("grep -v '^\\*'", f, "| md5sum"), intern = TRUE)
+    }
 
     if (is.null(attr(x, "status"))) x else NULL
   }

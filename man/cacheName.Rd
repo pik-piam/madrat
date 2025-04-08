@@ -27,7 +27,7 @@ Will be created with \code{\link{getMadratGraph}} if not provided.}
 \item{mode}{Context in which the function is used. Either "get" (loading) or
 "put" (writing). In case of "put" the potential file name is returned.
 When set to "get", a file name will only be returned if the file exists
-(otherwise NULL) and in combination which \code{setConfig(forcecache=TRUE)}
+(otherwise NULL). In combination with \code{setConfig(forcecache=TRUE)}
 even a cache file with deviating hash might get selected.}
 
 \item{packages}{A character vector with packages for which the available
@@ -40,7 +40,7 @@ environment should be included or not}
 Name of fitting cache file, if available, otherwise NULL
 }
 \description{
-Load fitting cache data (if available)
+Get the name of a cache file corresponding to the given args
 }
 \note{
 \code{setConfig(forcecache=TRUE)} strongly affects the behavior

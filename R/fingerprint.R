@@ -30,12 +30,11 @@
 #' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
 #' that no graph is provided (otherwise ignored)
 #' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
+#'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{readSource}}
 #' @examples
 #' madrat:::fingerprint("toolGetMapping", package = "madrat")
-#' @importFrom digest digest
-
 fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
   dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
   result <- tryCatch({
@@ -70,7 +69,7 @@ fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
     # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
     # Old madrat versions will never read/write these new cache files, and new madrat versions will never
     # read/write cache files created with an old madrat version.
-    out <- digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
+    out <- digest::digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
 
     if (details) {
       attr(out, "details") <- fingerprint
@@ -95,7 +94,7 @@ fingerprintCall <- function(name) {
     if ("try-error" %in% class(f)) {
       return(NULL)
     }
-    return(digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
+    return(digest::digest(paste(deparse(f), collapse = " "), algo = getConfig("hash")))
   }
   return(unlist(sapply(name, .tmp))) # nolint
 }
@@ -129,23 +128,19 @@ fingerprintFiles <- function(paths) {
       files$size <- file.size(files$path)
       # create key to identify entries which require recalculation
       files$key <- apply(files[c("name", "mtime", "size")], 1,
-        digest,
-        algo = getConfig("hash")
-      )
+                         digest::digest, algo = getConfig("hash"))
     }
 
     getHashCacheName <- function(path) {
       # return file name for fileHash cache if the given path belongs to the source folder
       # (this is not the case for a redirected source folder), otherwise return NULL
-      if (dir.exists(getConfig("sourcefolder")) &&
-            startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
+      if (startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
         return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))
       } else {
         return(NULL)
       }
     }
     hashCacheFile <- getHashCacheName(path)
-    orgFiles <- files
 
     if (!is.null(files) && !is.null(hashCacheFile) && file.exists(hashCacheFile)) {
       tryResult <- try({
@@ -169,29 +164,29 @@ fingerprintFiles <- function(paths) {
       # `.fullhash` file is present in the directory
       files$hash <- vapply(
         files$path,
-        digest,
+        digest::digest,
         character(1),
         algo = getConfig("hash"),
         file = TRUE,
         length = ifelse(file.exists(file.path(path, ".fullhash")), Inf, 300)
       )
       files$path <- NULL
-      if (!is.null(hashCacheFile)) {
-        if (!dir.exists(dirname(hashCacheFile))) {
-          dir.create(dirname(hashCacheFile), recursive = TRUE)
-        }
-        tryCatch({
-          saveRDS(orgFiles, file = hashCacheFile, compress = getConfig("cachecompression"))
-          Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
-        }, error = function(error) {
-          warning("Saving hashCacheFile failed: ", error)
-        })
-      }
     }
     files <- rbind(filesCache, files)
+    files <- files[robustOrder(files$name), ]
+
+    if (!is.null(hashCacheFile)) {
+      tryCatch({
+        saveRDS(files, file = hashCacheFile, compress = getConfig("cachecompression"))
+        Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
+      }, error = function(error) {
+        warning("Saving hashCacheFile failed: ", error)
+      })
+    }
+
     files$mtime <- NULL
     files$key <- NULL
-    return(digest(files[robustOrder(files$name), ], algo = getConfig("hash")))
+    return(digest::digest(files, algo = getConfig("hash")))
   }
   return(sapply(paths, .tmp)) # nolint
 }

@@ -78,11 +78,8 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
     stop(functionName, "does not have a subtype argument, but subtype '", subtype, "' was provided.")
   }
 
-  functionCall <- prepFunctionName(type = type, prefix = "download", ignore = if (is.null(subtype)) "subtype" else NA)
-
-  if (!file.exists(getConfig("sourcefolder"))) {
-    dir.create(getConfig("sourcefolder"), recursive = TRUE)
-  }
+  functionCall <- prepFunctionName(type = type, prefix = "download",
+                                   ignore = if (is.null(subtype)) "subtype" else NA)
 
   typesubtype <- paste(c(make.names(type), make.names(subtype)), collapse = "/")
   downloadInProgressDirectory <- paste0(typesubtype, "-downloadInProgress")

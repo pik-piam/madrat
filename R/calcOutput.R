@@ -34,11 +34,17 @@
 #' overwrite the global setting just for this calculation.
 #' @param writeArgs a list of additional, named arguments to be supplied to
 #' the corresponding write function
+#' @param temporalmapping to aggregate yearly values in the produced magpie object to period values.
+#' A data frame consisting of the columns 'period', 'year' and 'weight'.
+#' Years in the magpie object will be mapped from years to periods as indicated in `temporalmapping` by
+#' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
+#' one temporal sub-dimension.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
 #' regional level depending on the choice of argument "aggregate" or a list of information
 #' if supplementary is set to TRUE.
+#'
 #' @note The underlying calc-functions are required to provide a list of information back to
 #' \code{calcOutput}. Following list entries should be provided:
 #' \itemize{
@@ -93,21 +99,18 @@
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @examples
 #' \dontrun{
-#'
 #' a <- calcOutput(type = "TauTotal")
 #' }
 #'
 #' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
 #' getCells getYears<- is.magpie dimSums
 #' @importFrom utils packageDescription read.csv2 read.csv
-#' @importFrom digest digest
 #' @importFrom withr defer local_dir
 #' @export
-
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
-                       regionmapping = NULL, writeArgs = NULL, ...) {
+                       regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL, ...) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
@@ -124,15 +127,16 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     warnNA <- na_warning
   }
 
-  if (!dir.exists(getConfig("cachefolder"))) {
-    dir.create(getConfig("cachefolder"), recursive = TRUE)
+  if (!is.null(regionmapping)) {
+    localConfig(regionmapping = regionmapping)
   }
 
-  if (!is.null(regionmapping)) localConfig(regionmapping = regionmapping)
-
   # check type input
-  if (!is.character(type)) stop("Invalid type (must be a character)!")
-  if (length(type) != 1) stop("Invalid type (must be a single character string)!")
+  if (!is.character(type)) {
+    stop("Invalid type (must be a character)!")
+  } else if (length(type) != 1) {
+    stop("Invalid type (must be a single character string)!")
+  }
 
   .checkData <- function(x, functionname, callString) {
     if (!is.list(x)) {
@@ -182,11 +186,17 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
         x$isocountries <- TRUE
       }
     }
-    if (!is.logical(x$isocountries)) stop("x$isocountries must be a logical!")
+    if (!is.logical(x$isocountries)) {
+      stop("x$isocountries must be a logical!")
+    }
     # read and check x$mixed_aggregation value which describes whether the data is in
     # mixed aggregation (weighted mean mixed with summation) is allowed or not
-    if (is.null(x$mixed_aggregation)) x$mixed_aggregation <- FALSE # nolint
-    if (!is.logical(x$mixed_aggregation)) stop("x$mixed_aggregation must be a logical!")
+    if (is.null(x$mixed_aggregation)) {
+      x$mixed_aggregation <- FALSE # nolint
+    }
+    if (!is.logical(x$mixed_aggregation)) {
+      stop("x$mixed_aggregation must be a logical!")
+    }
 
     # check that data is returned for ISO countries except if x$isocountries=FALSE
     if (x$isocountries) {
@@ -221,29 +231,31 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
            " (max = ", x$max, ")")
     }
 
-    # nolint start: undesirable_function_linter.
-    checkNameStructure <- function(x, structure, dim, class) {
-      if (class != "magpie" && !is.null(structure)) {
+    checkNameStructure <- function(x, struct, dim, class) {
+      if (class != "magpie" && !is.null(struct)) {
         stop("Structure checks cannot be used in combination with x$class!=\"magpie\"")
       }
-      if (!is.null(structure)) {
+      if (!is.null(struct)) {
         if (is.null(getItems(x, dim))) {
           vcat(0, paste("Missing names in dimension", dim, "!"))
-        } else if (!all(grepl(structure, getItems(x, dim)))) {
-          vcat(0, paste0("Invalid names (dim=", dim, ', structure=\"', structure, '\"): '),
-               paste(grep(structure, getItems(x, dim), value = TRUE, invert = TRUE), collapse = ", "))
+        } else if (!all(grepl(struct, getItems(x, dim)))) {
+          vcat(0, paste0("Invalid names (dim=", dim, ', structure=\"', struct, '\"): '),
+               paste(grep(struct, getItems(x, dim), value = TRUE, invert = TRUE), collapse = ", "))
         }
       }
     }
-    # nolint end
 
     checkNameStructure(x$x, x$structure.spatial, 1, x$class)
     checkNameStructure(x$x, x$structure.temporal, 2, x$class)
     checkNameStructure(x$x, x$structure.data, 3, x$class)
 
     if (x$class == "magpie") {
-      if (warnNA && anyNA(x$x)) vcat(0, "Data returned by ", functionname, " contains NAs")
-      if (any(is.infinite(x$x))) vcat(0, "Data returned by ", functionname, " contains infinite values")
+      if (warnNA && anyNA(x$x)) {
+        vcat(0, "Data returned by ", functionname, " contains NAs")
+      }
+      if (any(is.infinite(x$x))) {
+        vcat(0, "Data returned by ", functionname, " contains infinite values")
+      }
     }
     return(x)
   }
@@ -257,7 +269,6 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     toolendmessage(startinfo, "-")
   })
 
-  if (!file.exists(getConfig("outputfolder"))) dir.create(getConfig("outputfolder"), recursive = TRUE)
   local_dir(getConfig("outputfolder"))
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
@@ -288,7 +299,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname, callString)
-    cachePut(x, prefix = "calc", type = type, args = args)
+    cachePut(x, prefix = "calc", type = type, args = args, callString = callString)
   }
 
   if (is.logical(x$putInPUC)) saveCache <- x$putInPUC
@@ -352,16 +363,55 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     x$x <- toolOrderCells(x$x)
   }
 
+  if (!is.null(temporalmapping)) {
+
+    if (ndim(x$x, dim = 2) != 1)
+      stop("`temporalmapping` expects a magclass object with exactly one temporal sub-dimension")
+
+    if (!all(c("period", "year", "weight") %in% colnames(temporalmapping)))
+      stop("`temporalmapping` must have columns 'period', 'year', 'weight'")
+
+    if (!is.numeric(temporalmapping$weight))
+      stop("`temporalmapping` column 'weight' must be numeric")
+
+    if (is.numeric(temporalmapping$period))
+      temporalmapping$period <- paste0("y", temporalmapping$period)
+
+    if (is.numeric(temporalmapping$year))
+      temporalmapping$year <- paste0("y", temporalmapping$year)
+
+    if (!any(unique(temporalmapping$year) %in% getYears(x$x)))
+      stop("None of the years in `temporalmapping` found in data")
+
+    tmp <- paste(temporalmapping$period, temporalmapping$year, sep = "/")
+    if (any(duplicated(tmp))) {
+      tmp <- unique(tmp[duplicated(tmp)])
+      stop(paste0("Duplicate period/year combinations in `temporalmapping`: ", paste(tmp, collapse = ", ")))
+    }
+
+    temporalmapping <- temporalmapping[temporalmapping$year %in% getYears(x$x), ]
+
+    weight <- as.magpie(temporalmapping[, c("year", "weight")])
+
+    x$x <- toolAggregate(x$x, dim = 2, rel = temporalmapping,
+                         from = "year", to = "period", partrel = TRUE,
+                         weight = weight, wdim = 2, verbosity = 2)
+
+  }
+
   if (!is.null(years)) {
     if (length(years) == 1) getYears(x$x) <- NULL
   }
   if (!is.null(round)) {
-    if (x$class != "magpie") stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    if (x$class != "magpie") {
+      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    }
     x$x <- round(x$x, round)
   }
   if (!is.null(signif)) {
-    if (x$class != "magpie")
-      stop("rounding can only be used in combination with x$class=\"magpie\"!")
+    if (x$class != "magpie") {
+      stop("rounding (signif) can only be used in combination with x$class=\"magpie\"!")
+    }
     x$x <- signif(x$x, signif)
   }
 

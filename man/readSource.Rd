@@ -46,16 +46,8 @@ types.
 \note{
 If a magpie object is returned magclass::clean_magpie is run and if convert = TRUE
 ISO code country level is checked.
-}
-\examples{
-\dontrun{
-a <- readSource("Tau", "paper")
-}
 
-}
-\seealso{
-\code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
-#' @note The underlying read-functions can return a magpie object or a list of information
+The underlying read-functions can return a magpie object or a list of information
 (preferred) back to \code{readSource}. In list format the object should have the following
 structure:
 \itemize{
@@ -71,6 +63,15 @@ the corresponding file sizes are huge. Or if the caching for the given data type
 in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
 will corrupt the PUC file. Use with care.
 }
+}
+\examples{
+\dontrun{
+a <- readSource("Tau", "paper")
+}
+
+}
+\seealso{
+\code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
 }
 \author{
 Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Sauer

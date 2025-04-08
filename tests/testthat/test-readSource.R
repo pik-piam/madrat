@@ -7,6 +7,7 @@ nce <- function(x) {
   }
   attr(x, "comment") <- NULL
   attr(x, "cachefile") <- NULL
+  attr(x, "callString") <- NULL
   attr(x, "id") <- NULL
   return(x)
 }
@@ -32,7 +33,8 @@ test_that("readSource detects common problems", {
   convertTest <- function(x) return(as.magpie(1))
   globalassign("readTest", "convertTest")
   expect_error(readSource("Test"), "Wrong number of countries")
-  expect_warning(readSource("Test", convert = "onlycorrect"), "No correct function .* could be found")
+  expect_warning(readSource("Test", convert = "onlycorrect"),
+                 "Could not find correctTest function. Setting 'convert' argument from 'onlycorrect' to FALSE.")
   correctTest <- function(x) return(as.magpie(1))
   globalassign("correctTest")
   expect_identical(as.vector(readSource("Test", convert = "onlycorrect")), 1)
@@ -60,7 +62,8 @@ test_that("readSource detects common problems", {
 
   skip_on_cran()
   skip_if_offline("zenodo.org")
-  expect_error(readSource("Tau", subtype = "paper", convert = "WTF"), "Unknown convert setting")
+  expect_error(readSource("Tau", subtype = "paper", convert = "WTF"),
+               "'convert' argument must be set to one of: TRUE, 'onlycorrect', FALSE")
 })
 
 test_that("default readSource example works", {
@@ -152,8 +155,9 @@ test_that("read functions can return non-magpie objects", {
   # running second time -> loading from cache, will have additional attribute
   expect_false(identical(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE),
                          list(x = 1, class = "numeric", package = ".GlobalEnv")))
-  expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE)),
-                   list(x = 1, class = "numeric", package = ".GlobalEnv"))
+  a <- testReadSource(function() list(x = 1, class = "numeric"), supplementary = TRUE)
+  expect_identical(nce(a), list(x = 1, class = "numeric", package = ".GlobalEnv"))
+  expect_identical(attr(a, "callString"), "readSource(type = \"This\", supplementary = TRUE)")
 
   expect_identical(nce(testReadSource(function() list(x = 1, class = "numeric"))), 1)
   expect_error(testReadSource(function() list(x = 1, class = "character")),
@@ -233,4 +237,16 @@ test_that("read with subtype, download without", {
   expect_false(file.exists(file.path(mainfolder, "sources", "Test", "data.txt")))
   readSource("Test") # call readSource without passing subtype explicitly
   expect_true(file.exists(file.path(mainfolder, "sources", "Test", "data.txt")))
+
+  expect_error(readSource("Test", subset = 1), "Argument 'subset' was given, but is not used by readTest")
+
+  correctTest <- function(x) list(x = 1, class = "numeric")
+  globalassign("correctTest")
+
+  expect_error(readSource("Test", subset = 2),
+               "Argument 'subset' was given, but is not used by readTest / correctTest")
+
+  convertTest <- function(subset = "a") list(x = 1, class = "numeric")
+  globalassign("convertTest")
+  expect_no_error(readSource("Test", subset = 3))
 })
