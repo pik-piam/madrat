@@ -1,10 +1,13 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' getSources
-#' 
+#'
 #' These functions can be used to retrieve a list of currently available
 #' sources and outputs (based on the availability of corresponding conversion
 #' functions in the loaded data data processing packages.)
-#' 
-#' 
+#'
+#'
 #' @aliases getSources
 #' @param name name of function for which sources should get returned. If not specified, all sources in the
 #' specified environment are returned
@@ -19,38 +22,38 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}, \code{\link{setConfig}}
 #' @examples
-#' 
+#'
 #' print(getSources())
-#' 
+#'
 #' @export getSources
-getSources <- function(name=NULL, type=NULL, packages=getConfig("packages"), globalenv=getConfig("globalenv")) {
+getSources <- function(name = NULL, type = NULL, packages = getConfig("packages"), globalenv = getConfig("globalenv")) {
   n <- NULL
-  for(p in packages) {
-    n <- c(n,ls(getNamespace(p)))
+  for (p in packages) {
+    n <- c(n, ls(getNamespace(p)))
   }
-  if(globalenv) {
-    n <- c(n,ls(as.environment(".GlobalEnv")))
+  if (globalenv) {
+    n <- c(n, ls(as.environment(".GlobalEnv")))
   }
-  .filter <- function(pattern,x) {
-    tmp <- sub(pattern,"",grep(pattern,n,value=TRUE))
-    return(tmp[tmp!="Source"])
+  .filter <- function(pattern, x) {
+    tmp <- sub(pattern, "", grep(pattern, n, value = TRUE))
+    return(tmp[tmp != "Source"])
   }
-  
-  types <- c("read","correct","convert","download")
-  
-  if(!is.null(name)) {
-    filter <- substring(getDependencies(name, type="read", packages=packages, globalenv=globalenv)$func,5)
-    pattern <- paste0("^(",paste(types,collapse="|"),")")
-    n <- n[sub(pattern,"",n) %in% filter]
+
+  types <- c("read", "correct", "convert", "download")
+
+  if (!is.null(name)) {
+    filter <- substring(getDependencies(name, type = "read", packages = packages, globalenv = globalenv)$func, 5)
+    pattern <- paste0("^(", paste(types, collapse = "|"), ")")
+    n <- n[sub(pattern, "", n) %in% filter]
   }
-  
-  if(is.null(type)) {
-    tmp <- sapply(types,.filter,n)
-    out <- data.frame(source=unique(unlist(tmp)), stringsAsFactors = FALSE)
-    for(i in names(tmp)) out[i] <- (out$source %in% tmp[[i]])
+
+  if (is.null(type)) {
+    tmp <- sapply(types, .filter, n) # nolint: undesirable_function_linter.
+    out <- data.frame(source = unique(unlist(tmp)), stringsAsFactors = FALSE)
+    for (i in names(tmp)) out[i] <- (out$source %in% tmp[[i]])
     return(out)
-  } else if(type %in% types) {
-    return(.filter(type,n))
+  } else if (type %in% types) {
+    return(.filter(type, n))
   } else {
     stop("Unknown type")
   }

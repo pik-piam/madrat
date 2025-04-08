@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' toolTimeAverage
 #'
 #' average over time given an averaging range. Only works for data with

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 test_that("regionscode function works", {
   localConfig(hash = "xxhash32", .verbose = FALSE)
   expect_identical(regionscode(), "62eff8f7")

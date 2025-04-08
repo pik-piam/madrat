@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' Read Tau
 #'
 #' Read-in landuse intensity data (tau) following the methodology published in

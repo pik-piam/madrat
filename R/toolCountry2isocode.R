@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' toolCountry2isocode
 #'
 #' Function used to convert country names from the long name to the ISO 3166-1

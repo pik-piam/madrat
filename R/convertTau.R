@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+
 #' Convert Tau
 #'
 #' Convert landuse intensity data (tau) to data on ISO country level.
