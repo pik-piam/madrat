@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Potsdam Institute for Climate Impact Research (PIK)
+# SPDX-License-Identifier: BSD-2-Clause
+#
 #' Construct a list with the information required for calc-functions to return
 #'
 #' A simple helper to have auto-completion for required and optional elements of
