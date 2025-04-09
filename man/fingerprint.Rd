@@ -2,24 +2,15 @@
 % Please edit documentation in R/fingerprint.R
 \name{fingerprint}
 \alias{fingerprint}
-\title{Tool: fingerprint}
+\title{fingerprint}
 \usage{
-fingerprint(name, details = FALSE, graph = NULL, ...)
+fingerprint(name)
 }
 \arguments{
 \item{name}{Name of the function to be analyzed}
-
-\item{details}{Boolean indicating whether additional details in form
-of an attribute with underlying hash information should be added or not}
-
-\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}.
-Will be created with \code{\link{getMadratGraph}} if not provided.}
-
-\item{...}{Additional arguments for \code{\link{getMadratGraph}} in case
-that no graph is provided (otherwise ignored)}
 }
 \value{
-A fingerprint (hash) of all provided sources, or "fingerprintError"
+A fingerprint (hash) of all provided sources
 }
 \description{
 Function which creates a unique fingerprint for a madrat function based on
@@ -43,7 +34,7 @@ changes even though the workflow stayed the same
 (as the dependencies are sometimes overestimated).
 }
 \examples{
-madrat:::fingerprint("toolGetMapping", package = "madrat")
+madrat:::fingerprint("toolGetMapping")
 }
 \seealso{
 \code{\link{readSource}}

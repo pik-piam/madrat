@@ -118,9 +118,6 @@ fingerprintFiles <- function(paths) {
     files$key <- apply(files[c("name", "mtime", "size")], 1,
                        digest::digest, algo = getConfig("hash"))
 
-    # TODO check how much faster running the full preprocessing twice on local
-    # cache (starting empty) is with vs without hashcache
-
     # get hash cache file name if the given path belongs to the source folder
     # (this is not the case for a redirected source folder)
     if (startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {

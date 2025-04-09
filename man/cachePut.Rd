@@ -4,7 +4,7 @@
 \alias{cachePut}
 \title{cachePut}
 \usage{
-cachePut(x, prefix, type, args, callString)
+cachePut(x, prefix, type, fname, callString)
 }
 \arguments{
 \item{x}{data that should be written to cache}
@@ -13,7 +13,7 @@ cachePut(x, prefix, type, args, callString)
 
 \item{type}{output type (e.g. "TauTotal")}
 
-\item{args}{a list of named arguments used to call the given function}
+\item{fname}{The name of the cache file to be written.}
 
 \item{callString}{A string representation of the function call that leads
 to the cache file being written. Will be attached as an attribute.}
@@ -23,12 +23,13 @@ Save data to cache
 }
 \examples{
 \dontrun{
-madrat:::cachePut(1, "calc", "Example", NULL, 'calcOutput("Example")')
+fname <- madrat:::cacheName("calc", "Example")
+madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 }
 }
 \seealso{
 \code{\link{cachePut}}, \code{\link{cacheName}}
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Pascal Sauer
 }
