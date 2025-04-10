@@ -1,4 +1,4 @@
-.checkBidirectional <- function(graph, details = FALSE, cutoff = 1000) {
+checkBidirectional <- function(graph, details = FALSE, cutoff = 1000) {
   pkgdeps <- unique(graph[c("from_package", "to_package")])
   pkgdeps <- pkgdeps[pkgdeps$from_package != pkgdeps$to_package & pkgdeps$from_package != "UNKNOWN", ]
   din <- paste0(pkgdeps$from_package, "-", pkgdeps$to_package)
@@ -24,7 +24,7 @@
         }
         message("[warning]     ", paste0(hintsShort, collapse = "\n[warning]     "))
       }
-      if (nrow(tmp) < 5 & nrow(tmp) > 0) {
+      if (nrow(tmp) < 5 && nrow(tmp) > 0) {
         hints <- paste0(hints, paste0(tmp$from, "->", tmp$to, collapse = ", "), collapse = ", ")
       }
       warning("Bidirectional package dependencies detected: ",

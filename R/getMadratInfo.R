@@ -88,7 +88,7 @@ getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {
   }
 
   message("\n.:: Check for bidirectional package connections ::.")
-  .checkBidirectional(graph, details = TRUE, cutoff = cutoff)
+  checkBidirectional(graph, details = TRUE, cutoff = cutoff)
 
   message("\n.:: Check for read/calc calls in tool functions ::.")
   tmp <- robustSort(unique(graph[grepl("^tool", graph$to) & !grepl("^tool", graph$from), "to"]))

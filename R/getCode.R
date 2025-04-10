@@ -5,11 +5,11 @@
 #' @param packages A character vector with packages for which the available Sources/Calculations should be returned
 #' @param globalenv Boolean deciding whether sources/calculations in the global environment should be included or not
 #' @return A named vector with condensed function code
-#' @importFrom stringi stri_split stri_extract
+#'
+#' @importFrom stringi stri_extract stri_extract_all
 #' @importFrom withr local_locale
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMadratGraph}}
-
 getCode <- function(packages = installedMadratUniverse(), globalenv = getConfig("globalenv")) {
   # LC_CTYPE changes how \uFC is deparsed (ü vs <U+00FC>), but we want locale independent results
   withr::local_locale(c(LC_CTYPE = "C"))

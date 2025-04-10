@@ -42,7 +42,7 @@ The fingerprinting function creates hashes of all these functions and all source
 
 ```{r, echo = TRUE, eval=TRUE}
 setConfig(verbosity = 3)
-fp <- madrat:::fingerprint("calcTauTotal", details = TRUE, packages = "madrat")
+fp <- madrat:::fingerprint("calcTauTotal")
 ```
 
 As a hash has the characteristic to change when its input changes, an unchanged hash means that also the respective function or source folder did not change. Hence, an identical fingerprint means that the involved functions and source data did not change. So, if the fingerprint of the cache file agrees with the fingerprint calculated for the calculation it is quite likely that the data contained in the cache file also agrees with the output of the calculation one would run it again.
@@ -65,7 +65,7 @@ Control flags can be used to manually include or exclude functions in the finger
 
 ```{r, echo = TRUE, eval=FALSE}
 "!# @monitor madrat:::sysdata magclass:::ncells"
-  "!# @ignore  madrat:::toolAggregate"
+"!# @ignore  madrat:::toolAggregate"
 ```
 
 Each line contains a control flag starting with the flag name (here `monitor` or `ignore`) and afterwards with the arguments of this control flag. The `monitor` flag specifies calls which should get monitored in addition to the ones anyway monitored (in the example the `sysdata` object in `madrat` and the `ncells` functions of the `magclass` package are additionally being monitored). The `ignore` flag specifies which calls should not be monitored even so `getDepenendencies` says otherwise.
@@ -78,32 +78,32 @@ In particular the `ignore` statement has to be handled with care as a wrong info
 
 ```{r, echo = TRUE, eval=TRUE}
 setConfig(globalenv = TRUE)
-  readData <- function() return(1)
-  readData2 <- function() return(2)
-  calcExample <- function() {
-    a <- readSource("Data")
-    return(a)
-  }
-  calcExample2 <- function() {
-    a <- readSource("Data")
-    if (FALSE) a <- readSource("Data2")
-    return(a)
-  }
+readData <- function() return(1)
+readData2 <- function() return(2)
+calcExample <- function() {
+  a <- readSource("Data")
+  return(a)
+}
+calcExample2 <- function() {
+  a <- readSource("Data")
+  if (FALSE) a <- readSource("Data2")
+  return(a)
+}
 ```
 
 In this example are two source data sets and two calculation functions. `calcExample` only depends on `readData` while `calcExample2` depends on both data sources.
 
 ```{r, echo = TRUE, eval=TRUE}
-fp <- madrat:::fingerprint("calcExample", details = TRUE, packages = "madrat")
-  fp2 <- madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat")
+fp <- madrat:::fingerprint("calcExample")
+fp2 <- madrat:::fingerprint("calcExample2")
 ```
 
 Looking at the fingerprints this is reflected in the hash components of each fingerprint (please NOTE that the source folders are not hashed in this example as they do not exist yet. If they exist they would show up here as well as hash components). One can see, that the hash for `readData` is the same in both fingerprints but as the other hashes differ also the resulting fingerprint for both calculations is different.
 
 ```{r, echo = TRUE, eval=TRUE}
 readData <- function() return(99)
-fp <- madrat:::fingerprint("calcExample", details = TRUE, packages = "madrat")
-fp2 <- madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat")
+fp <- madrat:::fingerprint("calcExample")
+fp2 <- madrat:::fingerprint("calcExample2")
 ```
 
 Changing the `readData` function changes the hash of this function and thereby also the fingerprints of both calc functions even so the hash of the calc functions itself did not change.
@@ -111,11 +111,11 @@ Changing the `readData` function changes the hash of this function and thereby a
 
 ```{r, echo = TRUE, eval=TRUE}
 readData2 <- function() {
-    "!# @monitor madrat:::toolAggregate"
-    return(99)
-  }
-fp <- madrat:::fingerprint("calcExample", details = TRUE, packages = "madrat")
-fp2 <- madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat")
+  "!# @monitor madrat:::toolAggregate"
+  return(99)
+}
+fp <- madrat:::fingerprint("calcExample")
+fp2 <- madrat:::fingerprint("calcExample2")
 ```
 
 Adding a monitor control flag in `readData` also add this hash component to all subsequent fingerprint calculations.
@@ -123,19 +123,19 @@ Adding a monitor control flag in `readData` also add this hash component to all 
 ```{r, echo = TRUE, eval=TRUE}
 
 calcExample2 <- function() {
-    "!# @ignore readData2"
-    a <- readSource("Data")
-    if (FALSE) a <- readSource("Data2")
-    return(a)
-  }
+  "!# @ignore readData2"
+  a <- readSource("Data")
+  if (FALSE) a <- readSource("Data2")
+  return(a)
+}
 
-  calcExample3 <- function() {
-    a <- calcOutput("Example2")
-    return(a)
-  }
+calcExample3 <- function() {
+  a <- calcOutput("Example2")
+  return(a)
+}
 
-fp2 <- madrat:::fingerprint("calcExample2", details = TRUE, packages = "madrat")
-fp3 <- madrat:::fingerprint("calcExample3", details = TRUE, packages = "madrat")
+fp2 <- madrat:::fingerprint("calcExample2")
+fp3 <- madrat:::fingerprint("calcExample3")
 ```
 
 The `ignore` flag in `calcExample2` excludes `readData2` from the fingerprint calculation. But in contrast to the `monitor` statement this information is not forwarded to `calcExample3`. Hence, the latter does not only monitor `madrat:::toolAggregate` but also `readData2`!

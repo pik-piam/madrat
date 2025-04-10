@@ -7,7 +7,7 @@ test_that("fingerprinting works as expected", {
     return(paste0(this, is, a, test))
   }
   globalassign("toolTest")
-  expect_equivalent(fingerprint("toolTest", packages = "madrat"), "dc0a3502")
+  expect_equivalent(fingerprint("toolTest"), "dc0a3502")
   emptyfolder <- paste0(withr::local_tempdir(), "/empty")
   dir.create(emptyfolder, recursive = TRUE, showWarnings = FALSE)
   expect_equal(unname(fingerprintFiles(emptyfolder)), "bc4159c0")
@@ -39,7 +39,7 @@ test_that("fingerprintFiles works as expected", {
 })
 
 test_that("fingerprinting works for edge cases", {
-  localConfig(verbosity = 1, .verbose = FALSE)
+  localConfig(verbosity = 3, .verbose = FALSE)
   withr::local_dir(withr::local_tempdir())
   writeLines("this is a test", "map.csv", sep = "")
   readFingerprintTest <- function() {
@@ -47,10 +47,9 @@ test_that("fingerprinting works for edge cases", {
     return(1)
   }
   globalassign("readFingerprintTest")
-  expect_silent({
-    fp <- fingerprint("readFingerprintTest", packages = getConfig("packages"), details = TRUE)
-  })
-  expect_identical(attr(fp, "details")[-1], c("map.csv" = "59eab5b3", readFingerprintTest = "b5efba0b"))
+  fp <- fingerprint("readFingerprintTest")
+  expect_identical(attr(fp, "details")[-1],
+                   c("map.csv" = "59eab5b3", readFingerprintTest = "b5efba0b"))
   expect_null(fingerprintCall("blub"))
 })
 
@@ -65,7 +64,7 @@ test_that("empty hash cache file is handled properly", {
 })
 
 test_that("fingerprinting works with control flags", {
-  localConfig(verbosity = 1, .verbose = FALSE)
+  localConfig(verbosity = 3, .verbose = FALSE)
   readData <- function() {
     return(1)
   }
@@ -85,7 +84,7 @@ test_that("fingerprinting works with control flags", {
       readData2 = "041bef7f"
     )
   )
-  expect_identical(fingerprint("calcExample2", details = TRUE, packages = "madrat"), fpExpected)
+  expect_identical(fingerprint("calcExample2"), fpExpected)
   readData3 <- function() {
     return(3)
   }
@@ -128,7 +127,7 @@ test_that("fingerprinting works with control flags", {
       readData2 = "041bef7f"
     )
   )
-  expect_identical(fingerprint("calcExample2", details = TRUE, packages = "madrat"), fp2Expected)
-  expect_identical(fingerprint("calcExample3", details = TRUE, packages = "madrat"), fp3Expected)
-  expect_identical(fingerprint("calcExample4", details = TRUE, packages = "madrat"), fp4Expected)
+  expect_identical(fingerprint("calcExample2"), fp2Expected)
+  expect_identical(fingerprint("calcExample3"), fp3Expected)
+  expect_identical(fingerprint("calcExample4"), fp4Expected)
 })
