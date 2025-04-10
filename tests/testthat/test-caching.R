@@ -69,6 +69,10 @@ test_that("Argument hashing works", {
   expect_identical(cacheArgumentsHash(calcArgs, args = list(a = 12)), "-8bb64daf")
   expect_error(cacheArgumentsHash(NULL, args = list(no = "call")),
                "No functionName provided for argument hash calculation!")
+  skip_if_not_installed("terra")
+  expect_warning(cacheArgumentsHash(calcArgs, args = list(a = terra::rast())),
+                 "avoid terra object (e.g. SpatRaster) arguments to madrat functions",
+                 fixed = TRUE)
 })
 
 test_that("Cache naming and identification works correctly", {
