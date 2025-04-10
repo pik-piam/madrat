@@ -10,8 +10,8 @@ agypten;EGY
 Ägypten;EGY
 AI;AIA
 AL;ALB
-Aland Islands;ALA
 Åland Islands;ALA
+Aland Islands;ALA
 Albania;ALB
 albanien;ALB
 Algeria;DZA
@@ -22,6 +22,7 @@ American Samoa;ASM
 American_Samoa;ASM
 Andorra;AND
 Angola;AGO
+Angola (e);AGO
 Anguilla;AIA
 antarctic fisheries;XXX
 Antarctica;ATA
@@ -34,6 +35,7 @@ aquatorialguinea;GNQ
 äquatorialguinea;GNQ
 AR;ARG
 Argentina;ARG
+Argentina (1);ARG
 Argentinien;ARG
 Armenia;ARM
 Armenien;ARM
@@ -48,6 +50,7 @@ AUSTRALI;AUS
 Australia;AUS
 Australien;AUS
 Austria;AUT
+Austria (1);AUT
 AW;ABW
 AX;ALA
 AZ;AZE
@@ -80,6 +83,7 @@ BM;BMU
 BN;BRN
 BO;BOL
 Bolivia;BOL
+Bolivia (3);BOL
 Bolivia (Plurinational State of);BOL
 Bolivia (Plurinational State of) ;BOL
 Bolivia, Plurinational State of;BOL
@@ -87,10 +91,11 @@ Bolivien;BOL
 bonaire, saint eustatius, and saba;BES
 Bonaire, Sint Eustatius and Saba;BES
 Bosnia & Herzegovina;BIH
+Bosnia - Herzegovina;BIH
 Bosnia and Herzegovina;BIH
 Bosnia Herzg;BIH
-Bosnia_and_Herzegovina;BIH
 Bosnia-Herzegovina;BIH
+Bosnia_and_Herzegovina;BIH
 BOSNIAHERZ;BIH
 Bosnien und Herzegowina;BIH
 Botsuana;BWA
@@ -99,8 +104,10 @@ Bouvet Island;BVT
 BQ;BES
 BR;BRA
 Br Virgin Is;VGB
+Br. Virgin Isds;VGB
 Brasilien;BRA
 Brazil;BRA
+Brazil (3);BRA
 British Indian Ocean Territory;IOT
 British Virgin Islands;VGB
 Brunei;BRN
@@ -110,6 +117,8 @@ Brunei Darussalam;BRN
 BS;BHS
 BT;BTN
 Bulgaria;BGR
+Bulgaria ( from 1996 );BGR
+Bulgaria (1)(from 1996);BGR
 bulgarien;BGR
 Burkina Faso;BFA
 Burkina_Faso;BFA
@@ -119,15 +128,18 @@ BV;BVT
 BW;BWA
 BY;BLR
 Byelarus;BLR
+Byelorussia;BLR
 BZ;BLZ
 CA;CAN
 Cabo Verde;CPV
 Cambodia;KHM
 Cameroon;CMR
 Canada;CAN
+Canada (1);CAN
 Cape Verde;CPV
 Cape_Verde;CPV
 Cayman Is;CYM
+Cayman Isds;CYM
 Cayman Islands;CYM
 Cayman_Islands;CYM
 CC;CCK
@@ -141,7 +153,9 @@ CG;COG
 CH;CHE
 Chad;TCD
 Chile;CHL
+Chile (3);CHL
 China;CHN
+China ( Mainland );CHN
 China (mainland);CHN
 China HK SAR;HKG
 China Hong Kong SAR;HKG
@@ -163,19 +177,24 @@ CO;COL
 Cocos (Keeling) Islands;CCK
 Cocos Is;CCK
 Colombia;COL
+Colombia (3);COL
 Comoros;COM
 Congo;COG
 Congo (DR);COD
 Congo DR;COD
 Congo Rep;COG
-Congo_Brazzaville;COG
-Congo, the Democratic Republic of the;COD
+Congo, Dem. Rep.;COD
 Congo, Democratic Republic of the;COD
+Congo, Rep.;COG
+Congo, the Democratic Republic of the;COD
+Congo_Brazzaville;COG
 CONGOREP;COD
 Cook Is;COK
+Cook Isds;COK
 Cook Islands;COK
 Cook_Islands;COK
 Costa Rica;CRI
+Costa Rica (3);CRI
 Costa_Rica;CRI
 CostaRica;CRI
 Cote d Ivoire;CIV
@@ -189,6 +208,7 @@ CR;CRI
 Croatia;HRV
 CU;CUB
 Cuba;CUB
+Cuba  (3);CUB
 Curacao;CUW
 Curaçao;CUW
 CV;CPV
@@ -200,16 +220,25 @@ CZ;CZE
 Czech;CZE
 Czech Rep.;CZE
 Czech Republic;CZE
+Czech Republic (1);CZE
 Czech_Republic;CZE
 Czechia;CZE
-czechoslovakia;CSK
 Czechoslovakia;CSK
+czechoslovakia;CSK
 Czechoslovakia (former);CSK
-danemark;DNK
+Czechoslovakia..n.a .;CSK
+D.P.R. Korea;PRK
+D.P.R. Korea (e);PRK
+D.P.R. of Korea;PRK
+D.R. Congo (e);COD
+D.R. of Germany;DDR
 dänemark;DNK
+danemark;DNK
 DE;DEU
 Dem. People's Rep. of Korea;PRK
 Dem. People's Republic of Korea;PRK
+Dem. Rep. Of Korea;PRK
+Dem. Rep. of the Congo;COD
 Dem. Republic Congo;COD
 democratic people s republic of korea;PRK
 Democratic People's Republic of Korea;PRK
@@ -229,21 +258,27 @@ Dominica;DMA
 Dominican Rep;DOM
 Dominican Rep.;DOM
 Dominican Republic;DOM
+Dominican Republic (3);DOM
 Dominican_Republic;DOM
 DOMINICANR;DOM
 Dominika,Rep,;DOM
 DR Congo;COD
+DR of Germany;DDR
 DZ;DZA
 east & west pakistan;XXX
 East Timor;TLS
 EC;ECU
 Ecuador;ECU
+Ecuador (3);ECU
 EE;EST
 EG;EGY
 Egypt;EGY
+Egypt (1);EGY
 Egypt (Arab Republic);EGY
+Egypt, Arab Rep.;EGY
 EH;ESH
 El Salvador;SLV
+El Salvador (3);SLV
 El_Salvador;SLV
 ELSALVADOR;SLV
 Eq Guinea;GNQ
@@ -258,7 +293,14 @@ Eswatini;SWZ
 ET;ETH
 Ethiopia;ETH
 Ethiopia PDR;XET
+F. R. Germany;DEU
+F.R. Germany;DEU
+F.R. of Germany;DEU
+F.R. Yugoslavia;SCG
+Faeroe Isds;FRO
 faeroe islands;FRO
+Faeroe Islands;FRO
+Falkland Isds (Malvinas);FLK
 Falkland Islands (Malvinas);FLK
 Falkland_Islands_or_Islas_Malvinas;FLK
 falklandinseln (malwinen);FLK
@@ -273,21 +315,26 @@ FI;FIN
 Fiji;FJI
 Fiji Islands;FJI
 Finland;FIN
+Finland (1);FIN
 Finnland;FIN
 FJ;FJI
 FK;FLK
 FM;FSM
+Fmr USSR;SUN
+Fmr Yugoslavia;YUG
 FO;FRO
 former democratic yemen;XXX
 Former FSU;SUN
 former german democratic republic;GDR
 former panama canal zone;XXX
 Former Soviet Union (if no detail);SUN
+former U.S.S.R.;SUN
 former yemen;XXX
 Former Yugoslav Republic of Macedonia;MKD
 Former Yugoslavia;YUG
 Former Yugoslavia (if no detail);YUG
 FR;FRA
+FR Germany;DEU
 Fr Guiana;GUF
 Fr Polynesia;PYF
 France;FRA
@@ -303,6 +350,7 @@ french west africa;XXX
 French_Guiana;GUF
 French_Polynesia;PYF
 French_Southern_and_Antarctica_Lands;ATF
+FS Micronesia;FSM
 FSUND;SUN
 FYR Macedonia;MKD
 FYR of Macedonia;MKD
@@ -311,12 +359,18 @@ GA;GAB
 Gabon;GAB
 Gabun;GAB
 Gambia;GMB
+Gambia, The;GMB
 Gambia_The;GMB
 GB;GBR
 GD;GRD
 GE;GEO
 Georgia;GEO
 Georgien;GEO
+German D.R.;DDR
+German Dem . Rep .;DDR
+German Dem Rep;DDR
+German Dem. Rep.;DDR
+German Democratic Republic;DDR
 Germany;DEU
 GF;GUF
 GG;GGY
@@ -332,23 +386,25 @@ GP;GLP
 GQ;GNQ
 GR;GRC
 Greece;GRC
+Greece ( E );GRC
 Greenland;GRL
 Grenada;GRD
 Griechenland;GRC
 Groenland;GRL
-gronland;GRL
 Grönland;GRL
+gronland;GRL
 GS;SGS
 GT;GTM
 GU;GUM
 Guadeloupe;GLP
 Guam;GUM
 Guatemala;GTM
+Guatemala (3);GTM
 Guernsey;GGY
 Guinea;GIN
 guinea bissau;GNB
-Guinea_Bissau;GNB
 Guinea-Bissau;GNB
+Guinea_Bissau;GNB
 Guyana;GUY
 GW;GNB
 GY;GUY
@@ -360,19 +416,23 @@ HN;HND
 Holy See;VAT
 Holy See (Vatican City State);VAT
 Honduras;HND
+Honduras (3);HND
 Hong Kong;HKG
 Hong Kong (China);HKG
+Hong Kong (e);HKG
+Hong Kong , China;HGK
 Hong Kong SAR;HKG
 Hong Kong Special Administrative Region of China;HKG
 hong kong special adminstrative region of china;HKG
-Hong Kong, Special Administrative Region of China;HKG
 Hong Kong, China;HKG
+Hong Kong, Special Administrative Region of China;HKG
 Hong-Kong;HKG
 HONGKONG;HKG
 HR;HRV
 HT;HTI
 HU;HUN
 Hungary;HUN
+Hungary (1);HUN
 Iceland;ISL
 ID;IDN
 IE;IRL
@@ -380,20 +440,26 @@ IL;ISR
 IM;IMN
 IN;IND
 India;IND
+India ( E from 1978 );IND
+India (1);IND
 Indien;IND
 Indonesia;IDN
+Indonesia (5);IDN
 Indonesien;IDN
 IO;IOT
 IQ;IRQ
 IR;IRN
 Irak;IRQ
 Iran;IRN
+Iran (1:1997-);IRN
 Iran (Islamic Republic of);IRN
 Iran (Islamic Republic);IRN
 Iran IR;IRN
+Iran, Islamic Rep.;IRN
 Iran, Islamic Republic of;IRN
 iran, islamische republik;IRN
 Iraq;IRQ
+Iraq (1);IRQ
 Ireland;IRL
 irland;IRL
 IS;ISL
@@ -406,15 +472,18 @@ Italien;ITA
 Italy;ITA
 italy (including san marino);XIT
 ivory coast;CIV
+Ivory Coast;CIV
 Ivory_Coast;CIV
 Jamaica;JAM
 Japan;JPN
+Japan (1);JPN
 japan (excluding the ruyuku islands);XXX
 JE;JEY
 jemen;YEM
 Jersey;JEY
 JM;JAM
 JO;JOR
+Joint Serbia and Montenegro;SCG
 Jordan;JOR
 jordanien;JOR
 JP;JPN
@@ -471,6 +540,7 @@ LA;LAO
 Lao;LAO
 Lao PDR;LAO
 lao people s democratic republic;LAO
+Lao People's Dem. Rep.;LAO
 Lao People's Democratic Republic;LAO
 Laos;LAO
 Laos (PDR);LAO
@@ -488,6 +558,7 @@ Libya;LBY
 Libya/SPLAJ;LBY
 Libyan Arab Jamahiriya;LBY
 libyan arab jamahiriyah;LBY
+Libyan Arab Republic;LBY
 libysch-arabische dschamahirija;LBY
 Liechtenstein;LIE
 litauen;LTU
@@ -499,6 +570,7 @@ LT;LTU
 LU;LUX
 LUXEMBOU;LUX
 Luxembourg;LUX
+Luxemburg;LUX
 LV;LVA
 LY;LBY
 MA;MAR
@@ -512,13 +584,17 @@ Macedonia (FYROM);MKD
 Macedonia, the former Yugoslav Republic of;MKD
 Madagascar;MDG
 Madagaskar;MDG
+Mainland China;CHN
+Mainland China (1);CHN
 Malawi;MWI
 Malaysia;MYS
+Malaysia (5);MYS
 Maldives;MDV
 Mali;MLI
 Malta;MLT
 marokko;MAR
 Marshall Is;MHL
+Marshall Isds;MHL
 Marshall Islands;MHL
 Marshall_Islands;MHL
 Martinique;MTQ
@@ -530,6 +606,7 @@ MC;MCO
 MD;MDA
 ME;MNE
 Mexico;MEX
+Mexico (3);MEX
 Mexiko;MEX
 MF;MAF
 MG;MDG
@@ -550,8 +627,9 @@ Moldova, Republic of;MDA
 Monaco;MCO
 Mongolei;MNG
 Mongolia;MNG
-Montenegro;MNE
+Mongolia (e);MNG
 Montenegro;SCG
+Montenegro;MNE
 Montserrat;MSR
 Morocco;MAR
 Mosambik;MOZ
@@ -567,19 +645,23 @@ MW;MWI
 MX;MEX
 MY;MYS
 Myanmar;MMR
+Myanmar (e);MMR
 Myanmar (ex Burma);MMR
 myanmar (formerly burma);MMR
 Myanmar_or_Burma;MMR
 MZ;MOZ
+N. Mariana Isds;MNP
 NA;NAM
 Namibia;NAM
 Nauru;NRU
 NC;NCL
 NE;NER
 Nepal;NPL
+Neth. Antilles;ANT
 netherland antilles;XAN
 netherland antilles and aruba;ANT
 Netherlands;NLD
+Netherlands (1);NLD
 Netherlands Antilles;ANT
 NETHLAND;NLD
 Neukaledonien;NCL
@@ -587,12 +669,14 @@ NeuSeeland;NZL
 New Caledon;NCL
 New Caledonia;NCL
 New Zealand;NZL
+New Zealand (1);NZL
 New_Caledonia;NCL
 New_Zealand;NZL
 NF;NFK
 NG;NGA
 NI;NIC
 Nicaragua;NIC
+Nicaragua (3);NIC
 niederlande;NLD
 Niger;NER
 Nigeria;NGA
@@ -609,18 +693,20 @@ Northern Mariana Islands;MNP
 Northern_Mariana_Islands;MNP
 NORTHMACED;MKD
 Norway;NOR
+Norway (1);NOR
 Norwegen;NOR
 NP;NPL
 NR;NRU
 Nth Mariana Is;MNP
 NU;NIU
 NZ;NZL
+Occ. Palestinian Terr.;PSE
 Occupied Palastine Territory;PSE
 Occupied Palestinian Territory;PSE
-Palestinian Territory, Occupied;PSE
 Oesterreich;AUT
 OM;OMN
 Oman;OMN
+Oman (e);OMN
 osterreich;AUT
 Österreich;AUT
 Other Africa;IAF
@@ -635,6 +721,8 @@ Others East Asia;XEA
 Others Latin America and the Caribbean;XAC
 Others Oceania;XOO
 Others West Asia;XWA
+P.R. China;CHN
+P.R. China ignored;CHN
 PA;PAN
 pacific islands (palau);XXX
 Pakistan;PAK
@@ -643,23 +731,29 @@ palästina;PSE
 Palau;PLW
 Palestine;PSE
 Palestine, State of;PSE
+Palestinian Territory, Occupied;PSE
 Panama;PAN
+Panama (3);PAN
 Papua N Guin;PNG
 Papua New Guinea;PNG
-Papua_New_Guinea;PNG
 papua-neuguinea;PNG
+Papua_New_Guinea;PNG
 PapuaNeuGuinea;PNG
 Paraguay;PRY
+Paraguay (3);PRY
 PE;PER
 peninsular malaysia;XXX
 People's Republic of China;CHN
 Peru;PER
+Peru (3);PER
 PF;PYF
 PG;PNG
 PH;PHL
 PHILIPPINE;PHL
 philippinen;PHL
 Philippines;PHL
+Philippines (1)(5);PHL
+Phillipines;PHL
 Pitcairn;PCN
 Pitcairn Islands;PCN
 Pitcairn_Islands;PCN
@@ -672,6 +766,7 @@ Poland;POL
 polen;POL
 Polynesia;PYF
 Portugal;PRT
+Portugal (2);PRT
 PR;PRI
 PS;PSE
 PT;PRT
@@ -681,8 +776,14 @@ PW;PLW
 PY;PRY
 QA;QAT
 Qatar;QAT
+Qatar (1: 1999-);QAT
+R.o.Korea;KOR
+R.O.Korea;KOR
+R.o.Korea (1);KOR
 RE;REU
+Rep of Korea;KOR
 Rep,Kongo;COG
+Rep. of Korea;KOR
 Rep. of North Macedonia;MKD
 republic of cameroon;CMR
 Republic of Congo;COG
@@ -693,17 +794,19 @@ republic of south sudan;SSD
 republic of south vietnam;XXX
 republic of sudan;XXX
 Republic of the Congo;COG
-Reunion;REU
 Réunion;REU
+Reunion;REU
+Rhodesia;ZWE
 rhodesia-nyasaland;XXX
 RO;ROU
 Romania;ROU
+Romania (1);ROU
 Romenien;ROU
 RS;SRB
 RU;RUS
 ruanda;RWA
-rumanien;ROU
 rumänien;ROU
+rumanien;ROU
 Russia;RUS
 Russian Fed;RUS
 Russian Federation;RUS
@@ -719,14 +822,15 @@ sabah;XXX
 Saint Barthelemy;BLM
 Saint Barthélemy;BLM
 saint helena;SHN
+Saint Helena;SHN
 Saint Helena, Ascension and Tristan da Cunha;SHN
 Saint Kitts and Nevis;KNA
 Saint Lucia;LCA
 saint martin (dutch portion);SXM
 Saint Martin (French part);MAF
 Saint Pierre and Miquelon;SPM
-Saint Vincent and the Grenadines;VCT
 Saint Vincent and Grenadines;VCT
+Saint Vincent and the Grenadines;VCT
 Sambia;ZMB
 Samoa;WSM
 Samoa (Western);WSM
@@ -740,8 +844,8 @@ são tomé und príncipe;STP
 Sao_Tome_and_Principe;STP
 sarawak;XXX
 Saudi Arabia;SAU
-Saudi_Arabia;SAU
 saudi-arabien;SAU
+Saudi_Arabia;SAU
 SAUDIARABI;SAU
 SB;SLB
 SC;SYC
@@ -753,6 +857,7 @@ Senegal;SEN
 Serbia;SRB
 Serbia & Montenegro;SCG
 Serbia and Montenegro;SCG
+Serbia-Montenegro;SCG
 serbien;SRB
 seychellen;SYC
 Seychelles;SYC
@@ -763,12 +868,15 @@ Sierra Leone;SLE
 Sierra_Leone;SLE
 simbabwe;ZWE
 Singapore;SGP
+Singapore (1);SGP
 Sint Maarten (Dutch part);SXM
 SJ;SJM
 SK;SVK
 SL;SLE
+Slovak  Republic;SVK
 Slovak Rep.;SVK
 Slovak Republic;SVK
+Slovak Republica;SVK
 Slovakia;SVK
 Slovenia;SVN
 slowakei;SVK
@@ -777,6 +885,7 @@ SM;SMR
 SN;SEN
 SO;SOM
 Solomon Is;SLB
+Solomon Isds;SLB
 Solomon Islands;SLB
 Solomon_Islands;SLB
 Somalia;SOM
@@ -788,12 +897,15 @@ South_Africa;ZAF
 South_Georgia_and_the_South_Sandwich_Islands;SGS
 South_Korea;KOR
 SOUTHAFRIC;ZAF
+Soviet Union;SUN
 Spain;ESP
+Spain (1);ESP
 Spanien;ESP
 SR;SUR
 Sri Lanka;LKA
-Sri_Lanka;LKA
+Sri Lanka (e);LKA
 Sri-lanka;LKA
+Sri_Lanka;LKA
 SRILANKA;LKA
 SS;SSD
 SSUDAN;SSD
@@ -811,8 +923,8 @@ st vincent & the grenadines;VCT
 St Vincent and Grenadines;VCT
 St Vincent Gren;VCT
 St_Vincent_and_the_Grenadines;VCT
-sudafrika;ZAF
 Südafrika;ZAF
+sudafrika;ZAF
 Sudan;SDN
 Suedafrika;ZAF
 Suriname;SUR
@@ -823,6 +935,7 @@ Svalbard and Jan Mayen Islands;SJM
 Swasiland;SWZ
 Swaziland;SWZ
 Sweden;SWE
+Sweden (1);SWE
 SWITLAND;CHE
 Switzerland;CHE
 SX;SXM
@@ -838,15 +951,22 @@ Tadschikistan;TJK
 TAIPEI;TWN
 Taiwan;TWN
 Taiwan  China;TWN
+Taiwan ( R.O.C. );TWN
+Taiwan ( R.o.C. );TWN
+Taiwan (1);TWN
 Taiwan (China);TWN
+Taiwan (R.O.C.);TWN
+Taiwan , China;TWN
 Taiwan China;TWN
+Taiwan ROC;TWN
+Taiwan, China;TWN
 Taiwan, Province of China;TWN
 Tajikistan;TJK
 tanganyika;XXX
 tansania, vereinigte republik;TZA
 Tanzania;TZA
-Tanzania_United_Republic_of;TZA
 Tanzania, United Republic of;TZA
+Tanzania_United_Republic_of;TZA
 TC;TCA
 TD;TCD
 TF;ATF
@@ -854,6 +974,7 @@ TFYR Macedonia;MKD
 TG;TGO
 TH;THA
 Thailand;THA
+Thailand (5);THA
 The former Yugoslav Rep. of Macedonia;MKD
 The former Yugoslav Republic of Macedonia;MKD
 The Gambia;GMB
@@ -873,6 +994,7 @@ TR;TUR
 TRINIDAD;TTO
 Trinidad & Tobago;TTO
 Trinidad and Tobago;TTO
+Trinidad and Tobago (3);TTO
 Trinidad Tobago;TTO
 trinidad und tobago;TTO
 Trinidad_and_Tobago;TTO
@@ -882,23 +1004,29 @@ TT;TTO
 Tuerkei;TUR
 tunesien;TUN
 Tunisia;TUN
+Tunisia (1);TUN
 turkei;TUR
 Türkei;TUR
-Türkiye;TUR
 Turkey;TUR
+Turkey (1);TUR
+Türkiye;TUR
 Turkiye;TUR
 TURKMENIST;TKM
 Turkmenistan;TKM
+Turks and Caicos Isds;TCA
 Turks and Caicos Islands;TCA
 Turks Caicos;TCA
 Tuvalu;TUV
 TV;TUV
 TW;TWN
 TZ;TZA
+U.S.S.R.;SUN
+U.S.S.R. ( E : 1987 );SUN
 UA;UKR
 UAE;ARE
 UG;UGA
 Uganda;UGA
+Uganda (e);UGA
 UK;GBR
 Ukraine;UKR
 UM;UMI
@@ -906,10 +1034,14 @@ ungarn;HUN
 United Arab Em;ARE
 United Arab Emirates;ARE
 United Kingdom;GBR
+United Kingdom ( 1;GBR
+United Kingdom (1);GBR
 United Kingdom of Great Britain and Northern Ireland;GBR
 united korea;XXX
+United Rep. of Tanzania;TZA
 United Republic of Tanzania;TZA
 United States;USA
+United States (4);USA
 United States Minor Outlying Islands;UMI
 United States of America;USA
 United States Virgin Islands;VIR
@@ -917,13 +1049,17 @@ United_Arab_Emirates;ARE
 United_Kingdom;GBR
 United_States;USA
 Uruguay;URY
+Uruguay (3);URY
 US;USA
 US Virgin Is;VIR
+US Virgin Isds;VIR
 US Virgin Islands;VIR
 USA;USA
 Usbekistan;UZB
 ussr;SUN
 USSR;SUN
+USSR ( 1 );SUN
+USSR ( in OH  BOF only );SUN
 UY;URY
 UZ;UZB
 Uzbekistan;UZB
@@ -932,9 +1068,11 @@ Vanuatu;VUT
 VC;VCT
 VE;VEN
 Venezuela;VEN
+Venezuela (3);VEN
 Venezuela (Bolivarian Republic of);VEN
 Venezuela, Bolivarian Republic of;VEN
 venezuela, bolivarische republik;VEN
+Venezuela, RB;VEN
 Venzuela;VEN
 vereinigte arabische emirate;ARE
 vereinigte staaten;USA
@@ -942,18 +1080,20 @@ vereinigtes konigreich;GBR
 vereinigtes königreich;GBR
 VG;VGB
 VI;VIR
+Viet  Nam;VNM
 Viet Nam;VNM
 Vietnam;VNM
+Virgin Islands (U_S_);VIR
 Virgin Islands, British;VGB
 Virgin Islands, U.S.;VIR
 Virgin Islands, US;VIR
 Virgin_Islands;VIR
-Virgin Islands (U_S_);VIR
 VN;VNM
 Volkrep,China;CHN
 VU;VUT
 Wake_Islands;WAK
 Wallis and Futuna;WLF
+Wallis and Futuna Isds;WLF
 wallis and futuna islands;WLF
 Wallis and Futuna Islands;WLF
 Wallis Fut Is;WLF
@@ -969,6 +1109,7 @@ WF;WLF
 WS;WSM
 YE;YEM
 Yemen;YEM
+Yemen, Rep.;YEM
 YT;MYT
 YUGOND;YUG
 Yugoslav SFR;YUG
@@ -976,7 +1117,9 @@ Yugoslavia;YUG
 yugoslavia (former socialist federal republic);YUG
 Yugoslavia (former);YUG
 yugoslavia (montenegro & serbia);SCG
+Yugoslavla;YUG
 ZA;ZAF
+Zaire;COD
 Zaire_DR_Congo;COD
 Zambia;ZMB
 zanzibar;XXX
@@ -985,4 +1128,3 @@ Zimbabwe;ZWE
 ZM;ZMB
 ZW;ZWE
 zypern;CYP
-
