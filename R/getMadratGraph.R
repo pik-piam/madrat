@@ -4,34 +4,38 @@
 #' based packages. Linkages to subfunctions of read functions (i.e. download, correct or convert functions)
 #' are not listed separately, but collectively referred to through the corresponding read function.
 #'
-#'
 #' @param packages A character vector with packages for which the available Sources/Calculations should be returned
 #' @param globalenv Boolean deciding whether sources/calculations in the global environment should be included or not
 #' @return A data frame with 4 columns: from (source function), from_package (package the source function originates
 #' from), to (function which is using the source), to_package (package of the using function)
+#'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getConfig}}
-#' @importFrom stringi stri_match_all_regex stri_extract_all
+#' @importFrom stringi stri_match_all_regex
 #' @export
-
-
 getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = getConfig("globalenv")) {
-
-  if (is.null(getOption("MadratCache"))) options(MadratCache = new.env(size = NA)) # nolint
+  if (is.null(getOption("MadratCache"))) {
+    options(MadratCache = new.env(size = NA)) # nolint
+  }
 
   .graphHash <- function(packages, globalenv) {
     mtimes <- as.character(file.mtime(.libPaths())) # nolint
     if (globalenv) {
       f <- grep("^(read|download|convert|correct|calc|full|tool)", ls(envir = .GlobalEnv),
                 perl = TRUE, value = TRUE)
-      if (length(f) > 0) globalenv <- sapply(mget(f, envir = .GlobalEnv), deparse) # nolint
-      else globalenv <- FALSE
+      if (length(f) > 0) {
+        globalenv <- sapply(mget(f, envir = .GlobalEnv), deparse) # nolint
+      } else {
+        globalenv <- FALSE
+      }
     }
     return(paste0("GH", digest::digest(c(mtimes, robustSort(packages), globalenv), algo = getConfig("hash"))))
   }
 
   gHash <- .graphHash(packages, globalenv)
-  if (exists(gHash, envir = getOption("MadratCache"))) return(get(gHash, getOption("MadratCache")))
+  if (exists(gHash, envir = getOption("MadratCache"))) {
+    return(get(gHash, getOption("MadratCache")))
+  }
 
   # read in source code
   code <- getCode(packages = packages, globalenv = globalenv)
@@ -41,7 +45,9 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
   matches <- stri_match_all_regex(code, pattern, omit_no_match = TRUE)
   names(matches) <- names(code)
   tmpfun <- function(x, l) {
-    if (length(l[[x]]) == 0) return(NULL)
+    if (length(l[[x]]) == 0) {
+      return(NULL)
+    }
     out <- cbind(x, paste0(substring(l[[x]][, 2], 1, 4), l[[x]][, 5]), l[[x]])
     return(out[, c(1:4, 6:7)])
   }
@@ -56,7 +62,9 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
   matches <- stri_match_all_regex(code, pattern, omit_no_match = TRUE)
   names(matches) <- names(code)
   tmpfun <- function(x, l) {
-    if (length(l[[x]]) == 0) return(NULL)
+    if (length(l[[x]]) == 0) {
+      return(NULL)
+    }
     out <- cbind(x, l[[x]])
     return(out)
   }
@@ -95,9 +103,11 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
             "\n  Please make sure that they exist and adjust the scope of packages accordingly!")
   }
   # check for bidirectional package connections
-  .checkBidirectional(out, details = FALSE)
+  checkBidirectional(out, details = FALSE)
 
-  for (a in c("fpool", "hash", "mappings", "flags")) attr(out, a) <- attr(code, a)
+  for (a in c("fpool", "hash", "mappings", "flags")) {
+    attr(out, a) <- attr(code, a)
+  }
   assign(gHash, out, envir = getOption("MadratCache"))
   return(out)
 }

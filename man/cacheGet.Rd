@@ -4,7 +4,7 @@
 \alias{cacheGet}
 \title{Tool: cacheGet}
 \usage{
-cacheGet(prefix, type, args = NULL, graph = NULL, ...)
+cacheGet(prefix, type, args = NULL)
 }
 \arguments{
 \item{prefix}{function prefix (e.g. "calc" or "read")}
@@ -12,25 +12,20 @@ cacheGet(prefix, type, args = NULL, graph = NULL, ...)
 \item{type}{output type (e.g. "TauTotal")}
 
 \item{args}{a list of named arguments used to call the given function}
-
-\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}.
-Will be created with \code{\link{getMadratGraph}} if not provided.}
-
-\item{...}{Additional arguments for \code{\link{getMadratGraph}} in case
-that no graph is provided (otherwise ignored)}
 }
 \value{
-cached data, if cache is available, otherwise NULL
+cached data if available, otherwise NA
+attr(, "id") will be set to the cache file name that was (tried to be) loaded
 }
 \description{
 Load fitting cache data (if available)
 }
 \examples{
-madrat:::cacheGet("calc", "TauTotal", packages = "madrat")
+madrat:::cacheGet("calc", "TauTotal")
 }
 \seealso{
 \code{\link{cachePut}}, \code{\link{cacheName}}
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Pascal Sauer
 }

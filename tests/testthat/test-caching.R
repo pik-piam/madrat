@@ -6,34 +6,46 @@ test_that("Caching works", {
   }
   readNoCacheExample <- function() return(list(x = as.magpie(1), class = "magpie", cache = FALSE))
   globalassign("calcCacheExample", "calcNoCacheExample", "readNoCacheExample", "downloadNoCacheExample")
-  localConfig(ignorecache = FALSE, .verbose = FALSE)
-  expect_null(cacheGet("calc", "CacheExample"))
+
+  a <- cacheGet("calc", "CacheExample")
+  expect_match(attr(a, "id"), "\\.rds$")
+  expected <- NA
+  attr(expected, "id") <- attr(a, "id")
+  expect_identical(a, expected)
   expect_message(calcOutput("CacheExample", aggregate = FALSE), "writing cache")
   expect_message(calcOutput("NoCacheExample", aggregate = FALSE), "cache disabled for calcNoCacheExample")
   expect_message(readSource("NoCacheExample", convert = FALSE), "cache disabled for readNoCacheExample")
   expect_identical(cacheGet("calc", "CacheExample")$x, as.magpie(1))
-  localConfig(ignorecache = TRUE, .verbose = FALSE)
-  expect_null(cacheGet("calc", "CacheExample"))
-  localConfig(ignorecache = FALSE, .verbose = FALSE)
+
+  local({
+    localConfig(ignorecache = TRUE, .verbose = FALSE)
+    expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
+  })
 
   expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Ff5d41fca.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  expect_null(cacheName("calc", "CacheExample", mode = "get"))
-  localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample.rds")
-  expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
-  expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
-  localConfig(forcecache = FALSE, .verbose = FALSE)
+  expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
+  local({
+    localConfig(forcecache = TRUE, .verbose = FALSE)
+
+    local({
+      localConfig(ignorecache = TRUE, .verbose = FALSE)
+      expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample.rds")
+    })
+
+    expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
+    expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
+  })
   Sys.sleep(1) # wait a second to ensure this second cache file has newer mtime, so forcecache reproducibly takes it
   expect_message(a <- calcOutput("CacheExample", aggregate = FALSE), "writing cache")
-  expect_identical(basename(cacheName("calc", "CacheExample", mode = "get")), "calcCacheExample-Fad6287a7.rds")
+  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Fad6287a7.rds")
 
   calcCacheExample <- function() return(list(x = as.magpie(3), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_message(cf <- cacheName("calc", "CacheExample", mode = "get"), "does not match fingerprint")
+  expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
   expect_identical(basename(cf), "calcCacheExample-Fad6287a7.rds")
 })
 
@@ -57,10 +69,13 @@ test_that("Argument hashing works", {
   expect_identical(cacheArgumentsHash(calcArgs, args = list(a = 12)), "-8bb64daf")
   expect_error(cacheArgumentsHash(NULL, args = list(no = "call")),
                "No functionName provided for argument hash calculation!")
+  skip_if_not_installed("terra")
+  expect_warning(cacheArgumentsHash(calcArgs, args = list(a = terra::rast())),
+                 "avoid terra object (e.g. SpatRaster) arguments to madrat functions",
+                 fixed = TRUE)
 })
 
 test_that("Cache naming and identification works correctly", {
-  localConfig(forcecache = FALSE, .verbose = FALSE)
   downloadCacheExample <- function() {
     return(list(url = 1, author = 1, title = 1, license = 1, description = 1, unit = 1))
   }

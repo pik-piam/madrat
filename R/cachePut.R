@@ -5,47 +5,46 @@
 #' @param x data that should be written to cache
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
-#' @param args a list of named arguments used to call the given function
+#' @param fname The name of the cache file to be written.
 #' @param callString A string representation of the function call that leads
 #' to the cache file being written. Will be attached as an attribute.
 #'
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
 #' @examples
 #' \dontrun{
-#' madrat:::cachePut(1, "calc", "Example", NULL, 'calcOutput("Example")')
+#' fname <- madrat:::cacheName("calc", "Example")
+#' madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 #' }
-cachePut <- function(x, prefix, type, args, callString) {
+cachePut <- function(x, prefix, type, fname, callString) {
   tryCatch({
     if (is.list(x) && isFALSE(x$cache)) {
       vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
       return()
     }
 
-    fname <- cacheName(prefix = prefix, type = type, args = args,  graph = NULL, mode = "put")
-    if (!is.null(fname)) {
-      if (!dir.exists(dirname(fname))) {
-        dir.create(dirname(fname), recursive = TRUE)
-      }
-      attr(x, "cachefile") <- basename(fname)
-      if (is.list(x)) {
-        for (elem in c("x", "weight")) {
-          if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
-            x[[elem]] <- toolTerraToCache(x[[elem]], elem, fname)
-          }
+    # ensure fname includes a fingerprint if and only if forcecache is FALSE
+    stopifnot(identical(isFALSE(getConfig("forcecache")),
+                        grepl("-F", fname)))
+
+    attr(x, "cachefile") <- basename(fname)
+    if (is.list(x)) {
+      for (elem in c("x", "weight")) {
+        if (inherits(x[[elem]], c("SpatRaster", "SpatVector"))) {
+          x[[elem]] <- toolTerraToCache(x[[elem]], elem, fname)
         }
       }
-
-      attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
-      attr(x, "callString") <- callString
-
-      # write to tempfile to avoid corrupt cache files in parallel running preprocessings
-      tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
-      saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
-      file.rename(tempfileName, fname)
-      Sys.chmod(fname, mode = "0666", use_umask = FALSE)
-      vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
     }
+
+    attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
+    attr(x, "callString") <- callString
+
+    # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+    tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
+    saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
+    file.rename(tempfileName, fname)
+    Sys.chmod(fname, mode = "0666", use_umask = FALSE)
+    vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
   }, error = function(e) {
     vcat(0, " - could not write cache file: ", e$message, fill = 300, show_prefix = FALSE)
   })

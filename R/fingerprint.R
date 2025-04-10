@@ -1,4 +1,4 @@
-#' Tool: fingerprint
+#' fingerprint
 #'
 #' Function which creates a unique fingerprint for a madrat function based on
 #' the code of the function itself, other madrat functions which are called by
@@ -20,67 +20,55 @@
 #' (as the dependencies are sometimes overestimated).
 #'
 #' @param name Name of the function to be analyzed
-#' @param details Boolean indicating whether additional details in form
-#' of an attribute with underlying hash information should be added or not
-#' @param graph A madrat graph as returned by \code{\link{getMadratGraph}}.
-#' Will be created with \code{\link{getMadratGraph}} if not provided.
-#' @param ... Additional arguments for \code{\link{getMadratGraph}} in case
-#' that no graph is provided (otherwise ignored)
-#' @return A fingerprint (hash) of all provided sources, or "fingerprintError"
+#' @return A fingerprint (hash) of all provided sources
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{readSource}}
 #' @examples
-#' madrat:::fingerprint("toolGetMapping", package = "madrat")
-fingerprint <- function(name, details = FALSE, graph = NULL, ...) {
-  dependencies <- getDependencies(name, direction = "in", self = TRUE, graph = graph, ...)
-  result <- tryCatch({
-    fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
-    names(fingerprintFunctions) <- dependencies$call[robustOrder(dependencies$call)]
+#' madrat:::fingerprint("toolGetMapping")
+fingerprint <- function(name) {
+  dependencies <- getDependencies(name, direction = "in", self = TRUE, packages = getConfig("packages"))
 
-    # handle special requests via flags
-    .tmp <- function(x) {
-      return(robustSort(sub(":+", ":::", x)))
+  fingerprintFunctions <- dependencies$hash[robustOrder(dependencies$call)]
+  names(fingerprintFunctions) <- dependencies$call[robustOrder(dependencies$call)]
+
+  # handle special requests via flags
+  .tmp <- function(x) {
+    return(robustSort(sub(":+", ":::", x)))
+  }
+  ignore <- .tmp(attr(dependencies, "flags")$ignore)
+  monitor <- .tmp(attr(dependencies, "flags")$monitor)
+  # if conflicting information is giving (monitor and ignore at the same time,
+  # prioritize monitor request)
+  ignore <- setdiff(ignore, monitor)
+  # add calls from the monitor list which are not already monitored
+  fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
+  # ignore functions mentioned in the ignore list
+  fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
+
+  sources <- substring(dependencies$func[dependencies$type == "read"], 5)
+  sources <- robustSort(sources)
+  sources <- vapply(sources, function(t) getSourceFolder(type = t, subtype = NULL), character(1))
+  fingerprintSources <- fingerprintFiles(sources)
+
+  fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
+  fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
+  fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
+
+  # Cache files became incompatible when readSource was allowed to return non-magpie objects.
+  # Referring to madrat versions before this change as "old" and after this change as "new" here:
+  # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
+  # Old madrat versions will never read/write these new cache files, and new madrat versions will never
+  # read/write cache files created with an old madrat version.
+  result <- digest::digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
+
+  if (getConfig("verbosity") >= 3) {
+    attr(result, "details") <- fingerprint # for testing
+    vcat(3, "hash components (", result, "):", show_prefix = FALSE)
+    for (n in names(fingerprint)) {
+      vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
     }
-    ignore <- .tmp(attr(dependencies, "flags")$ignore)
-    monitor <- .tmp(attr(dependencies, "flags")$monitor)
-    # if conflicting information is giving (monitor and ignore at the same time,
-    # prioritize monitor request)
-    ignore <- setdiff(ignore, monitor)
-    # add calls from the monitor list which are not already monitored
-    fingerprintMonitored <- fingerprintCall(setdiff(monitor, names(fingerprintFunctions)))
-    # ignore functions mentioned in the ignore list
-    fingerprintFunctions <- fingerprintFunctions[setdiff(names(fingerprintFunctions), ignore)]
-
-    sources <- substring(dependencies$func[dependencies$type == "read"], 5)
-    sources <- robustSort(sources)
-    sources <- vapply(sources, function(t) getSourceFolder(type = t, subtype = NULL), character(1))
-    fingerprintSources <- fingerprintFiles(sources)
-
-    fingerprintMappings <- fingerprintFiles(attr(dependencies, "mappings"))
-    fingerprint <- c(fingerprintFunctions, fingerprintSources, fingerprintMappings, fingerprintMonitored)
-    fingerprint <- fingerprint[robustOrder(basename(names(fingerprint)))]
-
-    # Cache files became incompatible when readSource was allowed to return non-magpie objects.
-    # Referring to madrat versions before this change as "old" and after this change as "new" here:
-    # Hashing the string "v2" leads to completely new hashes, and thus cache files with different names.
-    # Old madrat versions will never read/write these new cache files, and new madrat versions will never
-    # read/write cache files created with an old madrat version.
-    out <- digest::digest(list("v2", unname(fingerprint)), algo = getConfig("hash"))
-
-    if (details) {
-      attr(out, "details") <- fingerprint
-      vcat(3, "hash components (", out, "):", show_prefix = FALSE)
-      for (n in names(fingerprint)) {
-        vcat(3, "  ", fingerprint[n], " | ", basename(n), " | ", n, show_prefix = FALSE)
-      }
-    }
-    out
-  },
-  error = function(error) {
-    vcat(2, paste(" - Fingerprinting failed:", error), show_prefix = FALSE)
-    return("fingerprintError")
-  })
+  }
   attr(result, "call") <- dependencies$call[dependencies$func == name]
   return(result)
 }
@@ -104,7 +92,9 @@ fingerprintFiles <- function(paths) {
   if (length(paths) == 0) {
     return(NULL)
   }
-  .tmp <- function(path) {
+
+  # side effect: fileHashCache*.rds is written
+  return(vapply(paths, FUN.VALUE = character(1), FUN = function(path) {
     if (file.exists(paste0(path, "/DONTFINGERPRINT"))) {
       return("SKIPPED")
     }
@@ -118,35 +108,39 @@ fingerprintFiles <- function(paths) {
       path <- dirname(path)
     }
     if (nrow(files) == 0) {
-      files <- NULL
+      return(digest::digest(NULL, algo = getConfig("hash")))
+    }
+
+    files$path <- paste0(path, "/", files$name)
+    files$mtime <- file.mtime(files$path)
+    files$size <- file.size(files$path)
+    # create key to identify entries in the hashcache which require recalculation
+    files$key <- apply(files[c("name", "mtime", "size")], 1,
+                       digest::digest, algo = getConfig("hash"))
+
+    # get hash cache file name if the given path belongs to the source folder
+    # (this is not the case for a redirected source folder)
+    if (startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
+      hashCacheFile <- paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds")
     } else {
-      files$path <- paste0(path, "/", files$name)
-      files$mtime <- file.mtime(files$path)
-      files$size <- file.size(files$path)
-      # create key to identify entries which require recalculation
-      files$key <- apply(files[c("name", "mtime", "size")], 1,
-                         digest::digest, algo = getConfig("hash"))
+      hashCacheFile <- NULL
     }
 
-    getHashCacheName <- function(path) {
-      # return file name for fileHash cache if the given path belongs to the source folder
-      # (this is not the case for a redirected source folder), otherwise return NULL
-      if (startsWith(normalizePath(path), normalizePath(getConfig("sourcefolder")))) {
-        return(paste0(getConfig("cachefolder"), "/fileHashCache", basename(path), ".rds"))
-      } else {
-        return(NULL)
-      }
-    }
-    hashCacheFile <- getHashCacheName(path)
-
+    # hash cache files must have these columns, otherwise they are ignored/overwritten
+    hashCacheColumns <- c("name", "mtime", "size", "key", "hash")
     if (!is.null(files) && !is.null(hashCacheFile) && file.exists(hashCacheFile)) {
       tryResult <- try({
         filesCache <- readRDS(hashCacheFile)
         # keep only entries which are still up-to-date
         filesCache <- filesCache[filesCache$key %in% files$key, ]
-        files <- files[!(files$key %in% filesCache$key), ]
-        if (nrow(filesCache) == 0) filesCache <- NULL
-        if (nrow(files) == 0) files <- NULL
+        if (nrow(filesCache) == 0 || !setequal(colnames(filesCache), hashCacheColumns)) {
+          filesCache <- NULL
+        } else {
+          files <- files[!(files$key %in% filesCache$key), ]
+        }
+        if (nrow(files) == 0) {
+          files <- NULL
+        }
       }, silent = TRUE)
       if (inherits(tryResult, "try-error")) {
         warning("Ignoring corrupt hashCacheFile: ", as.character(tryResult))
@@ -174,6 +168,7 @@ fingerprintFiles <- function(paths) {
 
     if (!is.null(hashCacheFile)) {
       tryCatch({
+        stopifnot(setequal(colnames(files), hashCacheColumns))
         saveRDS(files, file = hashCacheFile, compress = getConfig("cachecompression"))
         Sys.chmod(hashCacheFile, mode = "0666", use_umask = FALSE)
       }, error = function(error) {
@@ -184,6 +179,5 @@ fingerprintFiles <- function(paths) {
     files$mtime <- NULL
     files$key <- NULL
     return(digest::digest(files, algo = getConfig("hash")))
-  }
-  return(sapply(paths, .tmp)) # nolint
+  }))
 }

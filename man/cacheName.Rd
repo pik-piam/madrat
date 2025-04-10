@@ -2,17 +2,9 @@
 % Please edit documentation in R/cacheName.R
 \name{cacheName}
 \alias{cacheName}
-\title{Tool: cacheName}
+\title{cacheName}
 \usage{
-cacheName(
-  prefix,
-  type,
-  args = NULL,
-  graph = NULL,
-  mode = "put",
-  packages = getConfig("packages"),
-  globalenv = getConfig("globalenv")
-)
+cacheName(prefix, type, args = NULL)
 }
 \arguments{
 \item{prefix}{function prefix (e.g. "calc" or "read")}
@@ -20,42 +12,24 @@ cacheName(
 \item{type}{output type (e.g. "TauTotal")}
 
 \item{args}{a list of named arguments used to call the given function}
-
-\item{graph}{A madrat graph as returned by \code{\link{getMadratGraph}}.
-Will be created with \code{\link{getMadratGraph}} if not provided.}
-
-\item{mode}{Context in which the function is used. Either "get" (loading) or
-"put" (writing). In case of "put" the potential file name is returned.
-When set to "get", a file name will only be returned if the file exists
-(otherwise NULL). In combination with \code{setConfig(forcecache=TRUE)}
-even a cache file with deviating hash might get selected.}
-
-\item{packages}{A character vector with packages for which the available
-Sources/Calculations should be returned}
-
-\item{globalenv}{Boolean deciding whether sources/calculations in the global
-environment should be included or not}
 }
 \value{
-Name of fitting cache file, if available, otherwise NULL
+absolute path to a cache file that does not necessarily exist
 }
 \description{
 Get the name of a cache file corresponding to the given args
 }
 \note{
-\code{setConfig(forcecache=TRUE)} strongly affects the behavior
-of \code{cacheName}. In read model it will also return cache names
-with deviating hashes if no fitting cache file is found (in that case
-it will just return the newest one). In write mode the hash in the name
-will be left out since due to cache forcing it cannot be guaranteed
-that the cache file agrees with the state represented by the hash.
+With \code{setConfig(forcecache=TRUE)} cacheName will also return
+cache file names with deviating fingerprint if no fitting cache file is found
+(if there are multiple it will just return the newest one).
 }
 \examples{
 madrat:::cacheName("calc", "TauTotal")
 }
 \seealso{
-\code{\link{cachePut}}, \code{\link{cacheName}}
+\code{\link{cachePut}}
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Pascal Sauer
 }

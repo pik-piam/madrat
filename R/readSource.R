@@ -126,7 +126,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   # try to get from cache and check
   .getFromCache <- function(prefix, type, args, subtype, subset) {
     xList <- cacheGet(prefix = prefix, type = type, args = args)
-    if (!is.null(xList)) {
+    cacheFileName <- attr(xList, "id")
+    if (!isTRUE(is.na(xList))) {
       if (!is.list(xList)) {
         xList <- list(x = xList, class = "magpie")
       }
@@ -135,21 +136,25 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
         err <- try(.testISO(magclass::getItems(xList$x, dim = 1.1), functionname = fname), silent = TRUE)
         if ("try-error" %in% class(err)) {
           vcat(2, " - cache file corrupt for ", fname, show_prefix = FALSE)
-          xList <- NULL
+          xList <- NA
         }
       }
     }
+    stopifnot(isTRUE(is.na(xList)) ||
+                (is.list(xList) && "x" %in% names(xList) && is.character(xList$class)))
+    attr(xList, "id") <- cacheFileName
     return(xList)
   }
 
   # get data either from cache or by calculating it from source
   .getData <- function(type, subtype, subset, args, prefix, callString) {
     xList <- .getFromCache(prefix, type, args, subtype, subset)
-    if (!is.null(xList)) {
+    if (!isTRUE(is.na(xList))) {
       # cache hit, return
       return(xList)
     }
     # cache miss, read from source
+    cacheFileName <- attr(xList, "id")
 
     if (prefix != "read") {
       if (prefix == "convert" && type %in% getSources(type = "correct")) {
@@ -207,8 +212,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     } else {
       attr(xList$x, "comment") <- extendedComment
     }
-
-    cachePut(xList, prefix = prefix, type = type, args = args, callString = callString)
+    cachePut(xList, prefix = prefix, type = type, fname = cacheFileName, callString = callString)
     return(xList)
   }
 
@@ -243,7 +247,8 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
                               paste0(prefix, type) %in% getConfig("forcecache")))
   if (forcecacheActive) {
     xList <- .getFromCache(prefix, type, args, subtype, subset)
-    if (!is.null(xList)) {
+    attr(xList, "id") <- NULL
+    if (!isTRUE(is.na(xList))) {
       return(if (supplementary) xList else xList$x)
     }
   }
