@@ -22,11 +22,20 @@
 cacheArgumentsHash <- function(functionName, args = NULL, errorOnMismatch = TRUE) {
   setWrapperInactive("wrapperChecks")
 
+  isTerraObject <- function(x) {
+    return("terra" %in% attr(class(x), "package"))
+  }
+  if (any(vapply(args, isTerraObject, logical(1)))) {
+    warning("avoid terra object (e.g. SpatRaster) arguments to madrat functions, ",
+            "they cause unpredictable cache behavior")
+  }
+
   nonDefaultArguments <- getNonDefaultArguments(functionName, args, errorOnMismatch)
-  nonDefaultArguments <- nonDefaultArguments[robustOrder(names(nonDefaultArguments))]
 
   if (length(nonDefaultArguments) == 0) {
     return(NULL)
   }
+
+  nonDefaultArguments <- nonDefaultArguments[robustOrder(names(nonDefaultArguments))]
   return(paste0("-", digest::digest(nonDefaultArguments, algo = getConfig("hash"))))
 }

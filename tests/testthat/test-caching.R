@@ -49,27 +49,6 @@ test_that("Caching works", {
   expect_identical(basename(cf), "calcCacheExample-Fad6287a7.rds")
 })
 
-test_that("caching works with SpatRaster args", {
-  skip_if_not_installed("terra")
-
-  calcCacheExampleWithArg <- function(raster) {
-    digestBefore <- digest::digest(raster)
-    # terra::minmax(raster) changes the raster object in-place, so even after calcCacheExampleWithArg
-    # returned the raster that was passed to it will be different
-    terra::minmax(raster)
-    testthat::expect_true(digest::digest(raster) != digestBefore)
-    return(list(x = as.magpie(1), description = "-", unit = "-"))
-  }
-  globalassign("calcCacheExampleWithArg")
-
-  raster <- terra::rast(system.file("ex/elev.tif", package = "terra"))
-  expect_message(calcOutput("CacheExampleWithArg", raster = raster, aggregate = FALSE), "writing cache")
-
-  # load again to ensure we pass the same object as before
-  raster <- terra::rast(system.file("ex/elev.tif", package = "terra"))
-  expect_message(calcOutput("CacheExampleWithArg", raster = raster, aggregate = FALSE), "loading cache")
-})
-
 test_that("Argument hashing works", {
   expect_null(cacheArgumentsHash("madrat:::readTau"))
   expect_null(cacheArgumentsHash("madrat:::readTau", list(subtype = "paper")))
