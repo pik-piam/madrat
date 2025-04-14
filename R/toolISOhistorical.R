@@ -152,25 +152,37 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
                              mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")],
                              weight = weight + 1e-12,
                              negative_weight = "allow")
+        
+        # fill data
+        if (overwrite) {
+          m[a$toISO, subTime, ] <- mTr
+        } else {
+          m[a$toISO, subTime, ][is.na(m[a$toISO, subTime, ])] <- mTr[is.na(m[a$toISO, subTime, ])]
+        }
+        
+        # delete old lines
+        for (b in a$fromISO) {
+          if (is.element(b, getItems(m, dim = 1.1))) {
+            m <- m[-which(getItems(m, dim = 1.1) == b), , ]
+          }
+        }
         ## aggregation of countries
       } else {
         mTr <- toolAggregate(m[a$fromISO, subTime, ],
                              mapping[is.element(mapping$toISO, a$toISO), c("fromISO", "toISO")], weight = NULL)
-      }
-      # fill data
-      if (overwrite) {
+        
+        # fill data, here no option to not overwrite old data as countries are aggregated
         m[a$toISO, subTime, ] <- mTr
-      } else {
-        m[a$toISO, subTime, ][is.na(m[a$toISO, subTime, ])] <- mTr[is.na(m[a$toISO, subTime, ])]
+        
+        # delete old lines
+        for (b in a$fromISO) {
+          if ((is.element(b, getItems(m, dim = 1.1))) & (!(is.element(b, a$toISO)))) { # only delete lines that are not resulting countries
+            m <- m[-which(getItems(m, dim = 1.1) == b), , ]
+          }
+        }
       }
     } # a in tr - transitions
 
-    # delete old lines
-    for (b in mapping$fromISO) {
-      if (is.element(b, getItems(m, dim = 1.1))) {
-        m <- m[-which(getItems(m, dim = 1.1) == b), , ]
-      }
-    }
   } else if (ndim(m, dim = 1) == 2) {
     # bilateral process needs to iterate over dim 1 and dim 2 due to potential presence of different transitions
 
