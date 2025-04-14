@@ -235,6 +235,8 @@ D.R. of Germany;DDR
 dänemark;DNK
 danemark;DNK
 DE;DEU
+D_P_R_ Korea;PRK
+Dem_ Rep_ Of Korea;PRK
 Dem. People's Rep. of Korea;PRK
 Dem. People's Republic of Korea;PRK
 Dem. Rep. Of Korea;PRK
@@ -296,6 +298,7 @@ Ethiopia PDR;XET
 F. R. Germany;DEU
 F.R. Germany;DEU
 F.R. of Germany;DEU
+F_R_ Yugoslavia;SCG
 F.R. Yugoslavia;SCG
 Faeroe Isds;FRO
 faeroe islands;FRO
@@ -328,6 +331,7 @@ Former FSU;SUN
 former german democratic republic;GDR
 former panama canal zone;XXX
 Former Soviet Union (if no detail);SUN
+former U_S_S_R_;SUN
 former U.S.S.R.;SUN
 former yemen;XXX
 Former Yugoslav Republic of Macedonia;MKD
@@ -335,6 +339,9 @@ Former Yugoslavia;YUG
 Former Yugoslavia (if no detail);YUG
 FR;FRA
 FR Germany;DEU
+F_R_ of Germany;DEU
+F_R_ Germany;DEU
+F_ R_ Germany;DEU
 Fr Guiana;GUF
 Fr Polynesia;PYF
 France;FRA
@@ -369,6 +376,7 @@ Georgien;GEO
 German D.R.;DDR
 German Dem . Rep .;DDR
 German Dem Rep;DDR
+German Dem_ Rep_;DDR
 German Dem. Rep.;DDR
 German Democratic Republic;DDR
 Germany;DEU
@@ -628,7 +636,6 @@ Monaco;MCO
 Mongolei;MNG
 Mongolia;MNG
 Mongolia (e);MNG
-Montenegro;SCG
 Montenegro;MNE
 Montserrat;MSR
 Morocco;MAR
@@ -777,6 +784,7 @@ PY;PRY
 QA;QAT
 Qatar;QAT
 Qatar (1: 1999-);QAT
+R_o_Korea;KOR
 R.o.Korea;KOR
 R.O.Korea;KOR
 R.o.Korea (1);KOR
@@ -955,6 +963,7 @@ Taiwan ( R.O.C. );TWN
 Taiwan ( R.o.C. );TWN
 Taiwan (1);TWN
 Taiwan (China);TWN
+Taiwan (R_O_C_);TWN
 Taiwan (R.O.C.);TWN
 Taiwan , China;TWN
 Taiwan China;TWN
@@ -1056,6 +1065,7 @@ US Virgin Isds;VIR
 US Virgin Islands;VIR
 USA;USA
 Usbekistan;UZB
+U_S_S_R_;SUN
 ussr;SUN
 USSR;SUN
 USSR ( 1 );SUN
