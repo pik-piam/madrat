@@ -103,12 +103,15 @@ toolTerraToCache <- function(x, name, fname) {
     stop("Expected x to be SpatVector or SpatRaster")
   }
 
-  if (length(names(x2)) == length(names(x))) {
-    names(x2) <- names(x)
-  } else {
+  if (length(names(x2)) != length(names(x))) {
     stop("Cannot cache this terra object, because loading it from cache would yield a different number of layers. ",
          "Add `cache = FALSE` to the returned list to disable caching.")
   }
+  names(x2) <- names(x)
 
-  return(terra::wrap(x2))
+  if (inherits(x, "SpatVector")) {
+    return(terra::wrap(x2))
+  } else {
+    return(terra::wrap(x2, proxy = TRUE))
+  }
 }
