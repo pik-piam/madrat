@@ -176,7 +176,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
         
         # delete old lines
         for (b in a$fromISO) {
-          if ((is.element(b, getItems(m, dim = 1.1))) && (!(is.element(b, a$toISO)))) { # only delete lines that are not resulting countries
+          if ((b %in% getItems(m, dim = 1.1)) && (!(b %in% a$toISO))) { # only delete lines that are not resulting countries
             m <- m[-which(getItems(m, dim = 1.1) == b), , ]
           }
         }
