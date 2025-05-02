@@ -162,7 +162,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
         
         # delete old lines
         for (b in a$fromISO) {
-          if (is.element(b, getItems(m, dim = 1.1))) {
+          if (b %in% getItems(m, dim = 1.1)) {
             m <- m[-which(getItems(m, dim = 1.1) == b), , ]
           }
         }
