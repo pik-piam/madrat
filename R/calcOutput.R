@@ -310,6 +310,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     write(cacheFileName, file = "pucFiles", append = TRUE)
   }
 
+  mstools::toolSummaryStatisticsMessage(x$x,
+                                        "summary",
+                                        functionname = functionname)
 
   if (!is.null(years)) {
     if (x$class != "magpie") stop("years argument can only be used in combination with x$class=\"magpie\"!")
