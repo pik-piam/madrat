@@ -118,7 +118,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   })
   localConfig(regionmapping = paste0(cfg$regionscode[1], ".csv"),
               outputfolder = outputfolder,
-              diagnostics = "diagnostics")
+              diagnostics = TRUE)
 
   if (length(cfg$regionscode) > 1) {
     localConfig(extramappings = paste0(cfg$regionscode[-1], ".csv"))

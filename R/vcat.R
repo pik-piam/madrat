@@ -70,10 +70,9 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE, 
     }
   }
 
-  d <- getConfig("diagnostics")
-  writelog <- is.character(d)
+  writelog <- getConfig("diagnostics")
   if (writelog) {
-    logfile <- paste0(getConfig("outputfolder"), "/", d, ".log")
+    logfile <- paste0(getConfig("outputfolder"), "/diagnostics.log")
   }
   prefix <- c("", "ERROR: ", "WARNING: ", "NOTE: ", "MINOR NOTE: ")[min(verbosity, 2) + 3]
   if (prefix == "" || !show_prefix) prefix <- NULL
@@ -85,8 +84,8 @@ vcat <- function(verbosity, ..., level = NULL, fill = TRUE, show_prefix = TRUE, 
     if (verbosity == -1) {
       base::message(paste(capture.output(base::cat(c(prefix, messages),
                                                    fill = fill, sep = "",
-                                                   labels = getOption("gdt_nestinglevel")
-      )), collapse = "\n"))
+                                                   labels = getOption("gdt_nestinglevel"))),
+                          collapse = "\n"))
       if (!logOnly) {
         base::stop(..., call. = FALSE)
       }
