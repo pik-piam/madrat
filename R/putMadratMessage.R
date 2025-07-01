@@ -26,14 +26,15 @@
 
 putMadratMessage <- function(name, value, fname = -1, add = FALSE) {
   if (missing(name)) name <- NULL
-  if (is.null(name) && is.list(value) && !is.null(names(value))) {
+  inputIsListOfNamesAndValues <- is.null(name) && is.list(value) && !is.null(names(value))
+  if (inputIsListOfNamesAndValues) {
     for (n in names(value)) {
       for (f in names(value[[n]])) {
         putMadratMessage(name = n, value = value[[n]][[f]], fname = f, add = add)
       }
     }
   } else {
-    if (is.numeric(fname)) fname <- as.character(sys.call(fname))[1]
+    if (is.numeric(fname)) fname <- as.character(sys.call(fname)[1])
     madratMessage <- getOption("madratMessage")
     if (is.null(name)) name <- names(madratMessage)
     for (n in name) {

@@ -36,6 +36,7 @@
 #' Years in the magpie object will be mapped from years to periods as indicated in `temporalmapping` by
 #' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 #' one temporal sub-dimension.
+#' @param statisticsOutput TODO
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -107,7 +108,8 @@
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
-                       regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL, ...) {
+                       regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL, 
+                       outputStatistics = NULL, ...) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
@@ -310,9 +312,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     write(cacheFileName, file = "pucFiles", append = TRUE)
   }
 
-  mstools::toolSummaryStatisticsMessage(x$x,
-                                        "summary",
-                                        functionname = functionname)
+  if (!is.null(outputStatistics)) {
+    mstools::toolStatisticsOutput(x$x,
+                                   callString,
+                                   outputStatistics)
+  }
 
   if (!is.null(years)) {
     if (x$class != "magpie") stop("years argument can only be used in combination with x$class=\"magpie\"!")
