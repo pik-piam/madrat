@@ -57,7 +57,8 @@
 #' @param hash specifies the used hashing algorithm. Default is "xxhash32" and
 #' all algorithms supported by \code{\link[digest]{digest}} can be used.
 #' @param diagnostics Either FALSE (default) to avoid the creation of additional
-#' log files or a file name for additional diagnostics information (without file ending).
+#' log files or TRUE to write a log of diagnostic outputs to "diagnostics.log". Setting diagnostics
+#' to a file name is deprecated.
 #' @param debug Boolean which activates a debug mode. In debug mode all calculations will
 #' be executed with try=TRUE so that calculations do not stop even if the previous calculation failed.
 #' This can be helpful to get a full picture of errors rather than only seeing the first one. In addition
@@ -143,6 +144,11 @@ setConfig <- function(regionmapping = NULL, # nolint
   if (!is.null(enablecache)) {
     warning('Argument "enablecache" is deprecated and will be ignored, use "ignorecache" instead!')
     enablecache <- NULL
+  }
+
+  if (is.character(diagnostics)) {
+    warning("Setting diagnostics to a filename is deprecated. The log is named \"diagnostics.log\". Use a Boolean value instead.") # nolint: line_length_linter.
+    diagnostics <- TRUE
   }
 
   if (!is.null(packages)) {
