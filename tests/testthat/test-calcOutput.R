@@ -687,3 +687,69 @@ test_that("Temporal aggregation works", {
   expect_equal(getYears(x), c("y2005"))
 
 })
+
+test_that("calcOutput computes statistics output", {
+  localConfig(verbosity = 0, .verbose = FALSE)
+  calcTest1 <- function() {
+    return(list(x = toolCountryFill(new.magpie(c("DEU", "FRA", "JPN", "GHA", "MUS"), c(1994, 1995), , c(5L, 3L)), 1L),
+                weight = NULL,
+                unit = "1",
+                description = "dummy test data"))
+  }
+  globalassign("calcTest1")
+
+  expectStatusMessage <- function(calcOutputResult, expectedMessage) {
+    result <- calcOutputResult
+    expect_equal(
+      !!unname(getMadratMessage("status"))[[1]],
+      !!expectedMessage,
+      tolerance=0.00001)
+    resetMadratMessages("status")
+  }
+
+  resetMadratMessages("status")
+
+  # Disabled by default
+  expectStatusMessage(
+    calcOutput("Test1"),
+    NULL)
+
+  # Single statistics on unaggregated data
+  expectStatusMessage(
+    calcOutput("Test1", outputStatistics = "count"),
+    list(list(statistic = "count", type = "statistic", data = 498L)))
+
+  # Multiple statistics
+  expectStatusMessage(
+    calcOutput("Test1", outputStatistics = c("count", "sum", "summary")),
+    list(
+      list(statistic = "count", type = "statistic", data = 498L),
+      list(statistic = "sum", type = "statistic", data = 528L),
+      list(statistic = "summary", type = "statistic", data = list(
+        min = 1.00, firstQuantile = 1.00, median = 1.00, mean = 1.060241, thirdQuantile = 1.00, max = 5.00
+      ))))
+})
+
+test_that("calcOutput error handling", {
+  localConfig(verbosity = 0, .verbose = FALSE)
+  calcTest1 <- function() {
+    return(list(x = toolCountryFill(new.magpie(c("DEU", "FRA", "JPN", "GHA", "MUS"), c(1994, 1995), , c(5L, 3L)), 1L),
+                weight = NULL,
+                unit = "1",
+                description = "dummy test data"))
+  }
+  globalassign("calcTest1")
+
+  # Unknown statistic
+  expect_error(
+    calcOutput("Test1", outputStatistics = "fantasyStatistic"),
+    "Unknown statistics function fantasyStatistic")
+
+  # Invalid type
+  expect_error(
+    calcOutput("Test1", outputStatistics = 1))
+  expect_error(
+    calcOutput("Test1", outputStatistics = TRUE))
+
+
+})

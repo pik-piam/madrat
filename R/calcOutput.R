@@ -36,7 +36,8 @@
 #' Years in the magpie object will be mapped from years to periods as indicated in `temporalmapping` by
 #' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 #' one temporal sub-dimension.
-#' @param statisticsOutput TODO
+#' @param statisticsOutput a string or list of output statistics ("summary", "sum", or "count") that
+#' denotes which statistics should be computed on the data before aggregation. Disabled by default.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -313,9 +314,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
 
   if (!is.null(outputStatistics)) {
-    mstools::toolStatisticsOutput(x$x,
-                                   callString,
-                                   outputStatistics)
+    .statisticsOutput(x$x,
+                      callString,
+                      outputStatistics)
   }
 
   if (!is.null(years)) {
@@ -469,6 +470,32 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
 }
 
+.statisticsOutput <- function(data, callString, statistics = list()) {
+  if (!all(sapply(statistics, is.character))) {
+    stop("Invalid option given for outputStatistics: ", statistics)
+  }
+  for (nameOfStatistic in statistics) {
+    statisticValue <- list()
+    if (nameOfStatistic == "summary") {
+      statisticValue <- as.list(summary(data))
+      names(statisticValue) <- list("Min." = "min", "Max." = "max",
+                                "1st Qu." = "firstQuantile", "Median" = "median",
+                                "Mean" = "mean", "3rd Qu." = "thirdQuantile")[names(statisticValue)]
+    } else if (nameOfStatistic == "sum") {
+      statisticValue <- sum(data)
+    } else if (nameOfStatistic == "count") {
+      statisticValue <- length(data)
+    } else {
+      stop(paste0("Unknown statistics function ", nameOfStatistic, ". Valid options are 'summary', 'sum', and 'count'."))
+    }
+
+    vcat(1, paste0("[statistics] ", nameOfStatistic, " of ", callString, ": ", paste0(as.character(statisticValue), collapse = ", ")), show_prefix = FALSE)
+    putMadratMessage("status",
+                    list("statistic" = nameOfStatistic, "type" = "statistic", "data" = statisticValue),
+                    fname = callString,
+                    add = TRUE)
+  }
+}
 
 .getMapping <- function(aggregate, type, x) { # nolint: cyclocomp_linter.
 
