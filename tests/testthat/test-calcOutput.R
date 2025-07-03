@@ -699,11 +699,11 @@ test_that("calcOutput computes statistics output", {
   globalassign("calcTest1")
 
   expectStatusMessage <- function(calcOutputResult, expectedMessage) {
-    result <- calcOutputResult
+    force(calcOutputResult)
     expect_equal(
-      !!unname(getMadratMessage("status"))[[1]],
-      !!expectedMessage,
-      tolerance=0.00001)
+                 !!unname(getMadratMessage("status"))[[1]],
+                 !!expectedMessage,
+                 tolerance = 0.00001)
     resetMadratMessages("status")
   }
 
@@ -711,23 +711,27 @@ test_that("calcOutput computes statistics output", {
 
   # Disabled by default
   expectStatusMessage(
-    calcOutput("Test1"),
-    NULL)
+                      calcOutput("Test1"),
+                      NULL)
 
   # Single statistics on unaggregated data
   expectStatusMessage(
-    calcOutput("Test1", outputStatistics = "count"),
-    list(list(statistic = "count", type = "statistic", data = 498L)))
+                      calcOutput("Test1", outputStatistics = "count"),
+                      list(list(statistic = "count", type = "statistic", data = 498L)))
 
   # Multiple statistics
   expectStatusMessage(
-    calcOutput("Test1", outputStatistics = c("count", "sum", "summary")),
-    list(
-      list(statistic = "count", type = "statistic", data = 498L),
-      list(statistic = "sum", type = "statistic", data = 528L),
-      list(statistic = "summary", type = "statistic", data = list(
-        min = 1.00, firstQuantile = 1.00, median = 1.00, mean = 1.060241, thirdQuantile = 1.00, max = 5.00
-      ))))
+                      calcOutput("Test1", outputStatistics = c("count", "sum", "summary")),
+                      list(
+                           list(statistic = "count", type = "statistic", data = 498L),
+                           list(statistic = "sum", type = "statistic", data = 528L),
+                           list(statistic = "summary", type = "statistic",
+                                data = list(min = 1.00,
+                                            firstQuantile = 1.00,
+                                            median = 1.00,
+                                            mean = 1.060241,
+                                            thirdQuantile = 1.00,
+                                            max = 5.00))))
 })
 
 test_that("calcOutput error handling", {
@@ -741,15 +745,12 @@ test_that("calcOutput error handling", {
   globalassign("calcTest1")
 
   # Unknown statistic
-  expect_error(
-    calcOutput("Test1", outputStatistics = "fantasyStatistic"),
-    "Unknown statistics function fantasyStatistic")
+  expect_error(calcOutput("Test1",
+                          outputStatistics = "fantasyStatistic"),
+               "Unknown statistics function fantasyStatistic")
 
   # Invalid type
-  expect_error(
-    calcOutput("Test1", outputStatistics = 1))
-  expect_error(
-    calcOutput("Test1", outputStatistics = TRUE))
-
+  expect_error(calcOutput("Test1", outputStatistics = 1))
+  expect_error(calcOutput("Test1", outputStatistics = TRUE))
 
 })

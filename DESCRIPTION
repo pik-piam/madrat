@@ -2,7 +2,7 @@ Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
 Version: 3.21.0
-Date: 2025-07-01
+Date: 2025-07-03
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre"),
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0002-4309-6431")),

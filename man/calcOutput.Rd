@@ -19,6 +19,7 @@ calcOutput(
   regionmapping = NULL,
   writeArgs = NULL,
   temporalmapping = NULL,
+  outputStatistics = NULL,
   ...
 )
 }
@@ -68,6 +69,9 @@ A data frame consisting of the columns 'period', 'year' and 'weight'.
 Years in the magpie object will be mapped from years to periods as indicated in \code{temporalmapping} by
 calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 one temporal sub-dimension.}
+
+\item{outputStatistics}{a single or list of output statistics ("summary", "sum", or "count") that
+denote which statistics should be computed on the data before aggregation. Disabled by default.}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}

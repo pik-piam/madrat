@@ -7,14 +7,14 @@ test_that("getMadratMessage and putMadratMessage work", {
   expect_silent(putMadratMessage("test", "This is a toast", fname = "readTau"))
   expect_silent(putMadratMessage("test", list(a = 1, b = list(2, 3)), fname = "example2"))
   expect_equal(getOption("madratMessage"), list(test = list(example = "This is a test",
-                                                                readTau = "This is a toast",
-                                                                example2 = list(a = 1, b = list(2, 3)))))
-  
+                                                            readTau = "This is a toast",
+                                                            example2 = list(a = 1, b = list(2, 3)))))
+
   # Empty messages
   expect_silent(resetMadratMessages())
   expect_null(getMadratMessage())
 
-  # getMadratMessage also returns messages from called functions 
+  # getMadratMessage also returns messages from called functions
   expect_silent(putMadratMessage("test2", "another test", fname = "convertTau"))
   expect_identical(getMadratMessage(fname = "calcTauTotal"), list(test2 = list(convertTau = "another test")))
   expect_identical(getMadratMessage(fname = "readTau"), list(test2 = list(convertTau = "another test")))
