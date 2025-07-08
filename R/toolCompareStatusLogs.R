@@ -1,29 +1,44 @@
 #' toolCompareStatusLogs
 #'
-#' TODO
-#' @param oldArchivePath
-#' @param newArchivePath
-#' @param sections
+#' Compares status logs and returns a textual rendering of the diff between the two.
+#'
+#' @param oldArchivePath, newArchivePath Paths to the tgz-archive that serves as the old / new archive.
+#' If given, oldLogPath / newLogPath determines the name of the log file within the archive.
+#' If not given, oldLogPath / newLogPath need to be given.
+#' @param oldLogPath, newLogPath Paths to a log file, either within an archive,
+#' if an archive is given, or to a single file.
+#' @param sections List of sections the output should include.
+#' Valid section names are: changedStatistics, changedCalls, addedCalls, removedCalls
+#' @returns A printable string describing the changes that occurred between
+#' the old and the new log.
 #' @author Patrick Rein
 #' @export
-toolCompareStatusLogs <- function(oldArchivePath, newArchivePath,
-                                  oldLogName = "status.log", newLogName = "status.log",
-                                  sections = c("statistics", "changedCalls", "addedCalls", "removedCalls")) {
+toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
+                                  oldLogPath = file.path(".", "status.log"), newLogPath = file.path(".", "status.log"),
+                                  sections = c("changedStatistics", "changedCalls", "addedCalls", "removedCalls")) {
   # Why is this a custom diff implementation instead of textual diff?
   # -> Ordering in status.log can change in all kinds of ways and is not important.
   #    Similar vein: statistics log entries have identity and should only be compared
   #    based on their content.
 
   tempDir <- withr::local_tempdir()
-  utils::untar(oldArchivePath,
-               files = list(file.path(".", oldLogName)),
-               exdir = file.path(tempDir, "old"))
-  utils::untar(newArchivePath,
-               files = list(file.path(".", newLogName)),
-               exdir = file.path(tempDir, "new"))
+  if (!is.null(oldArchivePath)) {
+    utils::untar(oldArchivePath,
+                 files = oldLogPath,
+                 exdir = file.path(tempDir, "old"))
+    oldStatusLog <- yaml::read_yaml(file.path(tempDir, "old", oldLogPath))
+  } else {
+    oldStatusLog <- yaml::read_yaml(oldLogPath)
+  }
+  if (!is.null(newArchivePath)) {
+    utils::untar(newArchivePath,
+                 files = newLogPath,
+                 exdir = file.path(tempDir, "new"))
+    newStatusLog <- yaml::read_yaml(file.path(tempDir, "new", newLogPath))
+  } else {
+    newStatusLog <- yaml::read_yaml(newLogPath)
+  }
 
-  oldStatusLog <- yaml::read_yaml(file.path(tempDir, "old", oldLogName))
-  newStatusLog <- yaml::read_yaml(file.path(tempDir, "new", newLogName))
   diff <- .compareStatusLogsStatistics(oldStatusLog, newStatusLog)
 
   return(.renderDiff(oldStatusLog, newStatusLog, diff, sections = sections))
