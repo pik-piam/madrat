@@ -1,4 +1,4 @@
-#' toolCompareStatusLogStatistics
+#' toolCompareStatusLogs
 #'
 #' TODO
 #' @param oldLogPath
@@ -6,7 +6,7 @@
 #' @param sections
 #' @author Patrick Rein
 #' @export
-toolStatisticsCompareStatusLogs <- function(oldLogPath, newLogPath,
+toolCompareStatusLogs <- function(oldLogPath, newLogPath,
                                             sections = c("statistics", "changedCalls", "addedCalls", "removedCalls")) {
   # Why is this a custom diff implementation instead of textual diff?
   # -> Ordering in status.log can change in all kinds of ways and is not important.
