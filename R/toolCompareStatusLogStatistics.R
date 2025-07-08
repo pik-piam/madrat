@@ -1,8 +1,9 @@
 #' toolCompareStatusLogStatistics
 #'
 #' TODO
-#' @param oldLogPath 
-#' @param newLogPath 
+#' @param oldLogPath
+#' @param newLogPath
+#' @param sections
 #' @author Patrick Rein
 #' @export
 toolStatisticsCompareStatusLogs <- function(oldLogPath, newLogPath,
@@ -111,7 +112,6 @@ toolStatisticsCompareStatusLogs <- function(oldLogPath, newLogPath,
 #'   2.2. Removed entries
 #' 3. Added calls
 #' 4. Removed calls
-
 .renderDiff <- function(oldLog, newLog, diffList,
                         sections = c("statistics", "changedCalls", "addedCalls", "removedCalls")) {
   output <- list()
@@ -119,7 +119,7 @@ toolStatisticsCompareStatusLogs <- function(oldLogPath, newLogPath,
   # changed entries
   if ("statistics" %in% sections) {
     changedEntriesCalls <-
-      diffList[["changedCalls"]][vapply(diffList[["changedCalls"]], 
+      diffList[["changedCalls"]][vapply(diffList[["changedCalls"]],
                                         function(l) length(l$changedEntries) > 0, logical(1))]
     changedEntries <- lapply(changedEntriesCalls, function(aCall) {
       lapply(aCall$changedEntries, function(oldNewEntry) {
@@ -153,7 +153,7 @@ toolStatisticsCompareStatusLogs <- function(oldLogPath, newLogPath,
     })
     removedEntries <- Filter(function(l) length(l) > 0, removedEntries)
     addRemoveEntries <- list("comment" = "These calls have changes beyond changed statistics.",
-                             "Added Entries" = addedEntries, 
+                             "Added Entries" = addedEntries,
                              "Removed Entries" = removedEntries)
     output <- c(output, list("Changed Calls" = addRemoveEntries))
   }
