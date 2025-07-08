@@ -134,18 +134,22 @@ toolCompareStatusLogs <- function(oldArchivePath, newArchivePath,
                                         function(l) length(l$changedEntries) > 0, logical(1))]
     changedEntries <- lapply(changedEntriesCalls, function(aCall) {
       lapply(aCall$changedEntries, function(oldNewEntry) {
-        if (is.null(names(oldNewEntry[["old"]][["data"]]))) {
+        oldData <- oldNewEntry[["old"]][["data"]]
+        newData <- oldNewEntry[["new"]][["data"]]
+        if (is.null(names(oldData))) {
           changedNames <- 1
         } else {
           changedNames <- Filter(function(name) {
-            !identical(oldNewEntry[["old"]][["data"]][[name]], oldNewEntry[["new"]][["data"]][[name]])
+            !identical(oldData[[name]], newData[[name]])
           },
-          names(oldNewEntry[["old"]][["data"]]))
+          names(oldData))
         }
 
-        list("statistic" = oldNewEntry[["old"]][["statistic"]],
-             "from" = oldNewEntry[["old"]][["data"]][changedNames],
-             "to.." = oldNewEntry[["new"]][["data"]][changedNames])
+        changes <- lapply(changedNames, function(n) {
+          paste0(oldData[changedNames], " -> ", newData[changedNames])
+        })
+        names(changes) <- changedNames
+        c(list("statistic" = oldNewEntry[["old"]][["statistic"]]), changes)
       })
     })
     changedEntries <- c(list(comment = "These statistics have changed from the old to the new log."),
