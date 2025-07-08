@@ -139,11 +139,11 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
 #' 3. Added calls
 #' 4. Removed calls
 .renderDiff <- function(oldLog, newLog, diffList,
-                        sections = c("statistics", "changedCalls", "addedCalls", "removedCalls")) {
+                        sections = c("changedStatistics", "changedCalls", "addedCalls", "removedCalls")) {
   output <- list()
 
   # changed entries
-  if ("statistics" %in% sections) {
+  if ("changedStatistics" %in% sections) {
     changedEntriesCalls <-
       diffList[["changedCalls"]][vapply(diffList[["changedCalls"]],
                                         function(l) length(l$changedEntries) > 0, logical(1))]
@@ -189,13 +189,13 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
   }
 
   # added/removed calls
-  if ("addedCalls" %in% sections) {
+  if ("addedCalls" %in% sections && length(diffList[["addedCalls"]]) > 0) {
     addedCalls <- c(list("# These calls were added"),
                     diffList[["addedCalls"]])
     output <- c(output, list("Added Calls" = addedCalls))
   }
 
-  if ("removedCalls" %in% sections) {
+  if ("removedCalls" %in% sections && length(diffList[["removedCalls"]]) > 0) {
     removedCalls <- c(list("# These calls were removed"),
                       diffList[["removedCalls"]])
     output <- c(output, list("Removed Calls" = removedCalls))
