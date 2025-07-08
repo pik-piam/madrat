@@ -21,6 +21,11 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
   #    Similar vein: statistics log entries have identity and should only be compared
   #    based on their content.
 
+  if (oldArchivePath == newArchivePath && oldLogPath == newLogPath) {
+    # This is also a warning that none of the relevant parameters have been changed.
+    return("Nothing to do. Old and new paths are the same.")
+  }
+
   tempDir <- withr::local_tempdir()
   if (!is.null(oldArchivePath)) {
     utils::untar(oldArchivePath,
@@ -167,9 +172,11 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
         c(list("statistic" = oldNewEntry[["old"]][["statistic"]]), changes)
       })
     })
-    changedEntries <- c(list(comment = "These statistics have changed from the old to the new log."),
-                        changedEntries)
-    output <- c(output, list("Changed Statistics" = changedEntries))
+    if (length(changedEntries) > 0) {
+      changedEntries <- c(list(comment = "These statistics have changed from the old to the new log."),
+                          changedEntries)
+      output <- c(output, list("Changed Statistics" = changedEntries))
+    }
   }
 
   # added/removed entries
@@ -182,10 +189,12 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
       aCall[["removedEntries"]]
     })
     removedEntries <- Filter(function(l) length(l) > 0, removedEntries)
-    addRemoveEntries <- list("comment" = "These calls have changes beyond changed statistics.",
-                             "Added Entries" = addedEntries,
-                             "Removed Entries" = removedEntries)
-    output <- c(output, list("Changed Calls" = addRemoveEntries))
+    if (length(addedEntries) > 0 || length(removedEntries) > 0) {
+      addRemoveEntries <- list("comment" = "These calls have changes beyond changed statistics.",
+                              "Added Entries" = addedEntries,
+                              "Removed Entries" = removedEntries)
+      output <- c(output, list("Changed Calls" = addRemoveEntries))
+    }
   }
 
   # added/removed calls
