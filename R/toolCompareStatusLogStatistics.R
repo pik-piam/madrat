@@ -49,6 +49,15 @@ toolStatisticsCompareStatusLogs <- function(oldLogPath, newLogPath) {
   names(oldEntries) <- lapply(oldEntries, uniqueName)
   names(newEntries) <- lapply(newEntries, uniqueName)
 
+  # check whether identity is really unique
+  assertNamesAreUnique <- function(l) {
+    if (length(unique(names(l))) != length(names(l))) {
+      warning("There were non-unique entries in the log: ", l)
+    }
+  }
+  assertNamesAreUnique(oldEntries)
+  assertNamesAreUnique(newEntries)
+
   # added/removed entries
   removedEntries <- unname(oldEntries[setdiff(names(oldEntries), names(newEntries))])
   addedEntries <- unname(newEntries[setdiff(names(newEntries), names(oldEntries))])
@@ -90,5 +99,5 @@ toolStatisticsCompareStatusLogs <- function(oldLogPath, newLogPath) {
 }
 
 .outputDiff <- function(diffList) {
-  print("TODO")
+  return("TODO")
 }

@@ -40,37 +40,38 @@ test_that("compare of logs with added or removed calls", {
                        changedCalls = .emptyNamedList()))
 })
 
+.expectChangedCalls <- function(old, new, changedCalls) {
+  result <- .compareStatusLogsStatistics(old, new)
+  expect_mapequal(result,
+                  list(addedCalls = list(), removedCalls = list(),
+                        changedCalls = changedCalls))
+}
+
 test_that("compare results with changed calls", {
   countStatistic <- list(type = "statistic", statistic = "count", data = 5)
   sumStatistic <- list(type = "statistic", statistic = "sum", data = 10)
-  expectChangedCalls <- function(old, new, changedCalls) {
-    result <- .compareStatusLogsStatistics(old, new)
-    expect_mapequal(result,
-                    list(addedCalls = list(), removedCalls = list(),
-                         changedCalls = changedCalls))
-  }
 
   # Added entries
-  expectChangedCalls(list("cf()" = list(countStatistic)),
+  .expectChangedCalls(list("cf()" = list(countStatistic)),
                      list("cf()" = list(countStatistic, sumStatistic)),
                      list("cf()" = list(addedEntries = list(sumStatistic),
                                         removedEntries = list(),
                                         changedEntries = list())))
 
-  expectChangedCalls(list("cf()" = list("check 1")),
+  .expectChangedCalls(list("cf()" = list("check 1")),
                      list("cf()" = list("check 1", "check 2")),
                      list("cf()" = list(addedEntries = list("check 2"),
                                         removedEntries = list(),
                                         changedEntries = list())))
 
   # Removed entries
-  expectChangedCalls(list("cf()" = list(countStatistic, sumStatistic)),
+  .expectChangedCalls(list("cf()" = list(countStatistic, sumStatistic)),
                      list("cf()" = list(countStatistic)),
                      list("cf()" = list(addedEntries = list(),
                                         removedEntries = list(sumStatistic),
                                         changedEntries = list())))
 
-  expectChangedCalls(list("cf()" = list("check 1", "check 2")),
+  .expectChangedCalls(list("cf()" = list("check 1", "check 2")),
                      list("cf()" = list("check 1")),
                      list("cf()" = list(addedEntries = list(),
                                         removedEntries = list("check 2"),
@@ -78,23 +79,45 @@ test_that("compare results with changed calls", {
 
   # Changed statistic
 
-  # Simple data
+  ## Simple data
   countStatistic2 <- countStatistic
   countStatistic2["data"] <- 10
-  expectChangedCalls(list("cf()" = list(countStatistic)),
+  .expectChangedCalls(list("cf()" = list(countStatistic)),
                      list("cf()" = list(countStatistic2)),
                      list("cf()" = list(addedEntries = list(),
                                         removedEntries = list(),
                                         changedEntries = list(list(countStatistic, countStatistic2)))))
 
-  # Complex data
+  ## Complex data
   summaryStatistic <- list(type = "statistic", statistic = "summary", data = list(min = 0, max = 10, mean = 5.52342))
   summaryStatistic2 <- summaryStatistic
   summaryStatistic2[["data"]]["max"] <- 12
-  expectChangedCalls(list("cf()" = list(summaryStatistic)),
+  .expectChangedCalls(list("cf()" = list(summaryStatistic)),
                      list("cf()" = list(summaryStatistic2)),
                      list("cf()" = list(addedEntries = list(),
                                         removedEntries = list(),
                                         changedEntries = list(list(summaryStatistic, summaryStatistic2)))))
+
+  # Structured entries other than statistics are handled as tokens without identity
+  someList <- list(calculation = "sum", payload = list(1, 2, 3))
+  someList2 <- list(calculation = "sum", payload = list(4, 5, 6))
+  .expectChangedCalls(list("cf()" = list(someList)),
+                     list("cf()" = list(someList2)),
+                     list("cf()" = list(addedEntries = list(someList2),
+                                        removedEntries = list(someList),
+                                        changedEntries = list())))
+
+})
+
+test_that("unexpected log data", {
+  countStatistic <- list(type = "statistic", statistic = "count", data = 5)
+  countStatistic2 <- countStatistic
+  countStatistic2["data"] <- 10
+
+  expect_warning(.expectChangedCalls(list("cf()" = list(countStatistic)),
+                                     list("cf()" = list(countStatistic2, countStatistic)),
+                                     list("cf()" = list(addedEntries = list(),
+                                                        removedEntries = list(),
+                                                        changedEntries = list(list(countStatistic, countStatistic2))))))
 
 })
