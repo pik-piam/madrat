@@ -1,20 +1,31 @@
 #' toolCompareStatusLogs
 #'
 #' TODO
-#' @param oldLogPath
-#' @param newLogPath
+#' @param oldArchivePath
+#' @param newArchivePath
 #' @param sections
 #' @author Patrick Rein
 #' @export
-toolCompareStatusLogs <- function(oldLogPath, newLogPath,
-                                            sections = c("statistics", "changedCalls", "addedCalls", "removedCalls")) {
+toolCompareStatusLogs <- function(oldArchivePath, newArchivePath,
+                                  oldLogName = "status.log", newLogName = "status.log",
+                                  sections = c("statistics", "changedCalls", "addedCalls", "removedCalls")) {
   # Why is this a custom diff implementation instead of textual diff?
   # -> Ordering in status.log can change in all kinds of ways and is not important.
   #    Similar vein: statistics log entries have identity and should only be compared
   #    based on their content.
-  oldStatusLog <- yaml::read_yaml(oldLogPath)
-  newStatusLog <- yaml::read_yaml(newLogPath)
+
+  tempDir <- withr::local_tempdir()
+  utils::untar(oldArchivePath,
+               files = list(file.path(".", oldLogName)),
+               exdir = file.path(tempDir, "old"))
+  utils::untar(newArchivePath,
+               files = list(file.path(".", newLogName)),
+               exdir = file.path(tempDir, "new"))
+
+  oldStatusLog <- yaml::read_yaml(file.path(tempDir, "old", oldLogName))
+  newStatusLog <- yaml::read_yaml(file.path(tempDir, "new", newLogName))
   diff <- .compareStatusLogsStatistics(oldStatusLog, newStatusLog)
+
   return(.renderDiff(oldStatusLog, newStatusLog, diff, sections = sections))
 }
 
