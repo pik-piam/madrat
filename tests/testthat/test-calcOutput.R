@@ -732,6 +732,11 @@ test_that("calcOutput computes statistics output", {
                                             mean = 1.060241,
                                             thirdQuantile = 1.00,
                                             max = 5.00))))
+
+  # Repeated statistics are ignored
+  expectStatusMessage(
+                      calcOutput("Test1", outputStatistics = c("count", "count")),
+                      list(list(statistic = "count", type = "statistic", data = 498L)))
 })
 
 test_that("calcOutput error handling", {

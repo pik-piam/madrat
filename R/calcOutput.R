@@ -474,6 +474,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   if (!all(vapply(statistics, is.character, FUN.VALUE = logical(1)))) {
     stop("Invalid option given for outputStatistics: ", statistics)
   }
+  statistics <- unique(statistics)
   for (nameOfStatistic in statistics) {
     statisticValue <- list()
     if (nameOfStatistic == "summary") {
