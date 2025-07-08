@@ -1,0 +1,100 @@
+.emptyNamedList <- function() {
+  emptyNamedList <- list()
+  names(emptyNamedList) <- list()
+  return(emptyNamedList)
+}
+
+test_that("compare of unchanged logs", {
+  expectEmptyDiff <- function(old, new) {
+    result <- .compareStatusLogsStatistics(old, new)
+    expect_length(result[["addedCalls"]], 0)
+    expect_length(result[["removedCalls"]], 0)
+    expect_length(result[["changedCalls"]], 0)
+  }
+
+  expectEmptyDiff(list(), list())
+  expectEmptyDiff(list("calcFunc(a=100, b=10)" = list()), list("calcFunc(a=100, b=10)" = list()))
+  # Different ordering does not matter
+  expectEmptyDiff(list("calcFunc(a=100, b=10)" = list(), "calcFunc2()" = list()),
+                  list("calcFunc2()" = list(), "calcFunc(a=100, b=10)" = list()))
+  # Also not for more complex data
+  summaryStatistic <- list(type = "statistic", statistic = "summary", data = list(min = 0, max = 10, mean = 5.52342))
+  summaryStatShuffled <- list(type = "statistic", statistic = "summary", data = list(min = 0, mean = 5.52342, max = 10))
+  expectEmptyDiff(list("calcFunc(a=100, b=10)" = list(summaryStatistic)),
+                  list("calcFunc(a=100, b=10)" = list(summaryStatShuffled)))
+})
+
+test_that("compare of logs with added or removed calls", {
+  # Added call
+  expect_mapequal(.compareStatusLogsStatistics(list("calcFunction(a=100)" = list()),
+                                               list("calcFunction(a=100)" = list(), "calcFunction2(a=100)" = list())),
+                  list(addedCalls = list("calcFunction2(a=100)"),
+                       removedCalls = list(),
+                       changedCalls = .emptyNamedList()))
+
+  # Removed call
+  expect_mapequal(.compareStatusLogsStatistics(list("calcFunction(a=100)" = list(), "calcFunction2(a=100)" = list()),
+                                               list("calcFunction(a=100)" = list())),
+                  list(addedCalls = list(),
+                       removedCalls = list("calcFunction2(a=100)"),
+                       changedCalls = .emptyNamedList()))
+})
+
+test_that("compare results with changed calls", {
+  countStatistic <- list(type = "statistic", statistic = "count", data = 5)
+  sumStatistic <- list(type = "statistic", statistic = "sum", data = 10)
+  expectChangedCalls <- function(old, new, changedCalls) {
+    result <- .compareStatusLogsStatistics(old, new)
+    expect_mapequal(result,
+                    list(addedCalls = list(), removedCalls = list(),
+                         changedCalls = changedCalls))
+  }
+
+  # Added entries
+  expectChangedCalls(list("cf()" = list(countStatistic)),
+                     list("cf()" = list(countStatistic, sumStatistic)),
+                     list("cf()" = list(addedEntries = list(sumStatistic),
+                                        removedEntries = list(),
+                                        changedEntries = list())))
+
+  expectChangedCalls(list("cf()" = list("check 1")),
+                     list("cf()" = list("check 1", "check 2")),
+                     list("cf()" = list(addedEntries = list("check 2"),
+                                        removedEntries = list(),
+                                        changedEntries = list())))
+
+  # Removed entries
+  expectChangedCalls(list("cf()" = list(countStatistic, sumStatistic)),
+                     list("cf()" = list(countStatistic)),
+                     list("cf()" = list(addedEntries = list(),
+                                        removedEntries = list(sumStatistic),
+                                        changedEntries = list())))
+
+  expectChangedCalls(list("cf()" = list("check 1", "check 2")),
+                     list("cf()" = list("check 1")),
+                     list("cf()" = list(addedEntries = list(),
+                                        removedEntries = list("check 2"),
+                                        changedEntries = list())))
+
+  # Changed statistic
+
+  # Simple data
+  countStatistic2 <- countStatistic
+  countStatistic2["data"] <- 10
+  expectChangedCalls(list("cf()" = list(countStatistic)),
+                     list("cf()" = list(countStatistic2)),
+                     list("cf()" = list(addedEntries = list(),
+                                        removedEntries = list(),
+                                        changedEntries = list(list(countStatistic, countStatistic2)))))
+
+  # Complex data
+  summaryStatistic <- list(type = "statistic", statistic = "summary", data = list(min = 0, max = 10, mean = 5.52342))
+  summaryStatistic2 <- summaryStatistic
+  summaryStatistic2[["data"]]["max"] <- 12
+  expectChangedCalls(list("cf()" = list(summaryStatistic)),
+                     list("cf()" = list(summaryStatistic2)),
+                     list("cf()" = list(addedEntries = list(),
+                                        removedEntries = list(),
+                                        changedEntries = list(list(summaryStatistic, summaryStatistic2)))))
+
+})
