@@ -37,7 +37,7 @@
 #' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 #' one temporal sub-dimension.
 #' @param outputStatistics a single name of a statistic function ("summary", "sum", or "count") or a
-#' vector of such names that denote which statistics should be computed on the data before aggregation. 
+#' vector of such names that denote which statistics should be computed on the data before aggregation.
 #' Disabled by default.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function

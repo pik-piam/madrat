@@ -26,8 +26,8 @@
 
 putMadratMessage <- function(name, value, fname = -1, add = FALSE) {
   if (missing(name)) name <- NULL
-  inputIsListOfNamesAndValues <- is.null(name) && is.list(value) && !is.null(names(value))
-  if (inputIsListOfNamesAndValues) {
+  isNestedInput <- is.null(name) && is.list(value) && !is.null(names(value))
+  if (isNestedInput) {
     for (n in names(value)) {
       for (f in names(value[[n]])) {
         putMadratMessage(name = n, value = value[[n]][[f]], fname = f, add = add)

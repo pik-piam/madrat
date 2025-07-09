@@ -691,7 +691,7 @@ test_that("Temporal aggregation works", {
 test_that("calcOutput computes statistics output", {
   localConfig(verbosity = 0, .verbose = FALSE)
   calcTest1 <- function() {
-    return(list(x = toolCountryFill(new.magpie(c("DEU", "FRA", "JPN", "GHA", "MUS"), c(1994, 1995), , c(5L, 3L)), 1L),
+    return(list(x = toolCountryFill(new.magpie(c("DEU", "FRA", "JPN", "GHA", "MUS"), c(1994, 1995), , c(5, 3)), 1),
                 weight = NULL,
                 unit = "1",
                 description = "dummy test data"))
@@ -755,7 +755,7 @@ test_that("calcOutput error handling", {
                "Unknown statistics function fantasyStatistic")
 
   # Invalid type
-  expect_error(calcOutput("Test1", outputStatistics = 1))
-  expect_error(calcOutput("Test1", outputStatistics = TRUE))
+  expect_error(calcOutput("Test1", outputStatistics = 1), "Invalid option given for outputStatistics")
+  expect_error(calcOutput("Test1", outputStatistics = TRUE), "Invalid option given for outputStatistics")
 
 })
