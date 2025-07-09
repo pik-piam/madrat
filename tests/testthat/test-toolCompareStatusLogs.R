@@ -1,3 +1,64 @@
+test_that("compare logs based on archives or single files", {
+
+  withr::local_dir(withr::local_tempdir())
+
+  # Setup two status logs, two archives, one with two status log files
+  statusLog1 <- "
+  cf():
+  - statistic: count
+    type: statistic
+    data: 5"
+  statusLog2 <- "
+  cf():
+  - statistic: count
+    type: statistic
+    data: 10"
+  statusLog2a <- "
+  cf():
+  - statistic: count
+    type: statistic
+    data: 2"
+
+  writeLines(statusLog1, "status.log")
+  writeLines(statusLog1, "status-a.log")
+  tar("archive1.tgz",
+      files = c("./status.log"),
+      compression = "gzip")
+
+  writeLines(statusLog2, "status.log") # This overrides the status.log, to simplify the tar creation.
+  writeLines(statusLog2a, "status-b.log")
+  tar("archive2.tgz",
+      files = c("./status.log", "./status-b.log"),
+      compression = "gzip")
+
+  expectCorrectDiff <- function(compareResult, diffText = "5 -> 2") {
+    expect_match(compareResult, diffText)
+  }
+
+  # Two archives given
+  expectCorrectDiff(toolCompareStatusLogs(oldArchivePath = "archive1.tgz",
+                                          newArchivePath = "archive2.tgz"),
+                    "5 -> 10")
+
+  # Two archives with additional file name
+  expectCorrectDiff(toolCompareStatusLogs(oldArchivePath = "archive1.tgz",
+                                          newArchivePath = "archive2.tgz", newLogPath = "./status-b.log"))
+
+  # Two single files given
+  expectCorrectDiff(toolCompareStatusLogs(oldLogPath = "status-a.log",
+                                          newLogPath = "status-b.log"))
+
+  # One archive and one single file given
+  expectCorrectDiff(toolCompareStatusLogs(oldArchivePath = "archive1.tgz",
+                                          newLogPath = "status-b.log"))
+
+  # No arguments
+  expect_match(toolCompareStatusLogs(), "Nothing to do")
+  
+})
+
+
+
 .emptyNamedList <- function() {
   emptyNamedList <- list()
   names(emptyNamedList) <- list()
@@ -86,7 +147,7 @@ test_that("compare results with changed calls", {
                      list("cf()" = list(countStatistic2)),
                      list("cf()" = list(addedEntries = list(),
                                         removedEntries = list(),
-                                        changedEntries = list(list(countStatistic, countStatistic2)))))
+                                        changedEntries = list(list(old = countStatistic, new = countStatistic2)))))
 
   ## Complex data
   summaryStatistic <- list(type = "statistic", statistic = "summary", data = list(min = 0, max = 10, mean = 5.52342))
@@ -96,7 +157,7 @@ test_that("compare results with changed calls", {
                      list("cf()" = list(summaryStatistic2)),
                      list("cf()" = list(addedEntries = list(),
                                         removedEntries = list(),
-                                        changedEntries = list(list(summaryStatistic, summaryStatistic2)))))
+                                        changedEntries = list(list(old = summaryStatistic, new = summaryStatistic2)))))
 
   # Structured entries other than statistics are handled as tokens without identity
   someList <- list(calculation = "sum", payload = list(1, 2, 3))
@@ -118,6 +179,7 @@ test_that("unexpected log data", {
                                      list("cf()" = list(countStatistic2, countStatistic)),
                                      list("cf()" = list(addedEntries = list(),
                                                         removedEntries = list(),
-                                                        changedEntries = list(list(countStatistic, countStatistic2))))))
+                                                        changedEntries = list(list(old = countStatistic,
+                                                                                   new = countStatistic2))))))
 
 })
