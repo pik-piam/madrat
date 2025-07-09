@@ -6,9 +6,9 @@ test_that("getMadratMessage and putMadratMessage work", {
   expect_silent(putMadratMessage("test", "This is a test", fname = "example"))
   expect_silent(putMadratMessage("test", "This is a toast", fname = "readTau"))
   expect_silent(putMadratMessage("test", list(a = 1, b = list(2, 3)), fname = "example2"))
-  expect_equal(getOption("madratMessage"), list(test = list(example = "This is a test",
-                                                            readTau = "This is a toast",
-                                                            example2 = list(a = 1, b = list(2, 3)))))
+  expect_identical(getOption("madratMessage"), list(test = list(example = "This is a test",
+                                                                readTau = "This is a toast",
+                                                                example2 = list(a = 1, b = list(2, 3)))))
 
   # Empty messages
   expect_silent(resetMadratMessages())
