@@ -21,7 +21,8 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
   #    Similar vein: statistics log entries have identity and should only be compared
   #    based on their content.
 
-  if (oldArchivePath == newArchivePath && oldLogPath == newLogPath) {
+  if ((is.null(oldArchivePath) && is.null(newArchivePath) || oldArchivePath == newArchivePath)
+      && oldLogPath == newLogPath) {
     # This is also a warning that none of the relevant parameters have been changed.
     return("Nothing to do. Old and new paths are the same.")
   }
