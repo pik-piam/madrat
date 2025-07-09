@@ -36,8 +36,9 @@
 #' Years in the magpie object will be mapped from years to periods as indicated in `temporalmapping` by
 #' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 #' one temporal sub-dimension.
-#' @param outputStatistics a single or list of output statistics ("summary", "sum", or "count") that
-#' denote which statistics should be computed on the data before aggregation. Disabled by default.
+#' @param outputStatistics a single name of a statistic function ("summary", "sum", or "count") or a
+#' vector of such names that denote which statistics should be computed on the data before aggregation. 
+#' Disabled by default.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -94,7 +95,7 @@
 #' in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
 #' will corrupt the PUC file. Use with care.
 #' }
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @examples
 #' \dontrun{
