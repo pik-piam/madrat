@@ -2,11 +2,13 @@
 #'
 #' Compares status logs and returns a textual rendering of the diff between the two.
 #'
-#' @param oldArchivePath, newArchivePath Paths to the tgz-archive that serves as the old / new archive.
+#' @param oldArchivePath Paths to the tgz-archive that serves as the old / new archive.
 #' If given, oldLogPath / newLogPath determines the name of the log file within the archive.
 #' If not given, oldLogPath / newLogPath need to be given.
-#' @param oldLogPath, newLogPath Paths to a log file, either within an archive,
+#' @param newArchivePath see above
+#' @param oldLogPath Paths to a log file, either within an archive,
 #' if an archive is given, or to a single file.
+#' @param newLogPath see above
 #' @param sections List of sections the output should include.
 #' Valid section names are: changedStatistics, changedCalls, addedCalls, removedCalls
 #' @returns A printable string describing the changes that occurred between
@@ -136,14 +138,19 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
 #' Renders a list of differences based on the relevance.
 #' The reasoning is that changed entries should come first,
 #' as they can point out subtle problems.
-#' Added or removed calls or entries are less important, as they
-#' require explicit edits to the pipeline to occur.
+#' Added or removed calls or entries are less important, as
+#' they require explicit edits to the pipeline to occur.
 #' 1. Changed entries
 #' 2. Changed calls
 #'   2.1. Added entries
 #'   2.2. Removed entries
 #' 3. Added calls
 #' 4. Removed calls
+#' @param oldLog the old log
+#' @param newLog the new log
+#' @param diffList the list of differences as created by \code{.compareStatusLogsStatistics}
+#' @param sections a vector of section names to be displayed (valid values are: "changedStatistics",
+#' "changedCalls", "addedCalls", "removedCalls"); by default all sections are shown
 .renderDiff <- function(oldLog, newLog, diffList,
                         sections = c("changedStatistics", "changedCalls", "addedCalls", "removedCalls")) {
   output <- list()
@@ -192,8 +199,8 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
     removedEntries <- Filter(function(l) length(l) > 0, removedEntries)
     if (length(addedEntries) > 0 || length(removedEntries) > 0) {
       addRemoveEntries <- list("comment" = "These calls have changes beyond changed statistics.",
-                              "Added Entries" = addedEntries,
-                              "Removed Entries" = removedEntries)
+                               "Added Entries" = addedEntries,
+                               "Removed Entries" = removedEntries)
       output <- c(output, list("Changed Calls" = addRemoveEntries))
     }
   }
