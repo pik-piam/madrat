@@ -158,18 +158,18 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
         oldData <- oldNewEntry[["old"]][["data"]]
         newData <- oldNewEntry[["new"]][["data"]]
         if (is.null(names(oldData))) {
-          changedNames <- 1
+          changes <- list(value = paste0(oldData[1], " -> ", newData[1]))
         } else {
           changedNames <- Filter(function(name) {
             !identical(oldData[[name]], newData[[name]])
           },
           names(oldData))
+          changes <- lapply(changedNames, function(n) {
+            paste0(oldData[changedNames], " -> ", newData[changedNames])
+          })
+          names(changes) <- changedNames
         }
 
-        changes <- lapply(changedNames, function(n) {
-          paste0(oldData[changedNames], " -> ", newData[changedNames])
-        })
-        names(changes) <- changedNames
         c(list("statistic" = oldNewEntry[["old"]][["statistic"]]), changes)
       })
     })
