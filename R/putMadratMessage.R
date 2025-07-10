@@ -34,7 +34,7 @@ putMadratMessage <- function(name, value, fname = -1, add = FALSE) {
       }
     }
   } else {
-    if (is.numeric(fname)) fname <- as.character(sys.call(fname)[1])
+    if (is.numeric(fname)) fname <- as.character(sys.call(fname))[1]
     madratMessage <- getOption("madratMessage")
     if (is.null(name)) name <- names(madratMessage)
     for (n in name) {
