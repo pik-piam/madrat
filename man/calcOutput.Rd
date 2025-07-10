@@ -70,8 +70,9 @@ Years in the magpie object will be mapped from years to periods as indicated in 
 calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 one temporal sub-dimension.}
 
-\item{outputStatistics}{a single or list of output statistics ("summary", "sum", or "count") that
-denote which statistics should be computed on the data before aggregation. Disabled by default.}
+\item{outputStatistics}{a single name of a statistic function ("summary", "sum", or "count") or a
+vector of such names that denote which statistics should be computed on the data before aggregation.
+Disabled by default.}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}
@@ -147,5 +148,5 @@ a <- calcOutput(type = "TauTotal")
 \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Patrick Rein
 }
