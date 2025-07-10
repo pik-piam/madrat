@@ -1,18 +1,27 @@
 test_that("getMadratMessage and putMadratMessage work", {
   localConfig(globalenv = FALSE, .verbose = FALSE)
   expect_silent(resetMadratMessages())
+
+  # Basic text and list messages
   expect_silent(putMadratMessage("test", "This is a test", fname = "example"))
   expect_silent(putMadratMessage("test", "This is a toast", fname = "readTau"))
+  expect_silent(putMadratMessage("test", list(a = 1, b = list(2, 3)), fname = "example2"))
   expect_identical(getOption("madratMessage"), list(test = list(example = "This is a test",
-                                                                readTau = "This is a toast")))
-  expect_identical(getMadratMessage("test", fname = "calcTauTotal"), list(readTau = "This is a toast"))
+                                                                readTau = "This is a toast",
+                                                                example2 = list(a = 1, b = list(2, 3)))))
+
+  # Empty messages
   expect_silent(resetMadratMessages())
   expect_null(getMadratMessage())
+
+  # getMadratMessage also returns messages from called functions
   expect_silent(putMadratMessage("test2", "another test", fname = "convertTau"))
   expect_identical(getMadratMessage(fname = "calcTauTotal"), list(test2 = list(convertTau = "another test")))
   expect_identical(getMadratMessage(fname = "readTau"), list(test2 = list(convertTau = "another test")))
   expect_identical(getMadratMessage(fname = "convertTau"), list(test2 = list(convertTau = "another test")))
   resetMadratMessages()
+
+  # support for determining fname at different stack depths
   test <- function() {
     putMadratMessage("level", "level 1")
     .tmp <- function() {
@@ -22,9 +31,9 @@ test_that("getMadratMessage and putMadratMessage work", {
     .tmp()
   }
   test()
-  expect_identical(getMadratMessage(), list(level = list(test = c("level 1", "level 1 again"), .tmp = "level 2")))
+  expect_identical(getMadratMessage(), list(level = list(test = list("level 1", "level 1 again"), .tmp = "level 2")))
   expect_silent(resetMadratMessages(fname = ".tmp"))
-  expect_identical(getMadratMessage(), list(level = list(test = c("level 1", "level 1 again"))))
+  expect_identical(getMadratMessage(), list(level = list(test = list("level 1", "level 1 again"))))
   expect_silent(resetMadratMessages("level"))
   expect_null(getMadratMessage())
 })

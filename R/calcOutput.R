@@ -36,6 +36,9 @@
 #' Years in the magpie object will be mapped from years to periods as indicated in `temporalmapping` by
 #' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 #' one temporal sub-dimension.
+#' @param outputStatistics a single name of a statistic function ("summary", "sum", or "count") or a
+#' vector of such names that denote which statistics should be computed on the data before aggregation.
+#' Disabled by default.
 #' @param ... Additional settings directly forwarded to the corresponding
 #' calculation function
 #' @return magpie object with the requested output data either on country or on
@@ -92,7 +95,7 @@
 #' in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
 #' will corrupt the PUC file. Use with care.
 #' }
-#' @author Jan Philipp Dietrich
+#' @author Jan Philipp Dietrich, Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @examples
 #' \dontrun{
@@ -107,7 +110,8 @@
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
-                       regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL, ...) {
+                       regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL,
+                       outputStatistics = NULL, ...) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
@@ -310,6 +314,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     write(cacheFileName, file = "pucFiles", append = TRUE)
   }
 
+  if (!is.null(outputStatistics)) {
+    .statisticsOutput(x$x,
+                      callString,
+                      outputStatistics)
+  }
 
   if (!is.null(years)) {
     if (x$class != "magpie") stop("years argument can only be used in combination with x$class=\"magpie\"!")
@@ -462,6 +471,38 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
 }
 
+.statisticsOutput <- function(data, callString, statistics = list()) {
+  if (!all(vapply(statistics, is.character, FUN.VALUE = logical(1)))) {
+    stop("Invalid option given for outputStatistics: ", statistics)
+  }
+  statistics <- unique(statistics)
+  for (nameOfStatistic in statistics) {
+    statisticValue <- list()
+    if (nameOfStatistic == "summary") {
+      statisticValue <- as.list(summary(data))
+      names(statisticValue) <- list("Min." = "min", "Max." = "max",
+                                    "1st Qu." = "firstQuantile", "Median" = "median",
+                                    "Mean" = "mean", "3rd Qu." = "thirdQuantile")[names(statisticValue)]
+    } else if (nameOfStatistic == "sum") {
+      statisticValue <- sum(data)
+    } else if (nameOfStatistic == "count") {
+      statisticValue <- length(data)
+    } else {
+      stop(paste0("Unknown statistics function ",
+                  nameOfStatistic,
+                  ". Valid options are 'summary', 'sum', and 'count'."))
+    }
+
+    vcat(1,
+         paste0("[statistics] ",
+                nameOfStatistic, " of ", callString, ": ",
+                paste0(as.character(statisticValue), collapse = ", ")), show_prefix = FALSE)
+    putMadratMessage("status",
+                     list("statistic" = nameOfStatistic, "type" = "statistic", "data" = statisticValue),
+                     fname = callString,
+                     add = TRUE)
+  }
+}
 
 .getMapping <- function(aggregate, type, x) { # nolint: cyclocomp_linter.
 
