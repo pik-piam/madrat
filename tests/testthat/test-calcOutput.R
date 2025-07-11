@@ -741,7 +741,7 @@ test_that("calcOutput computes statistics output", {
 
 test_that("calcOutput error handling", {
   localConfig(verbosity = 0, .verbose = FALSE)
-  calcTest1 <- function() {
+  calcTest1 <- function(output = NULL) {
     return(list(x = toolCountryFill(new.magpie(c("DEU", "FRA", "JPN", "GHA", "MUS"), c(1994, 1995), , c(5L, 3L)), 1L),
                 weight = NULL,
                 unit = "1",
@@ -757,5 +757,8 @@ test_that("calcOutput error handling", {
   # Invalid type
   expect_error(calcOutput("Test1", outputStatistics = 1), "Invalid option given for outputStatistics")
   expect_error(calcOutput("Test1", outputStatistics = TRUE), "Invalid option given for outputStatistics")
+
+  # No partial argument match occurs
+  calcOutput("Test1", output = 1)
 
 })
