@@ -19,8 +19,8 @@ calcOutput(
   regionmapping = NULL,
   writeArgs = NULL,
   temporalmapping = NULL,
-  outputStatistics = NULL,
-  ...
+  ...,
+  outputStatistics = NULL
 )
 }
 \arguments{
@@ -70,12 +70,12 @@ Years in the magpie object will be mapped from years to periods as indicated in 
 calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 one temporal sub-dimension.}
 
+\item{...}{Additional settings directly forwarded to the corresponding
+calculation function}
+
 \item{outputStatistics}{a single name of a statistic function ("summary", "sum", or "count") or a
 vector of such names that denote which statistics should be computed on the data before aggregation.
 Disabled by default.}
-
-\item{...}{Additional settings directly forwarded to the corresponding
-calculation function}
 }
 \value{
 magpie object with the requested output data either on country or on

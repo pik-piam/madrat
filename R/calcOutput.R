@@ -36,11 +36,11 @@
 #' Years in the magpie object will be mapped from years to periods as indicated in `temporalmapping` by
 #' calculating the weighted average using the 'weight' column. Requires magpie object to have exactly
 #' one temporal sub-dimension.
+#' @param ... Additional settings directly forwarded to the corresponding
+#' calculation function
 #' @param outputStatistics a single name of a statistic function ("summary", "sum", or "count") or a
 #' vector of such names that denote which statistics should be computed on the data before aggregation.
 #' Disabled by default.
-#' @param ... Additional settings directly forwarded to the corresponding
-#' calculation function
 #' @return magpie object with the requested output data either on country or on
 #' regional level depending on the choice of argument "aggregate" or a list of information
 #' if supplementary is set to TRUE.
@@ -111,7 +111,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
                        round = NULL, signif = NULL, supplementary = FALSE,
                        append = FALSE, warnNA = TRUE, na_warning = NULL, try = FALSE, # nolint
                        regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL,
-                       outputStatistics = NULL, ...) {
+                       ..., outputStatistics = NULL) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
   setWrapperActive("calcOutput")
