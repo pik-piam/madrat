@@ -24,7 +24,7 @@ if an archive is given, or to a single file.}
 
 \item{newLogPath}{see above}
 
-\item{sections}{List of sections the output should include.
+\item{sections}{Vector of sections the output should include.
 Valid section names are: changedStatistics, changedCalls, addedCalls, removedCalls}
 }
 \value{
