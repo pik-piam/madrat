@@ -9,7 +9,7 @@
 #' @param oldLogPath Paths to a log file, either within an archive,
 #' if an archive is given, or to a single file.
 #' @param newLogPath see above
-#' @param sections List of sections the output should include.
+#' @param sections Vector of sections the output should include.
 #' Valid section names are: changedStatistics, changedCalls, addedCalls, removedCalls
 #' @returns A printable string describing the changes that occurred between
 #' the old and the new log.
@@ -29,23 +29,20 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
     return("Nothing to do. Old and new paths are the same.")
   }
 
-  tempDir <- withr::local_tempdir()
-  if (!is.null(oldArchivePath)) {
-    utils::untar(oldArchivePath,
-                 files = oldLogPath,
-                 exdir = file.path(tempDir, "old"))
-    oldStatusLog <- yaml::read_yaml(file.path(tempDir, "old", oldLogPath))
-  } else {
-    oldStatusLog <- yaml::read_yaml(oldLogPath)
+  readStatusLog <- function(archivePath, filePath) {
+    if (!is.null(archivePath)) {
+      tempDir <- withr::local_tempdir()
+      utils::untar(archivePath,
+                   files = filePath,
+                   exdir = file.path(tempDir))
+      log <- yaml::read_yaml(file.path(tempDir, filePath))
+    } else {
+      log <- yaml::read_yaml(filePath)
+    }
+    return(log)
   }
-  if (!is.null(newArchivePath)) {
-    utils::untar(newArchivePath,
-                 files = newLogPath,
-                 exdir = file.path(tempDir, "new"))
-    newStatusLog <- yaml::read_yaml(file.path(tempDir, "new", newLogPath))
-  } else {
-    newStatusLog <- yaml::read_yaml(newLogPath)
-  }
+  oldStatusLog <- readStatusLog(oldArchivePath, oldLogPath)
+  newStatusLog <- readStatusLog(newArchivePath, newLogPath)
 
   diff <- .compareStatusLogsStatistics(oldStatusLog, newStatusLog)
 
@@ -53,7 +50,9 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
 }
 
 .compareStatusLogsStatistics <- function(oldLog, newLog) {
-  # Assumed structure: list(string = call(list(entry)), entry = string|list
+  # Assumed structure of log:
+  # - list<callString = <list<entry>>
+  # - entry = <string|list>
 
   # Detect added/removed calls
   removedCalls <- as.list(setdiff(names(oldLog), names(newLog)))
@@ -72,7 +71,9 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
 
 .changesBetweenCalls <- function(oldEntries, newEntries) {
 
-  # entries can be strings or lists -> unify based on unique names
+  # entries can be strings or lists -> compare based on unique names
+  # entries that are lists but not statistics entries are treated
+  # as values, thus their hash is used as the name
   uniqueName <- function(entry) {
     if (is.character(entry)) {
       entry
