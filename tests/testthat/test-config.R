@@ -58,3 +58,10 @@ test_that("addMapping works", {
   expect_error(addMapping("test.blablub", map), "Unsupported filetype")
   expect_error(addMapping("blablub.csv", TRUE), "Cannot handle this mapping format")
 })
+
+test_that("setting via positional arguments is prevented", {
+  # Passing positional arguments leads to accidential modifications
+  # of config fields
+  expect_error(setConfig("mainfolder", "data"), "setConfig does not accept positional arguments")
+  expect_error(localConfig("mainfolder", "data"), "setConfig does not accept positional arguments")
+})
