@@ -31,7 +31,7 @@ test_that("compare logs based on archives or single files", {
       files = c("./status.log", "./status-b.log"),
       compression = "gzip")
 
-  expectCorrectDiff <- function(compareResult, diffText = "5 -> 2") {
+  expectCorrectDiff <- function(compareResult, diffText) {
     expect_match(compareResult, diffText)
   }
 
@@ -42,22 +42,41 @@ test_that("compare logs based on archives or single files", {
 
   # Two archives with additional file name
   expectCorrectDiff(toolCompareStatusLogs(oldArchivePath = "archive1.tgz",
-                                          newArchivePath = "archive2.tgz", newLogPath = "./status-b.log"))
+                                          newArchivePath = "archive2.tgz", newLogPath = "./status-b.log"),
+                    "5 -> 2")
 
   # Two single files given
   expectCorrectDiff(toolCompareStatusLogs(oldLogPath = "status-a.log",
-                                          newLogPath = "status-b.log"))
+                                          newLogPath = "status-b.log"),
+                    "5 -> 2")
 
   # One archive and one single file given
   expectCorrectDiff(toolCompareStatusLogs(oldArchivePath = "archive1.tgz",
-                                          newLogPath = "status-b.log"))
+                                          newLogPath = "status-b.log"),
+                    "5 -> 2")
 
   # No arguments
   expect_match(toolCompareStatusLogs(), "Nothing to do")
 
 })
 
+test_that("output of unchanged logs", {
 
+  withr::local_dir(withr::local_tempdir())
+
+  statusLog <- "
+  cf():
+  - statistic: count
+    type: statistic
+    data: 5"
+  writeLines(statusLog, "status.log")
+  writeLines(statusLog, "status-a.log")
+
+  expect_match(toolCompareStatusLogs(oldLogPath = "status.log",
+                                     newLogPath = "status-a.log"),
+               "No changes between logs.")
+
+})
 
 .emptyNamedList <- function() {
   emptyNamedList <- list()

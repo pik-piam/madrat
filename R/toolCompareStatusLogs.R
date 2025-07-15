@@ -219,5 +219,10 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
     output <- c(output, list("Removed Calls" = removedCalls))
   }
 
-  return(yaml::as.yaml(output))
+  if (length(output) > 0) {
+    return(yaml::as.yaml(output))
+  } else {
+    return("No changes between logs.")
+  }
+  
 }
