@@ -194,7 +194,7 @@ test_that("unexpected log data", {
   countStatistic2 <- countStatistic
   countStatistic2["data"] <- 10
 
-  expect_warning(.expectChangedCalls(list("cf()" = list(countStatistic)),
+  expect_message(.expectChangedCalls(list("cf()" = list(countStatistic)),
                                      list("cf()" = list(countStatistic2, countStatistic)),
                                      list("cf()" = list(addedEntries = list(),
                                                         removedEntries = list(),
