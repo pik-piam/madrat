@@ -87,13 +87,14 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
   names(newEntries) <- lapply(newEntries, uniqueName)
 
   # check whether identity is really unique
-  assertNamesAreUnique <- function(l) {
-    if (length(unique(names(l))) != length(names(l))) {
-      warning("There were non-unique entries in the log: ", l)
+  assertListNamesAreUnique <- function(l) {
+    childLists <- Filter(is.list, l)
+    if (length(unique(names(childLists))) != length(names(childLists))) {
+      message("There were non-unique list entries in the log: ", paste(l, sep = "\n"))
     }
   }
-  assertNamesAreUnique(oldEntries)
-  assertNamesAreUnique(newEntries)
+  assertListNamesAreUnique(oldEntries)
+  assertListNamesAreUnique(newEntries)
 
   # added/removed entries
   removedEntries <- unname(oldEntries[setdiff(names(oldEntries), names(newEntries))])
