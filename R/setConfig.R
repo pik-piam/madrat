@@ -89,7 +89,8 @@
 #' @importFrom utils installed.packages
 #' @importFrom withr local_options
 #' @export
-setConfig <- function(regionmapping = NULL, # nolint
+setConfig <- function(..., # nolint: cyclocomp_linter.
+                      regionmapping = NULL,
                       extramappings = NULL,
                       packages = NULL,
                       globalenv = NULL,
@@ -114,6 +115,10 @@ setConfig <- function(regionmapping = NULL, # nolint
                       .cfgchecks = TRUE,
                       .verbose = TRUE,
                       .local = FALSE) {
+
+  if (...length() > 0) {
+    stop("setConfig does not accept positional arguments. Please use the form setConfig(configField = configValue).")
+  }
 
   if (isWrapperActive("wrapperChecks")) {
     for (w in c("downloadSource", "readSource", "calcOutput", "retrieveData")) {
