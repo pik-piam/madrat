@@ -90,7 +90,7 @@
 #' @importFrom withr local_options
 #' @export
 setConfig <- function(..., # nolint: cyclocomp_linter.
-                      regionmapping = NULL, # nolint
+                      regionmapping = NULL,
                       extramappings = NULL,
                       packages = NULL,
                       globalenv = NULL,
