@@ -427,7 +427,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   if (x$class == "magpie") {
     getComment(x$x) <- extendedComment
-    x$x <- clean_magpie(x$x)
+    if (!isFALSE(x$clean_magpie)) {
+      x$x <- clean_magpie(x$x)
+    }
   } else {
     attr(x$x, "comment") <- extendedComment
   }
