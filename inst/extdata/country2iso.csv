@@ -72,6 +72,12 @@ BE;BEL
 Belarus;BLR
 Belgien;BEL
 Belgium;BEL
+# BLX is introduced as a new iso3code for the abstract joint region Beligum/Luxemburg
+Belgium - Luxembourg;BLX
+Belgium / Luxembourg;BLX
+Belgium / Luxemburg;BLX
+Belgium-Luxemburg;BLX
+Belgium-Luxembourg;BLX
 Belize;BLZ
 Benin;BEN
 Bermuda;BMU
@@ -231,6 +237,7 @@ Czech_Republic;CZE
 Czechia;CZE
 Czechoslovakia;CSK
 czechoslovakia;CSK
+Czechoslavakia;CSK
 Czechoslovakia ( E : 70-73 );CSK
 Czechoslovakia (former);CSK
 Czechoslovakia..n.a .;CSK
@@ -526,6 +533,7 @@ Korea;KOR
 Korea (DPR);PRK
 Korea (North);PRK
 Korea (South);KOR
+Korea D.P.R. ( 4 );PRK
 Korea DPR;PRK
 Korea DPR (North);PRK
 Korea Rep;KOR
@@ -707,6 +715,7 @@ NO;NOR
 Norfolk Is;NFK
 Norfolk Island;NFK
 North Korea;PRK
+North Korea ( e );PRK
 North Macedonia;MKD
 North_Korea;PRK
 Northern Mariana Islands;MNP
@@ -919,6 +928,10 @@ Solomon_Islands;SLB
 Solomon Is_;SLB
 Somalia;SOM
 South Africa;ZAF
+# SAC is introduced as a new iso3code for the South African Customs Union. 
+# This code is not taken yet but might cause problems in the future.
+South African C.U.;SAC
+South African Customs Union;SAC
 South Georgia and the South Sandwich Islands;SGS
 South Korea;KOR
 South Sudan;SSD
@@ -953,6 +966,7 @@ st vincent & the grenadines;VCT
 St Vincent and Grenadines;VCT
 St Vincent Gren;VCT
 St_Vincent_and_the_Grenadines;VCT
+St. Vincent and the Grenadines;VCT
 Stain;ESP
 Südafrika;ZAF
 sudafrika;ZAF
@@ -1001,6 +1015,7 @@ tansania, vereinigte republik;TZA
 Tanzania;TZA
 Tanzania, United Republic of;TZA
 Tanzania_United_Republic_of;TZA
+Tanzania ( United Rep . of );TZA
 TC;TCA
 TD;TCD
 TF;ATF
@@ -1100,6 +1115,7 @@ ussr;SUN
 USSR;SUN
 USSR ( 1 );SUN
 USSR ( in OH  BOF only );SUN
+USSR ( E );SUN
 UY;URY
 UZ;UZB
 Uzbekistan;UZB
