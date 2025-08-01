@@ -94,6 +94,7 @@
 #' the corresponding file sizes are huge. Or if the caching for the given data type does not support storage
 #' in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
 #' will corrupt the PUC file. Use with care.
+#' \item \bold{clean_magpie} (optional) boolean, if set to FALSE magclass::clean_magpie will not be run on the result
 #' }
 #' @author Jan Philipp Dietrich, Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
