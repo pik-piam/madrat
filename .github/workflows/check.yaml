@@ -4,11 +4,13 @@ on:
   push:
     branches: [main, master]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [main, master]
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
 
     steps:
       - uses: actions/checkout@v4

@@ -25,14 +25,14 @@ toolFillYears <- function(x, years) {
   interpolateYears          <- intersect(interpolateYears, years)
 
   out[, interpolateYears, ] <- time_interpolate(x, interpolateYears,
-                                                  integrate_interpolated_years = TRUE)[, interpolateYears, ]
+                                                integrate_interpolated_years = TRUE)[, interpolateYears, ]
 
   # Hold constant before and after contained years, if requested by argument years
   missingyears               <- setdiff(years, interpolateYears)
   beforeyears                <- missingyears[missingyears < containedYears[1]]
-  afteryears                 <- missingyears[missingyears > containedYears[1]]
+  afteryears                 <- missingyears[missingyears > tail(containedYears, 1)]
   out[, beforeyears, ]       <- x[, containedYears[1], ]
-  out[, afteryears, ]        <- x[, containedYears[length(containedYears)], ]
+  out[, afteryears, ]        <- x[, tail(containedYears, 1), ]
 
   return(out)
 }
