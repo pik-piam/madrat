@@ -258,7 +258,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   # are arguments used in both - setConfig and the fullFunction? -> warning
   tmp <- intersect(formalArgs(setConfig), names(cfg$fullDefault))
   if (length(tmp) > 0) {
-    warning("Overlapping arguments between setConfig and retrieve function (\"",
+    warning("Overlapping arguments between setConfig and full", model, " (\"",
             paste(tmp, collapse = '", "'), '")')
   }
 
