@@ -21,7 +21,7 @@ toolFillYears <- function(x, years) {
   out[, containedYears, ]   <- x[, containedYears, ]
 
   # Interpolate years between contained years linear, if requested by argument years
-  interpolateYears          <- seq(containedYears[1], tail(containedYears, 1), 1)
+  interpolateYears          <- seq(containedYears[1], containedYears[length(containedYears)], 1)
   interpolateYears          <- intersect(interpolateYears, years)
 
   out[, interpolateYears, ] <- time_interpolate(x, interpolateYears,
