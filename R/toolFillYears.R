@@ -21,7 +21,7 @@ toolFillYears <- function(x, years) {
   out[, containedYears, ]   <- x[, containedYears, ]
 
   # Interpolate years between contained years linear, if requested by argument years
-  interpolateYears          <- seq(containedYears[1], containedYears[length(containedYears)], 1)
+  interpolateYears          <- seq(containedYears[1], utils::tail(containedYears, 1), 1)
   interpolateYears          <- intersect(interpolateYears, years)
 
   out[, interpolateYears, ] <- time_interpolate(x, interpolateYears,
@@ -30,9 +30,9 @@ toolFillYears <- function(x, years) {
   # Hold constant before and after contained years, if requested by argument years
   missingyears               <- setdiff(years, interpolateYears)
   beforeyears                <- missingyears[missingyears < containedYears[1]]
-  afteryears                 <- missingyears[missingyears > tail(containedYears, 1)]
+  afteryears                 <- missingyears[missingyears > utils::tail(containedYears, 1)]
   out[, beforeyears, ]       <- x[, containedYears[1], ]
-  out[, afteryears, ]        <- x[, tail(containedYears, 1), ]
+  out[, afteryears, ]        <- x[, utils::tail(containedYears, 1), ]
 
   return(out)
 }
