@@ -26,7 +26,8 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
   if ((is.null(oldArchivePath) && is.null(newArchivePath) || oldArchivePath == newArchivePath)
       && oldLogPath == newLogPath) {
     # This is also a warning that none of the relevant parameters have been changed.
-    return("Nothing to do. Old and new paths are the same.")
+    cat("Nothing to do. Old and new paths are the same.")
+    return(invisible(NULL))
   }
 
   readStatusLog <- function(archivePath, filePath) {
@@ -46,7 +47,9 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
 
   diff <- .compareStatusLogsStatistics(oldStatusLog, newStatusLog)
 
-  return(.renderDiff(oldStatusLog, newStatusLog, diff, sections = sections))
+  cat(.renderDiff(oldStatusLog, newStatusLog, diff, sections = sections))
+
+  return(invisible(diff))
 }
 
 .compareStatusLogsStatistics <- function(oldLog, newLog) {
@@ -225,5 +228,5 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
   } else {
     return("No changes between logs.")
   }
-  
+
 }

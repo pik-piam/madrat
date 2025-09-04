@@ -31,8 +31,8 @@ test_that("compare logs based on archives or single files", {
       files = c("./status.log", "./status-b.log"),
       compression = "gzip")
 
-  expectCorrectDiff <- function(compareResult, diffText) {
-    expect_match(compareResult, diffText)
+  expectCorrectDiff <- function(diff, expectedDiffText) {
+    expect_output(diff, expectedDiffText)
   }
 
   # Two archives given
@@ -56,7 +56,7 @@ test_that("compare logs based on archives or single files", {
                     "5 -> 2")
 
   # No arguments
-  expect_match(toolCompareStatusLogs(), "Nothing to do")
+  expect_output(toolCompareStatusLogs(), "Nothing to do")
 
 })
 
@@ -72,9 +72,9 @@ test_that("output of unchanged logs", {
   writeLines(statusLog, "status.log")
   writeLines(statusLog, "status-a.log")
 
-  expect_match(toolCompareStatusLogs(oldLogPath = "status.log",
-                                     newLogPath = "status-a.log"),
-               "No changes between logs.")
+  expect_output(toolCompareStatusLogs(oldLogPath = "status.log",
+                                      newLogPath = "status-a.log"),
+                "No changes between logs.")
 
 })
 
