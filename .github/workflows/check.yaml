@@ -60,9 +60,31 @@ jobs:
           lucode2::check(runLinter = FALSE)
 
       - name: Test coverage
+        if: ${{ github.event_name != 'pull_request' }}
         shell: Rscript {0}
         run: |
           nonDummyTests <- setdiff(list.files("./tests/testthat/"), c("test-dummy.R", "_snaps"))
-          if(length(nonDummyTests) > 0 && !lucode2:::loadBuildLibraryConfig()[["skipCoverage"]]) covr::codecov(quiet = FALSE)
+          if(length(nonDummyTests) > 0 && !lucode2:::loadBuildLibraryConfig()[["skipCoverage"]]) {
+            coverage <- covr::package_coverage(quiet = FALSE)
+            # The following function might be unnecessary if r-lib/covr#616 gets merged
+            to_simple_codecov <- function(coverage) {
+              fullLineCoverage <- covr:::per_line(coverage)
+              data <- Map(function(fileCoverage) {
+                resultCoverage <- lapply(fileCoverage$coverage, jsonlite::unbox)
+                names(resultCoverage) <- seq_along(resultCoverage)
+                return(resultCoverage)
+              }, fullLineCoverage)
+              return(jsonlite::toJSON(list("coverage" = data), na = "null"))
+            }
+            writeLines(to_simple_codecov(coverage), "simple-codecov.json")
+          }
         env:
           NOT_CRAN: "true"
+
+      - uses: codecov/codecov-action@v4
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          file: ./simple-codecov.json
+          plugin: noop
+          disable_search: true
+          token: ${{ secrets.CODECOV_TOKEN }}
