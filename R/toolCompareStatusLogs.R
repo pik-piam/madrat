@@ -177,7 +177,7 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
           },
           names(oldData))
           changes <- lapply(changedNames, function(n) {
-            paste0(oldData[changedNames], " -> ", newData[changedNames])
+            paste0(oldData[[n]], " -> ", newData[[n]])
           })
           names(changes) <- changedNames
         }
