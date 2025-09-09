@@ -143,7 +143,7 @@ fingerprintFiles <- function(paths) {
         }
       }, silent = TRUE)
       if (inherits(tryResult, "try-error")) {
-        vcat(1, "Ignoring corrupt hashCacheFile (", hashCacheFile, "): ", as.character(tryResult))
+        vcat(1, paste0("Ignoring corrupt hashCacheFile (", hashCacheFile, "): ", as.character(tryResult)))
         filesCache <- NULL
       }
     } else {
