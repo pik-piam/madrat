@@ -1,8 +1,8 @@
 Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 3.24.0
-Date: 2025-09-09
+Version: 3.24.1
+Date: 2025-09-16
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre"),
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0002-4309-6431")),
@@ -68,4 +68,4 @@ VignetteBuilder:
 Config/Keywords: tool
 Encoding: UTF-8
 LazyData: no
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
