@@ -83,6 +83,36 @@ test_that("toolTimeSpline works as expected", {
   expect_identical(p100, ncr(p))
 })
 
+test_that("toolTimeSplinePegged matches toolTimeSpline when no anchors", {
+  p <- magclass::maxample("pop")[1:2, 1:6, 1]
+  attr(p, "Metadata") <- NULL
+
+  base <- toolTimeSpline(p, dof = 5)
+  pegged <- toolTimeSplinePegged(p, dof = 5, peggedYears = NULL)
+
+  baseArr <- as.array(base)
+  peggedArr <- as.array(pegged)
+
+  expect_equal(peggedArr, baseArr, tolerance = 1e-8)
+})
+
+test_that("toolTimeSplinePegged enforces specified anchors", {
+  p <- magclass::maxample("pop")[1, 1:6, 1]
+  attr(p, "Metadata") <- NULL
+
+  years <- getYears(p)
+  anchorYears <- c(1995, 2025)
+
+  smoothed <- toolTimeSplinePegged(p, dof = 5, peggedYears = anchorYears, anchorFactor = 50)
+
+  smoothedArr <- as.array(smoothed)
+  originalArr <- as.array(p)
+  anchorIdx <- years %in% paste0("y", anchorYears)
+
+  expect_equal(smoothedArr[, anchorIdx, ], originalArr[, anchorIdx, ], tolerance = 1e-6)
+  expect_true(any(abs(smoothedArr[, !anchorIdx, ] - originalArr[, !anchorIdx, ]) > 1e-6))
+})
+
 test_that("toolConvertMapping works as expected", {
   localConfig(mappingfolder = withr::local_tempdir(), .verbose = FALSE)
   file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))
