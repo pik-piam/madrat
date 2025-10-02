@@ -23,7 +23,7 @@ toolTimeSplinePegged <- function(x,
 
   ## 1) Input checks
   if (!is.magpie(x)) {
-    warning("Input must be a magclass (MAgPIE) object!")
+    stop("Input must be a magclass (MAgPIE) object!")
   }
 
   ## 2) Time axis & df calculation
