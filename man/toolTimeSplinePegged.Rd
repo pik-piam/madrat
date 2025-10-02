@@ -4,12 +4,12 @@
 \alias{toolTimeSplinePegged}
 \title{Smooth a magclass time series with optional anchor years}
 \usage{
-toolTimeSplinePegged(x, dof = NULL, peggedYears = NULL, anchorFactor = 10)
+toolTimeSplinePegged(x, dof = 5, peggedYears = NULL, anchorFactor = 10)
 }
 \arguments{
 \item{x}{A magclass object.}
 
-\item{dof}{Degrees-of-freedom per 100 years (higher → more degrees of freedom, less smoothing; default 5).}
+\item{dof}{Degrees-of-freedom per 100 years (higher -> more degrees of freedom, less smoothing; default 5).}
 
 \item{peggedYears}{Integer vector of years (e.g. `c(2020, 2050, 2100)`) to hold fixed; NULL for none.}
 
@@ -20,11 +20,10 @@ A magclass object of the same shape, with each time series spline-smoothed.
 }
 \description{
 `toolTimeSplinePegged()` applies the same smoothing spline approach as
-`toolTimeSpline()`, but lets callers specify years that must remain equal to
-their original values ("pegged" years).  Anchoring is enforced by heavily
-weighting those years during spline fitting *and* copying the untouched
-original observations back into the result after smoothing so that the anchor
-years are guaranteed to match exactly.
+`toolTimeSpline()`, but lets callers specify years that should be more heavily
+weighted during spline fitting ("pegged" years). Anchoring is enforced by
+applying high weights to those years, which strongly encourages (but does not
+guarantee) that the spline will stay close to the original values.
 }
 \author{
 Michael Crawford
