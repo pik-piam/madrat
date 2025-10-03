@@ -55,16 +55,16 @@ In case of questions / problems please contact Jan Philipp Dietrich <dietrich@pi
 
 To cite package **madrat** in publications use:
 
-Dietrich J, Sauer P, Baumstark L, Wirth S, Giannousakis A, Rodrigues R, Bodirsky B, Leip D, Kreidenweis U, Klein D, Rein P (2025). "madrat: May All Data be Reproducible and Transparent (MADRaT) *." doi:10.5281/zenodo.1115490 <https://doi.org/10.5281/zenodo.1115490>, Version: 3.25.0, <https://github.com/pik-piam/madrat>.
+Dietrich J, Sauer P, Baumstark L, Wirth S, Giannousakis A, Rodrigues R, Bodirsky B, Leip D, Crawford M, Kreidenweis U, Klein D, Rein P (2025). "madrat: May All Data be Reproducible and Transparent (MADRaT) *." doi:10.5281/zenodo.1115490 <https://doi.org/10.5281/zenodo.1115490>, Version: 3.25.0, <https://github.com/pik-piam/madrat>.
 
 A BibTeX entry for LaTeX users is
 
  ```latex
 @Misc{,
   title = {madrat: May All Data be Reproducible and Transparent (MADRaT) *},
-  author = {Jan Philipp Dietrich and Pascal Sauer and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Debbora Leip and Ulrich Kreidenweis and David Klein and Patrick Rein},
+  author = {Jan Philipp Dietrich and Pascal Sauer and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Debbora Leip and Michael Crawford and Ulrich Kreidenweis and David Klein and Patrick Rein},
   doi = {10.5281/zenodo.1115490},
-  date = {2025-10-02},
+  date = {2025-10-03},
   year = {2025},
   url = {https://github.com/pik-piam/madrat},
   note = {Version: 3.25.0},
