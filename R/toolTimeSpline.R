@@ -28,6 +28,8 @@ toolTimeSpline <- function(x,
     stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   }
 
+  negative <- any(x < 0)
+
   ## 2) Time axis & df calculation
   years <- getYears(x, as.integer = TRUE)
   nyr <- length(years)
@@ -83,6 +85,9 @@ toolTimeSpline <- function(x,
   dimnames(arrOut)[[1]] <- getYears(x)
   names(dimnames(arrOut))[1] <- getSets(x, fulldim = FALSE)[2]
   out <- as.magpie(arrOut, spatial = 2, temporal = 1)
+
+  # Correct for negative values if needed
+  if (!negative) out[out < 0] <- 0
 
   ## 7) Comment and return
   anchorText <- if (is.null(peggedYearsAll)) {

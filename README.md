@@ -64,7 +64,7 @@ A BibTeX entry for LaTeX users is
   title = {madrat: May All Data be Reproducible and Transparent (MADRaT) *},
   author = {Jan Philipp Dietrich and Pascal Sauer and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Debbora Leip and Michael Crawford and Ulrich Kreidenweis and David Klein and Patrick Rein},
   doi = {10.5281/zenodo.1115490},
-  date = {2025-10-03},
+  date = {2025-10-07},
   year = {2025},
   url = {https://github.com/pik-piam/madrat},
   note = {Version: 3.25.0},
