@@ -2,22 +2,31 @@
 % Please edit documentation in R/toolTimeSpline.R
 \name{toolTimeSpline}
 \alias{toolTimeSpline}
-\title{toolTimeSpline}
+\title{Smooth a magclass time series with optional anchor years}
 \usage{
-toolTimeSpline(x, dof = NULL)
+toolTimeSpline(x, dof = 5, peggedYears = NULL, anchorFactor = 10)
 }
 \arguments{
-\item{x}{magclass object that should be smoothed via a spline approximation}
+\item{x}{A magclass object.}
 
-\item{dof}{degrees of freedom per 100 years (similiar to an average range), is a proxy for the smoothness of the 
-spline (smaller values = smoother)}
+\item{dof}{Degrees-of-freedom per 100 years (higher -> more degrees of freedom,
+less smoothing; default 5).}
+
+\item{peggedYears}{Integer vector of years (e.g. `c(2020, 2050, 2100)`) to
+anchor during smoothing; NULL for none (default).}
+
+\item{anchorFactor}{Numeric multiplier for anchor weights (default 10);
+larger values more strongly enforce pegging.}
 }
 \value{
-approximated data in magclass format
+A magclass object of the same shape, with each time series spline-smoothed.
 }
 \description{
-Smoothing a data set by replacing its values by its spline approximation using the given degrees of freedom.
+Smooths a magclass time series using spline approximation with the given degrees
+of freedom. Optionally, specific years can be "pegged" (anchored) to stay close
+to their original values during smoothing. Anchoring is enforced by applying
+high weights to those years.
 }
 \author{
-Kristine Karstens, Felicitas Beier
+Kristine Karstens, Felicitas Beier, Michael Crawford
 }
