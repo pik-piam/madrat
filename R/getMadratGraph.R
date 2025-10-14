@@ -19,7 +19,11 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
   }
 
   .graphHash <- function(packages, globalenv) {
-    mtimes <- as.character(file.mtime(.libPaths())) # nolint
+    rlibs <- .libPaths() # nolint
+    # exclude renv sandbox, as modify date seems to be updated permanently,
+    # causing permanent cache invalidation for the graph hash
+    rlibs <- rlibs[!grepl("renv/sandbox", rlibs)]
+    mtimes <- as.character(file.mtime(rlibs))
     if (globalenv) {
       f <- grep("^(read|download|convert|correct|calc|full|tool)", ls(envir = .GlobalEnv),
                 perl = TRUE, value = TRUE)
