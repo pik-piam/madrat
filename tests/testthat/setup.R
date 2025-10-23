@@ -9,6 +9,10 @@ withr::defer({
 }, envir = teardownEnv)
 
 setConfig(mainfolder = withr::local_tempdir(.local_envir = teardownEnv),
+          # Ensure that a folders in the tmp folder are used.
+          cachefolder = "cache",
+          pucfolder = withr::local_tempdir(.local_envir = teardownEnv),
+          outputfolder = withr::local_tempdir(.local_envir = teardownEnv),
           globalenv = TRUE,
           redirections = list(),
           .verbose = FALSE)

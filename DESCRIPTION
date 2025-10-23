@@ -1,8 +1,8 @@
 Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 3.24.0
-Date: 2025-09-04
+Version: 3.25.1
+Date: 2025-10-14
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre"),
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0002-4309-6431")),
@@ -18,6 +18,8 @@ Authors@R: c(
     person("Benjamin Leon", "Bodirsky", , "bodirsky@pik-potsdam.de", role = "aut",
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research")),
     person("Debbora", "Leip", , "leip@pik-potsdam.de", role = "aut",
+           comment = c(affiliation = "Potsdam Institute for Climate Impact Research")),
+    person("Michael", "Crawford", , "crawford@pik-potsdam.de", role = "aut",
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research")),
     person("Ulrich", "Kreidenweis", , "kreidenweis@pik-potsdam.de", role = "aut"),
     person("David", "Klein", , "dklein@pik-potsdam.de", role = "aut",
@@ -68,4 +70,4 @@ VignetteBuilder:
 Config/Keywords: tool
 Encoding: UTF-8
 LazyData: no
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

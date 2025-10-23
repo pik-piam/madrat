@@ -73,14 +73,40 @@ test_that("toolTimeSpline works as expected", {
   expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 5)) - o5)), 0.3)
   expect_lt(max(abs(ncr(toolTimeSpline(p, dof = 3)) - o3)), 0.3)
 
-  expect_warning({
-    p5 <- ncr(toolTimeSpline(p, dof = 0))
-  }, "dof values < 1 not allowed!")
-  expect_lt(max(abs(p5 - o5)), 0.3)
-  expect_warning({
-    p100 <- ncr(toolTimeSpline(p, dof = 100))
-  }, "Degrees of freedom too high")
+  expect_error(toolTimeSpline(p, dof = 0), "dof must be a positive numeric value")
+  expect_warning(p100 <- ncr(toolTimeSpline(p, dof = 100)),
+                 "High dof vs. timespan may reduce smoothing effect")
   expect_identical(p100, ncr(p))
+})
+
+test_that("toolTimeSpline with peggedYears works as expected", {
+  p <- magclass::maxample("pop")[1:2, 1:6, 1]
+  attr(p, "Metadata") <- NULL
+
+  # Expected output with pegged years at 1995 and 2025
+  # These values were calculated with peggedYears = c(1995, 2025), anchorFactor = 50
+  oPegged <- new("magpie",
+                 .Data = structure(c(552.3, 1280.9, 731.5, 1393.9, 920.1, 1499.2, 1124.7,
+                                     1591.7, 1346.6, 1670, 1577.2, 1741.2),
+                                   .Dim = c(2L, 6L, 1L),
+                                   .Dimnames = list(i = c("AFR", "CPA"),
+                                                    t = c("y1995", "y2005", "y2015", "y2025", "y2035", "y2045"),
+                                                    scenario = "A2")))
+
+  ncr <- function(x) {
+    getComment(x) <- NULL
+    return(round(x, 1))
+  }
+
+  result <- toolTimeSpline(p, dof = 5, peggedYears = c(1995, 2025), anchorFactor = 50)
+  expect_lt(max(abs(ncr(result) - oPegged)), 0.3)
+
+  # Verify that pegged years are very close to original values
+  years <- getYears(p)
+  anchorIdx <- years %in% c("y1995", "y2025")
+  resultArr <- as.array(result)
+  originalArr <- as.array(p)
+  expect_equal(resultArr[, anchorIdx, ], originalArr[, anchorIdx, ], tolerance = 0.05)
 })
 
 test_that("toolConvertMapping works as expected", {
