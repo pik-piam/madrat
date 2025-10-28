@@ -35,8 +35,10 @@ Authors:
   \item Renato Rodrigues \email{Renato.Rodrigues@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Benjamin Leon Bodirsky \email{bodirsky@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Debbora Leip \email{leip@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Michael Crawford \email{crawford@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Ulrich Kreidenweis \email{kreidenweis@pik-potsdam.de}
   \item David Klein \email{dklein@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Patrick Rein \email{patrick.rein@pik-potsdam.de} (\href{https://orcid.org/0000-0001-9454-8381}{ORCID}) (Potsdam Institute for Climate Impact Research)
 }
 
 }

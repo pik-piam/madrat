@@ -1,8 +1,8 @@
 Type: Package
 Package: madrat
 Title: May All Data be Reproducible and Transparent (MADRaT) *
-Version: 3.21.0
-Date: 2025-07-01
+Version: 3.26.1
+Date: 2025-10-23
 Authors@R: c(
     person("Jan Philipp", "Dietrich", , "dietrich@pik-potsdam.de", role = c("aut", "cre"),
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0002-4309-6431")),
@@ -19,9 +19,13 @@ Authors@R: c(
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research")),
     person("Debbora", "Leip", , "leip@pik-potsdam.de", role = "aut",
            comment = c(affiliation = "Potsdam Institute for Climate Impact Research")),
+    person("Michael", "Crawford", , "crawford@pik-potsdam.de", role = "aut",
+           comment = c(affiliation = "Potsdam Institute for Climate Impact Research")),
     person("Ulrich", "Kreidenweis", , "kreidenweis@pik-potsdam.de", role = "aut"),
     person("David", "Klein", , "dklein@pik-potsdam.de", role = "aut",
-           comment = c(affiliation = "Potsdam Institute for Climate Impact Research"))
+           comment = c(affiliation = "Potsdam Institute for Climate Impact Research")),
+    person("Patrick", "Rein", , "patrick.rein@pik-potsdam.de", role = "aut",
+           comment = c(affiliation = "Potsdam Institute for Climate Impact Research", ORCID = "0000-0001-9454-8381"))
   )
 Description: Provides a framework which should improve reproducibility and
     transparency in data processing. It provides functionality such as
@@ -66,4 +70,4 @@ VignetteBuilder:
 Config/Keywords: tool
 Encoding: UTF-8
 LazyData: no
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

@@ -19,7 +19,8 @@ calcOutput(
   regionmapping = NULL,
   writeArgs = NULL,
   temporalmapping = NULL,
-  ...
+  ...,
+  outputStatistics = NULL
 )
 }
 \arguments{
@@ -71,6 +72,10 @@ one temporal sub-dimension.}
 
 \item{...}{Additional settings directly forwarded to the corresponding
 calculation function}
+
+\item{outputStatistics}{a single name of a statistic function ("summary", "sum", or "count") or a
+vector of such names that denote which statistics should be computed on the data before aggregation.
+Disabled by default.}
 }
 \value{
 magpie object with the requested output data either on country or on
@@ -131,6 +136,7 @@ or not. Default setting is TRUE. This can be for instance useful, if the calcula
 the corresponding file sizes are huge. Or if the caching for the given data type does not support storage
 in RDS format. CAUTION: Deactivating caching for a data set which should be part of a PUC file
 will corrupt the PUC file. Use with care.
+\item \bold{clean_magpie} (optional) boolean, if set to FALSE magclass::clean_magpie will not be run on the result
 }
 }
 \examples{
@@ -143,5 +149,5 @@ a <- calcOutput(type = "TauTotal")
 \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 }
 \author{
-Jan Philipp Dietrich
+Jan Philipp Dietrich, Patrick Rein
 }

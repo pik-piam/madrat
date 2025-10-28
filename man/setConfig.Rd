@@ -6,6 +6,7 @@
 \title{setConfig}
 \usage{
 setConfig(
+  ...,
   regionmapping = NULL,
   extramappings = NULL,
   packages = NULL,
@@ -36,6 +37,8 @@ setConfig(
 localConfig(...)
 }
 \arguments{
+\item{...}{Arguments forwarded to setConfig}
+
 \item{regionmapping}{The name of the csv file containing the region mapping
 that should be used for aggregation (e.g. "regionmappingREMIND.csv").}
 
@@ -128,8 +131,6 @@ in regular cases)}
 
 \item{.local}{boolean deciding whether options are only changed until the end of the current function execution
 OR environment for which the options should get changed.}
-
-\item{...}{Arguments forwarded to setConfig}
 }
 \description{
 This function manipulates the current madrat configuration.
