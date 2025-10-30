@@ -27,7 +27,7 @@
 #' \dontrun{
 #' pucAggregate("rev1_example.puc", regionmapping = "regionmappingH12.csv")
 #' }
-#' @importFrom withr with_tempdir local_package local_options
+#' @importFrom withr with_tempdir local_package
 #' @importFrom utils untar modifyList
 #' @importFrom callr r
 #' @importFrom renv activate restore

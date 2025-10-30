@@ -69,7 +69,6 @@
 #'
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
 #' @importFrom Matrix Matrix t rowSums
-#' @importFrom withr local_options
 #' @seealso \code{\link{calcOutput}}
 #' @examples
 #'

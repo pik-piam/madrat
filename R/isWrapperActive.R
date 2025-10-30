@@ -15,14 +15,14 @@ isWrapperActive <- function(name) {
 setWrapperActive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   wrapperActive[[name]] <- TRUE
-  local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
+  withr::local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
 }
 
 #' @describeIn isWrapperActive set wrapper activity status to off
 setWrapperInactive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   wrapperActive[[name]] <- FALSE
-  local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
+  withr::local_options(madrat_wrapperActive = wrapperActive, .local_envir = parent.frame())
 }
 
 .readWrapperStatus <- function(name = NULL) {
