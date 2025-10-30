@@ -445,7 +445,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   if (!is.null(file)) {
     if (x$class == "magpie") {
-      if (grepl(".mif", file) == TRUE) {
+      if (grepl("\\.mif", file) == TRUE) {
         if (!is.null(getYears(x$x))) {
           do.call(write.report, c(
             list(x$x, file = file.path(getConfig("outputfolder"), file), unit = x$unit, append = append),

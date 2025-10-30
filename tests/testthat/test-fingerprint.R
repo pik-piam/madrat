@@ -58,9 +58,8 @@ test_that("empty hash cache file is handled properly", {
   dir.create(file.path(localTempdir, "something"))
   file.create(file.path(localTempdir, paste0("fileHashCache", basename(localTempdir), ".rds")))
   localConfig(sourcefolder = localTempdir, cachefolder = localTempdir)
-  expect_warning(fingerprintFiles(localTempdir),
-                 "Ignoring corrupt hashCacheFile: Error in readRDS(hashCacheFile) : error reading from connection",
-                 fixed = TRUE)
+  expect_message(fingerprintFiles(localTempdir),
+                 ".*Ignoring corrupt hashCacheFile \\(.*\\.rds\\).*: Error in readRDS.*")
 })
 
 test_that("fingerprinting works with control flags", {
