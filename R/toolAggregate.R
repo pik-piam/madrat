@@ -86,7 +86,7 @@
 #' toolAggregate(p, mapping, to = "region+global")
 #'
 #' @export
-toolAggregate <- function(x, # nolint: cyclocomp_linter.
+toolAggregate <- function(x,
                           rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE,
                           negative_weight = "warn", mixed_aggregation = FALSE, # nolint: object_name_linter.
                           verbosity = 1, zeroWeight = "warn") {
@@ -127,83 +127,16 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
   }
 
   if (!is.numeric(rel) && !.isMatrix(rel)) {
-    .getAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, partrel = FALSE) {
-
-      if ("tbl" %in% class(rel)) {
-        rel <- data.frame(rel)
-      }
-      if (!(is.matrix(rel) || is.data.frame(rel))) {
-        if (length(rel) > 1) {
-          stop("Malformed relation mapping!")
-        }
-        if (!file.exists(rel)) {
-          stop("Cannot find region mapping file: ", rel, " (working directory ", getwd(), ")")
-        }
-        rel <- toolGetMapping(rel, where = "local")
-      }
-      if (is.matrix(rel)) {
-        rel <- as.data.frame(rel)
-      }
-
-      if (length(rel) < 2) {
-        stop("relation mapping has only ", length(rel), " column!")
-      }
-
-      if (is.null(from)) {
-        if (partrel) {
-          from <- as.integer(which(sapply(lapply(rel, intersect, items), length) > 0)) # nolint
-        } else {
-          from <- as.integer(which(sapply(rel, setequal, items))) # nolint
-        }
-        if (length(from) == 0) {
-          maxMatchColumn <- which.max(sapply(lapply(rel, intersect, items), length)) # nolint
-          unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
-          missingItems <- setdiff(rel[[maxMatchColumn]], items)
-
-          if (length(unmappedItems) > 0) {
-            warning(paste("The following items were not found in the mapping:", toString(unmappedItems)))
-          }
-          if (length(missingItems) > 0) {
-            warning(paste("The mapping expected the following items, but they are missing:", toString(missingItems)))
-          }
-          stop("Complete mapping failed. If you want a partial mapping, call toolAggregate(..., partrel = TRUE).")
-        }
-        if (length(from) > 1) {
-          from <- from[1]
-        }
-      }
-      if (is.null(to)) {
-        if (from == length(rel)) {
-          to <- from - 1
-        } else {
-          to <- from + 1
-        }
-      }
-
-      regions <- as.character(unique(rel[, to]))
-      countries <- as.character(unique(rel[, from]))
-      m <- Matrix::Matrix(data = 0, nrow = length(regions), ncol = length(countries),
-                          dimnames = list(regions = regions, countries = countries))
-      m[cbind(match(rel[, to], rownames(m)), match(rel[, from], colnames(m)))] <- 1
-      if (is.numeric(to)) {
-        to <- dimnames(rel)[[2]][to]
-      }
-      if (is.numeric(from)) {
-        from <- dimnames(rel)[[2]][from]
-      }
-      names(dimnames(m)) <- c(to, from)
-      return(m)
-    }
     if (length(to) == 1 && grepl("+", to, fixed = TRUE)) {
       tmprel <- NULL
       toSplit <- strsplit(to, "+", fixed = TRUE)[[1]]
       for (t in toSplit) {
-        tmp <- .getAggregationMatrix(rel, from = from, to = t, items = getItems(x, dim = dim), partrel = partrel)
+        tmp <- toolGetAggregationMatrix(rel, from = from, to = t, items = getItems(x, dim = dim), partrel = partrel)
         tmprel <- rbind(tmprel, tmp)
       }
       rel <- tmprel
     } else {
-      rel <- .getAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
+      rel <- toolGetAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
       if (is.null(to)) {
         to  <- names(dimnames(rel))[1]
       }
@@ -463,4 +396,71 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
     out <- as.magpie(out, spatial = 1, temporal = 2)
     return(out)
   }
+}
+
+toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, partrel = FALSE) {
+  if ("tbl" %in% class(rel)) {
+    rel <- data.frame(rel)
+  }
+  if (!(is.matrix(rel) || is.data.frame(rel))) {
+    if (length(rel) > 1) {
+      stop("Malformed relation mapping!")
+    }
+    if (!file.exists(rel)) {
+      stop("Cannot find region mapping file: ", rel, " (working directory ", getwd(), ")")
+    }
+    rel <- toolGetMapping(rel, where = "local")
+  }
+  if (is.matrix(rel)) {
+    rel <- as.data.frame(rel)
+  }
+
+  if (length(rel) < 2) {
+    stop("relation mapping has only ", length(rel), " column!")
+  }
+
+  if (is.null(from)) {
+    if (partrel) {
+      from <- as.integer(which(sapply(lapply(rel, intersect, items), length) > 0)) # nolint
+    } else {
+      from <- as.integer(which(sapply(rel, setequal, items))) # nolint
+    }
+    if (length(from) == 0) {
+      maxMatchColumn <- which.max(sapply(lapply(rel, intersect, items), length)) # nolint
+      unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
+      missingItems <- setdiff(rel[[maxMatchColumn]], items)
+
+      if (length(unmappedItems) > 0) {
+        warning(paste("The following items were not found in the mapping:", toString(unmappedItems)))
+      }
+      if (length(missingItems) > 0) {
+        warning(paste("The mapping expected the following items, but they are missing:", toString(missingItems)))
+      }
+      stop("Complete mapping failed. If you want a partial mapping, call toolAggregate(..., partrel = TRUE).")
+    }
+    if (length(from) > 1) {
+      from <- from[1]
+    }
+  }
+  if (is.null(to)) {
+    if (from == length(rel)) {
+      to <- from - 1
+    } else {
+      to <- from + 1
+    }
+  }
+
+  regions <- as.character(unique(rel[, to]))
+  countries <- as.character(unique(rel[, from]))
+  m <- Matrix::Matrix(data = 0, nrow = length(regions), ncol = length(countries),
+                      dimnames = list(regions = regions, countries = countries))
+  m[cbind(match(rel[, to], rownames(m)), match(rel[, from], colnames(m)))] <- 1
+  if (is.numeric(to)) {
+    to <- dimnames(rel)[[2]][to]
+  }
+  if (is.numeric(from)) {
+    from <- dimnames(rel)[[2]][from]
+  }
+  names(dimnames(m)) <- c(to, from)
+  return(m)
 }
