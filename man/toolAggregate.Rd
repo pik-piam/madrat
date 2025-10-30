@@ -123,5 +123,5 @@ toolAggregate(p, mapping, to = "region+global")
 \code{\link{calcOutput}}
 }
 \author{
-Jan Philipp Dietrich, Ulrich Kreidenweis
+Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
 }

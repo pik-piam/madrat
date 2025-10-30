@@ -68,7 +68,6 @@
 #' @return the aggregated data in magclass format
 #'
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
-#' @importFrom Matrix Matrix t rowSums
 #' @seealso \code{\link{calcOutput}}
 #' @examples
 #'
@@ -165,8 +164,8 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
 
       regions <- as.character(unique(rel[, to]))
       countries <- as.character(unique(rel[, from]))
-      m <- Matrix(data = 0, nrow = length(regions), ncol = length(countries),
-                  dimnames = list(regions = regions, countries = countries))
+      m <- Matrix::Matrix(data = 0, nrow = length(regions), ncol = length(countries),
+                          dimnames = list(regions = regions, countries = countries))
       m[cbind(match(rel[, to], rownames(m)), match(rel[, from], colnames(m)))] <- 1
       if (is.numeric(to)) to <- dimnames(rel)[[2]][to]
       if (is.numeric(from)) from <- dimnames(rel)[[2]][from]
@@ -206,7 +205,7 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
       vcat(verbosity, noagg, " not mapped in aggregation!")
     }
     rel <- rel[, common, drop = FALSE]
-    rel <- rel[rowSums(rel) > 0, , drop = FALSE]
+    rel <- rel[Matrix::rowSums(rel) > 0, , drop = FALSE]
   }
 
   if (!is.null(weight)) {
@@ -280,7 +279,7 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
   } else {
 
     # convert rel for better performance
-    rel <- Matrix(rel)
+    rel <- Matrix::Matrix(rel)
 
     # make sure that rel and weight cover a whole dimension (not only a subdimension)
     # expand data if necessary
@@ -306,7 +305,7 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
             stop("The provided mapping contains entries which could not be found in the data: ",
                  paste(setdiff(colnames(rel), onlynames), collapse = ", "))
           } else  {
-            rel <- t(rel)
+            rel <- Matrix::t(rel)
           }
         }
 
@@ -322,7 +321,7 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
         cnames <- .tmp(add, colnames(rel))
         rnames <- .tmp(add, rownames(rel))
 
-        newRel <- Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
+        newRel <- Matrix::Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
 
         for (i in seq_along(additions)) {
           newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
@@ -338,10 +337,10 @@ toolAggregate <- function(x, # nolint: cyclocomp_linter.
         stop("Relation matrix has in both dimensions a different number of entries (",
              dim(rel)[1], ", ", dim(rel)[2], ") than x has cells (", dim(x)[dim], ")!")
       } else {
-        rel <- t(rel)
+        rel <- Matrix::t(rel)
       }
     } else if (dim(x)[dim] == dim(rel)[1] && !setequal(colnames(rel), getItems(x, dim))) {
-      rel <- t(rel)
+      rel <- Matrix::t(rel)
     }
 
     # reorder MAgPIE object based on column names of relation matrix if available
