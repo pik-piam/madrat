@@ -66,12 +66,8 @@
 #' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
 #' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error.
 #' @return the aggregated data in magclass format
-#' @author Jan Philipp Dietrich, Ulrich Kreidenweis
-#' @export
-#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind
-#' @importFrom magclass setComment getNames getNames<- as.array
-#' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<-
-#' @importFrom magclass getDim getSets getSets<- as.magpie getItems collapseNames
+#'
+#' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
 #' @importFrom Matrix Matrix t rowSums
 #' @importFrom withr local_options
 #' @seealso \code{\link{calcOutput}}
@@ -91,8 +87,11 @@
 #' # combined aggregation across two columns
 #' toolAggregate(p, mapping, to = "region+global")
 #'
-toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
-                          negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1, zeroWeight = "warn") { # nolint
+#' @export
+toolAggregate <- function(x, # nolint: cyclocomp_linter.
+                          rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE,
+                          negative_weight = "warn", mixed_aggregation = FALSE, # nolint: object_name_linter.
+                          verbosity = 1, zeroWeight = "warn") {
 
   if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
 
@@ -376,7 +375,7 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
       out <- apply(x, which(1:3 != dim), matrixMultiplication, rel)
       if (length(dim(out)) == 2) out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
     } else {
-      local_options(matprod = "blas")
+      withr::local_options(matprod = "blas")
       notdim <- setdiff(1:3, dim)
       out <- rel %*% as.array(wrap(x, list(dim, notdim)))
       out <- array(out, dim = c(dim(rel)[1], dim(x)[notdim]))
