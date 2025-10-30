@@ -257,52 +257,7 @@ toolAggregate <- function(x,
     # expand data if necessary
     # set dim to main dimension afterwards
     if (round(dim) != dim) {
-      .expandRel <- function(rel, names, dim) {
-        # Expand rel matrix to full dimension if rel is only provided for a subdimension
-        if (is.null(colnames(rel)) || is.null(rownames(rel))) {
-          stop("colnames and/or rownames missing in relation matrix!")
-        }
-
-        if (round(dim) == dim || suppressWarnings(all(colnames(rel) == names))) {
-          return(rel)
-        }
-
-        subdim <- round((dim - floor(dim)) * 10)
-        maxdim <- nchar(gsub("[^\\.]", "", names[1])) + 1
-
-        search <- paste0("^(", paste(rep("[^\\.]*\\.", subdim - 1), collapse = ""),
-                         ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
-        onlynames <- unique(sub(search, "\\2", names))
-
-        if (!setequal(colnames(rel), onlynames)) {
-          if (!setequal(rownames(rel), onlynames)) {
-            stop("The provided mapping contains entries which could not be found in the data: ",
-                 paste(setdiff(colnames(rel), onlynames), collapse = ", "))
-          } else  {
-            rel <- Matrix::t(rel)
-          }
-        }
-
-        tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
-        additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
-        add <- sapply(additions, function(x) return(x[1:2])) # nolint
-        add[is.na(add)] <- ""
-        .tmp <- function(add, fill) {
-          return(paste0(rep(add[1, ], each = length(fill)), fill,
-                        rep(add[2, ], each = length(fill))))
-        }
-
-        cnames <- .tmp(add, colnames(rel))
-        rnames <- .tmp(add, rownames(rel))
-
-        newRel <- Matrix::Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
-
-        for (i in seq_along(additions)) {
-          newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
-        }
-        return(newRel[, names, drop = FALSE])
-      }
-      rel <- .expandRel(rel, getItems(x, round(floor(dim))), dim)
+      rel <- toolExpandRel(rel, getItems(x, round(floor(dim))), dim)
       dim <- round(floor(dim))
     }
 
@@ -463,4 +418,50 @@ toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, 
   }
   names(dimnames(m)) <- c(to, from)
   return(m)
+}
+
+toolExpandRel <- function(rel, names, dim) {
+  # Expand rel matrix to full dimension if rel is only provided for a subdimension
+  if (is.null(colnames(rel)) || is.null(rownames(rel))) {
+    stop("colnames and/or rownames missing in relation matrix!")
+  }
+
+  if (round(dim) == dim || suppressWarnings(all(colnames(rel) == names))) {
+    return(rel)
+  }
+
+  subdim <- round((dim - floor(dim)) * 10)
+  maxdim <- nchar(gsub("[^\\.]", "", names[1])) + 1
+
+  search <- paste0("^(", paste(rep("[^\\.]*\\.", subdim - 1), collapse = ""),
+                    ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
+  onlynames <- unique(sub(search, "\\2", names))
+
+  if (!setequal(colnames(rel), onlynames)) {
+    if (!setequal(rownames(rel), onlynames)) {
+      stop("The provided mapping contains entries which could not be found in the data: ",
+            paste(setdiff(colnames(rel), onlynames), collapse = ", "))
+    } else  {
+      rel <- Matrix::t(rel)
+    }
+  }
+
+  tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
+  additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
+  add <- sapply(additions, function(x) return(x[1:2])) # nolint
+  add[is.na(add)] <- ""
+  .tmp <- function(add, fill) {
+    return(paste0(rep(add[1, ], each = length(fill)), fill,
+                  rep(add[2, ], each = length(fill))))
+  }
+
+  cnames <- .tmp(add, colnames(rel))
+  rnames <- .tmp(add, rownames(rel))
+
+  newRel <- Matrix::Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
+
+  for (i in seq_along(additions)) {
+    newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
+  }
+  return(newRel[, names, drop = FALSE])
 }
