@@ -111,8 +111,8 @@ toolAggregate <- function(x,
     }
   }
 
-  isMatrix <- (any(class(rel) %in% c("dgCMatrix", "dsCMatrix", "dsyMatrix")) ||
-                 "Matrix" %in% attr(class(rel), "package"))
+  isMatrix <- (any(class(rel) %in% c("dgCMatrix", "dsCMatrix", "dsyMatrix"))
+               || "Matrix" %in% attr(class(rel), "package"))
 
   if (!is.numeric(rel) && !isMatrix) {
     if (length(to) == 1 && grepl("+", to, fixed = TRUE)) {
@@ -146,10 +146,7 @@ toolAggregate <- function(x,
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
     if (length(noagg) > 0) {
-      if (length(noagg) > 1) {
-        noagg[seq_len(length(noagg) - 1)] <- paste0(noagg[seq_len(length(noagg) - 1)], ", ")
-      }
-      vcat(verbosity, noagg, " not mapped in aggregation!")
+      vcat(verbosity, paste0(noagg, collapse = ", "), " not mapped in aggregation!")
     }
     rel <- rel[, common, drop = FALSE]
     rel <- rel[Matrix::rowSums(rel) > 0, , drop = FALSE]
@@ -315,7 +312,7 @@ toolAggregate <- function(x,
       stop("Missing dimnames for aggregated dimension")
     }
 
-    if (!any(grepl("\\.", regOut)) && anyDuplicated(regOut)) {
+    if (!any(grepl(".", regOut, fixed = TRUE)) && anyDuplicated(regOut)) {
       regOut <- paste(regOut, seq_len(dim(out)[1]), sep = ".")
     }
 
@@ -323,8 +320,7 @@ toolAggregate <- function(x,
 
     if (dim == 2) {
       out <- wrap(out, map = list(2, 1, 3))
-    }
-    if (dim == 3) {
+    } else if (dim == 3) {
       out <- wrap(out, map = list(2, 3, 1))
     }
 
