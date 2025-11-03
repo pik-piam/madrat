@@ -111,22 +111,10 @@ toolAggregate <- function(x,
     }
   }
 
-  .reorder <- function(x, e, dim) {
-    if (dim == 1) {
-      return(x[e, , ])
-    } else if (dim == 2) {
-      return(x[, e, ])
-    } else if (dim == 3) {
-      return(x[, , e])
-    }
-  }
+  isMatrix <- (any(class(rel) %in% c("dgCMatrix", "dsCMatrix", "dsyMatrix")) ||
+                 "Matrix" %in% attr(class(rel), "package"))
 
-  .isMatrix <- function(x) {
-    dsclasses <- c("dgCMatrix", "dsCMatrix", "dsyMatrix")
-    return(any(is.element(class(x), dsclasses)) || ("Matrix" %in% attr(class(x), "package")))
-  }
-
-  if (!is.numeric(rel) && !.isMatrix(rel)) {
+  if (!is.numeric(rel) && !isMatrix) {
     if (length(to) == 1 && grepl("+", to, fixed = TRUE)) {
       tmprel <- NULL
       toSplit <- strsplit(to, "+", fixed = TRUE)[[1]]
@@ -153,7 +141,7 @@ toolAggregate <- function(x,
     datnames <-  getItems(x, dim)
 
     common <- intersect(datnames, colnames(rel))
-    x <- .reorder(x, common, floor(dim))
+    x <- toolReorderDims(x, common, floor(dim))
 
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
@@ -274,7 +262,7 @@ toolAggregate <- function(x,
 
     # reorder MAgPIE object based on column names of relation matrix if available
     if (!is.null(colnames(rel))) {
-      x <- .reorder(x, colnames(rel), dim)
+      x <- toolReorderDims(x, colnames(rel), dim)
     }
 
     # Aggregate data
@@ -464,4 +452,14 @@ toolExpandRel <- function(rel, names, dim) {
     newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
   }
   return(newRel[, names, drop = FALSE])
+}
+
+toolReorderDims <- function(x, e, dim) {
+  if (dim == 1) {
+    return(x[e, , ])
+  } else if (dim == 2) {
+    return(x[, e, ])
+  } else if (dim == 3) {
+    return(x[, , e])
+  }
 }
