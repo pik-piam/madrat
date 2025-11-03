@@ -370,12 +370,12 @@ toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, 
 
   if (is.null(from)) {
     if (partrel) {
-      from <- as.integer(which(sapply(lapply(rel, intersect, items), length) > 0)) # nolint
+      from <- as.integer(which(vapply(lapply(rel, intersect, items), length, numeric(1)) > 0))
     } else {
-      from <- as.integer(which(sapply(rel, setequal, items))) # nolint
+      from <- as.integer(which(vapply(rel, setequal, logical(1), items)))
     }
     if (length(from) == 0) {
-      maxMatchColumn <- which.max(sapply(lapply(rel, intersect, items), length)) # nolint
+      maxMatchColumn <- which.max(vapply(lapply(rel, intersect, items), length, numeric(1)))
       unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
       missingItems <- setdiff(rel[[maxMatchColumn]], items)
 
@@ -442,7 +442,7 @@ toolExpandRel <- function(rel, names, dim) {
 
   tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
   additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
-  add <- sapply(additions, function(x) return(x[1:2])) # nolint
+  add <- vapply(additions, function(x) return(x[1:2]), character(2))
   add[is.na(add)] <- ""
   .tmp <- function(add, fill) {
     return(paste0(rep(add[1, ], each = length(fill)), fill,
