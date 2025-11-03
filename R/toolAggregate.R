@@ -260,10 +260,9 @@ toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
   if (dim(x)[dim] != dim(rel)[2]) {
     if (dim(x)[dim] != dim(rel)[1]) {
       stop("Relation matrix has in both dimensions a different number of entries (",
-            dim(rel)[1], ", ", dim(rel)[2], ") than x has cells (", dim(x)[dim], ")!")
-    } else {
-      rel <- Matrix::t(rel)
+           dim(rel)[1], ", ", dim(rel)[2], ") than x has cells (", dim(x)[dim], ")!")
     }
+    rel <- Matrix::t(rel)
   } else if (dim(x)[dim] == dim(rel)[1] && !setequal(colnames(rel), getItems(x, dim))) {
     rel <- Matrix::t(rel)
   }
@@ -275,29 +274,7 @@ toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
 
   # Aggregate data
   if (anyNA(x) || any(is.infinite(x))) {
-    matrixMultiplication <- function(y, x) {
-      if (any(is.infinite(y))) {
-        # Special Inf treatment to prevent that a single Inf in x
-        # is setting the full output to NaN (because 0*Inf is NaN)
-        # Infs are now treated in a way that anything except 0 times Inf
-        # leads to NaN, but 0 times Inf leads to NaN
-        for (i in c(-Inf, Inf)) {
-          j <- (is.infinite(y) & (y == i))
-          x[, j][x[, j] != 0] <- i
-          y[j] <- 1
-        }
-      }
-      if (any(is.na(y)) && !all(is.na(y))) {
-        # Special NA treatment to prevent that a single NA in x
-        # is setting the full output to NA (because 0*NA is NA)
-        # NAs are now treated in a way that anything except 0 times NA
-        # leads to NA, but 0 times NA leads to 0
-        x[, is.na(y)][x[, is.na(y)] != 0] <- NA
-        y[is.na(y)] <- 0
-      }
-      return(as.array(x %*% y))
-    }
-    out <- apply(x, which(1:3 != dim), matrixMultiplication, rel)
+    out <- apply(x, which(1:3 != dim), toolMatrixMultiplication, rel)
     if (length(dim(out)) == 2) {
       out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
     }
@@ -317,7 +294,7 @@ toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
     # Compute region vector for outputs after aggregation via sending
     # factor values through the relation matrix
     regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
-                                        (rel %*% rep(1, dim(rel)[2])))))
+                                       (rel %*% rep(1, dim(rel)[2])))))
     levels(regOut) <- levels(regionList)
   } else {
     stop("Missing dimnames for aggregated dimension")
@@ -345,6 +322,29 @@ toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
   getComment(out) <- c(xComment, paste0("Data aggregated (toolAggregate): ", date()))
   out <- as.magpie(out, spatial = 1, temporal = 2)
   return(out)
+}
+
+toolMatrixMultiplication <- function(y, x) {
+  if (any(is.infinite(y))) {
+    # Special Inf treatment to prevent that a single Inf in x
+    # is setting the full output to NaN (because 0*Inf is NaN)
+    # Infs are now treated in a way that anything except 0 times Inf
+    # leads to NaN, but 0 times Inf leads to NaN
+    for (i in c(-Inf, Inf)) {
+      j <- (is.infinite(y) & (y == i))
+      x[, j][x[, j] != 0] <- i
+      y[j] <- 1
+    }
+  }
+  if (any(is.na(y)) && !all(is.na(y))) {
+    # Special NA treatment to prevent that a single NA in x
+    # is setting the full output to NA (because 0*NA is NA)
+    # NAs are now treated in a way that anything except 0 times NA
+    # leads to NA, but 0 times NA leads to 0
+    x[, is.na(y)][x[, is.na(y)] != 0] <- NA
+    y[is.na(y)] <- 0
+  }
+  return(as.array(x %*% y))
 }
 
 toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, partrel = FALSE) {
@@ -428,13 +428,13 @@ toolExpandRel <- function(rel, names, dim) {
   maxdim <- nchar(gsub("[^\\.]", "", names[1])) + 1
 
   search <- paste0("^(", paste(rep("[^\\.]*\\.", subdim - 1), collapse = ""),
-                    ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
+                   ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
   onlynames <- unique(sub(search, "\\2", names))
 
   if (!setequal(colnames(rel), onlynames)) {
     if (!setequal(rownames(rel), onlynames)) {
       stop("The provided mapping contains entries which could not be found in the data: ",
-            paste(setdiff(colnames(rel), onlynames), collapse = ", "))
+           paste(setdiff(colnames(rel), onlynames), collapse = ", "))
     } else  {
       rel <- Matrix::t(rel)
     }
