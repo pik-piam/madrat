@@ -135,8 +135,7 @@ toolAggregate <- function(x,
   dim <- dimCode(dim, x, missing = "stop")
 
 
-  # allow the aggregation, even if not for every entry in the initial dataset
-  # there is a respective one in the relation matrix
+  # allow the aggregation, even if the relation matrix is missing some entries from the initial dataset
   if (partrel) {
     datnames <-  getItems(x, dim)
 
