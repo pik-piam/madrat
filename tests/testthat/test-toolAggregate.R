@@ -249,7 +249,7 @@ test_that("zeroWeight = fix works", {
   expect_true(sum(x) - sum(xAgg) == 100) # total sum no longer equal, hence the warning
   expect_true(as.vector(xAgg["B2", , ]) == 0)
 
-  # usual fix
+  # problematic hotfix
   expect_silent(xAgg <- toolAggregate(x, rel, weight + 10^-10))
   expect_equal(sum(x), sum(xAgg)) # total sum is equal
   expect_true(as.vector(xAgg["B2", , ]) > 0) # this is the problem, should still be 0
