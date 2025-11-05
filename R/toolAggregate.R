@@ -214,9 +214,6 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
     }
   }
   weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
-  if (zeroWeight == "fix") {
-    zeroWeight <- "allow" # TODO implement actual fix
-  }
   if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
     if (zeroWeight == "warn") {
       warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
@@ -224,6 +221,9 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
               'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
     } else if (zeroWeight == "setNA") {
       weightSum[weightSum == 0] <- NA
+    } else if (zeroWeight == "fix") {
+      weight <- toolFixWeight(weight, rel, from, to, dim)
+      weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
     } else {
       stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
     }
