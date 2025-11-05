@@ -165,8 +165,8 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
   if (!is.magpie(weight)) {
     stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
   }
-  # get proper weight dim
 
+  # get proper weight dim
   if (is.null(wdim)) {
     wdim <- union(getDim(rownames(rel), weight, fullmatch = TRUE),
                   getDim(colnames(rel), weight, fullmatch = TRUE))
