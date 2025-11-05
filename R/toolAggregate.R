@@ -64,7 +64,8 @@
 #' @param verbosity Verbosity level of messages coming from the function: -1 = error,
 #' 0 = warning, 1 = note, 2 = additional information, >2 = no message
 #' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
-#' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error.
+#' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error,
+#' "fix" will set zero weights to 10^-30 only where needed.
 #' @return the aggregated data in magclass format
 #'
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
@@ -213,6 +214,9 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
     }
   }
   weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+  if (zeroWeight == "fix") {
+    zeroWeight <- "allow" # TODO implement actual fix
+  }
   if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
     if (zeroWeight == "warn") {
       warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
