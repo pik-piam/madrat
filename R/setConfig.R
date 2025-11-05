@@ -87,7 +87,6 @@
 #' setConfig(forcecache = c("readSSPall", "convertSSPall"))
 #' }
 #' @importFrom utils installed.packages
-#' @importFrom withr local_options
 #' @export
 setConfig <- function(..., # nolint: cyclocomp_linter.
                       regionmapping = NULL,
@@ -204,7 +203,7 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
   }
   if (.local) {
     # change options until the function calling this function exits
-    local_options(madrat_cfg = cfg, .local_envir = .localEnvir)
+    withr::local_options(madrat_cfg = cfg, .local_envir = .localEnvir)
   } else {
     options(madrat_cfg = cfg) # nolint
   }

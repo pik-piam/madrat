@@ -66,14 +66,8 @@
 #' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
 #' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error.
 #' @return the aggregated data in magclass format
-#' @author Jan Philipp Dietrich, Ulrich Kreidenweis
-#' @export
-#' @importFrom magclass wrap ndata fulldim clean_magpie mselect setCells getCells mbind
-#' @importFrom magclass setComment getNames getNames<- as.array
-#' @importFrom magclass is.magpie getComment getComment<- dimCode getYears getYears<-
-#' @importFrom magclass getDim getSets getSets<- as.magpie getItems collapseNames
-#' @importFrom Matrix Matrix t rowSums
-#' @importFrom withr local_options
+#'
+#' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
 #' @seealso \code{\link{calcOutput}}
 #' @examples
 #'
@@ -91,16 +85,23 @@
 #' # combined aggregation across two columns
 #' toolAggregate(p, mapping, to = "region+global")
 #'
-toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE, # nolint
-                          negative_weight = "warn", mixed_aggregation = FALSE, verbosity = 1, zeroWeight = "warn") { # nolint
+#' @export
+toolAggregate <- function(x,
+                          rel, weight = NULL, from = NULL, to = NULL, dim = 1, wdim = NULL, partrel = FALSE,
+                          negative_weight = "warn", mixed_aggregation = FALSE, # nolint: object_name_linter.
+                          verbosity = 1, zeroWeight = "warn") {
 
-  if (!is.magpie(x)) stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
+  if (!is.magpie(x)) {
+    stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
+  }
 
-  comment <- getComment(x)
+  xComment <- getComment(x)
 
   # create missing rel information from dimension names if argument "to" is set
   if (missing(rel) && !is.null(to)) {
-    if (round(dim) != dim) stop("Subdimensions in dim not supported if relation mapping is missing!")
+    if (round(dim) != dim) {
+      stop("Subdimensions in dim not supported if relation mapping is missing!")
+    }
     rel <- data.frame(c(dimnames(x)[dim], getItems(x, dim = dim, split = TRUE, full = TRUE)))
     if (dim == 1 && is.null(rel$global)) {
       rel$global <- "GLO"  # add global column
@@ -110,82 +111,23 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
     }
   }
 
-  .reorder <- function(x, e, dim) {
-    if (dim == 1) return(x[e, , ])
-    if (dim == 2) return(x[, e, ])
-    if (dim == 3) return(x[, , e])
-  }
+  isMatrix <- (any(class(rel) %in% c("dgCMatrix", "dsCMatrix", "dsyMatrix"))
+               || "Matrix" %in% attr(class(rel), "package"))
 
-  .isMatrix <- function(x) {
-    dsclasses <- c("dgCMatrix", "dsCMatrix", "dsyMatrix")
-    return(any(is.element(class(x), dsclasses)) || ("Matrix" %in% attr(class(x), "package")))
-  }
-
-  if (!is.numeric(rel) && !.isMatrix(rel)) {
-    .getAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, partrel = FALSE) {
-
-      if ("tbl" %in% class(rel)) rel <- data.frame(rel)
-      if (!(is.matrix(rel) || is.data.frame(rel))) {
-        if (length(rel) > 1) stop("Malformed relation mapping!")
-        if (!file.exists(rel)) {
-          stop("Cannot find region mapping file: ", rel, " (working directory ", getwd(), ")")
-        }
-        rel <- toolGetMapping(rel, where = "local")
-      }
-      if (is.matrix(rel)) rel <- as.data.frame(rel)
-
-      if (length(rel) < 2) stop("relation mapping has only ", length(rel), " column!")
-
-      if (is.null(from)) {
-        if (partrel) {
-          from <- as.integer(which(sapply(lapply(rel, intersect, items), length) > 0)) # nolint
-        } else {
-          from <- as.integer(which(sapply(rel, setequal, items))) # nolint
-        }
-        if (length(from) == 0) {
-          maxMatchColumn <- which.max(sapply(lapply(rel, intersect, items), length)) # nolint
-          unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
-          missingItems <- setdiff(rel[[maxMatchColumn]], items)
-
-          if (length(unmappedItems) > 0) {
-            warning(paste("The following items were not found in the mapping:", toString(unmappedItems)))
-          }
-          if (length(missingItems) > 0) {
-            warning(paste("The mapping expected the following items, but they are missing:", toString(missingItems)))
-          }
-          stop("Complete mapping failed. If you want a partial mapping, call toolAggregate(..., partrel = TRUE).")
-        }
-        if (length(from) > 1) from <- from[1]
-      }
-      if (is.null(to)) {
-        if (from == length(rel)) {
-          to <- from - 1
-        } else {
-          to <- from + 1
-        }
-      }
-
-      regions <- as.character(unique(rel[, to]))
-      countries <- as.character(unique(rel[, from]))
-      m <- Matrix(data = 0, nrow = length(regions), ncol = length(countries),
-                  dimnames = list(regions = regions, countries = countries))
-      m[cbind(match(rel[, to], rownames(m)), match(rel[, from], colnames(m)))] <- 1
-      if (is.numeric(to)) to <- dimnames(rel)[[2]][to]
-      if (is.numeric(from)) from <- dimnames(rel)[[2]][from]
-      names(dimnames(m)) <- c(to, from)
-      return(m)
-    }
+  if (!is.numeric(rel) && !isMatrix) {
     if (length(to) == 1 && grepl("+", to, fixed = TRUE)) {
       tmprel <- NULL
       toSplit <- strsplit(to, "+", fixed = TRUE)[[1]]
       for (t in toSplit) {
-        tmp <- .getAggregationMatrix(rel, from = from, to = t, items = getItems(x, dim = dim), partrel = partrel)
+        tmp <- toolGetAggregationMatrix(rel, from = from, to = t, items = getItems(x, dim = dim), partrel = partrel)
         tmprel <- rbind(tmprel, tmp)
       }
       rel <- tmprel
     } else {
-      rel <- .getAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
-      if (is.null(to)) to  <- names(dimnames(rel))[1]
+      rel <- toolGetAggregationMatrix(rel, from = from, to = to, items = getItems(x, dim = dim), partrel = partrel)
+      if (is.null(to)) {
+        to  <- names(dimnames(rel))[1]
+      }
     }
   }
 
@@ -193,226 +135,336 @@ toolAggregate <- function(x, rel, weight = NULL, from = NULL, to = NULL, dim = 1
   dim <- dimCode(dim, x, missing = "stop")
 
 
-  # allow the aggregation, even if not for every entry in the initial dataset
-  # there is a respective one in the relation matrix
+  # allow the aggregation, even if the relation matrix is missing some entries from the initial dataset
   if (partrel) {
     datnames <-  getItems(x, dim)
 
     common <- intersect(datnames, colnames(rel))
-    x <- .reorder(x, common, floor(dim))
+    x <- toolReorderDims(x, common, floor(dim))
 
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
     if (length(noagg) > 0) {
-      if (length(noagg) > 1) noagg[seq_len(length(noagg) - 1)] <- paste0(noagg[seq_len(length(noagg) - 1)], ", ")
-      vcat(verbosity, noagg, " not mapped in aggregation!")
+      vcat(verbosity, paste0(noagg, collapse = ", "), " not mapped in aggregation!")
     }
     rel <- rel[, common, drop = FALSE]
-    rel <- rel[rowSums(rel) > 0, , drop = FALSE]
+    rel <- rel[Matrix::rowSums(rel) > 0, , drop = FALSE]
   }
 
   if (!is.null(weight)) {
-    if (!is.magpie(weight)) stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
-    # get proper weight dim
-
-    if (is.null(wdim)) {
-      wdim <- union(getDim(rownames(rel), weight, fullmatch = TRUE),
-                    getDim(colnames(rel), weight, fullmatch = TRUE))
-      # wdim must be in same main dimension as dim
-      wdim <- wdim[floor(wdim) == floor(dim)]
-    }
-
-    if (length(wdim) == 0) stop("Could not detect aggregation dimension in weight (no match)!")
-    if (length(wdim) > 1) {
-      # if full dimension and subdimension is matched, use only full dimension
-      if (any(wdim == floor(dim))) wdim <- floor(dim)
-      else stop("Could not detect aggregation dimension in weight (multiple matches)!")
-    }
-
-    if (floor(dim) == dim) wdim <- floor(wdim)
-
-    if (anyNA(weight)) {
-      if (!mixed_aggregation) {
-        stop("Weight contains NAs which is only allowed if mixed_aggregation=TRUE!")
-      } else {
-        n <- length(getItems(weight, dim = wdim))
-        r <- dimSums(is.na(weight), dim = wdim)
-        if (!all(r %in% c(0, n))) stop("Weight contains columns with a mix of NAs and numbers which is not allowed!")
-      }
-    }
-    if (nyears(weight) == 1) getYears(weight) <- NULL
-    weight <- collapseNames(weight)
-    if (negative_weight != "allow" && any(weight < 0, na.rm = TRUE)) {
-      if (negative_weight == "warn") {
-        warning("Negative numbers in weight. Dangerous, was it really intended?")
-      } else {
-        stop("Negative numbers in weight. Weight should be positive!")
-      }
-    }
-    weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
-    if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
-      if (zeroWeight == "warn") {
-        warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
-                "aggregation targets. This changes the total sum of the magpie object! ",
-                'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
-      } else if (zeroWeight == "setNA") {
-        weightSum[weightSum == 0] <- NA
-      } else {
-        stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
-      }
-    }
-    weight2 <- 1 / (weightSum + 10^-100)
-    if (mixed_aggregation) {
-      weight2[is.na(weight2)] <- 1
-      weight[is.na(weight)] <- 1
-    }
-
-    if (wdim != floor(wdim)) {
-      getSets(weight)[paste0("d", wdim)]  <- getSets(x)[paste0("d", dim)]
-      getSets(weight2)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
-    }
-
-    if (setequal(getItems(weight, dim = wdim), getItems(x, dim = dim))) {
-      out <- toolAggregate(x * weight, rel, from = from, to = to, dim = dim, partrel = partrel) * weight2
-    } else {
-      out <- toolAggregate(x * weight2, rel, from = from, to = to, dim = dim, partrel = partrel) * weight
-    }
-    getComment(out) <- c(comment, paste0("Data aggregated (toolAggregate): ", date()))
-    return(out)
+    return(toolAggregateWeighted(x = x, rel = rel, weight = weight, from = from, to = to, dim = dim,
+                                 wdim = wdim, partrel = partrel, negativeWeight = negative_weight,
+                                 mixedAggregation = mixed_aggregation, zeroWeight = zeroWeight, xComment = xComment))
   } else {
+    return(toolAggregateUnweighted(x = x, rel = rel, to = to, dim = dim, xComment = xComment))
+  }
+}
 
-    # convert rel for better performance
-    rel <- Matrix(rel)
+toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
+                                  negativeWeight, mixedAggregation, zeroWeight, xComment) {
+  if (!is.magpie(weight)) {
+    stop("Weight is not a MAgPIE object, weight has to be a MAgPIE object!")
+  }
 
-    # make sure that rel and weight cover a whole dimension (not only a subdimension)
-    # expand data if necessary
-    # set dim to main dimension afterwards
-    if (round(dim) != dim) {
-      .expandRel <- function(rel, names, dim) {
-        # Expand rel matrix to full dimension if rel is only provided for a subdimension
-        if (is.null(colnames(rel)) || is.null(rownames(rel))) {
-          stop("colnames and/or rownames missing in relation matrix!")
-        }
+  # get proper weight dim
+  if (is.null(wdim)) {
+    wdim <- union(getDim(rownames(rel), weight, fullmatch = TRUE),
+                  getDim(colnames(rel), weight, fullmatch = TRUE))
+    # wdim must be in same main dimension as dim
+    wdim <- wdim[floor(wdim) == floor(dim)]
+  }
 
-        if (round(dim) == dim || suppressWarnings(all(colnames(rel) == names))) return(rel)
-
-        subdim <- round((dim - floor(dim)) * 10)
-        maxdim <- nchar(gsub("[^\\.]", "", names[1])) + 1
-
-        search <- paste0("^(", paste(rep("[^\\.]*\\.", subdim - 1), collapse = ""),
-                         ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
-        onlynames <- unique(sub(search, "\\2", names))
-
-        if (!setequal(colnames(rel), onlynames)) {
-          if (!setequal(rownames(rel), onlynames)) {
-            stop("The provided mapping contains entries which could not be found in the data: ",
-                 paste(setdiff(colnames(rel), onlynames), collapse = ", "))
-          } else  {
-            rel <- t(rel)
-          }
-        }
-
-        tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
-        additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
-        add <- sapply(additions, function(x) return(x[1:2])) # nolint
-        add[is.na(add)] <- ""
-        .tmp <- function(add, fill) {
-          return(paste0(rep(add[1, ], each = length(fill)), fill,
-                        rep(add[2, ], each = length(fill))))
-        }
-
-        cnames <- .tmp(add, colnames(rel))
-        rnames <- .tmp(add, rownames(rel))
-
-        newRel <- Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
-
-        for (i in seq_along(additions)) {
-          newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
-        }
-        return(newRel[, names, drop = FALSE])
-      }
-      rel <- .expandRel(rel, getItems(x, round(floor(dim))), dim)
-      dim <- round(floor(dim))
-    }
-
-    if (dim(x)[dim] != dim(rel)[2]) {
-      if (dim(x)[dim] != dim(rel)[1]) {
-        stop("Relation matrix has in both dimensions a different number of entries (",
-             dim(rel)[1], ", ", dim(rel)[2], ") than x has cells (", dim(x)[dim], ")!")
-      } else {
-        rel <- t(rel)
-      }
-    } else if (dim(x)[dim] == dim(rel)[1] && !setequal(colnames(rel), getItems(x, dim))) {
-      rel <- t(rel)
-    }
-
-    # reorder MAgPIE object based on column names of relation matrix if available
-    if (!is.null(colnames(rel))) x <- .reorder(x, colnames(rel), dim)
-
-    # Aggregate data
-    if (anyNA(x) || any(is.infinite(x))) {
-      matrixMultiplication <- function(y, x) {
-        if (any(is.infinite(y))) {
-          # Special Inf treatment to prevent that a single Inf in x
-          # is setting the full output to NaN (because 0*Inf is NaN)
-          # Infs are now treated in a way that anything except 0 times Inf
-          # leads to NaN, but 0 times Inf leads to NaN
-          for (i in c(-Inf, Inf)) {
-            j <- (is.infinite(y) & (y == i))
-            x[, j][x[, j] != 0] <- i
-            y[j] <- 1
-          }
-        }
-        if (any(is.na(y)) && !all(is.na(y))) {
-          # Special NA treatment to prevent that a single NA in x
-          # is setting the full output to NA (because 0*NA is NA)
-          # NAs are now treated in a way that anything except 0 times NA
-          # leads to NA, but 0 times NA leads to 0
-          x[, is.na(y)][x[, is.na(y)] != 0] <- NA
-          y[is.na(y)] <- 0
-        }
-        return(as.array(x %*% y))
-      }
-      out <- apply(x, which(1:3 != dim), matrixMultiplication, rel)
-      if (length(dim(out)) == 2) out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
+  if (length(wdim) == 0) {
+    stop("Could not detect aggregation dimension in weight (no match)!")
+  }
+  if (length(wdim) > 1) {
+    # if full dimension and subdimension is matched, use only full dimension
+    if (any(wdim == floor(dim))) {
+      wdim <- floor(dim)
     } else {
-      local_options(matprod = "blas")
-      notdim <- setdiff(1:3, dim)
-      out <- rel %*% as.array(wrap(x, list(dim, notdim)))
-      out <- array(out, dim = c(dim(rel)[1], dim(x)[notdim]))
-      dimnames(out)[2:3] <- dimnames(x)[notdim]
+      stop("Could not detect aggregation dimension in weight (multiple matches)!")
     }
+  }
 
-    # Write dimnames of aggregated dimension
-    if (!is.null(rownames(rel))) {
-      regOut <- rownames(rel)
-    } else if (dim == 1) {
-      regionList <- as.factor(getItems(x, dim = 1.1, full = TRUE))
-      # Compute region vector for outputs after aggregation via sending
-      # factor values through the relation matrix
-      regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
-                                         (rel %*% rep(1, dim(rel)[2])))))
-      levels(regOut) <- levels(regionList)
+  if (floor(dim) == dim) {
+    wdim <- floor(wdim)
+  }
+
+  if (anyNA(weight)) {
+    if (!mixedAggregation) {
+      stop("Weight contains NAs which is only allowed if mixed_aggregation=TRUE!")
     } else {
-      stop("Missing dimnames for aggregated dimension")
+      n <- length(getItems(weight, dim = wdim))
+      r <- dimSums(is.na(weight), dim = wdim)
+      if (!all(r %in% c(0, n))) {
+        stop("Weight contains columns with a mix of NAs and numbers which is not allowed!")
+      }
     }
-
-    if (!any(grepl("\\.", regOut)) && anyDuplicated(regOut)) regOut <- paste(regOut, seq_len(dim(out)[1]), sep = ".")
-
-    dimnames(out)[[1]] <- regOut
-
-    if (dim == 2) out <- wrap(out, map = list(2, 1, 3))
-    if (dim == 3) out <- wrap(out, map = list(2, 3, 1))
-
-    sets <- getSets(x, fulldim = FALSE)
-    # update set name if number of sub-dimensions reduced to 1
-    if (ndim(out, dim = dim) == 1  && ndim(x, dim = dim) > 1) {
-      sets[dim] <- ifelse(!is.null(to), to, NA)
+  }
+  if (nyears(weight) == 1) {
+    getYears(weight) <- NULL
+  }
+  weight <- collapseNames(weight)
+  if (negativeWeight != "allow" && any(weight < 0, na.rm = TRUE)) {
+    if (negativeWeight == "warn") {
+      warning("Negative numbers in weight. Dangerous, was it really intended?")
+    } else {
+      stop("Negative numbers in weight. Weight should be positive!")
     }
-    getSets(out, fulldim = FALSE) <- sets
+  }
+  weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+  if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
+    if (zeroWeight == "warn") {
+      warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
+              "aggregation targets. This changes the total sum of the magpie object! ",
+              'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
+    } else if (zeroWeight == "setNA") {
+      weightSum[weightSum == 0] <- NA
+    } else {
+      stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
+    }
+  }
+  weight2 <- 1 / (weightSum + 10^-100)
+  if (mixedAggregation) {
+    weight2[is.na(weight2)] <- 1
+    weight[is.na(weight)] <- 1
+  }
 
-    getComment(out) <- c(comment, paste0("Data aggregated (toolAggregate): ", date()))
-    out <- as.magpie(out, spatial = 1, temporal = 2)
-    return(out)
+  if (wdim != floor(wdim)) {
+    getSets(weight)[paste0("d", wdim)]  <- getSets(x)[paste0("d", dim)]
+    getSets(weight2)[paste0("d", wdim)] <- getSets(x)[paste0("d", dim)]
+  }
+
+  if (setequal(getItems(weight, dim = wdim), getItems(x, dim = dim))) {
+    out <- toolAggregate(x * weight, rel, from = from, to = to, dim = dim, partrel = partrel) * weight2
+  } else {
+    out <- toolAggregate(x * weight2, rel, from = from, to = to, dim = dim, partrel = partrel) * weight
+  }
+  getComment(out) <- c(xComment, paste0("Data aggregated (toolAggregate): ", date()))
+  return(out)
+}
+
+toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
+  # convert rel for better performance
+  rel <- Matrix::Matrix(rel)
+
+  # make sure that rel covers a whole dimension (not only a subdimension)
+  # expand data if necessary
+  # set dim to main dimension afterwards
+  if (round(dim) != dim) {
+    rel <- toolExpandRel(rel, getItems(x, round(floor(dim))), dim)
+    dim <- round(floor(dim))
+  }
+
+  if (dim(x)[dim] != dim(rel)[2]) {
+    if (dim(x)[dim] != dim(rel)[1]) {
+      stop("Relation matrix has in both dimensions a different number of entries (",
+           dim(rel)[1], ", ", dim(rel)[2], ") than x has cells (", dim(x)[dim], ")!")
+    }
+    rel <- Matrix::t(rel)
+  } else if (dim(x)[dim] == dim(rel)[1] && !setequal(colnames(rel), getItems(x, dim))) {
+    rel <- Matrix::t(rel)
+  }
+
+  # reorder MAgPIE object based on column names of relation matrix if available
+  if (!is.null(colnames(rel))) {
+    x <- toolReorderDims(x, colnames(rel), dim)
+  }
+
+  # Aggregate data
+  if (anyNA(x) || any(is.infinite(x))) {
+    out <- apply(x, which(1:3 != dim), toolMatrixMultiplication, rel)
+    if (length(dim(out)) == 2) {
+      out <- array(out, dim = c(1, dim(out)), dimnames = c("", dimnames(out)))
+    }
+  } else {
+    withr::local_options(matprod = "blas")
+    notdim <- setdiff(1:3, dim)
+    out <- rel %*% as.array(wrap(x, list(dim, notdim)))
+    out <- array(out, dim = c(dim(rel)[1], dim(x)[notdim]))
+    dimnames(out)[2:3] <- dimnames(x)[notdim]
+  }
+
+  # Write dimnames of aggregated dimension
+  if (!is.null(rownames(rel))) {
+    regOut <- rownames(rel)
+  } else if (dim == 1) {
+    regionList <- as.factor(getItems(x, dim = 1.1, full = TRUE))
+    # Compute region vector for outputs after aggregation via sending
+    # factor values through the relation matrix
+    regOut <- factor(as.vector(round(rel %*% as.numeric(regionList) /
+                                       (rel %*% rep(1, dim(rel)[2])))))
+    levels(regOut) <- levels(regionList)
+  } else {
+    stop("Missing dimnames for aggregated dimension")
+  }
+
+  if (!any(grepl(".", regOut, fixed = TRUE)) && anyDuplicated(regOut)) {
+    regOut <- paste(regOut, seq_len(dim(out)[1]), sep = ".")
+  }
+
+  dimnames(out)[[1]] <- regOut
+
+  if (dim == 2) {
+    out <- wrap(out, map = list(2, 1, 3))
+  } else if (dim == 3) {
+    out <- wrap(out, map = list(2, 3, 1))
+  }
+
+  sets <- getSets(x, fulldim = FALSE)
+  # update set name if number of sub-dimensions reduced to 1
+  if (ndim(out, dim = dim) == 1  && ndim(x, dim = dim) > 1) {
+    sets[dim] <- ifelse(!is.null(to), to, NA)
+  }
+  getSets(out, fulldim = FALSE) <- sets
+
+  getComment(out) <- c(xComment, paste0("Data aggregated (toolAggregate): ", date()))
+  out <- as.magpie(out, spatial = 1, temporal = 2)
+  return(out)
+}
+
+toolMatrixMultiplication <- function(y, x) {
+  if (any(is.infinite(y))) {
+    # Special Inf treatment to prevent that a single Inf in x
+    # is setting the full output to NaN (because 0*Inf is NaN)
+    # Infs are now treated in a way that anything except 0 times Inf
+    # leads to NaN, but 0 times Inf leads to NaN
+    for (i in c(-Inf, Inf)) {
+      j <- (is.infinite(y) & (y == i))
+      x[, j][x[, j] != 0] <- i
+      y[j] <- 1
+    }
+  }
+  if (any(is.na(y)) && !all(is.na(y))) {
+    # Special NA treatment to prevent that a single NA in x
+    # is setting the full output to NA (because 0*NA is NA)
+    # NAs are now treated in a way that anything except 0 times NA
+    # leads to NA, but 0 times NA leads to 0
+    x[, is.na(y)][x[, is.na(y)] != 0] <- NA
+    y[is.na(y)] <- 0
+  }
+  return(as.array(x %*% y))
+}
+
+toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, partrel = FALSE) {
+  if ("tbl" %in% class(rel)) {
+    rel <- data.frame(rel)
+  }
+  if (!(is.matrix(rel) || is.data.frame(rel))) {
+    if (length(rel) > 1) {
+      stop("Malformed relation mapping!")
+    }
+    if (!file.exists(rel)) {
+      stop("Cannot find region mapping file: ", rel, " (working directory ", getwd(), ")")
+    }
+    rel <- toolGetMapping(rel, where = "local")
+  }
+  if (is.matrix(rel)) {
+    rel <- as.data.frame(rel)
+  }
+
+  if (length(rel) < 2) {
+    stop("relation mapping has only ", length(rel), " column!")
+  }
+
+  if (is.null(from)) {
+    if (partrel) {
+      from <- as.integer(which(vapply(lapply(rel, intersect, items), length, numeric(1)) > 0))
+    } else {
+      from <- as.integer(which(vapply(rel, setequal, logical(1), items)))
+    }
+    if (length(from) == 0) {
+      maxMatchColumn <- which.max(vapply(lapply(rel, intersect, items), length, numeric(1)))
+      unmappedItems <- setdiff(items, rel[[maxMatchColumn]])
+      missingItems <- setdiff(rel[[maxMatchColumn]], items)
+
+      if (length(unmappedItems) > 0) {
+        warning(paste("The following items were not found in the mapping:", toString(unmappedItems)))
+      }
+      if (length(missingItems) > 0) {
+        warning(paste("The mapping expected the following items, but they are missing:", toString(missingItems)))
+      }
+      stop("Complete mapping failed. If you want a partial mapping, call toolAggregate(..., partrel = TRUE).")
+    }
+    if (length(from) > 1) {
+      from <- from[1]
+    }
+  }
+  if (is.null(to)) {
+    if (from == length(rel)) {
+      to <- from - 1
+    } else {
+      to <- from + 1
+    }
+  }
+
+  regions <- as.character(unique(rel[, to]))
+  countries <- as.character(unique(rel[, from]))
+  m <- Matrix::Matrix(data = 0, nrow = length(regions), ncol = length(countries),
+                      dimnames = list(regions = regions, countries = countries))
+  m[cbind(match(rel[, to], rownames(m)), match(rel[, from], colnames(m)))] <- 1
+  if (is.numeric(to)) {
+    to <- dimnames(rel)[[2]][to]
+  }
+  if (is.numeric(from)) {
+    from <- dimnames(rel)[[2]][from]
+  }
+  names(dimnames(m)) <- c(to, from)
+  return(m)
+}
+
+toolExpandRel <- function(rel, names, dim) {
+  # Expand rel matrix to full dimension if rel is only provided for a subdimension
+  if (is.null(colnames(rel)) || is.null(rownames(rel))) {
+    stop("colnames and/or rownames missing in relation matrix!")
+  }
+
+  if (round(dim) == dim || suppressWarnings(all(colnames(rel) == names))) {
+    return(rel)
+  }
+
+  subdim <- round((dim - floor(dim)) * 10)
+  maxdim <- nchar(gsub("[^\\.]", "", names[1])) + 1
+
+  search <- paste0("^(", paste(rep("[^\\.]*\\.", subdim - 1), collapse = ""),
+                   ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
+  onlynames <- unique(sub(search, "\\2", names))
+
+  if (!setequal(colnames(rel), onlynames)) {
+    if (!setequal(rownames(rel), onlynames)) {
+      stop("The provided mapping contains entries which could not be found in the data: ",
+           paste(setdiff(colnames(rel), onlynames), collapse = ", "))
+    } else  {
+      rel <- Matrix::t(rel)
+    }
+  }
+
+  tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
+  additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
+  add <- vapply(additions, function(x) return(x[1:2]), character(2))
+  add[is.na(add)] <- ""
+  .tmp <- function(add, fill) {
+    return(paste0(rep(add[1, ], each = length(fill)), fill,
+                  rep(add[2, ], each = length(fill))))
+  }
+
+  cnames <- .tmp(add, colnames(rel))
+  rnames <- .tmp(add, rownames(rel))
+
+  newRel <- Matrix::Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
+
+  for (i in seq_along(additions)) {
+    newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
+  }
+  return(newRel[, names, drop = FALSE])
+}
+
+toolReorderDims <- function(x, e, dim) {
+  if (dim == 1) {
+    return(x[e, , ])
+  } else if (dim == 2) {
+    return(x[, e, ])
+  } else if (dim == 3) {
+    return(x[, , e])
   }
 }

@@ -52,7 +52,7 @@
 #' @importFrom methods formalArgs
 #' @importFrom renv init hydrate snapshot
 #' @importFrom utils sessionInfo tar modifyList
-#' @importFrom withr with_dir with_tempdir local_options local_tempdir
+#' @importFrom withr with_dir with_tempdir local_tempdir
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = identical(dev, ""),
                          strict = FALSE, renv = TRUE, ...) {
@@ -65,7 +65,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   callString <- functionCallString("retrieveData", argumentValues)
 
-  local_options(madratWarningsCounter = 0)
+  withr::local_options(madratWarningsCounter = 0)
 
   if (!(cachetype %in% c("rev", "def"))) {
     stop("Unknown cachetype \"", cachetype, "\"!")
@@ -258,7 +258,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   # are arguments used in both - setConfig and the fullFunction? -> warning
   tmp <- intersect(formalArgs(setConfig), names(cfg$fullDefault))
   if (length(tmp) > 0) {
-    warning("Overlapping arguments between setConfig and retrieve function (\"",
+    warning("Overlapping arguments between setConfig and full", model, " (\"",
             paste(tmp, collapse = '", "'), '")')
   }
 
