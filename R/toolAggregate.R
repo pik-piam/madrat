@@ -224,6 +224,9 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
     } else if (zeroWeight == "fix") {
       weight <- toolFixWeight(weight, rel, from, to, dim)
       weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+      if (any(weightSum == 0, na.rm = TRUE)) {
+        warning("Critical: toolAggregate zeroWeight = fix did not fix the weight! Please contact a madrat developer.")
+      }
     } else {
       stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
     }
