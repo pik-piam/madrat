@@ -6,6 +6,9 @@ test_that("toolFixWeight works", {
   weight["B1", , ] <- 1
 
   fixedWeight <- toolFixWeight(weight, rel, from = "from", to = "to", dim = 1)
-  weightSum <- toolAggregate(fixedWeight, rel, from = "from", to = "to", dim = 1)
-  expect_true(!any(weightSum == 0, na.rm = TRUE))
+  expected <- new.magpie(c("A1", "A2", "B1", "B2"))
+  expected[c("A1", "A2"), , ] <- 10^-30
+  expected["B1", , ] <- 1
+  expected["B2", , ] <- 0
+  expect_identical(fixedWeight, expected)
 })
