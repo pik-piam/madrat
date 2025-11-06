@@ -31,10 +31,9 @@
 #' the dimnames of the corresponding dimension, e.g. if your data contains a
 #' spatial subdimension "country" you can aggregate to countries via
 #' \code{toolAggregate(x, to = "country", dim = 1)}.
-#' @param weight magclass object containing weights which should be considered
-#' for a weighted aggregation. The provided weight should only contain positive
-#' values, but does not need to be normalized (any positive number>=0 is allowed).
-#' Please see the "details" section below for more information.
+#' @param weight magclass object containing weights to be used for a weighted
+#' (dis)aggregation. The provided weight does not need to be normalized, any
+#' number >= 0 is allowed. See "details" section below.
 #' @param from Name of source column to be used in rel if it is a
 #' mapping (if not set the first column matching the data will be used).
 #' @param to Name of the target column to be used in rel if it is a
@@ -65,7 +64,7 @@
 #' 0 = warning, 1 = note, 2 = additional information, >2 = no message
 #' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
 #' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error,
-#' "fix" will set zero weights to 10^-30 only where needed.
+#' "fix" will set zero weights to 10^-30 only where needed, see \code{\link{toolFixWeight}}.
 #' @return the aggregated data in magclass format
 #'
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
