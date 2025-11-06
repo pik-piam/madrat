@@ -246,6 +246,12 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
   } else {
     out <- toolAggregate(x * weight2, rel, from = from, to = to, dim = dim, partrel = partrel) * weight
   }
+
+  if (zeroWeight == "fix" && !isTRUE(all.equal(sum(out), sum(x)))) {
+    warning("total sum is not the same after toolAggregate despite zeroWeight = 'fix', ",
+            "please contact a madrat developer.")
+  }
+
   getComment(out) <- c(xComment, paste0("Data aggregated (toolAggregate): ", date()))
   return(out)
 }
