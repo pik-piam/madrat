@@ -9,15 +9,7 @@ toolFixWeight <- function(weight, mapping, from, to, dim) {
   weightSum[weightSum > 0] <- -Inf
   weightSum[weightSum == 0] <- 10^-30
   newWeight <- toolAggregate(weightSum, mapping, from = to, to = from, dim = dim)
-
-  if (!is.null(getItems(weight, 1))) { # TODO also needed for dim 2 and other cases?
-    newWeight <- newWeight[getItems(weight, 1), , ]
-  }
-  if (!is.null(getItems(weight, 3))) {
-    newWeight <- newWeight[, , getItems(weight, 3)]
-  }
-
   newWeight <- pmax(newWeight, weight)
-  # TODO add check that weight is actually fixed here or in a test?
+  stopifnot(sameDims(newWeight, weight))
   return(newWeight)
 }
