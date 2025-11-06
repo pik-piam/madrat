@@ -42,7 +42,7 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
   weightSum[weightSum > 0] <- -Inf
   weightSum[weightSum == 0] <- 10^-30
   newWeight <- toolAggregate(weightSum, rel, from = to, to = from, dim = dim)
-  newWeight <- pmax(newWeight, weight)
+  newWeight <- pmax(weight, newWeight)
   stopifnot(identical(dimnames(newWeight), dimnames(weight)))
   return(newWeight)
 }
