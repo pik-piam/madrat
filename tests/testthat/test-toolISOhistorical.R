@@ -42,7 +42,7 @@ test_that("Given mapping data is properly translated", {
   b <- a
   b[is.na(b)] <- 0
 
-  ref2 <- new("magpie", .Data = structure(c(0, 0, 0, 0, 0, 0, 0, 0, 2,
+  ref2 <- new("magpie", .Data = structure(c(2, 0, 0, 0, 2, 0, 0, 0, 2,
                                             0, 0, 0, 2, 0, 0, 0, 2, 1, 1, 1),
                                           .Dim = c(4L, 5L, 1L),
                                           .Dimnames = list(region = c("A", "B1", "B2", "B3"),
