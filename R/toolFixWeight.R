@@ -36,7 +36,7 @@
 #' @seealso \code{\link{toolAggregate}}
 #' @author Pascal Sauer
 #' @export
-toolFixWeight <- function(weight, rel, from, to, dim) {
+toolFixWeightOld <- function(weight, rel, from, to, dim) {
   stopifnot(weight >= 0)
   weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = dim)
   weightSum[weightSum > 0] <- -Inf
@@ -45,4 +45,37 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
   newWeight <- pmax(weight, newWeight)
   stopifnot(identical(dimnames(newWeight), dimnames(weight)))
   return(newWeight)
+}
+
+toolFixWeight <- function(weight, rel, from, to, dim) {
+  stopifnot(weight >= 0)
+
+  if (is.data.frame(rel)) {
+    fromElements <- rel[[from]]
+  } else {
+    fromElements <- colnames(rel)
+  }
+
+  for (fromElement in unique(fromElements)) {
+    if (is.data.frame(rel)) {
+      toElements <- rel[fromElements == fromElement, to]
+    } else {
+      toElements <- names(rel[, fromElement])[rel[, fromElement] == 1]
+    }
+
+    if (dim == 1) {
+      if (all(weight[toElements, , ] == 0)) {
+        weight[toElements, , ] <- 10^-30
+      }
+    } else if (dim == 2) {
+      if (all(weight[, toElements, ] == 0)) {
+        weight[, toElements, ] <- 10^-30
+      }
+    } else if (dim == 3) {
+      if (all(weight[, , toElements] == 0)) {
+        weight[, , toElements] <- 10^-30
+      }
+    }
+  }
+  return(weight)
 }
