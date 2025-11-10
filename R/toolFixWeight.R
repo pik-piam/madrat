@@ -36,17 +36,6 @@
 #' @seealso \code{\link{toolAggregate}}
 #' @author Pascal Sauer
 #' @export
-toolFixWeightOld <- function(weight, rel, from, to, dim) {
-  stopifnot(weight >= 0)
-  weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = dim)
-  weightSum[weightSum > 0] <- -Inf
-  weightSum[weightSum == 0] <- 10^-30
-  newWeight <- toolAggregate(weightSum, rel, from = to, to = from, dim = dim)
-  newWeight <- pmax(weight, newWeight)
-  stopifnot(identical(dimnames(newWeight), dimnames(weight)))
-  return(newWeight)
-}
-
 toolFixWeight <- function(weight, rel, from, to, dim) {
   stopifnot(weight >= 0)
 
@@ -63,19 +52,31 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
       toElements <- names(rel[, fromElement])[rel[, fromElement] == 1]
     }
 
-    if (dim == 1) {
-      if (all(weight[toElements, , ] == 0)) {
-        weight[toElements, , ] <- 10^-30
-      }
-    } else if (dim == 2) {
-      if (all(weight[, toElements, ] == 0)) {
-        weight[, toElements, ] <- 10^-30
-      }
-    } else if (dim == 3) {
-      if (all(weight[, , toElements] == 0)) {
-        weight[, , toElements] <- 10^-30
-      }
+    if (all(getmag(weight, toElements, dim) == 0)) {
+      weight <- setmag(weight, toElements, dim, 10^-30)
     }
   }
   return(weight)
+}
+
+# TODO these should go into magclass
+getmag <- function(x, e, dim) {
+  if (dim == 1) {
+    return(x[e, , ])
+  } else if (dim == 2) {
+    return(x[, e, ])
+  } else if (dim == 3) {
+    return(x[, , e])
+  }
+}
+
+setmag <- function(x, e, dim, newData) {
+  if (dim == 1) {
+    x[e, , ] <- newData
+  } else if (dim == 2) {
+    x[, e, ] <- newData
+  } else if (dim == 3) {
+    x[, , e] <- newData
+  }
+  return(x)
 }
