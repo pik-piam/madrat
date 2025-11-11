@@ -38,23 +38,11 @@
 #' @export
 toolFixWeight <- function(weight, rel, from, to, dim) {
   stopifnot(weight >= 0)
-
-  if (is.data.frame(rel)) {
-    fromElements <- rel[[from]]
-  } else {
-    fromElements <- colnames(rel)
-  }
-
-  for (fromElement in unique(fromElements)) {
-    if (is.data.frame(rel)) {
-      toElements <- rel[fromElements == fromElement, to]
-    } else {
-      toElements <- names(rel[, fromElement])[rel[, fromElement] == 1]
-    }
-
-    if (all(weight[toElements, dim = dim] == 0)) {
-      weight[toElements, dim = dim] <- 10^-30
-    }
-  }
-  return(weight)
+  weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = dim)
+  weightSum[weightSum > 0] <- -Inf
+  weightSum[weightSum == 0] <- 10^-30
+  newWeight <- toolAggregate(weightSum, rel, from = to, to = from, dim = dim)
+  newWeight <- pmax(weight, newWeight)
+  stopifnot(identical(dimnames(newWeight), dimnames(weight)))
+  return(newWeight)
 }
