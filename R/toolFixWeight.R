@@ -37,12 +37,21 @@
 #' @author Pascal Sauer
 #' @export
 toolFixWeight <- function(weight, rel, from, to, dim) {
-  stopifnot(weight >= 0)
-  weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = dim)
-  weightSum[weightSum > 0] <- -Inf
-  weightSum[weightSum == 0] <- 10^-30
-  newWeight <- toolAggregate(weightSum, rel, from = to, to = from, dim = dim)
-  newWeight <- pmax(weight, newWeight)
-  stopifnot(identical(dimnames(newWeight), dimnames(weight)))
-  return(newWeight)
+  # TODO handle rel is not a data.frame but Matrix
+  stopifnot(weight >= 0,
+            setequal(rel[[to]], getItems(weight, dim)))
+  originalDimnames <- dimnames(weight)
+
+  for (fromElement in unique(rel[[from]])) {
+    toElements <- rel[rel$from == fromElement, to]
+    modification <- magpply(weight[toElements, dim = dim], max, DIM = dim)
+    modification <- ifelse(modification == 0, 10^-30, 0)
+    getItems(modification, dim) <- fromElement
+    modification <- setItems(modification[rep(fromElement, length(toElements)), dim = dim],
+                             dim, toElements)
+    weight[toElements, dim = dim] <- weight[toElements, dim = dim] + modification
+  }
+
+  stopifnot(identical(dimnames(weight), originalDimnames))
+  return(weight)
 }
