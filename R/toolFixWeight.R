@@ -39,18 +39,20 @@
 toolFixWeight <- function(weight, rel, from, to, dim) {
   # TODO handle rel is not a data.frame but Matrix
   stopifnot(weight >= 0,
+            dim %in% 1:3,
             setequal(rel[[to]], getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
 
-  for (fromElement in unique(rel[[from]])) {
-    toElements <- rel[rel$from == fromElement, to]
-    modification <- magpply(weight[toElements, dim = dim], max, DIM = dim)
-    modification <- ifelse(modification == 0, 10^-30, 0)
-    getItems(modification, dim) <- fromElement
-    modification <- setItems(modification[rep(fromElement, length(toElements)), dim = dim],
-                             dim, toElements)
-    weight[toElements, dim = dim] <- weight[toElements, dim = dim] + modification
-  }
+  map <- stats::setNames(rel[[from]], rel[[to]])
+  getItems(weight, dim, raw = TRUE) <- paste0(getItems(weight, dim), ".", map[getItems(weight, dim)])
+  names(dimnames(weight))[dim] <- paste0(names(dimnames(weight))[dim], ".placeholder_dimname")
+
+  modification <- magpply(weight, max, DIM = dim + 0.1)
+  modification <- ifelse(modification == 0, 10^-30, 0)
+  modification <- setItems(modification[rel[[from]], dim = dim],
+                           dim, rel[[to]])
+  weight <- collapseDim(weight, dim + 0.2)
+  weight <- weight + modification
 
   stopifnot(identical(dimnames(weight), originalDimnames))
   return(weight)
