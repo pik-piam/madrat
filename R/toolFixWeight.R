@@ -37,11 +37,12 @@
 #' @author Pascal Sauer
 #' @export
 toolFixWeight <- function(weight, rel, from, to, dim) {
-  # TODO handle rel is not a data.frame but Matrix
   stopifnot(weight >= 0,
+            is.data.frame(rel), # TODO handle rel is not a data.frame but Matrix
             dim %in% 1:3,
             setequal(rel[[to]], getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
+  rel <- unique(rel[, c(from, to)])
 
   map <- stats::setNames(rel[[from]], rel[[to]])
   weight <- add_dimension(weight, dim = dim + 0.2)
