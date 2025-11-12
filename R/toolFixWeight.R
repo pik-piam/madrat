@@ -44,8 +44,8 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
   originalDimnames <- dimnames(weight)
 
   map <- stats::setNames(rel[[from]], rel[[to]])
-  getItems(weight, dim, raw = TRUE) <- paste0(getItems(weight, dim), ".", map[getItems(weight, dim)])
-  names(dimnames(weight))[dim] <- paste0(names(dimnames(weight))[dim], ".placeholder_dimname")
+  weight <- add_dimension(weight, dim = dim + 0.2)
+  getItems(weight, dim = dim + 0.2, full = TRUE) <- unname(map[getItems(weight, dim + 0.1)])
 
   modification <- magpply(weight, max, DIM = dim + 0.1)
   modification <- ifelse(modification == 0, 10^-30, 0)
