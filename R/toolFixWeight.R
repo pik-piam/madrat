@@ -54,10 +54,12 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
   weight <- add_dimension(weight, dim = dim + 0.2)
   getItems(weight, dim = dim + 0.2, full = TRUE) <- unname(map[getItems(weight, dim + 0.1)])
 
-  modification <- magpply(weight, max, DIM = dim + 0.1, INTEGRATE = TRUE)
+  modification <- magpply(weight, max, DIM = dim + 0.1)
   modification <- ifelse(modification == 0, 10^-30, 0)
-  weight <- weight + modification
+  modification <- setItems(modification[rel[[from]], dim = dim],
+                           dim, rel[[to]])
   weight <- collapseDim(weight, dim + 0.2)
+  weight <- weight + modification
 
   stopifnot(identical(dimnames(weight), originalDimnames))
   return(weight)
