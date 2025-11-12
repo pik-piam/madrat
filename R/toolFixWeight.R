@@ -41,23 +41,26 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
   originalDimnames <- dimnames(weight)
 
   if (is.data.frame(rel)) {
-    stopifnot(setequal(rel[[to]], getItems(weight, dim)))
     rel <- unique(rel[, c(from, to)])
     map <- stats::setNames(rel[[from]], rel[[to]])
   } else {
-    stopifnot(setequal(rownames(rel), getItems(weight, dim)))
     map <- vapply(rownames(rel), function(i) {
       return(colnames(rel)[rel[i, ] == 1])
     }, character(1))
   }
+  stopifnot(setequal(names(map), getItems(weight, dim)))
 
-  weight <- add_dimension(weight, dim = dim + 0.2)
-  getItems(weight, dim = dim + 0.2, full = TRUE) <- unname(map[getItems(weight, dim + 0.1)])
+  # could use add_dimension, but it is much slower
+  getItems(weight, dim, full = TRUE, raw = TRUE) <- paste0(getItems(weight, dim, full = TRUE),
+                                                           ".",
+                                                           map[getItems(weight, dim, full = TRUE)])
+  names(dimnames(weight))[dim] <- paste0(names(dimnames(weight))[dim], ".placeholder_dimname")
 
+  # could use magpply's INTEGRATE = TRUE, but that is super slow
   modification <- magpply(weight, max, DIM = dim + 0.1)
   modification <- ifelse(modification == 0, 10^-30, 0)
-  modification <- setItems(modification[rel[[from]], dim = dim],
-                           dim, rel[[to]])
+  modification <- setItems(modification[map, dim = dim],
+                           dim, names(map))
   weight <- collapseDim(weight, dim + 0.2)
   weight <- weight + modification
 
