@@ -37,14 +37,20 @@
 #' @author Pascal Sauer
 #' @export
 toolFixWeight <- function(weight, rel, from, to, dim) {
-  stopifnot(weight >= 0,
-            is.data.frame(rel), # TODO handle rel is not a data.frame but Matrix
-            dim %in% 1:3,
-            setequal(rel[[to]], getItems(weight, dim)))
+  stopifnot(weight >= 0, dim %in% 1:3)
   originalDimnames <- dimnames(weight)
-  rel <- unique(rel[, c(from, to)])
 
-  map <- stats::setNames(rel[[from]], rel[[to]])
+  if (is.data.frame(rel)) {
+    stopifnot(setequal(rel[[to]], getItems(weight, dim)))
+    rel <- unique(rel[, c(from, to)])
+    map <- stats::setNames(rel[[from]], rel[[to]])
+  } else {
+    stopifnot(setequal(rownames(rel), getItems(weight, dim)))
+    map <- vapply(rownames(rel), function(i) {
+      return(colnames(rel)[rel[i, ] == 1])
+    }, character(1))
+  }
+
   weight <- add_dimension(weight, dim = dim + 0.2)
   getItems(weight, dim = dim + 0.2, full = TRUE) <- unname(map[getItems(weight, dim + 0.1)])
 
