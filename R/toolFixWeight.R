@@ -8,7 +8,9 @@
 #' @param weight magclass object containing weights to be used for a weighted
 #' (dis)aggregation. The provided weight does not need to be normalized, any
 #' number >= 0 is allowed.
-#' @inheritParams toolAggregate
+#' @param map a named character vector where names are fine resolution items
+#' and values are coarse resolution items. names(map) must match weight items
+#' @param dim which dim to fix: 1, 2, or 3
 #' @return weight, with weights set to 10^-30 only where otherwise the total
 #' sum of the (dis)aggregated object would be different from the original
 #'
@@ -36,13 +38,11 @@
 #' @seealso \code{\link{toolAggregate}}
 #' @author Pascal Sauer
 #' @export
-toolFixWeight <- function(weight, rel, from, to, dim) {
-  stopifnot(weight >= 0, dim %in% 1:3)
+toolFixWeight <- function(weight, map, dim) {
+  stopifnot(weight >= 0,
+            dim %in% 1:3,
+            setequal(names(map), getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
-
-  map <- toolMapFromRel(rel, from, to)
-
-  stopifnot(setequal(names(map), getItems(weight, dim)))
 
   # could use add_dimension, but it is much slower
   getItems(weight, dim, full = TRUE, raw = TRUE) <- paste0(getItems(weight, dim, full = TRUE),
@@ -60,16 +60,4 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
 
   stopifnot(identical(dimnames(weight), originalDimnames))
   return(weight)
-}
-
-toolMapFromRel <- function(rel, from, to) {
-  if (is.data.frame(rel)) {
-    rel <- unique(rel[, c(from, to)])
-    map <- stats::setNames(rel[[from]], rel[[to]])
-  } else {
-    map <- vapply(rownames(rel), function(i) {
-      return(colnames(rel)[rel[i, ] == 1])
-    }, character(1))
-  }
-  return(map)
 }

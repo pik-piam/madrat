@@ -252,7 +252,7 @@ toolZeroWeight <- function(weight, rel, from, to, dim, wdim, partrel, zeroWeight
     } else if (zeroWeight == "setNA") {
       weightSum[weightSum == 0] <- NA
     } else if (zeroWeight == "fix") {
-      weight <- toolFixWeight(weight, rel, from, to, dim)
+      weight <- toolFixWeight(weight, toolMapFromRel(rel, from, to), dim)
       weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
       if (any(weightSum == 0, na.rm = TRUE)) {
         warning("Critical: toolAggregate zeroWeight = fix did not fix the weight! Please contact a madrat developer.")
@@ -477,4 +477,16 @@ toolExpandRel <- function(rel, names, dim) {
     newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
   }
   return(newRel[, names, drop = FALSE])
+}
+
+toolMapFromRel <- function(rel, from, to) {
+  if (is.data.frame(rel)) {
+    rel <- unique(rel[, c(from, to)])
+    map <- stats::setNames(rel[[from]], rel[[to]])
+  } else {
+    map <- vapply(rownames(rel), function(i) {
+      return(colnames(rel)[rel[i, ] == 1])
+    }, character(1))
+  }
+  return(map)
 }
