@@ -40,14 +40,8 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
   stopifnot(weight >= 0, dim %in% 1:3)
   originalDimnames <- dimnames(weight)
 
-  if (is.data.frame(rel)) {
-    rel <- unique(rel[, c(from, to)])
-    map <- stats::setNames(rel[[from]], rel[[to]])
-  } else {
-    map <- vapply(rownames(rel), function(i) {
-      return(colnames(rel)[rel[i, ] == 1])
-    }, character(1))
-  }
+  map <- toolMapFromRel(rel, from, to)
+
   stopifnot(setequal(names(map), getItems(weight, dim)))
 
   # could use add_dimension, but it is much slower
@@ -66,4 +60,16 @@ toolFixWeight <- function(weight, rel, from, to, dim) {
 
   stopifnot(identical(dimnames(weight), originalDimnames))
   return(weight)
+}
+
+toolMapFromRel <- function(rel, from, to) {
+  if (is.data.frame(rel)) {
+    rel <- unique(rel[, c(from, to)])
+    map <- stats::setNames(rel[[from]], rel[[to]])
+  } else {
+    map <- vapply(rownames(rel), function(i) {
+      return(colnames(rel)[rel[i, ] == 1])
+    }, character(1))
+  }
+  return(map)
 }
