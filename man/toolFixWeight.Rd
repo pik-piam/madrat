@@ -4,40 +4,17 @@
 \alias{toolFixWeight}
 \title{toolFixWeight}
 \usage{
-toolFixWeight(weight, rel, from, to, dim)
+toolFixWeight(weight, map, dim)
 }
 \arguments{
 \item{weight}{magclass object containing weights to be used for a weighted
 (dis)aggregation. The provided weight does not need to be normalized, any
 number >= 0 is allowed.}
 
-\item{rel}{relation matrix, mapping or file containing a mapping in a format
-supported by \code{\link{toolGetMapping}} (currently csv, rds or rda).
-A mapping object consists of any number of columns, where one column contains
-all the elements in x. These elements are mapped to the corresponding values
-in another column, as described below (see parameter 'from').
-It is possible to not set \code{rel} as long as \code{to} is set and \code{dim}
-is chosen appropriately. In that case the relation mapping is extracted from
-the dimnames of the corresponding dimension, e.g. if your data contains a
-spatial subdimension "country" you can aggregate to countries via
-\code{toolAggregate(x, to = "country", dim = 1)}.}
+\item{map}{a named character vector where names are fine resolution items
+and values are coarse resolution items. names(map) must match weight items}
 
-\item{from}{Name of source column to be used in rel if it is a
-mapping (if not set the first column matching the data will be used).}
-
-\item{to}{Name of the target column to be used in rel if it is a
-mapping (if not set the column following column \code{from} will be used
-If column \code{from} is the last column, the column before \code{from is
-used}). If data should be aggregated based on more than one column these
-columns can be specified via "+", e.g. "region+global" if the data should
-be aggregated to column regional as well as column global.
-If \code{rel} is missing \code{to} refers to the aggregation target dimension name.}
-
-\item{dim}{Specifying the dimension of the magclass object that should be
-(dis-)aggregated. Either specified as an integer
-(1=spatial,2=temporal,3=data) or if you want to specify a sub dimension
-specified by name of that dimension or position within the given dimension
-(e.g. 3.2 means the 2nd data dimension, 3.8 means the 8th data dimension).}
+\item{dim}{which dim to fix: 1, 2, or 3}
 }
 \value{
 weight, with weights set to 10^-30 only where otherwise the total

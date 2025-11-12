@@ -8,8 +8,9 @@
 #' @param weight magclass object containing weights to be used for a weighted
 #' (dis)aggregation. The provided weight does not need to be normalized, any
 #' number >= 0 is allowed.
-#' @param map a named character vector where names are fine resolution items
-#' and values are coarse resolution items. names(map) must match weight items
+#' @param map a data frame where the first column contains coarse resolution items
+#' and the second column contains fine resolution items; fine resolution items
+#' must match items in weight
 #' @param dim which dim to fix: 1, 2, or 3
 #' @return weight, with weights set to 10^-30 only where otherwise the total
 #' sum of the (dis)aggregated object would be different from the original
@@ -41,17 +42,23 @@
 toolFixWeight <- function(weight, map, dim) {
   stopifnot(weight >= 0,
             dim %in% 1:3,
-            setequal(names(map), getItems(weight, dim)))
+            setequal(map[[2]], getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
 
+  map <- unique(map[, 1:2])
+  map <- stats::setNames(nm = map[[2]], object = map[[1]])
+
+  # add subdim for coarse items according to map
   # could use add_dimension, but it is much slower
   getItems(weight, dim, full = TRUE, raw = TRUE) <- paste0(getItems(weight, dim, full = TRUE),
                                                            ".",
                                                            map[getItems(weight, dim, full = TRUE)])
   names(dimnames(weight))[dim] <- paste0(names(dimnames(weight))[dim], ".placeholder_dimname")
 
+  # determine all coarse items where all values are zero (by checking max == 0)
   # could use magpply's INTEGRATE = TRUE, but that is super slow
   modification <- magpply(weight, max, DIM = dim + 0.1)
+  # for coarse items where all weights are zero set modification to 10^-30, all others need no modification
   modification <- ifelse(modification == 0, 10^-30, 0)
   modification <- setItems(modification[map, dim = dim],
                            dim, names(map))

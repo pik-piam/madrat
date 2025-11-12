@@ -481,12 +481,12 @@ toolExpandRel <- function(rel, names, dim) {
 
 toolMapFromRel <- function(rel, from, to) {
   if (is.data.frame(rel)) {
-    rel <- unique(rel[, c(from, to)])
-    map <- stats::setNames(rel[[from]], rel[[to]])
+    map <- rel[, c(from, to)]
   } else {
     map <- vapply(rownames(rel), function(i) {
       return(colnames(rel)[rel[i, ] == 1])
     }, character(1))
+    map <- data.frame(from = map, to = names(map))
   }
   return(map)
 }
