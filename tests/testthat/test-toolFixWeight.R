@@ -27,3 +27,18 @@ test_that("toolFixWeight works with three dimensional weight", {
   expected["B", c("CC1", "CC2"), "EEE"] <- 0
   expect_identical(fixedWeight, expected)
 })
+
+test_that("toolFixWeight works with subdims", {
+  x <- new.magpie(c("A", "B"), c("X.CC", "X.DD"), c("EEE", "FFF"), fill = 100)
+  rel <- data.frame(from = c("CC", "CC", "CC", "DD", "DD"),
+                    to = c("CC1", "CC2", "CC3", "DD1", "DD2"))
+  weight <- new.magpie(getItems(x, 1), paste0("X.", rel$to), getItems(x, 3), fill = 0)
+  weight["B", "CC3", "EEE"] <- 1
+
+  fixedWeight <- toolFixWeight(weight, rel, dim = 2.2)
+  expected <- weight
+  expected[] <- 10^-30
+  expected["B", "CC3", "EEE"] <- 1
+  expected["B", c("CC1", "CC2"), "EEE"] <- 0
+  expect_identical(fixedWeight, expected)
+})
