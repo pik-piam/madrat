@@ -40,6 +40,20 @@ test_that("toolFixWeight works with subdims", {
   expect_identical(fixedWeight, expected)
 })
 
+test_that("toolFixWeight works with multi subdims map", {
+  map <- data.frame(from = c("X.CC", "X.CC", "X.CC", "X.DD", "X.DD"),
+                    to = c("X.CC1", "X.CC2", "X.CC3", "X.DD1", "X.DD2"))
+  weight <- new.magpie(c("A", "B"), map$to, c("EEE", "FFF"), fill = 0)
+  weight["B", "CC3", "EEE"] <- 1
+
+  fixedWeight <- toolFixWeight(weight, map, dim = 2)
+  expected <- weight
+  expected[] <- 10^-30
+  expected["B", "CC3", "EEE"] <- 1
+  expected["B", c("CC1", "CC2"), "EEE"] <- 0
+  expect_identical(fixedWeight, expected)
+})
+
 test_that("toolFixWeight can handle large objects", {
   skip("to save time skip test whether toolFixWeight can handle large objects")
   to <- Reduce(x = 1:26, init = NULL, f = function(total, i) {
