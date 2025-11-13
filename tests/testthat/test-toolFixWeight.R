@@ -42,3 +42,19 @@ test_that("toolFixWeight works with subdims", {
   expected["B", c("CC1", "CC2"), "EEE"] <- 0
   expect_identical(fixedWeight, expected)
 })
+
+test_that("toolFixWeight can handle large objects", {
+  skip("to save time skip test whether toolFixWeight can handle large objects")
+  to <- Reduce(x = 1:26, init = NULL, f = function(total, i) {
+    return(c(total, paste0(LETTERS[i], seq_len(1000 * i))))
+  })
+
+  map <- data.frame(from = substr(to, 1, 1), to = to)
+
+  weight <- new.magpie(to, fill = 0)
+  idx <- as.integer(runif(20, 1, ncells(weight)))
+  weight[idx, , ] <- runif(length(idx))
+
+  timed <- system.time(toolFixWeight(weight, map, dim = 1))
+  expect_true(timed["elapsed"] < 5)
+})
