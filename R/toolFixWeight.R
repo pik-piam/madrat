@@ -41,28 +41,35 @@
 #' @export
 toolFixWeight <- function(weight, map, dim) {
   stopifnot(weight >= 0,
-            dim %in% 1:3,
             setequal(map[[2]], getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
 
+  if (dim %in% 1:3) {
+    stopifnot(ndim(weight, dim) == 1)
+    dim <- dim + 0.1
+  }
+
   map <- unique(map[, 1:2])
+  stopifnot(!grepl(".", map, fixed = TRUE))
   map <- stats::setNames(nm = map[[2]], object = map[[1]])
 
   # add subdim for coarse items according to map
   # could use add_dimension, but it is much slower
-  getItems(weight, dim, full = TRUE, raw = TRUE) <- paste0(getItems(weight, dim, full = TRUE),
-                                                           ".",
-                                                           map[getItems(weight, dim, full = TRUE)])
-  names(dimnames(weight))[dim] <- paste0(names(dimnames(weight))[dim], ".placeholder_dimname")
+  getItems(weight, floor(dim), full = TRUE, raw = TRUE) <- paste0(getItems(weight, floor(dim), full = TRUE),
+                                                                  ".",
+                                                                  map[getItems(weight, dim, full = TRUE)])
+  names(dimnames(weight))[floor(dim)] <- paste0(names(dimnames(weight))[floor(dim)], ".placeholder_dimname")
 
   # determine all coarse items where all values are zero (by checking max == 0)
   # could use magpply's INTEGRATE = TRUE, but that is super slow
-  modification <- magpply(weight, max, DIM = dim + 0.1)
+  modification <- magpply(weight, max, DIM = dim)
+
   # for coarse items where all weights are zero set modification to 10^-30, all others need no modification
   modification <- ifelse(modification == 0, 10^-30, 0)
-  modification <- setItems(modification[map, dim = dim],
+  modification <- setItems(modification[map, dim = floor(dim)],
                            dim, names(map))
-  weight <- collapseDim(weight, dim + 0.2)
+  weight <- collapseDim(weight, floor(dim) + 0.1 * ndim(weight, floor(dim)))
+  stopifnot(sameDims(modification, weight))
   weight <- weight + modification
 
   stopifnot(identical(dimnames(weight), originalDimnames))
