@@ -44,13 +44,20 @@ toolFixWeight <- function(weight, map, dim) {
             setequal(map[[2]], getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
 
+  extramap <- NULL
+  map <- unique(map[, 1:2])
   if (dim %in% 1:3) {
-    stopifnot(ndim(weight, dim) == 1)
+    if (ndim(weight, dim) == 1) {
+      stopifnot(!grepl(".", map, fixed = TRUE))
+    } else {
+      originalMap2 <- map[[2]]
+      map[[1]] <- sub(".", "p", map[[1]], fixed = TRUE)
+      map[[2]] <- sub(".", "p", map[[2]], fixed = TRUE)
+      extramap <- stats::setNames(nm = map[[2]], originalMap2)
+      getItems(weight, dim, full = TRUE) <- sub(".", "p", getItems(weight, dim, full = TRUE), fixed = TRUE)
+    }
     dim <- dim + 0.1
   }
-
-  map <- unique(map[, 1:2])
-  stopifnot(!grepl(".", map, fixed = TRUE))
   map <- stats::setNames(nm = map[[2]], object = map[[1]])
 
   # add subdim for coarse items according to map
@@ -71,6 +78,11 @@ toolFixWeight <- function(weight, map, dim) {
   weight <- collapseDim(weight, floor(dim) + 0.1 * ndim(weight, floor(dim)))
   stopifnot(sameDims(modification, weight))
   weight <- weight + modification
+
+  if (!is.null(extramap)) {
+    getItems(weight, floor(dim), full = TRUE, raw = TRUE) <- extramap[getItems(weight, floor(dim), full = TRUE)]
+    names(dimnames(weight))[floor(dim)] <- names(originalDimnames)[floor(dim)]
+  }
 
   stopifnot(identical(dimnames(weight), originalDimnames))
   return(weight)
