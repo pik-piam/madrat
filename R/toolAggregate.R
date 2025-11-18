@@ -483,10 +483,10 @@ toolMapFromRel <- function(rel, from, to) {
   if (is.data.frame(rel)) {
     map <- rel[, c(from, to)]
   } else {
-    map <- vapply(rownames(rel), function(i) {
-      return(colnames(rel)[rel[i, ] == 1])
-    }, character(1))
-    map <- data.frame(from = map, to = names(map))
+    map <- do.call(rbind, lapply(colnames(rel), function(i) {
+      return(data.frame(coarse = i, fine = names(which(rel[, i] == 1))))
+    }))
+    colnames(map) <- c(from, to)
   }
   return(map)
 }
