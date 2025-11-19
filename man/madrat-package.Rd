@@ -28,7 +28,7 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Pascal Sauer \email{pascal.sauer@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Pascal Sauer \email{pascal.sauer@pik-potsdam.de} (\href{https://orcid.org/0000-0002-6856-8239}{ORCID}) (Potsdam Institute for Climate Impact Research)
   \item Lavinia Baumstark \email{lavinia@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Stephen Wirth \email{wirth@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
   \item Anastasis Giannousakis \email{giannou@pik-potsdam.de}
