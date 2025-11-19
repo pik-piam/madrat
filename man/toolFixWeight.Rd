@@ -11,8 +11,9 @@ toolFixWeight(weight, map, dim)
 (dis)aggregation. The provided weight does not need to be normalized, any
 number >= 0 is allowed.}
 
-\item{map}{a named character vector where names are fine resolution items
-and values are coarse resolution items. names(map) must match weight items}
+\item{map}{a data frame where the first column contains coarse resolution items
+and the second column contains fine resolution items; fine resolution items
+must match items in weight}
 
 \item{dim}{which dim to fix: 1, 2, or 3}
 }

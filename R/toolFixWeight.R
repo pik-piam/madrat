@@ -50,6 +50,7 @@ toolFixWeight <- function(weight, map, dim) {
     if (ndim(weight, dim) == 1) {
       stopifnot(!grepl(".", map, fixed = TRUE))
     } else {
+      # merge all subdims into one dim, and replace back at the end using extramap
       originalMap2 <- map[[2]]
       map[[1]] <- sub(".", "p", map[[1]], fixed = TRUE)
       map[[2]] <- sub(".", "p", map[[2]], fixed = TRUE)
