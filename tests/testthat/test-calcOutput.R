@@ -287,6 +287,8 @@ test_that("Aggregation works", {
                                                           year = NULL, data = NULL)))
   glo <- new("magpie", .Data = structure(249, .Dim = c(1L, 1L, 1L),
                                          .Dimnames = list(region = "GLO", year = NULL, data = NULL)))
+  pan <- new("magpie", .Data = structure(249, .Dim = c(1L, 1L, 1L),
+                                         .Dimnames = list(region = "PANG", year = NULL, data = NULL)))
 
   country2 <- new("magpie", .Data = structure(rep(8, 249), .Dim = c(249L, 1L, 1L),
                                               .Dimnames = list(country = unname(getISOlist()),
@@ -303,7 +305,6 @@ test_that("Aggregation works", {
   region1 <- new("magpie", .Data = structure(rep(24, 4), .Dim = c(4L, 1L, 1L),
                                              .Dimnames = list(region1 = c("1", "2", "3", "4"),
                                                               year = NULL, data = NULL)))
-
   expect_identical(nc(calcOutput("AggregationTest")), reg)
   expect_identical(nc(calcOutput("AggregationTest2")), clean_magpie(as.magpie(1)))
   expect_identical(nc(calcOutput("AggregationTest3")), reg2)
@@ -319,9 +320,10 @@ test_that("Aggregation works", {
   expect_error(calcOutput("MalformedAggregation"), "must be a function")
   expect_error(calcOutput("MalformedAggregation2"), "must be a list of function arguments")
 
-  xtramap <- file.path(withr::local_tempdir(), "blub.csv")
-  file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), xtramap)
-  localConfig(extramappings = xtramap)
+  # Check whether duplicate columns from extramappings are ignored
+  extraMapFile <- file.path(withr::local_tempdir(), "blub.csv")
+  file.copy(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE), extraMapFile)
+  localConfig(extramappings = extraMapFile)
 
   # use 'local' to have the change of verbosity level only local and let the remainder of the script unaffected
   local({
@@ -332,6 +334,19 @@ test_that("Aggregation works", {
                           "already exist in another mapping\\."))
     expect_identical(a, glo)
   })
+
+  # Check whether columns from extramappings can be used
+  pangeaMapping <- readLines(toolGetMapping(getConfig("regionmapping"), returnPathOnly = TRUE))
+  pangeaMapping <- unlist(lapply(strsplit(pangeaMapping, ";"),
+                                 function(l) paste0(c(l[c(1, 2)], "PANG"), collapse = ";")))
+  pangeaMapping[[1]] <- "X;CountryCode;pangea"
+  writeLines(pangeaMapping, extraMapFile)
+  local({
+    localConfig(extramappings = extraMapFile)
+    expect_identical(nc(calcOutput("AggregationTest", aggregate = "pangea")), pan)
+    expect_identical(nc(calcOutput("AggregationTest", aggregate = "region+global+pangea")), mbind(reg, mbind(glo, pan)))
+  })
+
 })
 
 test_that("1on1 country mappings do not alter the data", {
