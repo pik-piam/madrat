@@ -4,11 +4,14 @@ test_that("toolFixWeight works with one dimensional weight", {
   weight <- new.magpie(map[[2]], fill = 0)
   weight["B1", , ] <- 1
 
-  fixedWeight <- toolFixWeight(weight, map, dim = 1)
   expected <- new.magpie(c("A1", "A2", "B1", "B2"))
   expected[c("A1", "A2"), , ] <- 10^-30
   expected["B1", , ] <- 1
   expected["B2", , ] <- 0
+
+  fixedWeight <- toolFixWeight(weight, map, dim = 1)
+  expect_identical(fixedWeight, expected)
+  fixedWeight <- toolFixWeight(weight, map, dim = "region")
   expect_identical(fixedWeight, expected)
 })
 

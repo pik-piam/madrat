@@ -11,7 +11,7 @@
 #' @param map a data frame where the first column contains coarse resolution items
 #' and the second column contains fine resolution items; fine resolution items
 #' must match items in weight
-#' @param dim which dim to fix: 1, 2, or 3
+#' @param dim which dim to fix (e.g. 1 or 3.2 or "region")
 #' @return weight, with weights set to 10^-30 only where otherwise the total
 #' sum of the (dis)aggregated object would be different from the original
 #'
@@ -40,7 +40,9 @@
 #' @author Pascal Sauer
 #' @export
 toolFixWeight <- function(weight, map, dim) {
-  stopifnot(weight >= 0,
+  dim <- dimCode(dim, weight)
+  stopifnot(length(dim) == 1,
+            weight >= 0,
             setequal(map[[2]], getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
 
@@ -60,6 +62,7 @@ toolFixWeight <- function(weight, map, dim) {
     dim <- dim + 0.1
     stopifnot(dim %in% c(1.1, 2.1, 3.1))
   }
+  stopifnot(dim >= 1, dim < 4)
   mainDim <- floor(dim)
   map <- stats::setNames(nm = map[[2]], object = map[[1]])
 
