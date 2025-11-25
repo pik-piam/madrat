@@ -15,7 +15,7 @@ number >= 0 is allowed.}
 and the second column contains fine resolution items; fine resolution items
 must match items in weight}
 
-\item{dim}{which dim to fix: 1, 2, or 3}
+\item{dim}{which dim to fix (e.g. 1 or 3.2 or "region")}
 }
 \value{
 weight, with weights set to 10^-30 only where otherwise the total
@@ -29,8 +29,8 @@ set only those weights to 10^-30 where otherwise the total sum of the
 }
 \examples{
 x <- new.magpie(c("A", "B"), fill = 100)
-rel <- data.frame(from = c("A", "A", "B", "B"),
-                  to = c("A1", "A2", "B1", "B2"))
+rel <- data.frame(c("A", "A", "B", "B"),
+                  c("A1", "A2", "B1", "B2"))
 weight <- new.magpie(c("A1", "A2", "B1", "B2"), fill = 0)
 weight["B1", , ] <- 1
 
