@@ -1,7 +1,7 @@
 test_that("toolFixWeight works with one dimensional weight", {
-  map <- data.frame(from = c("A", "A", "B", "B"),
-                    to = c("A1", "A2", "B1", "B2"))
-  weight <- new.magpie(map$to, fill = 0)
+  map <- data.frame(c("A", "A", "B", "B"),
+                    c("A1", "A2", "B1", "B2"))
+  weight <- new.magpie(map[[2]], fill = 0)
   weight["B1", , ] <- 1
 
   fixedWeight <- toolFixWeight(weight, map, dim = 1)
@@ -13,9 +13,9 @@ test_that("toolFixWeight works with one dimensional weight", {
 })
 
 test_that("toolFixWeight works with three dimensional weight", {
-  map <- data.frame(from = c("CC", "CC", "CC", "DD", "DD"),
-                    to = c("CC1", "CC2", "CC3", "DD1", "DD2"))
-  weight <- new.magpie(c("A", "B"), map$to, c("EEE", "FFF"), fill = 0)
+  map <- data.frame(c("CC", "CC", "CC", "DD", "DD"),
+                    c("CC1", "CC2", "CC3", "DD1", "DD2"))
+  weight <- new.magpie(c("A", "B"), map[[2]], c("EEE", "FFF"), fill = 0)
   weight["B", "CC3", "EEE"] <- 1
 
   fixedWeight <- toolFixWeight(weight, map, dim = 2)
@@ -27,9 +27,9 @@ test_that("toolFixWeight works with three dimensional weight", {
 })
 
 test_that("toolFixWeight works with subdims", {
-  map <- data.frame(from = c("CC", "CC", "CC", "DD", "DD"),
-                    to = c("CC1", "CC2", "CC3", "DD1", "DD2"))
-  weight <- new.magpie(c("A", "B"), paste0("X.", map$to), c("EEE", "FFF"), fill = 0)
+  map <- data.frame(c("CC", "CC", "CC", "DD", "DD"),
+                    c("CC1", "CC2", "CC3", "DD1", "DD2"))
+  weight <- new.magpie(c("A", "B"), paste0("X.", map[[2]]), c("EEE", "FFF"), fill = 0)
   weight["B", "CC3", "EEE"] <- 1
 
   fixedWeight <- toolFixWeight(weight, map, dim = 2.2)
@@ -41,9 +41,9 @@ test_that("toolFixWeight works with subdims", {
 })
 
 test_that("toolFixWeight works with multi subdims map", {
-  map <- data.frame(from = c("X.CC", "X.CC", "X.CC", "X.DD", "X.DD"),
-                    to = c("X.CC1", "X.CC2", "X.CC3", "X.DD1", "X.DD2"))
-  weight <- new.magpie(c("A", "B"), map$to, c("EEE", "FFF"), fill = 0)
+  map <- data.frame(c("X.CC", "X.CC", "X.CC", "X.DD", "X.DD"),
+                    c("X.CC1", "X.CC2", "X.CC3", "X.DD1", "X.DD2"))
+  weight <- new.magpie(c("A", "B"), map[[2]], c("EEE", "FFF"), fill = 0)
   weight["B", "CC3", "EEE"] <- 1
 
   fixedWeight <- toolFixWeight(weight, map, dim = 2)
@@ -60,7 +60,7 @@ test_that("toolFixWeight can handle large objects", {
     return(c(total, paste0(LETTERS[i], seq_len(1000 * i))))
   })
 
-  map <- data.frame(from = substr(to, 1, 1), to = to)
+  map <- data.frame(substr(to, 1, 1), to)
 
   weight <- new.magpie(to, fill = 0)
   idx <- sample(seq_len(ncells(weight)), 20)

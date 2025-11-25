@@ -239,9 +239,9 @@ test_that("trivial renaming works with weight", {
 
 test_that("zeroWeight = fix works", {
   x <- new.magpie(c("A", "B"), fill = 100)
-  rel <- data.frame(from = c("A", "A", "B", "B"),
-                    to = c("A1", "A2", "B1", "B2"))
-  weight <- new.magpie(rel$to, fill = 0)
+  rel <- data.frame(c("A", "A", "B", "B"),
+                    c("A1", "A2", "B1", "B2"))
+  weight <- new.magpie(rel[[2]], fill = 0)
   weight["B1", , ] <- 1
 
   expect_warning(y <- toolAggregate(x, rel, weight),
