@@ -236,3 +236,26 @@ test_that("trivial renaming works with weight", {
   getItems(weight, 3) <- c("C", "D")
   expect_silent(toolAggregate(pm, mapping, from = "a", to = "b", dim = 3, weight = weight))
 })
+
+test_that("zeroWeight = fix works", {
+  x <- new.magpie(c("A", "B"), fill = 100)
+  rel <- data.frame(c("A", "A", "B", "B"),
+                    c("A1", "A2", "B1", "B2"))
+  weight <- new.magpie(rel[[2]], fill = 0)
+  weight["B1", , ] <- 1
+
+  expect_warning(y <- toolAggregate(x, rel, weight),
+                 "Weight sum is 0")
+  expect_true(sum(x) - sum(y) == 100) # total sum no longer equal, hence the warning
+  expect_true(as.vector(y["B2", , ]) == 0)
+
+  # problematic hotfix
+  expect_silent(y <- toolAggregate(x, rel, weight + 10^-10))
+  expect_equal(sum(x), sum(y)) # total sum is equal
+  expect_true(as.vector(y["B2", , ]) > 0) # this is the problem, should still be 0
+
+  # proper fix
+  expect_silent(y <- toolAggregate(x, rel, weight, zeroWeight = "fix"))
+  expect_equal(sum(x), sum(y)) # total sum is equal
+  expect_true(as.vector(y["B2", , ]) == 0) # and this is also still 0
+})

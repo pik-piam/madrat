@@ -31,10 +31,9 @@
 #' the dimnames of the corresponding dimension, e.g. if your data contains a
 #' spatial subdimension "country" you can aggregate to countries via
 #' \code{toolAggregate(x, to = "country", dim = 1)}.
-#' @param weight magclass object containing weights which should be considered
-#' for a weighted aggregation. The provided weight should only contain positive
-#' values, but does not need to be normalized (any positive number>=0 is allowed).
-#' Please see the "details" section below for more information.
+#' @param weight magclass object containing weights to be used for a weighted
+#' (dis)aggregation. The provided weight does not need to be normalized, any
+#' number >= 0 is allowed. See "details" section below.
 #' @param from Name of source column to be used in rel if it is a
 #' mapping (if not set the first column matching the data will be used).
 #' @param to Name of the target column to be used in rel if it is a
@@ -64,7 +63,8 @@
 #' @param verbosity Verbosity level of messages coming from the function: -1 = error,
 #' 0 = warning, 1 = note, 2 = additional information, >2 = no message
 #' @param zeroWeight Describes how a weight sum of 0 for a category/aggregation target should be treated.
-#' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error.
+#' "allow" accepts it and returns 0 (dangerous), "setNA" returns NA, "warn" throws a warning, "stop" throws an error,
+#' "fix" will set zero weights to 10^-30 only where needed, see \code{\link{toolFixWeight}}.
 #' @return the aggregated data in magclass format
 #'
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
@@ -140,7 +140,7 @@ toolAggregate <- function(x,
     datnames <-  getItems(x, dim)
 
     common <- intersect(datnames, colnames(rel))
-    x <- toolReorderDims(x, common, floor(dim))
+    x <- x[common, dim = floor(dim)]
 
     # datanames not in relnames
     noagg <- datnames[!datnames %in% colnames(rel)]
@@ -212,19 +212,11 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
       stop("Negative numbers in weight. Weight should be positive!")
     }
   }
-  weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
-  if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
-    if (zeroWeight == "warn") {
-      warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
-              "aggregation targets. This changes the total sum of the magpie object! ",
-              'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
-    } else if (zeroWeight == "setNA") {
-      weightSum[weightSum == 0] <- NA
-    } else {
-      stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
-    }
-  }
-  weight2 <- 1 / (weightSum + 10^-100)
+
+  weightAndWeightSum <- toolZeroWeight(weight, rel, from, to, dim, wdim, partrel, zeroWeight)
+  weight <- weightAndWeightSum$weight
+  weight2 <- 1 / (weightAndWeightSum$weightSum + 10^-100)
+
   if (mixedAggregation) {
     weight2[is.na(weight2)] <- 1
     weight[is.na(weight)] <- 1
@@ -240,8 +232,36 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
   } else {
     out <- toolAggregate(x * weight2, rel, from = from, to = to, dim = dim, partrel = partrel) * weight
   }
+
+  if (zeroWeight == "fix" && !isTRUE(all.equal(sum(out), sum(x)))) {
+    warning("total sum is not the same after toolAggregate despite zeroWeight = 'fix', ",
+            "please contact a madrat developer.")
+  }
+
   getComment(out) <- c(xComment, paste0("Data aggregated (toolAggregate): ", date()))
   return(out)
+}
+
+toolZeroWeight <- function(weight, rel, from, to, dim, wdim, partrel, zeroWeight) {
+  weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+  if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
+    if (zeroWeight == "warn") {
+      warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
+              "aggregation targets. This changes the total sum of the magpie object! ",
+              'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
+    } else if (zeroWeight == "setNA") {
+      weightSum[weightSum == 0] <- NA
+    } else if (zeroWeight == "fix") {
+      weight <- toolFixWeight(weight, toolMapFromRel(rel, from, to), dim)
+      weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
+      if (any(weightSum == 0, na.rm = TRUE)) {
+        warning("Critical: toolAggregate zeroWeight = fix did not fix the weight! Please contact a madrat developer.")
+      }
+    } else {
+      stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
+    }
+  }
+  return(list(weight = weight, weightSum = weightSum))
 }
 
 toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
@@ -268,7 +288,7 @@ toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
 
   # reorder MAgPIE object based on column names of relation matrix if available
   if (!is.null(colnames(rel))) {
-    x <- toolReorderDims(x, colnames(rel), dim)
+    x <- x[colnames(rel), dim = dim]
   }
 
   # Aggregate data
@@ -459,12 +479,14 @@ toolExpandRel <- function(rel, names, dim) {
   return(newRel[, names, drop = FALSE])
 }
 
-toolReorderDims <- function(x, e, dim) {
-  if (dim == 1) {
-    return(x[e, , ])
-  } else if (dim == 2) {
-    return(x[, e, ])
-  } else if (dim == 3) {
-    return(x[, , e])
+toolMapFromRel <- function(rel, from, to) {
+  if (is.data.frame(rel)) {
+    map <- rel[, c(from, to)]
+  } else {
+    map <- do.call(rbind, lapply(colnames(rel), function(i) {
+      return(data.frame(coarse = i, fine = names(which(rel[, i] == 1))))
+    }))
+    colnames(map) <- c(from, to)
   }
+  return(map)
 }
