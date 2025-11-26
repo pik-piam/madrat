@@ -347,6 +347,14 @@ test_that("Aggregation works", {
     expect_identical(nc(calcOutput("AggregationTest", aggregate = "region+global+pangea")), mbind(reg, mbind(glo, pan)))
   })
 
+  # Check whether a regionmapping set on the calcOutput call works in combination with
+  # a extramapping set in the config
+  local({
+    localConfig(extramappings = extraMapFile)
+    expect_identical(nc(calcOutput("AggregationTest", regionmapping = "regionmappingH12.csv", aggregate = TRUE)),
+                     reg)
+  })
+
 })
 
 test_that("1on1 country mappings do not alter the data", {
