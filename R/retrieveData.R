@@ -375,6 +375,11 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   return(invisible(NULL))
 }
 
+#' .tarAndVerify
+#' Creates a tgz archive from the current working directory and does basic verification.
+#' @param tgzPath The file path for the resulting archive
+#' @return The return code of the wrapped \code{\link{utils::tar}} call.
+#' @noRd
 .tarAndVerify <- function(tgzPath) {
   returnCode <- suppressWarnings(tar(tgzPath, compression = "gzip"))
   stopifnot("tar packing did not complete successfully" = returnCode == 0)
