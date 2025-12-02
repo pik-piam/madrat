@@ -384,7 +384,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   returnCode <- suppressWarnings(tar(tgzPath, compression = "gzip"))
   stopifnot(`tar packing did not complete successfully` = returnCode == 0)
 
-  fileList <- withCallingHandlers({
+  fileList <- tryCatch({
     untar(tgzPath, list = TRUE)
   }, warning = function(e) {
     stop("tar file appears corrupt, as it cannot be read without warnings: ", e$message)
