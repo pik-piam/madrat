@@ -66,12 +66,9 @@ toolFixWeight <- function(weight, map, dim) {
   mainDim <- floor(dim)
   map <- stats::setNames(nm = map[[2]], object = map[[1]])
 
-  # add subdim for coarse items according to map
-  # could use add_dimension, but it is much slower
-  getItems(weight, mainDim, full = TRUE, raw = TRUE) <- paste0(getItems(weight, mainDim, full = TRUE),
-                                                               ".",
-                                                               map[getItems(weight, dim, full = TRUE)])
-  names(dimnames(weight))[mainDim] <- paste0(names(dimnames(weight))[mainDim], ".placeholder_dimname")
+  # append subdim for coarse items according to map
+  weight <- add_dimension(weight, dim + 0.1, "placeholder_dimname",
+                          map[getItems(weight, dim, full = TRUE)], expand = FALSE)
 
   # determine all coarse items where all values are zero (by checking max == 0)
   # could use magpply's INTEGRATE = TRUE, but that is super slow
