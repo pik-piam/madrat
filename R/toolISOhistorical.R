@@ -122,7 +122,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
     for (a in tr) {
       # check if new regions of transition exists in m
       toISOmissing   <- !all(is.element(a$toISO, getItems(m, dim = 1.1)))
-      if (toISOmissing) stop("there is no data for the following new countrys: ",
+      if (toISOmissing) stop("there is no data for the following new countries: ",
                              paste(a$toISO[which(!is.element(a$toISO, getItems(m, dim = 1.1)))], collapse = ", "))
 
       # create transformation matrix
@@ -136,7 +136,7 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
           weight <- setYears(m[a$toISO, a$toY, ], NULL)
           if (anyNA(weight)) {
             weight[is.na(weight)] <- 0
-            vcat(0, "Weight in toolISOhistorical contained NAs. Set NAs to 0!")
+            warning("Weight in toolISOhistorical contained NAs. Set NAs to 0!")
           }
         } else {
           if (!all(a$toISO %in% getItems(additional_weight, dim = 1))) {

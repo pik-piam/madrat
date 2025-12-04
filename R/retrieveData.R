@@ -191,7 +191,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
             if (length(missingFiles) == 0) {
               # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
               # required madrat cache files
-              suppressWarnings(tar(pucPath, compression = "gzip"))
+              .tarAndVerify(pucPath)
             } else {
               vcat(1, "puc file not created, some cache files are missing:\n",
                    paste(missingFiles, collapse = "\n"))
@@ -213,7 +213,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   toolendmessage(startinfo)
   with_dir(outputfolder, {
     tgzPath <- file.path("..", paste0(cfg$collectionName, ".tgz"))
-    suppressWarnings(tar(tgzPath, compression = "gzip"))
+    .tarAndVerify(tgzPath)
     tgzPath <- normalizePath(tgzPath, mustWork = TRUE)
   })
   unlink(outputfolder, recursive = TRUE)
@@ -373,4 +373,24 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     # in the created renv.lock might not match the version used to run the full functions
   }), collapse = "\n"))
   return(invisible(NULL))
+}
+
+#' .tarAndVerify
+#' Creates a tgz archive from the current working directory and does basic verification.
+#' @param tgzPath The file path for the resulting archive
+#' @return The return code of the wrapped \code{\link{utils::tar}} call.
+#' @noRd
+.tarAndVerify <- function(tgzPath) {
+  returnCode <- suppressWarnings(tar(tgzPath, compression = "gzip"))
+  stopifnot(`tar packing did not complete successfully` = returnCode == 0)
+
+  fileList <- tryCatch({
+    untar(tgzPath, list = TRUE)
+  }, warning = function(e) {
+    stop("tar file appears corrupt, as it cannot be read without warnings: ", e$message)
+  })
+
+  stopifnot(`tar file seems corrupt, as it contains no files.` = length(fileList) > 0)
+
+  return(returnCode)
 }

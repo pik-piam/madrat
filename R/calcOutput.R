@@ -620,12 +620,12 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   # 'regionmapping') also exist in further mappings (provided via 'extramappings') keep only the columns from
   # the first mapping
   if (length(relFitting) > 1) {
-    itemCol <- columnNameWithItems[relFitting]
+    itemCols <- columnNameWithItems[relFitting]
     tmp <- rel[[1]]
     for (i in 2:length(rel)) {
       # merge two mappings by their column that matched the data (see above; usually the ISO countries) and
       # append '--remove' to the names of columns in the second mapping that also exist in the first mapping.
-      tmp <- merge(tmp, rel[[i]], by.x = itemCol[[1]], by.y = itemCol[[i]], suffixes = c("", "--remove"))
+      tmp <- merge(tmp, rel[[i]], by.x = itemCols[[1]], by.y = itemCols[[i]], suffixes = c("", "--remove"))
       # find index of columns that will be removed from the merge result
       ignoredColumnsID <- grep("--remove", colnames(tmp))
       # list names of columns that will be removed
@@ -634,6 +634,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
            " as the column(s) already exist in another mapping.", sep = " ")
       # remove columns from the merge result tagged with '--remove'
       tmp <- tmp[, -ignoredColumnsID]
+      # reorder to ensure that original column order is preserved
+      tmp <- tmp[, c(names(rel[[1]]), setdiff(names(tmp), names(rel[[1]])))]
     }
     rel <- tmp
   }
