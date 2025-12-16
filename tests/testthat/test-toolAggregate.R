@@ -264,22 +264,22 @@ test_that("empty cells in a to column do not result in aggregated data", {
 
   empty <- ""
 
-  ## dim = 1
+  ## dim 1
   localMap <- map
   localMap$TestReg <- c(rep(empty, 7), rep("PRegion", 2), empty)
   expected <- pm["PAO", , ] + pm["PAS", , ]
-  getSets(expected, full = FALSE)[1] <- "i"
+  getSets(expected, fulldim = FALSE)[1] <- "i"
   getItems(expected, 1) <- "PRegion"
   expect_equal(noC(toolAggregate(pm, localMap, to = "TestReg")),
-                noC(expected))
+               noC(expected))
 
   ### via mapping file
   tmpfile <- file.path(withr::local_tempdir(), "map.rds")
   saveRDS(localMap, tmpfile)
   expect_equal(noC(toolAggregate(pm, tmpfile, to = "TestReg")),
-                noC(expected))
+               noC(expected))
 
-  ## dim = 1 and weighted
+  ## dim 1 and weighted
   x <- new.magpie(c("A", "B", "C"), fill = 100)
   x["A"] <- 50
   rel <- data.frame(c("A", "B", "C"),
@@ -287,22 +287,22 @@ test_that("empty cells in a to column do not result in aggregated data", {
   weight <- new.magpie(getItems(x, 1), fill = c(3, 1, 4))
 
   expect_equal(noC(toolAggregate(x, rel, weight)),
-                new.magpie("AGG", fill = 62.5))
+               new.magpie("AGG", fill = 62.5))
 
-  ## dim = 2
+  ## dim 2
   localMap <- data.frame(scenario = c("A2", "B1"))
   localMap$TestCategory <- c(empty, "NewCategory")
 
   expected <- pm[, , "B1"]
   getItems(expected, 3) <- "NewCategory"
   expect_equal(noC(toolAggregate(pm, localMap, dim = 3, to = "TestCategory")),
-                noC(expected))
+               noC(expected))
 
   ### via mapping file
   tmpfile <- file.path(withr::local_tempdir(), "map.rds")
   saveRDS(localMap, tmpfile)
   expect_equal(noC(toolAggregate(pm, tmpfile, dim = 3, to = "TestCategory")),
-                noC(expected))
+               noC(expected))
 
 
   ## subdim
@@ -311,6 +311,6 @@ test_that("empty cells in a to column do not result in aggregated data", {
                     region = c("", "AGG", "", "AGG", ""))
 
   expect_equal(noC(toolAggregate(x, rel)),
-                new.magpie("AGG", fill = 200))
+               new.magpie("AGG", fill = 200))
 
 })
