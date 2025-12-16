@@ -42,9 +42,8 @@
 #' used}). If data should be aggregated based on more than one column these
 #' columns can be specified via "+", e.g. "region+global" if the data should
 #' be aggregated to column regional as well as column global.
-#' In the to column, empty values (NULL or "") will not be included in the
-#' aggregated data (but used as normal aggregation targets, e.g. with regard to
-#' weights).
+#' In the to column, empty values (in the form of "") will not be included in
+#' the aggregated data (but used as normal aggregation targets).
 #' If \code{rel} is missing \code{to} refers to the aggregation target dimension name.
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
@@ -157,7 +156,7 @@ toolAggregate <- function(x,
   if (!is.null(weight)) {
     result <- toolAggregateWeighted(x = x, rel = rel, weight = weight, from = from, to = to, dim = dim,
                                     wdim = wdim, partrel = partrel, negativeWeight = negative_weight,
-                                    mixedAggregation = mixed_aggregation, zeroWeight = zeroWeight, 
+                                    mixedAggregation = mixed_aggregation, zeroWeight = zeroWeight,
                                     xComment = xComment)
   } else {
     result <- toolAggregateUnweighted(x = x, rel = rel, to = to, dim = dim, xComment = xComment)
