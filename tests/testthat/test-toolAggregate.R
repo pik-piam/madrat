@@ -273,6 +273,12 @@ test_that("empty cells in a to column do not result in aggregated data", {
   expect_equal(noC(toolAggregate(pm, localMap, to = "TestReg")),
                noC(expected))
 
+  # toolAggregate throws a note
+  expect_message(
+    toolAggregate(pm, localMap, to = "TestReg"),
+    ".*Aggregation target included \"\"\\. Those items were removed from aggregation result\\."
+  )
+
   ### via mapping file
   tmpfile <- file.path(withr::local_tempdir(), "map.rds")
   saveRDS(localMap, tmpfile)

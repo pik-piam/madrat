@@ -498,6 +498,8 @@ toolMapFromRel <- function(rel, from, to) {
 removeEmptyResultItems <- function(m) {
   emptyValues <- c("NULL", "", NA)
   if (any(emptyValues %in% unlist(getItems(m, split = TRUE)))) {
+    vcat(1, "Aggregation target included \"\". Those items were removed from aggregation result.")
+
     .dimContainsEmptyValue <- function(m, dim) {
       return(any(emptyValues %in% unlist(getItems(m, dim = dim))))
     }
