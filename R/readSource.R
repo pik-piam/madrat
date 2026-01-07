@@ -324,7 +324,10 @@ getDefaultArgument <- function(argument, type, prefix) {
     argument %in% c("subtype", "subset"),
     prefix %in% c("read", "correct", "convert")
   )
-
   functionName <- sub("\\(.*$", "", prepFunctionName(type = type, prefix = prefix))
-  return(formals(eval(parse(text = functionName)))[[argument]])
+  defaultVal <- formals(eval(parse(text = functionName)))[[argument]]
+  if (missing(defaultVal)) {
+    defaultVal <- NULL
+  }
+  return(defaultVal)
 }
