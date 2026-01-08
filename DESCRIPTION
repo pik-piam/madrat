@@ -45,6 +45,7 @@ Depends:
 Imports:
     callr,
     digest,
+    filelock (>= 1.0.3),
     igraph (>= 2.1.1),
     Matrix,
     methods,
