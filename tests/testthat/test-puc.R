@@ -44,7 +44,7 @@ test_that("puc creation is thread-safe", {
   withr::local_dir(getConfig("pucfolder"))
   unlink(list.files(full.names = TRUE)) # To ensure no remaining pucs are in there
   unlink(list.files(lockDir, full.names = TRUE)) # To ensure no remaining locks
-  dir.create(lockDir)
+  dir.create(lockDir, showWarnings = FALSE)
 
   # Set up locks
   firstCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint1.lock"))
