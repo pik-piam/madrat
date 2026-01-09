@@ -110,7 +110,7 @@ test_that("puc creation is thread-safe", {
     madrat::retrieveData("example", rev = 45)
   }, args = list(madratConfig = getConfig()))
 
-  # Wait for p2 to signal that it is ready, i.e. it was at the point where it could execute 
+  # Wait for p2 to signal that it is ready, i.e. it was at the point where it could execute
   # the critical section (there is no guarantee that it tried getting in yet, if this test
   # is flaky, this is one of the critical spots).
   .waitForMessage(p2, "ready")

@@ -95,8 +95,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
       if (length(matchingPUCs) == 1) {
         vcat(-2, " - data will be created from existing puc (", matchingPUCs, ").", fill = 300)
         .withLockedPuc(matchingPUCs, function() {
-          do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)), renv = renv,
-                                       strict = NULL, cfg$input[cfg$pucArguments]))
+          do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)),
+                                  renv = renv, strict = NULL, cfg$input[cfg$pucArguments]))
         })
         return(invisible(paste0(outputfolder, ".tgz")))
       }
