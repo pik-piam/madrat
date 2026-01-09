@@ -412,7 +412,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   # Get the lock
   lockFilePath <- file.path(getConfig("pucfolder"), ".locks", paste0(pucName, ".lock"))
-  lock <- filelock::lock(lockFilePath, timeout = Inf)
+  lock <- filelock::lock(lockFilePath, timeout = 6 * 60 * 60 * 1000) # Wait for 6h
   if (is.null(lock)) {
     # This should really not happen, as the Inf timeout should
     # ensure we always get a lock.
