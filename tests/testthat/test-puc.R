@@ -30,7 +30,6 @@ test_that("puc creation is thread-safe", {
   # to check what happened.
 
   # Store paths
-  madratPkgPath <- pkgload::pkg_path("../..")
   lockDirName <- ".locks"
   lockDir <- file.path(getConfig("pucfolder"), lockDirName)
 
@@ -50,9 +49,9 @@ test_that("puc creation is thread-safe", {
   firstCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint1.lock"))
   secondCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint2.lock"))
 
-  p1 <- callr::r_bg(function(pkgPath, madratConfig) {
+  p1 <- callr::r_bg(function(madratConfig) {
     # Set up environment
-    pkgload::load_all(pkgPath)
+    pkgload::load_all("../..")
     do.call(madrat::setConfig, madratConfig)
     lockDir <- file.path(getConfig("pucfolder"), ".locks")
 
@@ -82,15 +81,15 @@ test_that("puc creation is thread-safe", {
 
     # Start
     madrat::retrieveData("example", rev = 45)
-  }, args = list(pkgPath = madratPkgPath, madratConfig = getConfig()))
+  }, args = list(madratConfig = getConfig()))
 
   # Wait for p1 to signal that it is ready, i.e. it has entered the critical section
   .waitForMessage(p1, "ready")
 
   # This is a copy of testFunction1 except for the call at the end
-  p2 <- callr::r_bg(function(pkgPath, madratConfig) {
+  p2 <- callr::r_bg(function(madratConfig) {
     # Set up environment
-    pkgload::load_all(pkgPath)
+    pkgload::load_all("../..")
     do.call(madrat::setConfig, madratConfig)
 
     # Set up .withLockedPuc wrapper to inject control logic
@@ -109,7 +108,7 @@ test_that("puc creation is thread-safe", {
     # Start
     cat("ready\n")
     madrat::retrieveData("example", rev = 45)
-  }, args = list(pkgPath = madratPkgPath, madratConfig = getConfig()))
+  }, args = list(madratConfig = getConfig()))
 
   # Wait for p2 to signal that it is ready, i.e. it was at the point where it could execute 
   # the critical section (there is no guarantee that it tried getting in yet, if this test
