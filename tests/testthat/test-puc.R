@@ -31,7 +31,8 @@ test_that("puc creation is thread-safe", {
 
   # Store paths
   madratPkgPath <- pkgload::pkg_path("../..")
-  lockDir <- ".locks"
+  lockDirName <- ".locks"
+  lockDir <- file.path(getConfig("pucfolder"), lockDirName)
 
   # Set up utility functions
   .waitForMessage <- function(process, message) {
@@ -41,8 +42,7 @@ test_that("puc creation is thread-safe", {
   }
 
   # Set up PUC-folder as working directory
-  withr::local_dir(getConfig("pucfolder"))
-  unlink(list.files(full.names = TRUE)) # To ensure no remaining pucs are in there
+  unlink(list.files(getConfig("pucfolder"), full.names = TRUE)) # To ensure no remaining pucs are in there
   unlink(list.files(lockDir, full.names = TRUE)) # To ensure no remaining locks
   dir.create(lockDir, showWarnings = FALSE)
 
@@ -54,7 +54,7 @@ test_that("puc creation is thread-safe", {
     # Set up environment
     pkgload::load_all(pkgPath)
     do.call(madrat::setConfig, madratConfig)
-    withr::local_dir(getConfig("pucfolder"))
+    lockDir <- file.path(getConfig("pucfolder"), ".locks")
 
     # Set up .withLockedPuc wrapper to inject control logic
     # into the passed function
@@ -68,10 +68,10 @@ test_that("puc creation is thread-safe", {
 
         tryCatch({
           cat("ready\n")
-          firstCheckpoint <- filelock::lock(file.path(".locks", "checkpoint1.lock"))
+          firstCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint1.lock"))
           fn()
           cat("fn done\n")
-          secondCheckpoint <- filelock::lock(file.path(".locks", "checkpoint2.lock"))
+          secondCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint2.lock"))
         },
         finally = {
           filelock::unlock(firstCheckpoint)
@@ -92,7 +92,6 @@ test_that("puc creation is thread-safe", {
     # Set up environment
     pkgload::load_all(pkgPath)
     do.call(madrat::setConfig, madratConfig)
-    withr::local_dir(getConfig("pucfolder"))
 
     # Set up .withLockedPuc wrapper to inject control logic
     # into the passed function
@@ -103,11 +102,7 @@ test_that("puc creation is thread-safe", {
           # Only interested in creation, so we do a quick return for reading the puc.
           return(fn())
         }
-
-        tryCatch({
-          fn()
-        },
-        finally = {})
+        fn()
       })
     }, ns = "madrat")
 
@@ -129,14 +124,14 @@ test_that("puc creation is thread-safe", {
   Sys.sleep(1) # Give p2 some time to fall asleep (start waiting for the puc lock)
 
   expect_true(p2$get_status() == "sleeping")
-  expect_true(file.exists("rev45_extra_example_tag.puc"))
+  expect_true(file.exists(file.path(getConfig("pucfolder"), "rev45_extra_example_tag.puc")))
   unlink("rev45_extra_example_tag.puc")
 
   filelock::unlock(secondCheckpoint)
   p1$wait()
   p2$wait()
 
-  expect_true(file.exists("rev45_extra_example_tag.puc"))
+  expect_true(file.exists(file.path(getConfig("pucfolder"), "rev45_extra_example_tag.puc")))
 
   expect_false(p1$is_alive())
   expect_false(p2$is_alive())
