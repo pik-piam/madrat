@@ -503,7 +503,7 @@ removeEmptyResultItems <- function(m) {
     .dimContainsEmptyValue <- function(m, dim) {
       return(any(emptyValues %in% unlist(getItems(m, dim = dim))))
     }
-    for(i in 1:3) {
+    for (i in 1:3) {
       if (.dimContainsEmptyValue(m, i)) {
         m <- m[emptyValues, dim = i, invert = TRUE]
       }
