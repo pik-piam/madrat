@@ -24,6 +24,7 @@ test_that("puc creation works", {
 
 test_that("puc creation is thread-safe", {
   skip_on_cran()
+  skip_on_covr() # Does not work in combination with covr
 
   # Tip for debugging this test:
   # If something breaks in one of the sub-processes, use p1$get_result()
