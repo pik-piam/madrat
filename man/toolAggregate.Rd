@@ -26,7 +26,7 @@ toolAggregate(
 supported by \code{\link{toolGetMapping}} (currently csv, rds or rda).
 A mapping object consists of any number of columns, where one column contains
 all the elements in x. These elements are mapped to the corresponding values
-in another column, as described below (see parameter 'from').
+in another column, as described below (see parameters 'from' and 'to').
 It is possible to not set \code{rel} as long as \code{to} is set and \code{dim}
 is chosen appropriately. In that case the relation mapping is extracted from
 the dimnames of the corresponding dimension, e.g. if your data contains a
@@ -46,6 +46,8 @@ If column \code{from} is the last column, the column before \code{from is
 used}). If data should be aggregated based on more than one column these
 columns can be specified via "+", e.g. "region+global" if the data should
 be aggregated to column regional as well as column global.
+In the to column, empty values (in the form of "") will not be included in
+the aggregated data (but used as normal aggregation targets).
 If \code{rel} is missing \code{to} refers to the aggregation target dimension name.}
 
 \item{dim}{Specifying the dimension of the magclass object that should be
