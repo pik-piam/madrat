@@ -259,3 +259,64 @@ test_that("zeroWeight = fix works", {
   expect_equal(sum(x), sum(y)) # total sum is equal
   expect_true(as.vector(y["B2", , ]) == 0) # and this is also still 0
 })
+
+test_that("empty cells in a to column do not result in aggregated data", {
+
+  empty <- ""
+
+  ## dim 1
+  localMap <- map
+  localMap$TestReg <- c(rep(empty, 7), rep("PRegion", 2), empty)
+  expected <- pm["PAO", , ] + pm["PAS", , ]
+  getSets(expected, fulldim = FALSE)[1] <- "i"
+  getItems(expected, 1) <- "PRegion"
+  expect_equal(noC(toolAggregate(pm, localMap, to = "TestReg")),
+               noC(expected))
+
+  # toolAggregate throws a note
+  expect_message(
+    toolAggregate(pm, localMap, to = "TestReg"),
+    ".*Aggregation target included \"\"\\. Those items were removed from aggregation result\\."
+  )
+
+  ### via mapping file
+  tmpfile <- file.path(withr::local_tempdir(), "map.rds")
+  saveRDS(localMap, tmpfile)
+  expect_equal(noC(toolAggregate(pm, tmpfile, to = "TestReg")),
+               noC(expected))
+
+  ## dim 1 and weighted
+  x <- new.magpie(c("A", "B", "C"), fill = 100)
+  x["A"] <- 50
+  rel <- data.frame(c("A", "B", "C"),
+                    c("AGG", "AGG", ""))
+  weight <- new.magpie(getItems(x, 1), fill = c(3, 1, 4))
+
+  expect_equal(noC(toolAggregate(x, rel, weight)),
+               new.magpie("AGG", fill = 62.5))
+
+  ## dim 2
+  localMap <- data.frame(scenario = c("A2", "B1"))
+  localMap$TestCategory <- c(empty, "NewCategory")
+
+  expected <- pm[, , "B1"]
+  getItems(expected, 3) <- "NewCategory"
+  expect_equal(noC(toolAggregate(pm, localMap, dim = 3, to = "TestCategory")),
+               noC(expected))
+
+  ### via mapping file
+  tmpfile <- file.path(withr::local_tempdir(), "map.rds")
+  saveRDS(localMap, tmpfile)
+  expect_equal(noC(toolAggregate(pm, tmpfile, dim = 3, to = "TestCategory")),
+               noC(expected))
+
+
+  ## subdim
+  x <- new.magpie(c("A.SUB1", "A.SUB2", "B.SUB1", "B.SUB2", "C.SUB1"), fill = 100)
+  rel <- data.frame(from = c("A.SUB1", "A.SUB2", "B.SUB1", "B.SUB2", "C.SUB1"),
+                    region = c("", "AGG", "", "AGG", ""))
+
+  expect_equal(noC(toolAggregate(x, rel)),
+               new.magpie("AGG", fill = 200))
+
+})
