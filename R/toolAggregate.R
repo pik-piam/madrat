@@ -161,7 +161,7 @@ toolAggregate <- function(x,
   } else {
     result <- toolAggregateUnweighted(x = x, rel = rel, to = to, dim = dim, xComment = xComment)
   }
-  return(removeEmptyResultItems(result))
+  return(removeEmptyResultItems(result, dim = dim))
 }
 
 toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
@@ -495,19 +495,15 @@ toolMapFromRel <- function(rel, from, to) {
   return(map)
 }
 
-removeEmptyResultItems <- function(m) {
+removeEmptyResultItems <- function(m, dim) {
   emptyValues <- c("NULL", "", NA)
-  if (any(emptyValues %in% unlist(getItems(m)))) {
+  if (any(emptyValues %in% unlist(getItems(m, dim = dim)))) {
     vcat(1, "Aggregation target included \"\". Those items were removed from aggregation result.")
 
-    .dimContainsEmptyValue <- function(m, dim) {
-      return(any(emptyValues %in% unlist(getItems(m, dim = dim))))
+    if (any(emptyValues %in% unlist(getItems(m, dim = dim)))) {
+      m <- m[emptyValues, dim = dim, invert = TRUE]
     }
-    for (i in 1:3) {
-      if (.dimContainsEmptyValue(m, i)) {
-        m <- m[emptyValues, dim = i, invert = TRUE]
-      }
-    }
+
     return(m)
   } else {
     return(m)

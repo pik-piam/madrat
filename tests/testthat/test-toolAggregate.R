@@ -273,7 +273,7 @@ test_that("empty cells in a to column do not result in aggregated data", {
   expect_equal(noC(toolAggregate(pm, localMap, to = "TestReg")),
                noC(expected))
 
-  # toolAggregate throws a note
+  ### toolAggregate throws a note
   expect_message(
     toolAggregate(pm, localMap, to = "TestReg"),
     ".*Aggregation target included \"\"\\. Those items were removed from aggregation result\\."
@@ -310,7 +310,6 @@ test_that("empty cells in a to column do not result in aggregated data", {
   expect_equal(noC(toolAggregate(pm, tmpfile, dim = 3, to = "TestCategory")),
                noC(expected))
 
-
   ## subdim
   x <- new.magpie(c("A.SUB1", "A.SUB2", "B.SUB1", "B.SUB2", "C.SUB1"), fill = 100)
   rel <- data.frame(from = c("A.SUB1", "A.SUB2", "B.SUB1", "B.SUB2", "C.SUB1"),
@@ -318,5 +317,14 @@ test_that("empty cells in a to column do not result in aggregated data", {
 
   expect_equal(noC(toolAggregate(x, rel)),
                new.magpie("AGG", fill = 200))
+
+  ## Existing empty string items in non-aggregated dimensions
+  ## are not affected.
+  x <- new.magpie(c("A", "B", "C"), "", fill = 100)
+  rel <- data.frame(c("A", "B", "C"),
+                    c("AGG", "AGG", ""))
+
+  expect_equal(noC(toolAggregate(x, rel)),
+               new.magpie("AGG", "", fill = 200))
 
 })
