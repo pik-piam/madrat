@@ -161,7 +161,7 @@ toolAggregate <- function(x,
   } else {
     result <- toolAggregateUnweighted(x = x, rel = rel, to = to, dim = dim, xComment = xComment)
   }
-  return(removeEmptyResultItems(result, dim = dim))
+  return(result)
 }
 
 toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
@@ -496,6 +496,7 @@ toolMapFromRel <- function(rel, from, to) {
 }
 
 removeEmptyResultItems <- function(m, dim) {
+  dim <- floor(dim)
   if (any("" %in% unlist(getItems(m, dim = dim)))) {
     vcat(1, "Aggregation target included \"\". Those items were removed from aggregation result.")
 

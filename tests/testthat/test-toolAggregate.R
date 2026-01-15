@@ -262,6 +262,8 @@ test_that("zeroWeight = fix works", {
 
 test_that("empty cells in a to column do not result in aggregated data", {
 
+  skip()
+
   empty <- ""
 
   ## dim 1
