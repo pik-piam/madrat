@@ -161,7 +161,7 @@ toolAggregate <- function(x,
   } else {
     result <- toolAggregateUnweighted(x = x, rel = rel, to = to, dim = dim, xComment = xComment)
   }
-  return(result)
+  return(removeEmptyResultItems(result, dim = dim))
 }
 
 toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
