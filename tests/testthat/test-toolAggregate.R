@@ -336,4 +336,12 @@ test_that("empty cells in a to column do not result in aggregated data", {
   expect_equal(noC(toolAggregate(x, rel)),
                new.magpie(c("AGG", "NULL"), "", fill = 100))
 
+  ## Explicitly passed subdim works
+  x <- new.magpie(c("X.A", "X.B", "X.C"), "", fill = 100)
+  rel <- data.frame(c("A", "B", "C"),
+                    c("AGG", "AGG", ""))
+
+  expect_equal(noC(toolAggregate(x, rel, dim = 1.2, partrel = TRUE)),
+               new.magpie(c("X.AGG", "X."), "", fill = c(200, 100)))
+
 })
