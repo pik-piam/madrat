@@ -327,4 +327,13 @@ test_that("empty cells in a to column do not result in aggregated data", {
   expect_equal(noC(toolAggregate(x, rel)),
                new.magpie("AGG", "", fill = 200))
 
+  ## Other representations of empty values
+  ## should not be removed
+  x <- new.magpie(c("A", "B", "C"), "", fill = 100)
+  rel <- data.frame(c("A", "B", "C"),
+                    c("AGG", "", "NULL"))
+
+  expect_equal(noC(toolAggregate(x, rel)),
+               new.magpie(c("AGG", "NULL"), "", fill = 100))
+
 })
