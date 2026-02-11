@@ -104,6 +104,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
     stop("Argument 'subtype' was given, but is not used by ",
          paste0(prefixes, type, collapse = " / "))
   }
+
   if (!is.null(subset) && !argumentAccepted("subset", type, prefixes)) {
     stop("Argument 'subset' was given, but is not used by ",
          paste0(prefixes, type, collapse = " / "))
@@ -226,10 +227,23 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   }
 
   if (is.null(subtype)) {
-    functionCall <- prepFunctionName(type = type, prefix = prefix)
-    functionName <- sub("\\(.*$", "", functionCall)
+
     # get default subtype argument if available, otherwise NULL
-    subtype <- formals(eval(parse(text = functionName)))[["subtype"]]
+    subtype <- getDefaultArgument(argument = "subtype", type = type, prefix = prefix)
+
+    # check if the default subtypes of the read and convert function
+    # contradict each other and throw a warning
+    if (type %in% getSources(type = "read") && type %in% getSources(type = "convert")) {
+      readDefault <- getDefaultArgument(argument = "subtype", type = type, prefix = "read")
+      convertDefault <- getDefaultArgument(argument = "subtype", type = type, prefix = "convert")
+      if (!is.null(readDefault) && !is.null(convertDefault) && readDefault != convertDefault) {
+        warning(
+          "The default values for subtype argument of ", type,
+          " function differ for 'read' and 'convert' function. Using subtype = ",
+          subtype
+        )
+      }
+    }
   }
 
   args <- NULL
@@ -303,4 +317,17 @@ argumentAccepted <- function(argument, type, prefixes) {
   }
 
   return(FALSE)
+}
+
+getDefaultArgument <- function(argument, type, prefix) {
+  stopifnot(
+    argument %in% c("subtype", "subset"),
+    prefix %in% c("read", "correct", "convert")
+  )
+  functionName <- sub("\\(.*$", "", prepFunctionName(type = type, prefix = prefix))
+  defaultVal <- formals(eval(parse(text = functionName)))[[argument]]
+  if (missing(defaultVal)) {
+    defaultVal <- NULL
+  }
+  return(defaultVal)
 }

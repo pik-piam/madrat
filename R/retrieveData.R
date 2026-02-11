@@ -94,8 +94,10 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
       if (length(matchingPUCs) == 1) {
         vcat(-2, " - data will be created from existing puc (", matchingPUCs, ").", fill = 300)
-        do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)), renv = renv,
-                                strict = NULL, cfg$input[cfg$pucArguments]))
+        .withLockedPuc(matchingPUCs, function() {
+          do.call(pucAggregate, c(list(puc = file.path(getConfig("pucfolder"), matchingPUCs)),
+                                  renv = renv, strict = NULL, cfg$input[cfg$pucArguments]))
+        })
         return(invisible(paste0(outputfolder, ".tgz")))
       }
     }
@@ -176,31 +178,33 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
       }
       pucName <- paste0(cfg$pucName, ".puc")
       pucPath <- file.path(getConfig("pucfolder"), pucName)
-      if (!file.exists(pucPath)) {
-        cacheFiles <- readLines(pucFiles)
-        if (all(file.exists(cacheFiles))) {
-          vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
-          with_tempdir({
-            file.copy(cacheFiles, ".")
-            otherFiles <- c("config.rds", "diagnostics.log")
-            file.copy(file.path(outputfolder, otherFiles), ".")
+      .withLockedPuc(pucName, function() {
+        if (!file.exists(pucPath)) {
+          cacheFiles <- readLines(pucFiles)
+          if (all(file.exists(cacheFiles))) {
+            vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
+            with_tempdir({
+              file.copy(cacheFiles, ".")
+              otherFiles <- c("config.rds", "diagnostics.log")
+              file.copy(file.path(outputfolder, otherFiles), ".")
 
-            .fillRenvCache(requiredPackages = attr(cfg$functionName, "package"))
+              .fillRenvCache(requiredPackages = attr(cfg$functionName, "package"))
 
-            missingFiles <- basename(cacheFiles)[!file.exists(basename(cacheFiles))]
-            if (length(missingFiles) == 0) {
-              # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
-              # required madrat cache files
-              .tarAndVerify(pucPath)
-            } else {
-              vcat(1, "puc file not created, some cache files are missing:\n",
-                   paste(missingFiles, collapse = "\n"))
-            }
-          }, tmpdir = madTempDir())
-        } else {
-          vcat(1, "puc file not created: could not find all relevant files.")
+              missingFiles <- basename(cacheFiles)[!file.exists(basename(cacheFiles))]
+              if (length(missingFiles) == 0) {
+                # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
+                # required madrat cache files
+                .tarAndVerify(pucPath)
+              } else {
+                vcat(1, "puc file not created, some cache files are missing:\n",
+                     paste(missingFiles, collapse = "\n"))
+              }
+            }, tmpdir = madTempDir())
+          } else {
+            vcat(1, "puc file not created: could not find all relevant files.")
+          }
         }
-      }
+      })
     } else {
       vcat(1, "puc file not created: could not find list of files to be added.")
     }
@@ -393,4 +397,33 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   stopifnot(`tar file seems corrupt, as it contains no files.` = length(fileList) > 0)
 
   return(returnCode)
+}
+
+.withLockedPuc <- function(pucName, fn) {
+  # This could be improved by using separate locks for read and
+  # write access to not block simultaneous reads. This would
+  # however significantly increase the complexity of this mechanism.
+
+  # Ensure .locks folder exists
+  lockFileFolder <- file.path(getConfig("pucfolder"), ".locks")
+  if (!dir.exists(lockFileFolder)) {
+    dir.create(lockFileFolder)
+  }
+
+  # Get the lock
+  lockFilePath <- file.path(getConfig("pucfolder"), ".locks", paste0(pucName, ".lock"))
+  lock <- filelock::lock(lockFilePath, timeout = 6 * 60 * 60 * 1000) # Wait for 6h
+  if (is.null(lock)) {
+    # This should really not happen, as the Inf timeout should
+    # ensure we always get a lock.
+    stop("Failed to acquire lock for puc file ", lockFilePath)
+  }
+
+  # Execute the fn with the lock
+  tryCatch({
+    return(fn())
+  },
+  finally = {
+    filelock::unlock(lock)
+  })
 }
