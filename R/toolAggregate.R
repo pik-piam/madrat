@@ -25,7 +25,7 @@
 #' supported by \code{\link{toolGetMapping}} (currently csv, rds or rda).
 #' A mapping object consists of any number of columns, where one column contains
 #' all the elements in x. These elements are mapped to the corresponding values
-#' in another column, as described below (see parameter 'from').
+#' in another column, as described below (see parameters 'from' and 'to').
 #' It is possible to not set \code{rel} as long as \code{to} is set and \code{dim}
 #' is chosen appropriately. In that case the relation mapping is extracted from
 #' the dimnames of the corresponding dimension, e.g. if your data contains a
@@ -42,6 +42,8 @@
 #' used}). If data should be aggregated based on more than one column these
 #' columns can be specified via "+", e.g. "region+global" if the data should
 #' be aggregated to column regional as well as column global.
+#' In the to column, empty values (in the form of "") will not be included in
+#' the aggregated data (but used as normal aggregation targets).
 #' If \code{rel} is missing \code{to} refers to the aggregation target dimension name.
 #' @param dim Specifying the dimension of the magclass object that should be
 #' (dis-)aggregated. Either specified as an integer
@@ -152,12 +154,14 @@ toolAggregate <- function(x,
   }
 
   if (!is.null(weight)) {
-    return(toolAggregateWeighted(x = x, rel = rel, weight = weight, from = from, to = to, dim = dim,
-                                 wdim = wdim, partrel = partrel, negativeWeight = negative_weight,
-                                 mixedAggregation = mixed_aggregation, zeroWeight = zeroWeight, xComment = xComment))
+    result <- toolAggregateWeighted(x = x, rel = rel, weight = weight, from = from, to = to, dim = dim,
+                                    wdim = wdim, partrel = partrel, negativeWeight = negative_weight,
+                                    mixedAggregation = mixed_aggregation, zeroWeight = zeroWeight,
+                                    xComment = xComment)
   } else {
-    return(toolAggregateUnweighted(x = x, rel = rel, to = to, dim = dim, xComment = xComment))
+    result <- toolAggregateUnweighted(x = x, rel = rel, to = to, dim = dim, xComment = xComment)
   }
+  return(removeEmptyResultItems(result, dim = dim))
 }
 
 toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
@@ -418,10 +422,10 @@ toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, 
     }
   }
 
-  regions <- as.character(unique(rel[, to]))
-  countries <- as.character(unique(rel[, from]))
-  m <- Matrix::Matrix(data = 0, nrow = length(regions), ncol = length(countries),
-                      dimnames = list(regions = regions, countries = countries))
+  toItems <- as.character(unique(rel[, to]))
+  fromItems <- as.character(unique(rel[, from]))
+  m <- Matrix::Matrix(data = 0, nrow = length(toItems), ncol = length(fromItems),
+                      dimnames = list(toItems = toItems, fromItems = fromItems))
   m[cbind(match(rel[, to], rownames(m)), match(rel[, from], colnames(m)))] <- 1
   if (is.numeric(to)) {
     to <- dimnames(rel)[[2]][to]
@@ -489,4 +493,19 @@ toolMapFromRel <- function(rel, from, to) {
     colnames(map) <- c(from, to)
   }
   return(map)
+}
+
+removeEmptyResultItems <- function(m, dim) {
+  dim <- floor(dim)
+  if (any("" %in% unlist(getItems(m, dim = dim)))) {
+    vcat(1, "Aggregation target included \"\". Those items were removed from aggregation result.")
+
+    if (any("" %in% unlist(getItems(m, dim = dim)))) {
+      m <- m["", dim = dim, invert = TRUE]
+    }
+
+    return(m)
+  } else {
+    return(m)
+  }
 }

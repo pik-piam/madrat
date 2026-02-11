@@ -247,3 +247,46 @@ test_that("read with subtype, download without", {
   globalassign("convertTest")
   expect_no_error(readSource("Test", subset = 3))
 })
+
+test_that("read function throws warning for contradicting default subtypes", {
+
+  localConfig(mainfolder = withr::local_tempdir())
+  dir.create(file.path(getConfig("sourcefolder"), "Test"), recursive = TRUE)
+
+  readTest <- function(subtype = "a") {
+    return(as.magpie(1))
+  }
+
+  convertTest <- function(x, subtype = "b") {
+    return(new.magpie(getISOlist(), fill = 1))
+  }
+
+  globalassign("readTest")
+  globalassign("convertTest")
+
+  # warning is thrown when no subtype is passed and read and convert have
+  # contradicting subtypes
+  expect_warning(
+    readSource("Test", convert = FALSE),
+    paste(
+      "The default values for subtype argument of Test function differ for 'read' and",
+      "'convert' function. Using subtype = a"
+    ),
+    fixed = TRUE
+  )
+  expect_warning(
+    readSource("Test", convert = TRUE),
+    paste(
+      "The default values for subtype argument of Test function differ for 'read' and",
+      "'convert' function. Using subtype = b"
+    ),
+    fixed = TRUE
+  )
+
+  # warning is not thrown when subtype is passed
+  expect_no_warning(readSource("Test", convert = FALSE, subtype = "a"))
+  expect_no_warning(readSource("Test", convert = FALSE, subtype = "b"))
+
+  unlink(file.path(getConfig("sourcefolder"), "Test"), recursive = TRUE)
+
+})
