@@ -112,3 +112,23 @@ test_that("strict mode works", {
   expect_warning(retrieveData("WarnTest", strict = TRUE, cachetype = "def"), "puc file not written")
   expect_true(file.exists(file.path(getConfig("outputfolder"), "WARNINGS1_rev0_h12_warntest.tgz")))
 })
+
+test_that("mapping file permissions are not copied", {
+  # scenario: a madrat package is installed write protected (e.g. renv cache)
+  # mapping files are copied from package installation into tgz, where they should not be write protected
+
+  withr::local_dir(withr::local_tempdir())
+  localConfig(outputfolder = ".")
+
+  fullTEST <- function() NULL
+
+  globalassign("fullTEST")
+
+  map <- toolGetMapping("testmapping.csv", where = "madrat", returnPathOnly = TRUE)
+  expect_identical(as.character(file.mode(map)), "444") # no write permission
+
+  retrieveData("TEST", regionmapping = "testmapping.csv", puc = FALSE)
+  untar("rev0_428bb2e6_test.tgz")
+
+  expect_identical(as.character(file.mode("testmapping.csv")), "664") # has write permission
+})
