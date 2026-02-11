@@ -125,10 +125,10 @@ test_that("mapping file permissions are not copied", {
   globalassign("fullTEST")
 
   map <- toolGetMapping("testmapping.csv", where = "madrat", returnPathOnly = TRUE)
-  expect_identical(as.character(file.mode(map)), "444") # no write permission
+  expect_identical(unname(file.access(map, 2)), -1L) # no write permission
 
   retrieveData("TEST", regionmapping = "testmapping.csv", puc = FALSE)
   untar("rev0_428bb2e6_test.tgz")
 
-  expect_identical(as.character(file.mode("testmapping.csv")), "664") # has write permission
+  expect_identical(unname(file.access("testmapping.csv", 2)), 0L) # has write permission
 })
