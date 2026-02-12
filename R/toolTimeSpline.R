@@ -3,7 +3,8 @@
 #' Smooths a magclass time series using spline approximation with the given degrees
 #' of freedom. Optionally, specific years can be "pegged" (anchored) to stay close
 #' to their original values during smoothing. Anchoring is enforced by applying
-#' high weights to those years.
+#' high weights to those years. If a higher time resolution is desired,
+#' the fitted spline can be evaluated at additional target years.
 #'
 #' @param x A magclass object.
 #' @param dof Degrees-of-freedom per 100 years (higher -> more degrees of freedom,
@@ -19,7 +20,7 @@
 #' @return A magclass object with each time series spline-smoothed.
 #'   If targetYears is not specified (NULL), the time dimension is unchanged. If targetYears is
 #'   given, the time dimension covers the sorted union of the original and target years.
-#' @author Kristine Karstens, Felicitas Beier, Michael Crawford
+#' @author Kristine Karstens, Felicitas Beier, Michael Crawford, Bennet Weiss
 #' @importFrom stats smooth.spline
 #' @export
 
@@ -28,7 +29,6 @@ toolTimeSpline <- function(x,
                            peggedYears = NULL,
                            anchorFactor = 10,
                            targetYears = NULL) {
-
   ## 1) Input checks
   if (!is.magpie(x)) {
     stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
@@ -88,7 +88,7 @@ toolTimeSpline <- function(x,
       df           = df,
       control.spar = list(high = 2)
     )
-    if (is.null(targetYears)) fit$y else predict(fit, x = outputYears)$y
+    if (is.null(targetYears)) fit$y else stats::predict(fit, x = outputYears)$y
   }
 
   ## 5) Apply over time-series (dim 2 inner)
