@@ -109,6 +109,50 @@ test_that("toolTimeSpline with peggedYears works as expected", {
   expect_equal(resultArr[, anchorIdx, ], originalArr[, anchorIdx, ], tolerance = 0.05)
 })
 
+test_that("toolTimeSpline with targetYears works as expected", {
+  p <- magclass::maxample("pop")[1:2, 1:6, 1]
+  attr(p, "Metadata") <- NULL
+
+  ncr <- function(x) {
+    getComment(x) <- NULL
+    return(round(x, 1))
+  }
+
+  # without targetYears as baseline
+  baseline <- ncr(toolTimeSpline(p, dof = 5))
+
+  # with targetYears that include only the original years -> same result
+  origYears <- getYears(p, as.integer = TRUE)
+  sameResult <- ncr(toolTimeSpline(p, dof = 5, targetYears = origYears))
+  expect_identical(as.array(sameResult), as.array(baseline))
+
+  # with targetYears adding intermediate years
+  extraYears <- c(2000, 2010, 2020, 2030, 2040)
+  result <- toolTimeSpline(p, dof = 5, targetYears = extraYears)
+  resultYears <- getYears(result, as.integer = TRUE)
+
+  # output should contain all original AND extra years
+  expect_true(all(origYears %in% resultYears))
+  expect_true(all(extraYears %in% resultYears))
+  expect_equal(resultYears, sort(union(origYears, extraYears)))
+
+  # values at original years should match the baseline (without targetYears)
+  origIdx <- getYears(result) %in% getYears(p)
+  expect_equal(as.array(ncr(result[, origIdx, ])), as.array(baseline), tolerance = 0.01)
+
+  # interpolated years should have reasonable values (between min and max of data)
+  expect_true(all(result >= 0))
+  expect_true(all(result <= max(p) * 1.5))
+
+  # also works with "yYYYY" format for targetYears
+  resultY <- toolTimeSpline(p, dof = 5, targetYears = c("y2000", "y2010"))
+  expect_true(all(c(2000, 2010) %in% getYears(resultY, as.integer = TRUE)))
+
+  # spatial and data dimensions are preserved
+  expect_identical(getItems(result, dim = 1), getItems(p, dim = 1))
+  expect_identical(getItems(result, dim = 3), getItems(p, dim = 3))
+})
+
 test_that("toolConvertMapping works as expected", {
   localConfig(mappingfolder = withr::local_tempdir(), .verbose = FALSE)
   file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))

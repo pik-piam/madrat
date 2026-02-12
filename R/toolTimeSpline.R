@@ -12,8 +12,13 @@
 #'   anchor during smoothing; NULL for none (default).
 #' @param anchorFactor Numeric multiplier for anchor weights (default 10);
 #'   larger values more strongly enforce pegging.
+#' @param targetYears Integer vector of additional years at which the fitted spline
+#'   should be evaluated, enabling higher time resolution (default NULL, i.e. output
+#'   years equal input years). Output years are the sorted union of input and target years.
 #'
-#' @return A magclass object of the same shape, with each time series spline-smoothed.
+#' @return A magclass object with each time series spline-smoothed.
+#'   If targetYears is not specified (NULL), the time dimension is unchanged. If targetYears is
+#'   given, the time dimension covers the sorted union of the original and target years.
 #' @author Kristine Karstens, Felicitas Beier, Michael Crawford
 #' @importFrom stats smooth.spline
 #' @export
@@ -21,7 +26,8 @@
 toolTimeSpline <- function(x,
                            dof = 5,
                            peggedYears = NULL,
-                           anchorFactor = 10) {
+                           anchorFactor = 10,
+                           targetYears = NULL) {
 
   ## 1) Input checks
   if (!is.magpie(x)) {
@@ -47,6 +53,14 @@ toolTimeSpline <- function(x,
   }
   dfValue <- timespan * dof / 100
 
+  ## 2b) Determine output years
+  if (!is.null(targetYears)) {
+    targetYears <- as.integer(sub("^y", "", as.character(targetYears), ignore.case = TRUE))
+    outputYears <- sort(union(years, targetYears))
+  } else {
+    outputYears <- years
+  }
+
   ## 3) Build weight vector
   if (is.null(peggedYears)) {
     # no anchors
@@ -65,7 +79,7 @@ toolTimeSpline <- function(x,
     wts[years %in% peggedYearsAll] <- nyr * anchorFactor
   }
 
-  ## 4) Per-series spline (uses fit$y so no predict() call)
+  ## 4) Per-series spline
   tmpspline <- function(ts, df) {
     fit <- stats::smooth.spline(
       x            = years,
@@ -74,7 +88,7 @@ toolTimeSpline <- function(x,
       df           = df,
       control.spar = list(high = 2)
     )
-    fit$y
+    if (is.null(targetYears)) fit$y else predict(fit, x = outputYears)$y
   }
 
   ## 5) Apply over time-series (dim 2 inner)
@@ -82,7 +96,7 @@ toolTimeSpline <- function(x,
   arrOut <- apply(arrIn, c(1, 3), tmpspline, df = dfValue)
 
   ## 6) Reconstruct magpie object
-  dimnames(arrOut)[[1]] <- getYears(x)
+  dimnames(arrOut)[[1]] <- paste0("y", outputYears)
   names(dimnames(arrOut))[1] <- getSets(x, fulldim = FALSE)[2]
   out <- as.magpie(arrOut, spatial = 2, temporal = 1)
 
