@@ -447,6 +447,10 @@ toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, 
 #' original data, and to-items that only contain sub-items that also occur in
 #' the from-items, so an aggregated item should only contain sub-items that
 #' were also present in all from-items it was aggregated from.
+#' @param rel The aggregation matrix with subdim items
+#' @param x The data to be aggregated already sub-set in case of a partial relation
+#' @param dim The (sub-)dim to be aggregated
+#' @return An expanded aggregation matrix
 toolExpandRel <- function(rel, x, dim) {
   names <- getItems(x, round(floor(dim)))
 
