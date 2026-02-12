@@ -451,15 +451,14 @@ toolExpandRel <- function(rel, x, dim) {
 
   subdim <- round((dim - floor(dim)) * 10)
   fullItems <- strsplit(getItems(x, floor(dim)), ".", fixed = TRUE)
-  onlynames <- getItems(x, dim)
+  onlyNames <- getItems(x, dim)
 
-  if (!setequal(colnames(rel), onlynames)) {
-    if (!setequal(rownames(rel), onlynames)) {
+  if (!setequal(colnames(rel), onlyNames)) {
+    if (!setequal(rownames(rel), onlyNames)) {
       stop("The provided mapping contains entries which could not be found in the data: ",
-           paste(setdiff(colnames(rel), onlynames), collapse = ", "))
-    } else  {
-      rel <- Matrix::t(rel)
+           paste(setdiff(colnames(rel), onlyNames), collapse = ", "))
     }
+    rel <- Matrix::t(rel)
   }
 
   # Build mapping from subdimension values to their aggregated values
@@ -469,6 +468,7 @@ toolExpandRel <- function(rel, x, dim) {
   })
   names(subdimToList) <- subdimFrom
 
+  # Generate all valid target items
   toItems <- unique(unlist(lapply(fullItems, function(fullItem) {
     toNames <- subdimToList[[fullItem[subdim]]]
     lapply(toNames, function(toName) {
@@ -480,8 +480,7 @@ toolExpandRel <- function(rel, x, dim) {
   # Order toItems to preserve the order of rownames in rel
   # Extract the subdimension part from toItems and order by their position in rownames(rel)
   toItemsSubdim <- lapply(strsplit(toItems, ".", fixed = TRUE), function(x) x[subdim])
-  toItemsOrder <- order(match(toItemsSubdim, rownames(rel)))
-  toItems <- toItems[toItemsOrder]
+  toItems <- toItems[order(match(toItemsSubdim, rownames(rel)))]
 
   #
   # Actual Expansion to all possible items
@@ -490,7 +489,7 @@ toolExpandRel <- function(rel, x, dim) {
     fullItem[subdim] <- ""
     fullItem
   }))
-  .tmp <- function(fill) {
+  .expandTemplates <- function(fill) {
     unlist(lapply(templates, function(template) {
       lapply(fill, function(item) {
         template[subdim] <- item
@@ -498,8 +497,8 @@ toolExpandRel <- function(rel, x, dim) {
       })
     }))
   }
-  cnames <- .tmp(colnames(rel))
-  rnames <- .tmp(rownames(rel))
+  cnames <- .expandTemplates(colnames(rel))
+  rnames <- .expandTemplates(rownames(rel))
 
   newRel <- Matrix::Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
 
