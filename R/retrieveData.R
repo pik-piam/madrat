@@ -328,12 +328,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     # copy mapping to mapping folder
     if (!file.exists(mappath[i])) {
       dir.create(dirname(mappath[i]), recursive = TRUE, showWarnings = !dir.exists(dirname(mappath[i])))
-      file.copy(regionmapping[i], mappath[i])
+      file.copy(regionmapping[i], mappath[i], copy.mode = FALSE)
     }
 
     # copy mapping to output folder
     tryCatch({
-      file.copy(regionmapping[i], outputfolder, overwrite = TRUE)
+      file.copy(regionmapping[i], outputfolder, overwrite = TRUE, copy.mode = FALSE)
     },
     error = function(error) {
       warning("Copying regionmapping to output folder failed: ", error)
