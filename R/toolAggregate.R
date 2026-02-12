@@ -547,4 +547,3 @@ removeEmptyResultItems <- function(m, dim) {
     return(m)
   }
 }
- 
