@@ -3,7 +3,8 @@
 #' Smooths a magclass time series using spline approximation with the given degrees
 #' of freedom. Optionally, specific years can be "pegged" (anchored) to stay close
 #' to their original values during smoothing. Anchoring is enforced by applying
-#' high weights to those years.
+#' high weights to those years. If a higher time resolution is desired,
+#' the fitted spline can be evaluated at additional target years.
 #'
 #' @param x A magclass object.
 #' @param dof Degrees-of-freedom per 100 years (higher -> more degrees of freedom,
@@ -12,23 +13,32 @@
 #'   anchor during smoothing; NULL for none (default).
 #' @param anchorFactor Numeric multiplier for anchor weights (default 10);
 #'   larger values more strongly enforce pegging.
+#' @param targetYears Integer vector of additional years at which the fitted spline
+#'   should be evaluated, enabling higher time resolution (default NULL, i.e. output
+#'   years equal input years). Output years are the sorted union of input and target years.
+#' @param fillNA Logical. If TRUE, NA values are excluded from the spline fit and
+#'   then filled by predicting at those positions (default FALSE).
+#'   Otherwise, an error is thrown if NA values are present in the input.
 #'
-#' @return A magclass object of the same shape, with each time series spline-smoothed.
-#' @author Kristine Karstens, Felicitas Beier, Michael Crawford
+#' @return A magclass object with each time series spline-smoothed.
+#'   If targetYears is not specified (NULL), the time dimension is unchanged. If targetYears is
+#'   given, the time dimension covers the sorted union of the original and target years.
+#' @author Kristine Karstens, Felicitas Beier, Michael Crawford, Bennet Weiss
 #' @importFrom stats smooth.spline
 #' @export
 
 toolTimeSpline <- function(x,
                            dof = 5,
                            peggedYears = NULL,
-                           anchorFactor = 10) {
-
+                           anchorFactor = 10,
+                           targetYears = NULL,
+                           fillNA = FALSE) {
   ## 1) Input checks
   if (!is.magpie(x)) {
     stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   }
 
-  negative <- any(x < 0)
+  negative <- any(x < 0, na.rm = fillNA)
 
   ## 2) Time axis & df calculation
   years <- getYears(x, as.integer = TRUE)
@@ -46,6 +56,14 @@ toolTimeSpline <- function(x,
     warning("High dof vs. timespan may reduce smoothing effect.")
   }
   dfValue <- timespan * dof / 100
+
+  ## 2b) Determine output years
+  if (!is.null(targetYears)) {
+    targetYears <- as.integer(sub("^y", "", as.character(targetYears), ignore.case = TRUE))
+    outputYears <- sort(union(years, targetYears))
+  } else {
+    outputYears <- years
+  }
 
   ## 3) Build weight vector
   if (is.null(peggedYears)) {
@@ -65,16 +83,18 @@ toolTimeSpline <- function(x,
     wts[years %in% peggedYearsAll] <- nyr * anchorFactor
   }
 
-  ## 4) Per-series spline (uses fit$y so no predict() call)
+  ## 4) Per-series spline
   tmpspline <- function(ts, df) {
+    # NA values are removed for fitting if fillNA = TRUE
+    ok <- if (fillNA) !is.na(ts) else rep(TRUE, nyr)
     fit <- stats::smooth.spline(
-      x            = years,
-      y            = ts,
-      w            = wts,
+      x            = years[ok],
+      y            = ts[ok],
+      w            = wts[ok],
       df           = df,
       control.spar = list(high = 2)
     )
-    fit$y
+    return(stats::predict(fit, x = outputYears)$y)
   }
 
   ## 5) Apply over time-series (dim 2 inner)
@@ -82,7 +102,7 @@ toolTimeSpline <- function(x,
   arrOut <- apply(arrIn, c(1, 3), tmpspline, df = dfValue)
 
   ## 6) Reconstruct magpie object
-  dimnames(arrOut)[[1]] <- getYears(x)
+  dimnames(arrOut)[[1]] <- paste0("y", outputYears)
   names(dimnames(arrOut))[1] <- getSets(x, fulldim = FALSE)[2]
   out <- as.magpie(arrOut, spatial = 2, temporal = 1)
 

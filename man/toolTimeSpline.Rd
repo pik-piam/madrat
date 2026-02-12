@@ -4,7 +4,14 @@
 \alias{toolTimeSpline}
 \title{Smooth a magclass time series with optional anchor years}
 \usage{
-toolTimeSpline(x, dof = 5, peggedYears = NULL, anchorFactor = 10)
+toolTimeSpline(
+  x,
+  dof = 5,
+  peggedYears = NULL,
+  anchorFactor = 10,
+  targetYears = NULL,
+  fillNA = FALSE
+)
 }
 \arguments{
 \item{x}{A magclass object.}
@@ -17,16 +24,27 @@ anchor during smoothing; NULL for none (default).}
 
 \item{anchorFactor}{Numeric multiplier for anchor weights (default 10);
 larger values more strongly enforce pegging.}
+
+\item{targetYears}{Integer vector of additional years at which the fitted spline
+should be evaluated, enabling higher time resolution (default NULL, i.e. output
+years equal input years). Output years are the sorted union of input and target years.}
+
+\item{fillNA}{Logical. If TRUE, NA values are excluded from the spline fit and
+then filled by predicting at those positions (default FALSE).
+Otherwise, an error is thrown if NA values are present in the input.}
 }
 \value{
-A magclass object of the same shape, with each time series spline-smoothed.
+A magclass object with each time series spline-smoothed.
+  If targetYears is not specified (NULL), the time dimension is unchanged. If targetYears is
+  given, the time dimension covers the sorted union of the original and target years.
 }
 \description{
 Smooths a magclass time series using spline approximation with the given degrees
 of freedom. Optionally, specific years can be "pegged" (anchored) to stay close
 to their original values during smoothing. Anchoring is enforced by applying
-high weights to those years.
+high weights to those years. If a higher time resolution is desired,
+the fitted spline can be evaluated at additional target years.
 }
 \author{
-Kristine Karstens, Felicitas Beier, Michael Crawford
+Kristine Karstens, Felicitas Beier, Michael Crawford, Bennet Weiss
 }
