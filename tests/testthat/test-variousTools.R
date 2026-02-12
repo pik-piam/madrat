@@ -153,6 +153,49 @@ test_that("toolTimeSpline with targetYears works as expected", {
   expect_identical(getItems(result, dim = 3), getItems(p, dim = 3))
 })
 
+test_that("toolTimeSpline with fillNA works as expected", {
+  p <- magclass::maxample("pop")[1:2, 1:6, 1]
+  attr(p, "Metadata") <- NULL
+
+  ncr <- function(x) {
+    getComment(x) <- NULL
+    return(round(x, 1))
+  }
+
+  # baseline without NAs
+  baseline <- ncr(toolTimeSpline(p, dof = 5))
+
+  # fillNA = FALSE (default) should be identical to baseline
+  expect_identical(as.array(ncr(toolTimeSpline(p, dof = 5, fillNA = FALSE))), as.array(baseline))
+
+  # on data without NAs, fillNA = TRUE should give the same result
+  expect_equal(as.array(ncr(toolTimeSpline(p, dof = 5, fillNA = TRUE))), as.array(baseline), tolerance = 0.1)
+
+  # introduce NAs and verify they are filled
+  pNA <- p
+  pNA[1, 3, ] <- NA  # set one time step to NA for first region
+  pNA[2, 5, ] <- NA  # set another for second region
+
+  result <- toolTimeSpline(pNA, dof = 5, fillNA = TRUE)
+
+  # output should have no NAs
+  expect_false(any(is.na(result)))
+
+  # filled values should be reasonable (positive, within data range)
+  expect_true(all(result >= 0))
+  expect_true(all(result <= max(p, na.rm = TRUE) * 1.5))
+
+  # dimensions should be preserved
+  expect_identical(getYears(result), getYears(p))
+  expect_identical(getItems(result, dim = 1), getItems(p, dim = 1))
+  expect_identical(getItems(result, dim = 3), getItems(p, dim = 3))
+
+  # fillNA also works together with targetYears
+  resultBoth <- toolTimeSpline(pNA, dof = 5, fillNA = TRUE, targetYears = c(2000, 2010))
+  expect_false(any(is.na(resultBoth)))
+  expect_true(all(c(2000, 2010) %in% getYears(resultBoth, as.integer = TRUE)))
+})
+
 test_that("toolConvertMapping works as expected", {
   localConfig(mappingfolder = withr::local_tempdir(), .verbose = FALSE)
   file.copy(toolGetMapping("regionmappingH12.csv", returnPathOnly = TRUE), getConfig("mappingfolder"))

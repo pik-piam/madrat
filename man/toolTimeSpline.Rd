@@ -9,7 +9,8 @@ toolTimeSpline(
   dof = 5,
   peggedYears = NULL,
   anchorFactor = 10,
-  targetYears = NULL
+  targetYears = NULL,
+  fillNA = FALSE
 )
 }
 \arguments{
@@ -27,6 +28,10 @@ larger values more strongly enforce pegging.}
 \item{targetYears}{Integer vector of additional years at which the fitted spline
 should be evaluated, enabling higher time resolution (default NULL, i.e. output
 years equal input years). Output years are the sorted union of input and target years.}
+
+\item{fillNA}{Logical. If TRUE, NA values are excluded from the spline fit and
+then filled by predicting at those positions (default FALSE).
+Otherwise, an error is thrown if NA values are present in the input.}
 }
 \value{
 A magclass object with each time series spline-smoothed.

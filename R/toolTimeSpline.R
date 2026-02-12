@@ -16,6 +16,9 @@
 #' @param targetYears Integer vector of additional years at which the fitted spline
 #'   should be evaluated, enabling higher time resolution (default NULL, i.e. output
 #'   years equal input years). Output years are the sorted union of input and target years.
+#' @param fillNA Logical. If TRUE, NA values are excluded from the spline fit and
+#'   then filled by predicting at those positions (default FALSE).
+#'   Otherwise, an error is thrown if NA values are present in the input.
 #'
 #' @return A magclass object with each time series spline-smoothed.
 #'   If targetYears is not specified (NULL), the time dimension is unchanged. If targetYears is
@@ -28,13 +31,14 @@ toolTimeSpline <- function(x,
                            dof = 5,
                            peggedYears = NULL,
                            anchorFactor = 10,
-                           targetYears = NULL) {
+                           targetYears = NULL,
+                           fillNA = FALSE) {
   ## 1) Input checks
   if (!is.magpie(x)) {
     stop("Input is not a MAgPIE object, x has to be a MAgPIE object!")
   }
 
-  negative <- any(x < 0)
+  negative <- any(x < 0, na.rm = fillNA)
 
   ## 2) Time axis & df calculation
   years <- getYears(x, as.integer = TRUE)
@@ -81,14 +85,16 @@ toolTimeSpline <- function(x,
 
   ## 4) Per-series spline
   tmpspline <- function(ts, df) {
+    # NA values are removed for fitting if fillNA = TRUE
+    ok <- if (fillNA) !is.na(ts) else rep(TRUE, nyr)
     fit <- stats::smooth.spline(
-      x            = years,
-      y            = ts,
-      w            = wts,
+      x            = years[ok],
+      y            = ts[ok],
+      w            = wts[ok],
       df           = df,
       control.spar = list(high = 2)
     )
-    if (is.null(targetYears)) fit$y else stats::predict(fit, x = outputYears)$y
+    return(stats::predict(fit, x = outputYears)$y)
   }
 
   ## 5) Apply over time-series (dim 2 inner)
