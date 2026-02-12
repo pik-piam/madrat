@@ -6,6 +6,7 @@
 #'
 #'
 #' @param expr expression to be evaluated.
+#' @param logOnly passed to vcat, determines if warning/error is thrown after logging
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{vcat}}
 #' @examples
@@ -13,7 +14,7 @@
 #' madrat:::withMadratLogging(message("Hello world!"))
 #' }
 #'
-withMadratLogging <- function(expr) {
+withMadratLogging <- function(expr, logOnly = TRUE) {
   if (isWrapperActive("callingHandler")) {
     return(expr)
   }
@@ -25,11 +26,11 @@ withMadratLogging <- function(expr) {
   }
 
   warningHandler <- function(w) {
-    vcat(0, w$message, logOnly = TRUE)
+    vcat(0, w$message, logOnly = logOnly)
   }
 
   errorHandler <- function(w) {
-    vcat(-1, w$message, logOnly = TRUE)
+    vcat(-1, w$message, logOnly = logOnly)
   }
 
   setWrapperActive("callingHandler")

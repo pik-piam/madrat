@@ -4,10 +4,12 @@
 \alias{withMadratLogging}
 \title{Tool: withMadratLogging}
 \usage{
-withMadratLogging(expr)
+withMadratLogging(expr, logOnly = TRUE)
 }
 \arguments{
 \item{expr}{expression to be evaluated.}
+
+\item{logOnly}{passed to vcat, determines if warning/error is thrown after logging}
 }
 \description{
 Function will activate madrat logging facilities for all code provided

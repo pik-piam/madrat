@@ -56,3 +56,32 @@ test_that("downloadSource waits until already running download is finished", {
                  fixed = TRUE)
   })
 })
+
+test_that("no source folder if downloadSource fails", {
+  mainfolder <- normalizePath(withr::local_tempdir(), winslash = "/")
+  localConfig(mainfolder = mainfolder)
+
+  downloadFailing <- function() {
+    warning("Simulated download failure - no internet")
+    return(list(url = "dummy", author = "dummy", title = "dummy", license = "dummy",
+                description = "dummy", unit = "dummy"))
+  }
+  globalassign("downloadFailing")
+
+  expect_error(downloadSource("Failing", numberOfTries = 1),
+               "Simulated download failure - no internet", fixed = TRUE)
+  expect_false(file.exists(file.path(mainfolder, "sources", "Failing")))
+  expect_false(file.exists(file.path(mainfolder, "sources", "Failing-downloadInProgress")))
+
+  downloadFailing <- function() {
+    writeLines("some data", "data.txt")
+    return(list(url = "dummy", author = "dummy", title = "dummy", license = "dummy",
+                description = "dummy", unit = "dummy"))
+  }
+  globalassign("downloadFailing")
+
+  downloadSource("Failing")
+
+  expect_true(file.exists(file.path(mainfolder, "sources", "Failing", "data.txt")))
+  expect_false(file.exists(file.path(mainfolder, "sources", "Failing-downloadInProgress")))
+})
