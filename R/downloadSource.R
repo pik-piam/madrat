@@ -120,7 +120,7 @@ downloadSource <- function(type, subtype = NULL, overwrite = FALSE, numberOfTrie
   })
   with_dir(downloadInProgressDirectory, {
     setWrapperActive("wrapperChecks")
-    # convert warnings to errors, because download functions they usually mean data was not downloaded properly
+    # convert warnings to errors, because in download functions warnings usually mean data was not downloaded properly
     withr::with_options(c(warn = 2), {
       meta <- withMadratLogging(eval(parse(text = functionCall)), logOnly = FALSE)
     })
