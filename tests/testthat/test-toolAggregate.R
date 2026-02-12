@@ -166,6 +166,29 @@ test_that("aggregation for subdimensions works properly", {
   expect_identical(getItems(toolAggregate(a, rel, dim = "species"), dim = 3, full = TRUE), "animal.sweet.black")
 })
 
+test_that("subdim aggregation preserves only valid combinations", {
+  # When aggregating a subdimension, only combinations that exist in the original
+  # data should appear in the output. Previously, toolAggregate created all
+  # possible combinations, leading to weird results.
+  x <- magclass::maxample("animal")
+  # x has:
+  # [1] "animal.rabbit.black" "animal.rabbit.white" "animal.bird.black"
+  # [4] "animal.bird.red"     "animal.dog.brown"
+  mapping <- data.frame(from = c("rabbit", "bird", "dog"), to = c("mammal", "flyer", "mammal"))
+  x2 <- toolAggregate(x, mapping, dim = 3.2)
+
+  # Expected: only valid combinations from original data
+  # mammal.black (from rabbit.black), mammal.white (from rabbit.white),
+  # mammal.brown (from dog.brown), flyer.black (from bird.black), flyer.red (from bird.red)
+  expected <- c("animal.mammal.black", "animal.mammal.white", "animal.mammal.brown",
+                "animal.flyer.black", "animal.flyer.red")
+  expect_setequal(getItems(x2, 3), expected)
+
+  # Make sure there are no invalid combinations like flyer.white or flyer.brown
+  expect_false(any(grepl("flyer.white", getItems(x2, 3))))
+  expect_false(any(grepl("flyer.brown", getItems(x2, 3))))
+})
+
 test_that("aggregation with missing rel argument works", {
   a <- magclass::maxample("animal")
   rel <- data.frame(from = getItems(a, dim = 1), country = getItems(a, dim = "country", full = TRUE), global = "GLO")
