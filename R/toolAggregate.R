@@ -276,7 +276,7 @@ toolAggregateUnweighted <- function(x, rel, to, dim, xComment) {
   # expand data if necessary
   # set dim to main dimension afterwards
   if (round(dim) != dim) {
-    rel <- toolExpandRel(rel, getItems(x, round(floor(dim))), dim)
+    rel <- toolExpandRel(rel, x, dim)
     dim <- round(floor(dim))
   }
 
@@ -437,7 +437,9 @@ toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, 
   return(m)
 }
 
-toolExpandRel <- function(rel, names, dim) {
+toolExpandRel <- function(rel, x, dim) {
+  names <- getItems(x, round(floor(dim)))
+
   # Expand rel matrix to full dimension if rel is only provided for a subdimension
   if (is.null(colnames(rel)) || is.null(rownames(rel))) {
     stop("colnames and/or rownames missing in relation matrix!")
@@ -448,11 +450,8 @@ toolExpandRel <- function(rel, names, dim) {
   }
 
   subdim <- round((dim - floor(dim)) * 10)
-  maxdim <- nchar(gsub("[^\\.]", "", names[1])) + 1
-
-  search <- paste0("^(", paste(rep("[^\\.]*\\.", subdim - 1), collapse = ""),
-                   ")([^\\.]*)(", paste(rep("\\.[^\\.]*", maxdim - subdim), collapse = ""), ")$")
-  onlynames <- unique(sub(search, "\\2", names))
+  fullItems <- strsplit(getItems(x, floor(dim)), ".", fixed = TRUE)
+  onlynames <- getItems(x, dim)
 
   if (!setequal(colnames(rel), onlynames)) {
     if (!setequal(rownames(rel), onlynames)) {
@@ -463,24 +462,54 @@ toolExpandRel <- function(rel, names, dim) {
     }
   }
 
-  tmp <- unique(sub(search, "\\1#|TBR|#\\3", names))
-  additions <- strsplit(tmp, split = "#|TBR|#", fixed = TRUE)
-  add <- vapply(additions, function(x) return(x[1:2]), character(2))
-  add[is.na(add)] <- ""
-  .tmp <- function(add, fill) {
-    return(paste0(rep(add[1, ], each = length(fill)), fill,
-                  rep(add[2, ], each = length(fill))))
-  }
+  # Build mapping from subdimension values to their aggregated values
+  subdimFrom <- colnames(rel)
+  subdimToList <- lapply(subdimFrom, function(from) {
+    rownames(rel)[rel[, from] == 1]
+  })
+  names(subdimToList) <- subdimFrom
 
-  cnames <- .tmp(add, colnames(rel))
-  rnames <- .tmp(add, rownames(rel))
+  toItems <- unique(unlist(lapply(fullItems, function(fullItem) {
+    toNames <- subdimToList[[fullItem[subdim]]]
+    lapply(toNames, function(toName) {
+      fullItem[subdim] <- toName
+      paste0(fullItem, collapse = ".")
+    })
+  })))
+
+  # Order toItems to preserve the order of rownames in rel
+  # Extract the subdimension part from toItems and order by their position in rownames(rel)
+  toItemsSubdim <- lapply(strsplit(toItems, ".", fixed = TRUE), function(x) x[subdim])
+  toItemsOrder <- order(match(toItemsSubdim, rownames(rel)))
+  toItems <- toItems[toItemsOrder]
+
+  #
+  # Actual Expansion to all possible items
+  #
+  templates <- unique(lapply(fullItems, function(fullItem) {
+    fullItem[subdim] <- ""
+    fullItem
+  }))
+  .tmp <- function(fill) {
+    unlist(lapply(templates, function(template) {
+      lapply(fill, function(item) {
+        template[subdim] <- item
+        paste0(template, collapse = ".")
+      })
+    }))
+  }
+  cnames <- .tmp(colnames(rel))
+  rnames <- .tmp(rownames(rel))
 
   newRel <- Matrix::Matrix(0, nrow = length(rnames), ncol = length(cnames), dimnames = list(rnames, cnames))
 
-  for (i in seq_along(additions)) {
+  for (i in seq_along(templates)) {
     newRel[seq_len(nrow(rel)) + (i - 1) * nrow(rel), seq_len(ncol(rel)) + (i - 1) * ncol(rel)] <- rel
   }
-  return(newRel[, names, drop = FALSE])
+
+  # Only return the rows and columns that contain valid
+  # target or source items
+  return(newRel[toItems, names, drop = FALSE])
 }
 
 toolMapFromRel <- function(rel, from, to) {
@@ -509,3 +538,4 @@ removeEmptyResultItems <- function(m, dim) {
     return(m)
   }
 }
+ 
