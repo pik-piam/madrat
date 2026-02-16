@@ -31,6 +31,12 @@ test_that("cacheCleanup deletes old files", {
   expect_true(file.exists(cacheFile))
   expectedFileInfo <- file.info(cacheFile)
   rownames(expectedFileInfo) <- basename(rownames(expectedFileInfo))
+
+  # Do not include access time in the comparison, as this might have
+  # changed due to cacheCleanup accessing the file.
+  cacheFileInfo$atime <- NULL
+  expectedFileInfo$atime <- NULL
+
   expect_identical(cacheFileInfo, expectedFileInfo)
 
   cacheCleanup(30, cacheFolder, timeType, readlineFunction = function(question) "y")
