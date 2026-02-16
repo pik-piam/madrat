@@ -34,12 +34,29 @@ test_that("puc creation is thread-safe", {
   lockDirName <- ".locks"
   lockDir <- file.path(getConfig("pucfolder"), lockDirName)
 
-  # Set up utility functions
-  .waitForMessage <- function(process, message) {
-    while (!(length(messages <- process$read_output_lines()) > 0 && any(messages == message))) {
-      Sys.sleep(0.1)
-    }
+  # Set up a log accumulator that collects all stdout lines from a process.
+  # read_output_lines() is destructive, so we must accumulate to avoid losing messages.
+  .createLog <- function() {
+    log <- character(0)
+    list(
+      waitFor = function(process, message) {
+        while (!message %in% log) {
+          Sys.sleep(0.2)
+          log <<- c(log, process$read_output_lines())
+        }
+      },
+      update = function(process) {
+        log <<- c(log, process$read_output_lines())
+      },
+      contains = function(message) {
+        message %in% log
+      },
+      get = function() log
+    )
   }
+
+  p1Log <- .createLog()
+  p2Log <- .createLog()
 
   # Set up PUC-folder as working directory
   unlink(list.files(getConfig("pucfolder"), full.names = TRUE)) # To ensure no remaining pucs are in there
@@ -85,7 +102,7 @@ test_that("puc creation is thread-safe", {
   }, args = list(madratConfig = getConfig()))
 
   # Wait for p1 to signal that it is ready, i.e. it has entered the critical section
-  .waitForMessage(p1, "ready")
+  p1Log$waitFor(p1, "ready")
 
   # This is a copy of testFunction1 except for the call at the end
   p2 <- callr::r_bg(function(madratConfig) {
@@ -102,6 +119,7 @@ test_that("puc creation is thread-safe", {
           # Only interested in creation, so we do a quick return for reading the puc.
           return(fn())
         }
+        cat("entered section\n")
         fn()
       })
     }, ns = "madrat")
@@ -114,22 +132,29 @@ test_that("puc creation is thread-safe", {
   # Wait for p2 to signal that it is ready, i.e. it was at the point where it could execute
   # the critical section (there is no guarantee that it tried getting in yet, if this test
   # is flaky, this is one of the critical spots).
-  .waitForMessage(p2, "ready")
+  p2Log$waitFor(p2, "ready")
 
   filelock::unlock(firstCheckpoint)
 
-  # Wait for p1 to signal that it is done, i.e. it has executed fn
-  .waitForMessage(p1, "fn done")
+  # Wait for p1 to signal that it is done, i.e. it has executed fn,
+  # but hasn't left the critical section yet
+  p1Log$waitFor(p1, "fn done")
 
-  Sys.sleep(1) # Give p2 some time to fall asleep (start waiting for the puc lock)
+  Sys.sleep(1) # Give p2 some more time to reach the lock
 
-  expect_true(p2$get_status() == "sleeping")
+  # Collect any new output from p2 and verify it has not entered the critical section
+  p2Log$update(p2)
+  expect_false(p2Log$contains("entered section"))
   expect_true(file.exists(file.path(getConfig("pucfolder"), "rev45_extra_example_tag.puc")))
   unlink("rev45_extra_example_tag.puc")
 
   filelock::unlock(secondCheckpoint)
   p1$wait()
   p2$wait()
+
+  # Collect final output and verify p2 eventually entered the critical section
+  p2Log$update(p2)
+  expect_true(p2Log$contains("entered section"))
 
   expect_true(file.exists(file.path(getConfig("pucfolder"), "rev45_extra_example_tag.puc")))
 
