@@ -17,3 +17,4 @@ cran-comments.md
 ^Makefile$
 ^.*CITATION.cff$
 ^CRAN-SUBMISSION$
+^_pkgdown\.yml$
