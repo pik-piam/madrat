@@ -1,0 +1,6 @@
+template:
+  package: tidytemplate
+  bootstrap: 5
+
+development:
+  mode: auto
