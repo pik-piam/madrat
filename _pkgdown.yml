@@ -41,30 +41,30 @@ reference:
     contents:
       - has_concept("aggregation")
 
-  - title: Country Tools
+  - title: "Tools: Countries"
     desc: Country and ISO code handling
     contents:
       - has_concept("country tools")
 
-  - title: Temporal Processing
+  - title: "Tools: Temporal Processing"
     desc: Time series manipulation and interpolation
     contents:
       - has_concept("temporal processing")
 
-  - title: Data Manipulation
+  - title: "Tools: Data Manipulation"
     desc: General data transformation tools
     contents:
       - has_concept("data manipulation")
 
-  - title: Logging
-    desc: Logging and progress messaging
-    contents:
-      - has_concept("logging")
-
-  - title: Source Downloading
+  - title: "Tools: Source Downloading"
     desc: Helpers for downloading source data
     contents:
       - has_concept("source downloading")
+  
+  - title: "Tools: Subtype Handling"
+    desc: Tools for handling subtypes in read functions
+    contents:
+      - has_concept("subtype handling")
 
   - title: Madrat Messages
     desc: Madrat-specific messaging system stored in cache
@@ -80,11 +80,6 @@ reference:
     desc: Redirect source data to alternative locations
     contents:
       - has_concept("source redirection")
-
-  - title: Subtype Handling
-    desc: Tools for handling subtypes in read functions
-    contents:
-      - has_concept("subtype handling")
 
   - title: Code Labeling
     desc: Region code labeling utilities
