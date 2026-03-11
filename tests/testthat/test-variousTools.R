@@ -146,11 +146,6 @@ test_that("toolConditionalReplace works as expected", {
                "has to be of length 1 or the same length")
 })
 
-test_that("mad(l)apply function return defunct message", {
-  expect_error(madapply(), "defunct")
-  expect_error(madlapply(), "defunct")
-})
-
 test_that("madrat attach/detach work", {
   expect_silent(madratAttach("mrfancypackage"))
   expect_true("mrfancypackage" %in% getConfig("packages"))
