@@ -20,12 +20,6 @@ getComment(x) <- c(" description: example description", " unit: kg")
 getFromComment(x, "unit")
 getFromComment(x, "description")
 }
-\seealso{
-Other metadata comment: 
-\code{\link{cleanComment}()},
-\code{\link{prepComment}()},
-\code{\link{prepExtendedComment}()}
-}
 \author{
 Jan Philipp Dietrich
 }

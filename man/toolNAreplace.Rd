@@ -27,7 +27,6 @@ Functions removes NAs, NaNs and infinite values in x and weight
 \code{\link{calcOutput}}
 
 Other data manipulation: 
-\code{\link{robustOrder}()},
 \code{\link{toolConditionalReplace}()},
 \code{\link{toolFixWeight}()},
 \code{\link{toolOrderCells}()},

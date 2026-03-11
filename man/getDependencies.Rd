@@ -45,9 +45,6 @@ madrat-based calc- read- or full-function.
 \code{\link{getCalculations}}, \code{\link{getMadratGraph}},  \code{\link{getMadratInfo}}
 
 Other dependency graph: 
-\code{\link{fingerprint}()},
-\code{\link{getCode}()},
-\code{\link{getFlags}()},
 \code{\link{getMadratGraph}()},
 \code{\link{getMadratInfo}()},
 \code{\link{visualizeDependencies}()}

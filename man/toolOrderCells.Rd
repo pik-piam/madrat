@@ -26,7 +26,6 @@ or does not contain cell information.
 }
 \seealso{
 Other data manipulation: 
-\code{\link{robustOrder}()},
 \code{\link{toolConditionalReplace}()},
 \code{\link{toolFixWeight}()},
 \code{\link{toolNAreplace}()},

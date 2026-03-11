@@ -26,7 +26,6 @@ toolXlargest(magclass::maxample("pop"), range = 1:3)
 }
 \seealso{
 Other data manipulation: 
-\code{\link{robustOrder}()},
 \code{\link{toolConditionalReplace}()},
 \code{\link{toolFixWeight}()},
 \code{\link{toolNAreplace}()},

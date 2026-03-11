@@ -39,11 +39,6 @@ files that would be deleted if the user answers 'n' to the question. If deleting
 }
 \seealso{
 Other cache management: 
-\code{\link{cacheArgumentsHash}()},
-\code{\link{cacheCopy}()},
-\code{\link{cacheGet}()},
-\code{\link{cacheName}()},
-\code{\link{cachePut}()},
-\code{\link{getNonDefaultArguments}()}
+\code{\link{cacheCopy}()}
 }
 \concept{cache management}

@@ -150,8 +150,6 @@ a <- calcOutput(type = "TauTotal")
 
 Other core workflow: 
 \code{\link{downloadSource}()},
-\code{\link{isWrapperActive}()},
-\code{\link{pucAggregate}()},
 \code{\link{readSource}()},
 \code{\link{retrieveData}()},
 \code{\link{returnCalcOutput}()}

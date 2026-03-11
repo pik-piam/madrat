@@ -5,7 +5,7 @@
 #' @return path to the temp folder
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}
-#' @family madrat configuration
+#' @keywords internal
 #' @examples
 #' \dontrun{
 #' madrat:::madTempDir()

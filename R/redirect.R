@@ -20,7 +20,7 @@
 #' permanent/global redirection or to an environment for more control.
 #' @return Invisibly, the source folder that is now used for the given type
 #' @author Pascal Sauer
-#' @family source redirection
+#' @keywords internal
 #' @examples \dontrun{
 #' f <- function() {
 #'   redirect("Tau", target = "~/TauExperiment")

@@ -8,7 +8,7 @@
 #' @importFrom stringi stri_split stri_extract_all
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCode}}
-#' @family dependency graph
+#' @keywords internal
 
 getFlags <- function(code) {
   if (inherits(code, "function")) {

@@ -14,7 +14,7 @@
 #'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
-#' @family cache management
+#' @keywords internal
 #' @examples
 #' madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historical"))
 #' madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "paper"))

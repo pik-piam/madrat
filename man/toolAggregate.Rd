@@ -123,6 +123,9 @@ toolAggregate(p, mapping, to = "region+global")
 }
 \seealso{
 \code{\link{calcOutput}}
+
+Other aggregation: 
+\code{\link{pucAggregate}()}
 }
 \author{
 Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer

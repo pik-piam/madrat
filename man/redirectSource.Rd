@@ -48,9 +48,7 @@ readSource("Tau")
 }
 \seealso{
 Other source redirection: 
-\code{\link{getLinkFunction}()},
-\code{\link{getSourceFolder}()},
-\code{\link{redirect}()}
+\code{\link{getLinkFunction}()}
 }
 \author{
 Pascal Sauer

@@ -11,7 +11,7 @@
 #' @param warn boolean indicating whether warnings should be triggered
 #' if entries are missing, or not.
 #' @author Jan Philipp Dietrich, Pascal Sauer
-#' @family metadata comment
+#' @keywords internal
 prepExtendedComment <- function(x, type, functionCallString, warn = TRUE) {
   if (isTRUE(warn)) {
     unitWarning <- paste0('Missing unit information for data set "', type, '"!')

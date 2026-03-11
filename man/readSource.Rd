@@ -75,8 +75,6 @@ a <- readSource("Tau", "paper")
 Other core workflow: 
 \code{\link{calcOutput}()},
 \code{\link{downloadSource}()},
-\code{\link{isWrapperActive}()},
-\code{\link{pucAggregate}()},
 \code{\link{retrieveData}()},
 \code{\link{returnCalcOutput}()}
 }

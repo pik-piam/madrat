@@ -21,15 +21,8 @@ madrat:::madTempDir()
 }
 \seealso{
 \code{\link{getConfig}}
-
-Other madrat configuration: 
-\code{\link{getConfig}()},
-\code{\link{getMainfolder}()},
-\code{\link{initializeConfig}()},
-\code{\link{madratAttach}()},
-\code{\link{setConfig}()}
 }
 \author{
 Jan Philipp Dietrich
 }
-\concept{madrat configuration}
+\keyword{internal}

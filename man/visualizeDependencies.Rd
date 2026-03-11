@@ -39,10 +39,7 @@ Creates a graphical visualization of dependencies between functions in the mr-un
 \code{\link{getDependencies}}, \code{\link{getMadratGraph}}, \code{\link{getMadratInfo}}
 
 Other dependency graph: 
-\code{\link{fingerprint}()},
-\code{\link{getCode}()},
 \code{\link{getDependencies}()},
-\code{\link{getFlags}()},
 \code{\link{getMadratGraph}()},
 \code{\link{getMadratInfo}()}
 }

@@ -21,13 +21,7 @@ if entries are missing, or not.}
 Helper function condense metadata information into
 an extended comment entry
 }
-\seealso{
-Other metadata comment: 
-\code{\link{cleanComment}()},
-\code{\link{getFromComment}()},
-\code{\link{prepComment}()}
-}
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
-\concept{metadata comment}
+\keyword{internal}

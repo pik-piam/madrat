@@ -9,7 +9,7 @@
 #' @param verbose boolean deciding whether status information/updates should be shown or not
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMainfolder}}, \code{\link{getConfig}}, \code{\link{setConfig}}
-#' @family madrat configuration
+#' @keywords internal
 #'
 initializeConfig <- function(verbose = TRUE) {
   # check whether config has not been initialized yet

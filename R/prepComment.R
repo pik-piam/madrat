@@ -8,7 +8,7 @@
 #' @param warning Either NULL (no warning) or a warning text that should be
 #' returned if x is NULL
 #' @author Jan Philipp Dietrich
-#' @family metadata comment
+#' @keywords internal
 #' @examples
 #'  madrat:::prepComment("example comment", "example")
 

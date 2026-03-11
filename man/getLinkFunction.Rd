@@ -17,8 +17,6 @@ not supported on Windows).
 }
 \seealso{
 Other source redirection: 
-\code{\link{getSourceFolder}()},
-\code{\link{redirect}()},
 \code{\link{redirectSource}()}
 }
 \author{

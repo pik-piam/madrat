@@ -79,8 +79,6 @@ retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmapp
 Other core workflow: 
 \code{\link{calcOutput}()},
 \code{\link{downloadSource}()},
-\code{\link{isWrapperActive}()},
-\code{\link{pucAggregate}()},
 \code{\link{readSource}()},
 \code{\link{returnCalcOutput}()}
 }

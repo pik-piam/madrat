@@ -20,13 +20,7 @@ Helper function to properly format a metadata comment entry
 \examples{
  madrat:::prepComment("example comment", "example")
 }
-\seealso{
-Other metadata comment: 
-\code{\link{cleanComment}()},
-\code{\link{getFromComment}()},
-\code{\link{prepExtendedComment}()}
-}
 \author{
 Jan Philipp Dietrich
 }
-\concept{metadata comment}
+\keyword{internal}

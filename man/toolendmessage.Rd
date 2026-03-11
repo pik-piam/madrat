@@ -21,12 +21,8 @@ call to \code{\link{toolstartmessage}}.
 }
 \seealso{
 \code{\link{toolstartmessage}}, \code{\link{vcat}}
-
-Other logging: 
-\code{\link{toolstartmessage}()},
-\code{\link{withMadratLogging}()}
 }
 \author{
 Jan Philipp Dietrich
 }
-\concept{logging}
+\keyword{internal}

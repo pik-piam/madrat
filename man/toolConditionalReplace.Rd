@@ -21,7 +21,6 @@ Sets values (NA, negative, ..) to value \code{replaceby}
 }
 \seealso{
 Other data manipulation: 
-\code{\link{robustOrder}()},
 \code{\link{toolFixWeight}()},
 \code{\link{toolNAreplace}()},
 \code{\link{toolOrderCells}()},

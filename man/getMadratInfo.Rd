@@ -27,10 +27,7 @@ network of madrat functions.
 \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
 
 Other dependency graph: 
-\code{\link{fingerprint}()},
-\code{\link{getCode}()},
 \code{\link{getDependencies}()},
-\code{\link{getFlags}()},
 \code{\link{getMadratGraph}()},
 \code{\link{visualizeDependencies}()}
 }

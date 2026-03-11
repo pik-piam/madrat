@@ -161,9 +161,6 @@ setConfig(forcecache = c("readSSPall", "convertSSPall"))
 
 Other madrat configuration: 
 \code{\link{getConfig}()},
-\code{\link{getMainfolder}()},
-\code{\link{initializeConfig}()},
-\code{\link{madTempDir}()},
 \code{\link{madratAttach}()}
 }
 \author{

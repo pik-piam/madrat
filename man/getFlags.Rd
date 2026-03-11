@@ -18,16 +18,8 @@ in a function body, for example `"!# @pucArguments extra"`.
 }
 \seealso{
 \code{\link{getCode}}
-
-Other dependency graph: 
-\code{\link{fingerprint}()},
-\code{\link{getCode}()},
-\code{\link{getDependencies}()},
-\code{\link{getMadratGraph}()},
-\code{\link{getMadratInfo}()},
-\code{\link{visualizeDependencies}()}
 }
 \author{
 Jan Philipp Dietrich
 }
-\concept{dependency graph}
+\keyword{internal}

@@ -14,7 +14,7 @@
 #' in madrat because they are locale dependent.
 #' @seealso \code{\link[base]{order}}
 #' @author Pascal Sauer
-#' @family data manipulation
+#' @keywords internal
 robustOrder <- function(...,
                         na.last = TRUE, # nolint: object_name_linter.
                         decreasing = FALSE, method = "radix") {

@@ -31,16 +31,8 @@ madrat:::getNonDefaultArguments(functionNames, args = list(subtype = "historical
 }
 \seealso{
 \code{\link{cacheArgumentsHash}}, \code{\link{toolstartmessage}}
-
-Other cache management: 
-\code{\link{cacheArgumentsHash}()},
-\code{\link{cacheCleanup}()},
-\code{\link{cacheCopy}()},
-\code{\link{cacheGet}()},
-\code{\link{cacheName}()},
-\code{\link{cachePut}()}
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
-\concept{cache management}
+\keyword{internal}

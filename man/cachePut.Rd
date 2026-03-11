@@ -29,16 +29,8 @@ madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 }
 \seealso{
 \code{\link{cachePut}}, \code{\link{cacheName}}
-
-Other cache management: 
-\code{\link{cacheArgumentsHash}()},
-\code{\link{cacheCleanup}()},
-\code{\link{cacheCopy}()},
-\code{\link{cacheGet}()},
-\code{\link{cacheName}()},
-\code{\link{getNonDefaultArguments}()}
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
-\concept{cache management}
+\keyword{internal}

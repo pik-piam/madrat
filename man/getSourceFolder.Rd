@@ -18,13 +18,7 @@ Path to source data files
 Return the path to source data files for the given type and subtype. This
 applies redirections, see \code{\link{redirectSource}} for more details.
 }
-\seealso{
-Other source redirection: 
-\code{\link{getLinkFunction}()},
-\code{\link{redirect}()},
-\code{\link{redirectSource}()}
-}
 \author{
 Pascal Sauer
 }
-\concept{source redirection}
+\keyword{internal}

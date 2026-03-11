@@ -32,9 +32,6 @@ madratAttach("madrat")
 
 Other madrat configuration: 
 \code{\link{getConfig}()},
-\code{\link{getMainfolder}()},
-\code{\link{initializeConfig}()},
-\code{\link{madTempDir}()},
 \code{\link{setConfig}()}
 }
 \author{

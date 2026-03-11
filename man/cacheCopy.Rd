@@ -21,12 +21,7 @@ Copy cache files which were used for a given preprocessing.
 }
 \seealso{
 Other cache management: 
-\code{\link{cacheArgumentsHash}()},
-\code{\link{cacheCleanup}()},
-\code{\link{cacheGet}()},
-\code{\link{cacheName}()},
-\code{\link{cachePut}()},
-\code{\link{getNonDefaultArguments}()}
+\code{\link{cacheCleanup}()}
 }
 \author{
 Jan Philipp Dietrich
