@@ -3,6 +3,7 @@
 #' Function to prepare a function call for a given type and prefix
 #'
 #' @aliases prepFunctionName
+#' @keywords internal
 #' @param type name of calculation/source
 #' @param prefix Type of calculations. Available options are "download" (source download),
 #' "read" (source read), "correct" (source corrections), "convert" (source conversion to ISO countries),

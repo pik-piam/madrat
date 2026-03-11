@@ -9,6 +9,8 @@
 #' @param argumentValues the list of arguments passed
 #' @return A string representing the given function call
 #'
+#' @keywords internal
+#'
 #' @author Pascal Sauer
 functionCallString <- function(functionName, argumentValues) {
   stopifnot(length(functionName) == 1)

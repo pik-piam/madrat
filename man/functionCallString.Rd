@@ -23,3 +23,4 @@ variable), if that is still too long it is cropped.
 \author{
 Pascal Sauer
 }
+\keyword{internal}
