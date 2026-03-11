@@ -13,6 +13,7 @@
 #'
 #' @return ordered data in magclass format
 #' @author Kristine Karstens, Jan Philipp Dietrich
+#' @family data manipulation
 #' @importFrom magclass dimExists
 #' @export
 

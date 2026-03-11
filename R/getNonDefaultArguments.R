@@ -12,6 +12,7 @@
 #' @return A subset of args that is used by the function/s and is different from default values.
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cacheArgumentsHash}}, \code{\link{toolstartmessage}}
+#' @family cache management
 #' @examples
 #' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "historical"))
 #' madrat:::getNonDefaultArguments("madrat:::readTau", args = list(subtype = "paper"))

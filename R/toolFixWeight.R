@@ -38,6 +38,7 @@
 #'
 #' @seealso \code{\link{toolAggregate}}
 #' @author Pascal Sauer
+#' @family data manipulation
 #' @export
 toolFixWeight <- function(weight, map, dim) {
   dim <- dimCode(dim, weight)

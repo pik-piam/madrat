@@ -7,6 +7,7 @@
 #' @param subtype Subtype of the dataset, e.g. "paper" for \code{\link{readTau}}, NULL is allowed
 #' @return Path to source data files
 #' @author Pascal Sauer
+#' @family source redirection
 getSourceFolder <- function(type, subtype) {
   redirections <- getConfig("redirections")
   if (type %in% names(redirections)) {

@@ -7,6 +7,7 @@
 #' @param filter Regular expression to filter the cache files shown in the log file.
 #' @return A vector of cache files which match the given log information and filter.
 #' @author Jan Philipp Dietrich
+#' @family cache management
 #' @export
 cacheCopy <- function(file, target=NULL, filter=NULL) {
   if (length(file) > 1 || any(grepl("\n", file))) {

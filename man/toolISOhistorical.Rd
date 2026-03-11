@@ -46,6 +46,14 @@ for each the historic time filled by using the mapping stored as
 supplementary data in the madrat package. If you want to use a different
 mapping please specify it in the argument mapping
 }
+\seealso{
+Other country tools: 
+\code{\link{getISOlist}()},
+\code{\link{toolCountry2isocode}()},
+\code{\link{toolCountryFill}()},
+\code{\link{toolFillWithRegionAvg}()}
+}
 \author{
 Lavinia Baumstark
 }
+\concept{country tools}

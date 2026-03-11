@@ -27,6 +27,7 @@
 #' }
 #'
 #' @author Pascal Sauer
+#' @family validation
 #'
 #' @importFrom magclass where
 #' @importFrom utils askYesNo

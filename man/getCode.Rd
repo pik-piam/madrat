@@ -22,7 +22,16 @@ Extract function code from madrat-style functions in specified packages
 }
 \seealso{
 \code{\link{getMadratGraph}}
+
+Other dependency graph: 
+\code{\link{fingerprint}()},
+\code{\link{getDependencies}()},
+\code{\link{getFlags}()},
+\code{\link{getMadratGraph}()},
+\code{\link{getMadratInfo}()},
+\code{\link{visualizeDependencies}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{dependency graph}

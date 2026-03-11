@@ -127,3 +127,4 @@ toolAggregate(p, mapping, to = "region+global")
 \author{
 Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
 }
+\concept{aggregation}

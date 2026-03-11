@@ -18,7 +18,15 @@ if they exist, NA otherwise. NA means subfolders of the mainfolder are used.
 }
 \seealso{
 \code{\link{getMainfolder}}, \code{\link{getConfig}}, \code{\link{setConfig}}
+
+Other madrat configuration: 
+\code{\link{getConfig}()},
+\code{\link{getMainfolder}()},
+\code{\link{madTempDir}()},
+\code{\link{madratAttach}()},
+\code{\link{setConfig}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat configuration}

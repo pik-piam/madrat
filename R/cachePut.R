@@ -11,6 +11,7 @@
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
+#' @family cache management
 #' @examples
 #' \dontrun{
 #' fname <- madrat:::cacheName("calc", "Example")

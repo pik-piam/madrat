@@ -6,6 +6,7 @@
 #' @param x magclass object the comment should be read from
 #' @param remove Vector of categories to be removed
 #' @author Jan Philipp Dietrich
+#' @family metadata comment
 #' @examples
 #' x <- maxample("animal")
 #' getComment(x) <- c("unit: bla", "comment: hallo", "blub: ble")

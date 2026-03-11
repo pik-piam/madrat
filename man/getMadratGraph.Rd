@@ -25,7 +25,16 @@ are not listed separately, but collectively referred to through the correspondin
 }
 \seealso{
 \code{\link{getCalculations}}, \code{\link{getConfig}}
+
+Other dependency graph: 
+\code{\link{fingerprint}()},
+\code{\link{getCode}()},
+\code{\link{getDependencies}()},
+\code{\link{getFlags}()},
+\code{\link{getMadratInfo}()},
+\code{\link{visualizeDependencies}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{dependency graph}

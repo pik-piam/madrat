@@ -8,6 +8,7 @@
 #' @return a list with entries "license", "citation", "authors" and "year"
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolstartmessage}}, \code{\link{vcat}}
+#' @family source downloading
 #' @examples
 #' \dontrun{
 #' metadataGFZ("10.5880/pik.2019.004")

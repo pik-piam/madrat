@@ -37,7 +37,16 @@ Creates a graphical visualization of dependencies between functions in the mr-un
 }
 \seealso{
 \code{\link{getDependencies}}, \code{\link{getMadratGraph}}, \code{\link{getMadratInfo}}
+
+Other dependency graph: 
+\code{\link{fingerprint}()},
+\code{\link{getCode}()},
+\code{\link{getDependencies}()},
+\code{\link{getFlags}()},
+\code{\link{getMadratGraph}()},
+\code{\link{getMadratInfo}()}
 }
 \author{
 Debbora Leip, Jan Philipp Dietrich
 }
+\concept{dependency graph}

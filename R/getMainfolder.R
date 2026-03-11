@@ -9,6 +9,7 @@
 #' @param .testmode boolean switch only relevant for internal testing (will simulate user inputs)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{initializeConfig}}, \code{\link{getConfig}}, \code{\link{setConfig}}
+#' @family madrat configuration
 #'
 getMainfolder <- function(verbose = TRUE, .testmode = FALSE) {
   # option MADRAT_MAINFOLDER set?

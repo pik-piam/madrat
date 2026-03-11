@@ -51,7 +51,15 @@ stopifnot(as.vector(y["B2", , ]) == 0) # and this is also still 0
 }
 \seealso{
 \code{\link{toolAggregate}}
+
+Other data manipulation: 
+\code{\link{robustOrder}()},
+\code{\link{toolConditionalReplace}()},
+\code{\link{toolNAreplace}()},
+\code{\link{toolOrderCells}()},
+\code{\link{toolXlargest}()}
 }
 \author{
 Pascal Sauer
 }
+\concept{data manipulation}

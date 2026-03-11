@@ -19,7 +19,15 @@ will be used.
 }
 \seealso{
 \code{\link{initializeConfig}}, \code{\link{getConfig}}, \code{\link{setConfig}}
+
+Other madrat configuration: 
+\code{\link{getConfig}()},
+\code{\link{initializeConfig}()},
+\code{\link{madTempDir}()},
+\code{\link{madratAttach}()},
+\code{\link{setConfig}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat configuration}

@@ -38,7 +38,16 @@ madrat:::fingerprint("toolGetMapping")
 }
 \seealso{
 \code{\link{readSource}}
+
+Other dependency graph: 
+\code{\link{getCode}()},
+\code{\link{getDependencies}()},
+\code{\link{getFlags}()},
+\code{\link{getMadratGraph}()},
+\code{\link{getMadratInfo}()},
+\code{\link{visualizeDependencies}()}
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\concept{dependency graph}

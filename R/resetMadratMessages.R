@@ -12,6 +12,7 @@
 #' messages for all function names will be reset)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{putMadratMessage}}, \code{\link{getMadratMessage}}
+#' @family madrat messages
 #' @examples
 #' putMadratMessage("test", "This is a toast", fname = "readTau")
 #' getMadratMessage("test", fname = "calcTauTotal")

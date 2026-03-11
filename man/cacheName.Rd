@@ -29,7 +29,16 @@ madrat:::cacheName("calc", "TauTotal")
 }
 \seealso{
 \code{\link{cachePut}}
+
+Other cache management: 
+\code{\link{cacheArgumentsHash}()},
+\code{\link{cacheCleanup}()},
+\code{\link{cacheCopy}()},
+\code{\link{cacheGet}()},
+\code{\link{cachePut}()},
+\code{\link{getNonDefaultArguments}()}
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\concept{cache management}

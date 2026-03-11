@@ -117,4 +117,13 @@ calcSomething <- function() {
 }
 \seealso{
 calcOutput
+
+Other core workflow: 
+\code{\link{calcOutput}()},
+\code{\link{downloadSource}()},
+\code{\link{isWrapperActive}()},
+\code{\link{pucAggregate}()},
+\code{\link{readSource}()},
+\code{\link{retrieveData}()}
 }
+\concept{core workflow}

@@ -31,7 +31,11 @@ toolManualDownload(c("Log into website ABC",
 }
 \seealso{
 \code{\link{downloadSource}}
+
+Other source downloading: 
+\code{\link{metadataGFZ}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{source downloading}

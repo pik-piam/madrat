@@ -17,6 +17,7 @@
 #' object as the format in this data list might change in the future!
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getSources}}, \code{\link{getCalculations}}
+#' @family country tools
 #' @examples
 #'
 #' head(getISOlist())

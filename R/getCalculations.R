@@ -16,6 +16,7 @@
 #' all loaded data processing packages including its name, its function call and its package origin.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}, \code{\link{setConfig}}
+#' @family available functions
 #' @examples
 #'
 #' print(getCalculations())

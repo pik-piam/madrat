@@ -34,6 +34,12 @@ the old and the new log.
 \description{
 Compares status logs and returns a textual rendering of the diff between the two.
 }
+\seealso{
+Other validation: 
+\code{\link{compareData}()},
+\code{\link{compareMadratOutputs}()}
+}
 \author{
 Patrick Rein
 }
+\concept{validation}

@@ -16,6 +16,7 @@
 #' @param filename If a filename is provided, the resulting graph will be saved
 #' @author Debbora Leip, Jan Philipp Dietrich
 #' @seealso \code{\link{getDependencies}}, \code{\link{getMadratGraph}}, \code{\link{getMadratInfo}}
+#' @family dependency graph
 #' @importFrom igraph make_ego_graph ego V V<- union
 #' @export
 

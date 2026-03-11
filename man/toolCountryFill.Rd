@@ -61,6 +61,14 @@ library(magclass)
 x <- new.magpie("DEU", 1994, "bla", 0)
 y <- toolCountryFill(x, 99)
 }
+\seealso{
+Other country tools: 
+\code{\link{getISOlist}()},
+\code{\link{toolCountry2isocode}()},
+\code{\link{toolFillWithRegionAvg}()},
+\code{\link{toolISOhistorical}()}
+}
 \author{
 Jan Philipp Dietrich
 }
+\concept{country tools}

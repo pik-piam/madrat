@@ -47,6 +47,7 @@
 #' \dontrun{
 #' a <- readSource("Tau", "paper")
 #' }
+#' @family core workflow
 #'
 #' @export
 readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_linter.

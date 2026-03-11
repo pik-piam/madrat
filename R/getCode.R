@@ -10,6 +10,7 @@
 #' @importFrom withr local_locale
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMadratGraph}}
+#' @family dependency graph
 getCode <- function(packages = installedMadratUniverse(), globalenv = getConfig("globalenv")) {
   # LC_CTYPE changes how \uFC is deparsed (ü vs <U+00FC>), but we want locale independent results
   withr::local_locale(c(LC_CTYPE = "C"))

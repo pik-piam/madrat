@@ -41,6 +41,12 @@ compareMadratOutputs("madrat", "readTau", c("paper", "historical"))
 }
 
 }
+\seealso{
+Other validation: 
+\code{\link{compareData}()},
+\code{\link{toolCompareStatusLogs}()}
+}
 \author{
 Pascal Sauer
 }
+\concept{validation}

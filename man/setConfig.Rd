@@ -158,7 +158,15 @@ setConfig(forcecache = c("readSSPall", "convertSSPall"))
 }
 \seealso{
 \code{\link{getConfig}}, \code{\link{getISOlist}}
+
+Other madrat configuration: 
+\code{\link{getConfig}()},
+\code{\link{getMainfolder}()},
+\code{\link{initializeConfig}()},
+\code{\link{madTempDir}()},
+\code{\link{madratAttach}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat configuration}

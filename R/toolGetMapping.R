@@ -20,6 +20,7 @@
 #' @return the mapping as a data frame
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
+#' @family mapping
 #' @examples
 #'
 #' head(toolGetMapping("regionmappingH12.csv", where = "madrat"))

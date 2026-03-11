@@ -27,6 +27,7 @@
 #' official ISO code country list. Historical time is filled up, old countries
 #' deleted
 #' @author Lavinia Baumstark
+#' @family country tools
 #'
 #' @importFrom magclass getItems getYears setYears
 #'

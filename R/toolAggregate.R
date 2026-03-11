@@ -71,6 +71,7 @@
 #'
 #' @author Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
 #' @seealso \code{\link{calcOutput}}
+#' @family aggregation
 #' @examples
 #'
 #' # create example mapping

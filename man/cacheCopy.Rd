@@ -19,6 +19,16 @@ A vector of cache files which match the given log information and filter.
 \description{
 Copy cache files which were used for a given preprocessing.
 }
+\seealso{
+Other cache management: 
+\code{\link{cacheArgumentsHash}()},
+\code{\link{cacheCleanup}()},
+\code{\link{cacheGet}()},
+\code{\link{cacheName}()},
+\code{\link{cachePut}()},
+\code{\link{getNonDefaultArguments}()}
+}
 \author{
 Jan Philipp Dietrich
 }
+\concept{cache management}

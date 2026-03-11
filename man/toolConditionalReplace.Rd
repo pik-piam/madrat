@@ -19,6 +19,15 @@ return changed input data
 \description{
 Sets values (NA, negative, ..) to value \code{replaceby}
 }
+\seealso{
+Other data manipulation: 
+\code{\link{robustOrder}()},
+\code{\link{toolFixWeight}()},
+\code{\link{toolNAreplace}()},
+\code{\link{toolOrderCells}()},
+\code{\link{toolXlargest}()}
+}
 \author{
 Kristine Karstens
 }
+\concept{data manipulation}

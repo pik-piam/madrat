@@ -147,7 +147,16 @@ a <- calcOutput(type = "TauTotal")
 }
 \seealso{
 \code{\link{setConfig}}, \code{\link{calcTauTotal}},
+
+Other core workflow: 
+\code{\link{downloadSource}()},
+\code{\link{isWrapperActive}()},
+\code{\link{pucAggregate}()},
+\code{\link{readSource}()},
+\code{\link{retrieveData}()},
+\code{\link{returnCalcOutput}()}
 }
 \author{
 Jan Philipp Dietrich, Patrick Rein
 }
+\concept{core workflow}

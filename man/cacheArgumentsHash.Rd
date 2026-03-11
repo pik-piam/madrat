@@ -32,7 +32,16 @@ madrat:::cacheArgumentsHash(functionNames, args = list(subtype = "historical"))
 }
 \seealso{
 \code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
+
+Other cache management: 
+\code{\link{cacheCleanup}()},
+\code{\link{cacheCopy}()},
+\code{\link{cacheGet}()},
+\code{\link{cacheName}()},
+\code{\link{cachePut}()},
+\code{\link{getNonDefaultArguments}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{cache management}

@@ -6,6 +6,7 @@
 #'
 #' @param name name of the wrapper in question (e.g. "calcOutput")
 #' @author Jan Philipp Dietrich
+#' @family core workflow
 isWrapperActive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   return(wrapperActive[[name]])

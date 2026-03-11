@@ -46,6 +46,13 @@ f()
 readSource("Tau")
 }
 }
+\seealso{
+Other source redirection: 
+\code{\link{getLinkFunction}()},
+\code{\link{getSourceFolder}()},
+\code{\link{redirect}()}
+}
 \author{
 Pascal Sauer
 }
+\concept{source redirection}

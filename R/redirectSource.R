@@ -7,6 +7,7 @@
 #' @inheritParams redirect
 #' @return The result of the specific redirect function or \code{\link{redirect}}.
 #' @author Pascal Sauer
+#' @family source redirection
 #' @examples \dontrun{
 #' f <- function() {
 #'   redirectSource("Tau", target = "~/TauExperiment")

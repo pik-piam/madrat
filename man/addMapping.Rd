@@ -28,7 +28,12 @@ addMapping("regionmappingH12.csv")
 }
 \seealso{
 \code{\link{setConfig}}
+
+Other mapping: 
+\code{\link{toolConvertMapping}()},
+\code{\link{toolGetMapping}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{mapping}

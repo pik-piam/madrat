@@ -15,6 +15,13 @@ Returns a function that creates a symlink, hardlink, junction, or copy of
 files and directories, depending on OS capabilities (usually symlinks are
 not supported on Windows).
 }
+\seealso{
+Other source redirection: 
+\code{\link{getSourceFolder}()},
+\code{\link{redirect}()},
+\code{\link{redirectSource}()}
+}
 \author{
 Pascal Sauer
 }
+\concept{source redirection}

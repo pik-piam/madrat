@@ -7,6 +7,7 @@
 #' the package.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{setConfig}}
+#' @family madrat configuration
 #' @examples
 #' \dontrun{
 #' madratAttach("madrat")

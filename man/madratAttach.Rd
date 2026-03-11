@@ -29,7 +29,15 @@ madratAttach("madrat")
 }
 \seealso{
 \code{\link{getConfig}}, \code{\link{setConfig}}
+
+Other madrat configuration: 
+\code{\link{getConfig}()},
+\code{\link{getMainfolder}()},
+\code{\link{initializeConfig}()},
+\code{\link{madTempDir}()},
+\code{\link{setConfig}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat configuration}

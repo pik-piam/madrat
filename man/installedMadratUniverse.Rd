@@ -28,7 +28,13 @@ installedMadratUniverse()
 }
 \seealso{
 \code{\link{setConfig}}
+
+Other available functions: 
+\code{\link{getCalculations}()},
+\code{\link{getLocation}()},
+\code{\link{getSources}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{available functions}

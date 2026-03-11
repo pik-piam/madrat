@@ -22,6 +22,13 @@ x <- maxample("animal")
 getComment(x) <- c("unit: bla", "comment: hallo", "blub: ble")
 madrat:::cleanComment(x)
 }
+\seealso{
+Other metadata comment: 
+\code{\link{getFromComment}()},
+\code{\link{prepComment}()},
+\code{\link{prepExtendedComment}()}
+}
 \author{
 Jan Philipp Dietrich
 }
+\concept{metadata comment}

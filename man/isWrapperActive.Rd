@@ -27,6 +27,16 @@ automatically resetted when a function finishes).
 \item \code{setWrapperInactive()}: set wrapper activity status to off
 
 }}
+\seealso{
+Other core workflow: 
+\code{\link{calcOutput}()},
+\code{\link{downloadSource}()},
+\code{\link{pucAggregate}()},
+\code{\link{readSource}()},
+\code{\link{retrieveData}()},
+\code{\link{returnCalcOutput}()}
+}
 \author{
 Jan Philipp Dietrich
 }
+\concept{core workflow}

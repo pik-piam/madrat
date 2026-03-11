@@ -24,7 +24,12 @@ madrat:::withMadratLogging(message("Hello world!"))
 }
 \seealso{
 \code{\link{vcat}}
+
+Other logging: 
+\code{\link{toolendmessage}()},
+\code{\link{toolstartmessage}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{logging}

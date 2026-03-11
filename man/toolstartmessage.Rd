@@ -37,7 +37,12 @@ outerFunction()
 }
 \seealso{
 \code{\link{toolendmessage}}, \code{\link{vcat}}
+
+Other logging: 
+\code{\link{toolendmessage}()},
+\code{\link{withMadratLogging}()}
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\concept{logging}

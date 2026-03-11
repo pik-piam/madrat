@@ -24,6 +24,7 @@
 #'
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link[digest]{digest}}
+#' @family code labeling
 #' @examples
 #' file <- system.file("extdata", "regionmappingH12.csv", package = "madrat")
 #' regionscode(file)

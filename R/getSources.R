@@ -18,6 +18,7 @@
 #' whether the functions will properly work.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}, \code{\link{setConfig}}
+#' @family available functions
 #' @examples
 #' 
 #' print(getSources())

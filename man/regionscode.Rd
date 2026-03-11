@@ -39,7 +39,11 @@ regionscode(file)
 }
 \seealso{
 \code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link[digest]{digest}}
+
+Other code labeling: 
+\code{\link{toolCodeLabels}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{code labeling}

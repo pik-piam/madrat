@@ -37,7 +37,13 @@ print(getCalculations("read"))
 }
 \seealso{
 \code{\link{readSource}}, \code{\link{setConfig}}
+
+Other available functions: 
+\code{\link{getLocation}()},
+\code{\link{getSources}()},
+\code{\link{installedMadratUniverse}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{available functions}

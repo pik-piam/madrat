@@ -51,7 +51,15 @@ violating the overall madrat logic and thereby can lead to erroneous results.
 }
 \seealso{
 \code{\link{setConfig}}, \code{\link{initializeConfig}}
+
+Other madrat configuration: 
+\code{\link{getMainfolder}()},
+\code{\link{initializeConfig}()},
+\code{\link{madTempDir}()},
+\code{\link{madratAttach}()},
+\code{\link{setConfig}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat configuration}

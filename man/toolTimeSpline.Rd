@@ -27,6 +27,12 @@ of freedom. Optionally, specific years can be "pegged" (anchored) to stay close
 to their original values during smoothing. Anchoring is enforced by applying
 high weights to those years.
 }
+\seealso{
+Other temporal processing: 
+\code{\link{toolFillYears}()},
+\code{\link{toolTimeAverage}()}
+}
 \author{
 Kristine Karstens, Felicitas Beier, Michael Crawford
 }
+\concept{temporal processing}

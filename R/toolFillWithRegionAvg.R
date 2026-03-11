@@ -31,6 +31,7 @@
 #' timestep have a missing value, a note will be written.
 #' @return A MAgPIE object with the missing values filled.
 #' @author Bjoern Soergel, Lavinia Baumstark, Jan Philipp Dietrich
+#' @family country tools
 #'
 #' @importFrom magclass as.magpie is.magpie getItems getYears dimSums
 #' @export

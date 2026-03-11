@@ -12,6 +12,7 @@
 #' @return a list containing x and weight
 #' @author Benjamin Bodirsky, Jan Philipp Dietrich
 #' @seealso \code{\link{calcOutput}}
+#' @family data manipulation
 #' @importFrom magclass magpie_expand is.magpie getCells getYears getNames
 #' @export
 #' 

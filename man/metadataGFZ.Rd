@@ -23,7 +23,11 @@ metadataGFZ("10.5880/pik.2019.004")
 }
 \seealso{
 \code{\link{toolstartmessage}}, \code{\link{vcat}}
+
+Other source downloading: 
+\code{\link{toolManualDownload}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{source downloading}

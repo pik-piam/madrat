@@ -27,7 +27,13 @@ resetMadratMessages("test")
 }
 \seealso{
 \code{\link{putMadratMessage}}, \code{\link{getMadratMessage}}
+
+Other madrat messages: 
+\code{\link{getMadratMessage}()},
+\code{\link{putMadratMessage}()},
+\code{\link{vcat}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat messages}

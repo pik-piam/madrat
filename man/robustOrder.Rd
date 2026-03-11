@@ -26,7 +26,15 @@ same encoding as the input although internally character vectors are converted t
 }
 \seealso{
 \code{\link[base]{order}}
+
+Other data manipulation: 
+\code{\link{toolConditionalReplace}()},
+\code{\link{toolFixWeight}()},
+\code{\link{toolNAreplace}()},
+\code{\link{toolOrderCells}()},
+\code{\link{toolXlargest}()}
 }
 \author{
 Pascal Sauer
 }
+\concept{data manipulation}

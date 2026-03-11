@@ -12,6 +12,7 @@
 #' the name of a package which contains the mapping
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
+#' @family mapping
 #' @importFrom tools file_ext
 #' @importFrom utils write.csv write.table
 #' @export

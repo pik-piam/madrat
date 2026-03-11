@@ -64,6 +64,14 @@ x <- magclass::new.magpie(cells_and_regions = c("A", "B", "C", "D"), years = c(2
 rel <- data.frame(CountryCode = c("A", "B", "C", "D"), RegionCode = c("R1", "R1", "R1", "R2"))
 xfilled <- toolFillWithRegionAvg(x, regionmapping = rel)
 }
+\seealso{
+Other country tools: 
+\code{\link{getISOlist}()},
+\code{\link{toolCountry2isocode}()},
+\code{\link{toolCountryFill}()},
+\code{\link{toolISOhistorical}()}
+}
 \author{
 Bjoern Soergel, Lavinia Baumstark, Jan Philipp Dietrich
 }
+\concept{country tools}

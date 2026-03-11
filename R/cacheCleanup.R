@@ -16,6 +16,7 @@
 #' @return If the user answers 'n', a data.frame as returned by base::file.info, containing only files older than
 #' <daysThreshold> days.
 #' @importFrom withr local_dir
+#' @family cache management
 #' @export
 cacheCleanup <- function(daysThreshold, path = getConfig("cachefolder", verbose = FALSE),
                          timeType = c("atime", "mtime", "ctime"), ask = TRUE, readlineFunction = readline) {

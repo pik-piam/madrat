@@ -9,6 +9,7 @@
 #' @param logOnly passed to vcat, determines if warning/error is thrown after logging
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{vcat}}
+#' @family logging
 #' @examples
 #' \dontrun{
 #' madrat:::withMadratLogging(message("Hello world!"))

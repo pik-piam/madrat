@@ -82,6 +82,7 @@
 #' to be converted into an error message in one of the next package updates!
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getConfig}}, \code{\link{getISOlist}}
+#' @family madrat configuration
 #' @examples
 #' \dontrun{
 #' setConfig(forcecache = c("readSSPall", "convertSSPall"))
