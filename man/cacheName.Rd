@@ -33,3 +33,4 @@ madrat:::cacheName("calc", "TauTotal")
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\keyword{internal}

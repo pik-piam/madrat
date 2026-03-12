@@ -65,6 +65,7 @@
 #'   file. Use with care.
 #'
 #' @returns A list with the specified arguments.
+#' @family core workflow
 #'
 #' @examples
 #' calcSomething <- function() {

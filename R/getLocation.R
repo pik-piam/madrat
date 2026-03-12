@@ -14,6 +14,7 @@
 #' could be found
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getDependencies}}
+#' @family available functions
 #' @export
 
 getLocation <- function(name, packages = installedMadratUniverse(), globalenv = TRUE) {

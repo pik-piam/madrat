@@ -21,3 +21,4 @@ applies redirections, see \code{\link{redirectSource}} for more details.
 \author{
 Pascal Sauer
 }
+\keyword{internal}

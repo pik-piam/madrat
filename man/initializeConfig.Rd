@@ -22,3 +22,4 @@ if they exist, NA otherwise. NA means subfolders of the mainfolder are used.
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

@@ -24,6 +24,7 @@
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{readSource}}
+#' @keywords internal
 #' @examples
 #' madrat:::fingerprint("toolGetMapping")
 fingerprint <- function(name) {

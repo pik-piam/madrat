@@ -13,6 +13,7 @@
 #' to the madrat universe
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}
+#' @family available functions
 #' @examples
 #' \dontrun{
 #' installedMadratUniverse()

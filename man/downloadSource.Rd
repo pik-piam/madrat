@@ -56,7 +56,14 @@ a <- downloadSource("Tau", subtype = "historical")
 }
 \seealso{
 \code{\link{setConfig}}, \code{\link{readSource}}
+
+Other core workflow: 
+\code{\link{calcOutput}()},
+\code{\link{readSource}()},
+\code{\link{retrieveData}()},
+\code{\link{returnCalcOutput}()}
 }
 \author{
 Jan Philipp Dietrich, David Klein, Pascal Sauer
 }
+\concept{core workflow}

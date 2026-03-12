@@ -22,3 +22,4 @@ in a function body, for example `"!# @pucArguments extra"`.
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

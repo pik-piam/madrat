@@ -25,3 +25,4 @@ madrat:::cleanComment(x)
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

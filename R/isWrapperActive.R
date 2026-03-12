@@ -6,12 +6,14 @@
 #'
 #' @param name name of the wrapper in question (e.g. "calcOutput")
 #' @author Jan Philipp Dietrich
+#' @keywords internal
 isWrapperActive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   return(wrapperActive[[name]])
 }
 
 #' @describeIn isWrapperActive set wrapper activity status to on
+#' @keywords internal
 setWrapperActive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   wrapperActive[[name]] <- TRUE
@@ -19,6 +21,7 @@ setWrapperActive <- function(name) {
 }
 
 #' @describeIn isWrapperActive set wrapper activity status to off
+#' @keywords internal
 setWrapperInactive <- function(name) {
   wrapperActive <- .readWrapperStatus(name)
   wrapperActive[[name]] <- FALSE

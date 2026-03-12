@@ -17,6 +17,12 @@ MAgPIE object with completed time dimensionality.
 \description{
 Inter- and extrapolates a historical dataset for a given time period.
 }
+\seealso{
+Other temporal processing: 
+\code{\link{toolTimeAverage}()},
+\code{\link{toolTimeSpline}()}
+}
 \author{
 Kristine Karstens
 }
+\concept{temporal processing}

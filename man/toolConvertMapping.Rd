@@ -23,7 +23,12 @@ Function which converts mapping files between formats
 }
 \seealso{
 \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
+
+Other mapping: 
+\code{\link{addMapping}()},
+\code{\link{toolGetMapping}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{mapping}

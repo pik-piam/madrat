@@ -25,3 +25,4 @@ madrat:::madTempDir()
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

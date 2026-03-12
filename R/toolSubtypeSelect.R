@@ -12,6 +12,7 @@
 #' @return The file name corresponding to the given subtype
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}
+#' @family subtype handling
 #' @examples
 #' 
 #' files <-  c(protection="protection.csv",

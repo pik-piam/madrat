@@ -9,6 +9,7 @@
 #' @param yearLim year until when the comparison should be performed.
 #' Useful to check if data is identical until a certain year.
 #' @author Jan Philipp Dietrich, Florian Humpenoeder
+#' @family validation
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 #' @importFrom utils untar
 #' @importFrom withr local_tempdir

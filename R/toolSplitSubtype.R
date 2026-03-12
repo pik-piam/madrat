@@ -10,6 +10,7 @@
 #' @param sep separator to be used for splitting
 #' @return A named list with the different entities of the given subtype
 #' @author Jan Philipp Dietrich
+#' @family subtype handling
 #' @examples
 #' toolSplitSubtype("mymodel:myversion:myworld", list(model=c("mymodel","notmymodel"), 
 #'                                                    version=c("myversion","42"), 

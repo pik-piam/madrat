@@ -10,6 +10,7 @@
 #' @return A list containing diagnostic information required by \code{\link{toolendmessage}}.
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{toolendmessage}}, \code{\link{vcat}}
+#' @keywords internal
 #' @importFrom utils str
 #' @examples
 #'

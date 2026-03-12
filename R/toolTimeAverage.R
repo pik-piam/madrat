@@ -10,6 +10,7 @@
 #' @return the averaged data in magclass format
 #'
 #' @author Kristine Karstens, Jan Philipp Dietrich
+#' @family temporal processing
 #' @export
 toolTimeAverage <- function(x, averaging_range = NULL, cut = TRUE) { # nolint
   if (!is.magpie(x)) {

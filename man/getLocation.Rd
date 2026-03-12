@@ -26,7 +26,13 @@ are found
 }
 \seealso{
 \code{\link{getCalculations}}, \code{\link{getDependencies}}
+
+Other available functions: 
+\code{\link{getCalculations}()},
+\code{\link{getSources}()},
+\code{\link{installedMadratUniverse}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{available functions}

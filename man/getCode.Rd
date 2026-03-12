@@ -26,3 +26,4 @@ Extract function code from madrat-style functions in specified packages
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

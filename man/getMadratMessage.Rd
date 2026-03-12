@@ -26,7 +26,13 @@ getMadratMessage("test", fname = "calcTauTotal")
 }
 \seealso{
 \code{\link{getMadratMessage}}
+
+Other madrat messages: 
+\code{\link{putMadratMessage}()},
+\code{\link{resetMadratMessages}()},
+\code{\link{vcat}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat messages}

@@ -25,3 +25,4 @@ call to \code{\link{toolstartmessage}}.
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

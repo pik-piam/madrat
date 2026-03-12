@@ -36,3 +36,4 @@ madrat:::cacheArgumentsHash(functionNames, args = list(subtype = "historical"))
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

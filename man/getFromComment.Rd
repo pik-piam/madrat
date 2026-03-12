@@ -23,3 +23,4 @@ getFromComment(x, "description")
 \author{
 Jan Philipp Dietrich
 }
+\concept{metadata comment}

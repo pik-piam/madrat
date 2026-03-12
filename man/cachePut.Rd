@@ -33,3 +33,4 @@ madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\keyword{internal}

@@ -6,6 +6,7 @@
 #' @param x object the metadata should be extracted from
 #' @param name name of the metadata to be extracted (e.g. unit)
 #' @author Jan Philipp Dietrich
+#' @family metadata comment
 #' @examples
 #' x <- as.magpie(1)
 #' getComment(x) <- c(" description: example description", " unit: kg")

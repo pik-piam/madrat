@@ -21,6 +21,12 @@ the averaged data in magclass format
 average over time given an averaging range. Only works for data with
 equidistant time steps!
 }
+\seealso{
+Other temporal processing: 
+\code{\link{toolFillYears}()},
+\code{\link{toolTimeSpline}()}
+}
 \author{
 Kristine Karstens, Jan Philipp Dietrich
 }
+\concept{temporal processing}

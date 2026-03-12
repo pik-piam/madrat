@@ -24,6 +24,14 @@ reorder numbered spatial units (cells, clusters) by number. Function
 will return the unmodified object, if the given subdimension does not exist
 or does not contain cell information.
 }
+\seealso{
+Other data manipulation: 
+\code{\link{toolConditionalReplace}()},
+\code{\link{toolFixWeight}()},
+\code{\link{toolNAreplace}()},
+\code{\link{toolXlargest}()}
+}
 \author{
 Kristine Karstens, Jan Philipp Dietrich
 }
+\concept{data manipulation}

@@ -37,3 +37,8 @@ File time metadata is not available on all systems and the semantics are also sy
 careful and check that the correct files are deleted. This function will return a data.frame containing all
 files that would be deleted if the user answers 'n' to the question. If deleting files fails a warning is created.
 }
+\seealso{
+Other cache management: 
+\code{\link{cacheCopy}()}
+}
+\concept{cache management}

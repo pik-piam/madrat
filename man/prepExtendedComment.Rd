@@ -24,3 +24,4 @@ an extended comment entry
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\keyword{internal}

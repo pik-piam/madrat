@@ -35,3 +35,4 @@ print(madrat:::prepFunctionName("EXAMPLE", "full"))
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

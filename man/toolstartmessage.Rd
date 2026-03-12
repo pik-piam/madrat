@@ -41,3 +41,4 @@ outerFunction()
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\keyword{internal}

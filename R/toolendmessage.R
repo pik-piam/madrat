@@ -11,6 +11,7 @@
 #' hierarchy level by 1).
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{toolstartmessage}}, \code{\link{vcat}}
+#' @keywords internal
 toolendmessage <- function(startdata, level = NULL) {
   runtime <- unname(round((proc.time() - startdata$time1)["elapsed"], 2))
   vcat(1, "Exit ", startdata$functionCallString, " in ", runtime, " seconds",

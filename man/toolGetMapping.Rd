@@ -46,7 +46,12 @@ head(toolGetMapping("regionmappingH12.csv", where = "madrat"))
 }
 \seealso{
 \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
+
+Other mapping: 
+\code{\link{addMapping}()},
+\code{\link{toolConvertMapping}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{mapping}

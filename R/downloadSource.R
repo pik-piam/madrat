@@ -41,6 +41,7 @@
 #' a <- downloadSource("Tau", subtype = "historical")
 #' }
 #' @seealso \code{\link{setConfig}}, \code{\link{readSource}}
+#' @family core workflow
 #' @importFrom yaml write_yaml
 #' @importFrom withr local_dir defer with_dir
 #' @export

@@ -8,6 +8,7 @@
 #'
 #' @return vector with ISO country codes
 #' @author Benjamin Leon Bodirsky, Jan Philipp Dietrich
+#' @family data manipulation
 #' @export
 #' @examples
 #' toolXlargest(magclass::maxample("pop"), range = 1:3)

@@ -10,6 +10,7 @@
 #' @param request A prompt which should show up after the instructions to ask for the local download location.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{downloadSource}}
+#' @family source downloading
 #' @examples
 #' \dontrun{
 #' toolManualDownload(c("Log into website ABC",

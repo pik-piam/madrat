@@ -7,6 +7,7 @@
 #'
 #' @return return changed input data
 #' @author Kristine Karstens
+#' @family data manipulation
 #'
 #' @export
 

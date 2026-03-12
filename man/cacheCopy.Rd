@@ -19,6 +19,11 @@ A vector of cache files which match the given log information and filter.
 \description{
 Copy cache files which were used for a given preprocessing.
 }
+\seealso{
+Other cache management: 
+\code{\link{cacheCleanup}()}
+}
 \author{
 Jan Philipp Dietrich
 }
+\concept{cache management}

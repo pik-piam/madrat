@@ -68,11 +68,17 @@ will corrupt the PUC file. Use with care.
 \dontrun{
 a <- readSource("Tau", "paper")
 }
-
 }
 \seealso{
 \code{\link{setConfig}}, \code{\link{downloadSource}}, \code{\link{readTau}}
+
+Other core workflow: 
+\code{\link{calcOutput}()},
+\code{\link{downloadSource}()},
+\code{\link{retrieveData}()},
+\code{\link{returnCalcOutput}()}
 }
 \author{
 Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal Sauer
 }
+\concept{core workflow}

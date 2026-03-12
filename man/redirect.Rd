@@ -51,3 +51,4 @@ readSource("Tau")
 \author{
 Pascal Sauer
 }
+\keyword{internal}

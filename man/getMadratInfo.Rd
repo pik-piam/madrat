@@ -25,7 +25,13 @@ network of madrat functions.
 }
 \seealso{
 \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
+
+Other dependency graph: 
+\code{\link{getDependencies}()},
+\code{\link{getMadratGraph}()},
+\code{\link{visualizeDependencies}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{dependency graph}

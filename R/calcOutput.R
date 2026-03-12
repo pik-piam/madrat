@@ -98,6 +98,7 @@
 #' }
 #' @author Jan Philipp Dietrich, Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{calcTauTotal}},
+#' @family core workflow
 #' @examples
 #' \dontrun{
 #' a <- calcOutput(type = "TauTotal")

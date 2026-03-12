@@ -23,3 +23,4 @@ Helper function to properly format a metadata comment entry
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

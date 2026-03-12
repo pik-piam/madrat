@@ -25,7 +25,14 @@ Functions removes NAs, NaNs and infinite values in x and weight
 }
 \seealso{
 \code{\link{calcOutput}}
+
+Other data manipulation: 
+\code{\link{toolConditionalReplace}()},
+\code{\link{toolFixWeight}()},
+\code{\link{toolOrderCells}()},
+\code{\link{toolXlargest}()}
 }
 \author{
 Benjamin Bodirsky, Jan Philipp Dietrich
 }
+\concept{data manipulation}

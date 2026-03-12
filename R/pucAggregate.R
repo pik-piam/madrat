@@ -23,6 +23,7 @@
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{retrieveData}},\code{\link{localConfig}}
+#' @family aggregation
 #' @examples
 #' \dontrun{
 #' pucAggregate("rev1_example.puc", regionmapping = "regionmappingH12.csv")

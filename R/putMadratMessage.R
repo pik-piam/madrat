@@ -19,6 +19,7 @@
 #' value (TRUE) or overwrite it (FALSE)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{putMadratMessage}}
+#' @family madrat messages
 #' @examples
 #' putMadratMessage("test", "This is a toast", fname = "readTau")
 #' getMadratMessage("test", fname = "calcTauTotal")

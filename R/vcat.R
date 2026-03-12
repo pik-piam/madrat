@@ -27,6 +27,7 @@
 #' @export
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{readSource}}
+#' @family madrat messages
 #' @examples
 #' \dontrun{
 #' vcat(2, "Hello world!")

@@ -51,7 +51,13 @@ vcat(2, "Hello world!")
 }
 \seealso{
 \code{\link{readSource}}
+
+Other madrat messages: 
+\code{\link{getMadratMessage}()},
+\code{\link{putMadratMessage}()},
+\code{\link{resetMadratMessages}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{madrat messages}

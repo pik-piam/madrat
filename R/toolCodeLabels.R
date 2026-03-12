@@ -13,6 +13,7 @@
 #' @return A vector with either labels (if available) or hash codes (if no label was available).
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{regionscode}}
+#' @family code labeling
 #' @examples
 #' toolCodeLabels("62eff8f7")
 #'

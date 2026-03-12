@@ -15,6 +15,7 @@
 #'
 #' @return A magclass object of the same shape, with each time series spline-smoothed.
 #' @author Kristine Karstens, Felicitas Beier, Michael Crawford
+#' @family temporal processing
 #' @importFrom stats smooth.spline
 #' @export
 

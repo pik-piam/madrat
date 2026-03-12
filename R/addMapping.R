@@ -13,6 +13,7 @@
 #' file is used.
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}
+#' @family mapping
 #' @examples
 #' \dontrun{
 #' addMapping("regionmappingH12.csv")

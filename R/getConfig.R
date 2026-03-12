@@ -36,6 +36,7 @@
 #' @return A config list with all settings currently set for the madrat package
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{setConfig}}, \code{\link{initializeConfig}}
+#' @family madrat configuration
 #' @export
 getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE) { # nolint
   initializeConfig(verbose = verbose)

@@ -5,6 +5,7 @@
 #' @param years vector of years as digits or in mag year format
 #' @return MAgPIE object with completed time dimensionality.
 #' @author Kristine Karstens
+#' @family temporal processing
 #'
 #' @importFrom magclass time_interpolate
 #' @export

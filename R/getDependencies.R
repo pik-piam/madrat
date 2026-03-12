@@ -22,6 +22,7 @@
 #' that no graph is provided (otherwise ignored)
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}},  \code{\link{getMadratInfo}}
+#' @family dependency graph
 #' @importFrom igraph graph_from_data_frame subcomponent
 #' @export
 getDependencies <- function(name, direction = "in", graph = NULL, type = NULL, self = FALSE, ...) {

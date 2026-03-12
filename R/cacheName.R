@@ -13,6 +13,7 @@
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}
+#' @keywords internal
 #' @examples
 #' madrat:::cacheName("calc", "TauTotal")
 cacheName <- function(prefix, type, args = NULL) {

@@ -30,3 +30,4 @@ same encoding as the input although internally character vectors are converted t
 \author{
 Pascal Sauer
 }
+\keyword{internal}

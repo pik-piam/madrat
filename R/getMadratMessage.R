@@ -12,6 +12,7 @@
 #' itself, but also entries from functions which were called by this function).
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getMadratMessage}}
+#' @family madrat messages
 #' @examples
 #' putMadratMessage("test", "This is a toast", fname = "readTau")
 #' getMadratMessage("test", fname = "calcTauTotal")

@@ -35,7 +35,14 @@ head(getISOlist("dispensable"))
 }
 \seealso{
 \code{\link{getSources}}, \code{\link{getCalculations}}
+
+Other country tools: 
+\code{\link{toolCountry2isocode}()},
+\code{\link{toolCountryFill}()},
+\code{\link{toolFillWithRegionAvg}()},
+\code{\link{toolISOhistorical}()}
 }
 \author{
 Jan Philipp Dietrich
 }
+\concept{country tools}

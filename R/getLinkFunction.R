@@ -7,6 +7,7 @@
 #' @return A function with arguments "from" and "to" which should behave like
 #' file.symlink on all platforms.
 #' @author Pascal Sauer
+#' @family source redirection
 #' @export
 getLinkFunction <- function() {
   withr::local_dir(withr::local_tempdir())

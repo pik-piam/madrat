@@ -28,3 +28,4 @@ madrat:::withMadratLogging(message("Hello world!"))
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

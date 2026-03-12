@@ -14,6 +14,7 @@
 #' @returns A printable string describing the changes that occurred between
 #' the old and the new log.
 #' @author Patrick Rein
+#' @family validation
 #' @export
 toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
                                   oldLogPath = file.path(".", "status.log"), newLogPath = file.path(".", "status.log"),
@@ -156,6 +157,7 @@ toolCompareStatusLogs <- function(oldArchivePath = NULL, newArchivePath = NULL,
 #' @param diffList the list of differences as created by \code{.compareStatusLogsStatistics}
 #' @param sections a vector of section names to be displayed (valid values are: "changedStatistics",
 #' "changedCalls", "addedCalls", "removedCalls"); by default all sections are shown
+#' @keywords internal
 .renderDiff <- function(oldLog, newLog, diffList,
                         sections = c("changedStatistics", "changedCalls", "addedCalls", "removedCalls")) {
   output <- list()

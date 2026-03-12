@@ -35,3 +35,4 @@ madrat:::getNonDefaultArguments(functionNames, args = list(subtype = "historical
 \author{
 Jan Philipp Dietrich, Pascal Sauer
 }
+\keyword{internal}

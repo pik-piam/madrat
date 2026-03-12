@@ -75,7 +75,14 @@ retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmapp
 }
 \seealso{
 \code{\link{calcOutput}},\code{\link{setConfig}}
+
+Other core workflow: 
+\code{\link{calcOutput}()},
+\code{\link{downloadSource}()},
+\code{\link{readSource}()},
+\code{\link{returnCalcOutput}()}
 }
 \author{
 Jan Philipp Dietrich, Lavinia Baumstark
 }
+\concept{core workflow}

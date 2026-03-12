@@ -17,6 +17,7 @@
 #' @return the ISO 3166-1 alpha 3 country code
 #' @author Jan Philipp Dietrich, Anastasis Giannousakis
 #' @seealso \code{\link{readSource}},\code{\link{getSources}}
+#' @family country tools
 #' @examples
 #'
 #' toolCountry2isocode("Germany")

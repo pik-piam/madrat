@@ -30,3 +30,4 @@ automatically resetted when a function finishes).
 \author{
 Jan Philipp Dietrich
 }
+\keyword{internal}

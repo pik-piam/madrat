@@ -32,6 +32,7 @@
 #' @return A MAgPIE object with spatial entries for each country of the
 #' official ISO code country list.
 #' @author Jan Philipp Dietrich
+#' @family country tools
 #' @examples
 #'
 #' library(magclass)

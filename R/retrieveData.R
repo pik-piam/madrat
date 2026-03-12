@@ -44,6 +44,7 @@
 #' @author Jan Philipp Dietrich, Lavinia Baumstark
 #' @seealso
 #' \code{\link{calcOutput}},\code{\link{setConfig}}
+#' @family core workflow
 #' @examples
 #' \dontrun{
 #' retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmappingH12.csv")
