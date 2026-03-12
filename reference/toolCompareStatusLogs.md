@@ -47,6 +47,11 @@ toolCompareStatusLogs(
 A printable string describing the changes that occurred between the old
 and the new log.
 
+## See also
+
+Other validation: [`compareData()`](compareData.md),
+[`compareMadratOutputs()`](compareMadratOutputs.md)
+
 ## Author
 
 Patrick Rein

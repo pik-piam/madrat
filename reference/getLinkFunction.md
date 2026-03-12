@@ -15,6 +15,10 @@ getLinkFunction()
 A function with arguments "from" and "to" which should behave like
 file.symlink on all platforms.
 
+## See also
+
+Other source redirection: [`redirectSource()`](redirectSource.md)
+
 ## Author
 
 Pascal Sauer

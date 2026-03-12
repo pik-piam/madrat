@@ -48,6 +48,10 @@ redirectSource(type, target, ..., linkOthers = TRUE, local = TRUE)
 The result of the specific redirect function or
 [`redirect`](redirect.md).
 
+## See also
+
+Other source redirection: [`getLinkFunction()`](getLinkFunction.md)
+
 ## Author
 
 Pascal Sauer

@@ -53,6 +53,10 @@ properly work.
 
 [`readSource`](readSource.md), [`setConfig`](setConfig.md)
 
+Other available functions: [`getCalculations()`](getCalculations.md),
+[`getLocation()`](getLocation.md),
+[`installedMadratUniverse()`](installedMadratUniverse.md)
+
 ## Author
 
 Jan Philipp Dietrich

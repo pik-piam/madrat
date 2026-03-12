@@ -34,6 +34,9 @@ toolConvertMapping(name, format = "rds", type = NULL, where = "mappingfolder")
 
 [`calcOutput`](calcOutput.md), `toolConvertMapping`
 
+Other mapping: [`addMapping()`](addMapping.md),
+[`toolGetMapping()`](toolGetMapping.md)
+
 ## Author
 
 Jan Philipp Dietrich

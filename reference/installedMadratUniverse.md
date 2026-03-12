@@ -26,6 +26,9 @@ madrat universe
 
 [`setConfig`](setConfig.md)
 
+Other available functions: [`getCalculations()`](getCalculations.md),
+[`getLocation()`](getLocation.md), [`getSources()`](getSources.md)
+
 ## Author
 
 Jan Philipp Dietrich

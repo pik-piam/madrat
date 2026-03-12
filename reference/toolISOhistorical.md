@@ -58,6 +58,13 @@ A MAgPIE object with spatial entries for each country of the official
 ISO code country list. Historical time is filled up, old countries
 deleted
 
+## See also
+
+Other country tools: [`getISOlist()`](getISOlist.md),
+[`toolCountry2isocode()`](toolCountry2isocode.md),
+[`toolCountryFill()`](toolCountryFill.md),
+[`toolFillWithRegionAvg()`](toolFillWithRegionAvg.md)
+
 ## Author
 
 Lavinia Baumstark

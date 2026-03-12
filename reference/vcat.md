@@ -61,6 +61,10 @@ vcat(
 
 [`readSource`](readSource.md)
 
+Other madrat messages: [`getMadratMessage()`](getMadratMessage.md),
+[`putMadratMessage()`](putMadratMessage.md),
+[`resetMadratMessages()`](resetMadratMessages.md)
+
 ## Author
 
 Jan Philipp Dietrich

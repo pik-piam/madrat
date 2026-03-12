@@ -94,6 +94,11 @@ supported:
 
 [`calcOutput`](calcOutput.md),[`setConfig`](setConfig.md)
 
+Other core workflow: [`calcOutput()`](calcOutput.md),
+[`downloadSource()`](downloadSource.md),
+[`readSource()`](readSource.md),
+[`returnCalcOutput()`](returnCalcOutput.md)
+
 ## Author
 
 Jan Philipp Dietrich, Lavinia Baumstark

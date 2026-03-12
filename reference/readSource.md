@@ -91,6 +91,11 @@ should have the following structure:
 [`setConfig`](setConfig.md), [`downloadSource`](downloadSource.md),
 [`readTau`](readTau.md)
 
+Other core workflow: [`calcOutput()`](calcOutput.md),
+[`downloadSource()`](downloadSource.md),
+[`retrieveData()`](retrieveData.md),
+[`returnCalcOutput()`](returnCalcOutput.md)
+
 ## Author
 
 Jan Philipp Dietrich, Anastasis Giannousakis, Lavinia Baumstark, Pascal

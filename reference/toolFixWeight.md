@@ -38,6 +38,12 @@ the (dis)aggregated object would be different from the original
 
 [`toolAggregate`](toolAggregate.md)
 
+Other data manipulation:
+[`toolConditionalReplace()`](toolConditionalReplace.md),
+[`toolNAreplace()`](toolNAreplace.md),
+[`toolOrderCells()`](toolOrderCells.md),
+[`toolXlargest()`](toolXlargest.md)
+
 ## Author
 
 Pascal Sauer

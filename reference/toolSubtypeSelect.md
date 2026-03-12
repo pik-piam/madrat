@@ -30,6 +30,8 @@ The file name corresponding to the given subtype
 
 [`readSource`](readSource.md)
 
+Other subtype handling: [`toolSplitSubtype()`](toolSplitSubtype.md)
+
 ## Author
 
 Jan Philipp Dietrich

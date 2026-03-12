@@ -78,6 +78,13 @@ to first fill up the list of countries to the official ISO code country
 list, and then fill values with the regional average (see
 callToolCountryFill Option).
 
+## See also
+
+Other country tools: [`getISOlist()`](getISOlist.md),
+[`toolCountry2isocode()`](toolCountry2isocode.md),
+[`toolCountryFill()`](toolCountryFill.md),
+[`toolISOhistorical()`](toolISOhistorical.md)
+
 ## Author
 
 Bjoern Soergel, Lavinia Baumstark, Jan Philipp Dietrich

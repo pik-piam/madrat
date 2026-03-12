@@ -37,6 +37,8 @@ toolManualDownload(
 
 [`downloadSource`](downloadSource.md)
 
+Other source downloading: [`metadataGFZ()`](metadataGFZ.md)
+
 ## Author
 
 Jan Philipp Dietrich

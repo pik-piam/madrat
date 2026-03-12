@@ -32,6 +32,9 @@ compareData(x, y, tolerance = 10^-5, yearLim = NULL)
 
 [`setConfig`](setConfig.md), [`calcTauTotal`](calcTauTotal.md),
 
+Other validation: [`compareMadratOutputs()`](compareMadratOutputs.md),
+[`toolCompareStatusLogs()`](toolCompareStatusLogs.md)
+
 ## Author
 
 Jan Philipp Dietrich, Florian Humpenoeder

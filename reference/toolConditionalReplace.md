@@ -28,6 +28,13 @@ toolConditionalReplace(x, conditions, replaceby = 0)
 
 return changed input data
 
+## See also
+
+Other data manipulation: [`toolFixWeight()`](toolFixWeight.md),
+[`toolNAreplace()`](toolNAreplace.md),
+[`toolOrderCells()`](toolOrderCells.md),
+[`toolXlargest()`](toolXlargest.md)
+
 ## Author
 
 Kristine Karstens

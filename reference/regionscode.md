@@ -48,6 +48,8 @@ to the regionscode
 [`toolCodeLabels`](toolCodeLabels.md), [`fingerprint`](fingerprint.md),
 [`digest`](https://eddelbuettel.github.io/digest/man/digest.html)
 
+Other code labeling: [`toolCodeLabels()`](toolCodeLabels.md)
+
 ## Author
 
 Jan Philipp Dietrich

@@ -38,6 +38,11 @@ data object as the format in this data list might change in the future!
 
 [`getSources`](getSources.md), [`getCalculations`](getCalculations.md)
 
+Other country tools: [`toolCountry2isocode()`](toolCountry2isocode.md),
+[`toolCountryFill()`](toolCountryFill.md),
+[`toolFillWithRegionAvg()`](toolFillWithRegionAvg.md),
+[`toolISOhistorical()`](toolISOhistorical.md)
+
 ## Author
 
 Jan Philipp Dietrich

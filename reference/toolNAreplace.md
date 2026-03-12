@@ -36,6 +36,12 @@ a list containing x and weight
 
 [`calcOutput`](calcOutput.md)
 
+Other data manipulation:
+[`toolConditionalReplace()`](toolConditionalReplace.md),
+[`toolFixWeight()`](toolFixWeight.md),
+[`toolOrderCells()`](toolOrderCells.md),
+[`toolXlargest()`](toolXlargest.md)
+
 ## Author
 
 Benjamin Bodirsky, Jan Philipp Dietrich

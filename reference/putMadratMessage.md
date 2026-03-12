@@ -41,6 +41,9 @@ putMadratMessage(name, value, fname = -1, add = FALSE)
 
 `putMadratMessage`
 
+Other madrat messages: [`getMadratMessage()`](getMadratMessage.md),
+[`resetMadratMessages()`](resetMadratMessages.md), [`vcat()`](vcat.md)
+
 ## Author
 
 Jan Philipp Dietrich

@@ -44,6 +44,10 @@ package origin.
 
 [`readSource`](readSource.md), [`setConfig`](setConfig.md)
 
+Other available functions: [`getLocation()`](getLocation.md),
+[`getSources()`](getSources.md),
+[`installedMadratUniverse()`](installedMadratUniverse.md)
+
 ## Author
 
 Jan Philipp Dietrich

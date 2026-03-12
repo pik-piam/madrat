@@ -23,6 +23,9 @@ a list with entries "license", "citation", "authors" and "year"
 
 [`toolstartmessage`](toolstartmessage.md), [`vcat`](vcat.md)
 
+Other source downloading:
+[`toolManualDownload()`](toolManualDownload.md)
+
 ## Author
 
 Jan Philipp Dietrich

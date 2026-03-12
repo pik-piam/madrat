@@ -62,6 +62,9 @@ the mapping as a data frame
 [`calcOutput`](calcOutput.md),
 [`toolConvertMapping`](toolConvertMapping.md)
 
+Other mapping: [`addMapping()`](addMapping.md),
+[`toolConvertMapping()`](toolConvertMapping.md)
+
 ## Author
 
 Jan Philipp Dietrich

@@ -32,6 +32,10 @@ toolSplitSubtype(subtype, components, sep = ":")
 
 A named list with the different entities of the given subtype
 
+## See also
+
+Other subtype handling: [`toolSubtypeSelect()`](toolSubtypeSelect.md)
+
 ## Author
 
 Jan Philipp Dietrich

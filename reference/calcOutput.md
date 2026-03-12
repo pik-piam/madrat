@@ -215,6 +215,10 @@ provided:
 
 [`setConfig`](setConfig.md), [`calcTauTotal`](calcTauTotal.md),
 
+Other core workflow: [`downloadSource()`](downloadSource.md),
+[`readSource()`](readSource.md), [`retrieveData()`](retrieveData.md),
+[`returnCalcOutput()`](returnCalcOutput.md)
+
 ## Author
 
 Jan Philipp Dietrich, Patrick Rein

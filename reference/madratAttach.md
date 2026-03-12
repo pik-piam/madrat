@@ -26,6 +26,9 @@ madratDetach(package)
 
 [`getConfig`](getConfig.md), [`setConfig`](setConfig.md)
 
+Other madrat configuration: [`getConfig()`](getConfig.md),
+[`setConfig()`](setConfig.md)
+
 ## Author
 
 Jan Philipp Dietrich

@@ -146,6 +146,10 @@ A list with the specified arguments.
 
 calcOutput
 
+Other core workflow: [`calcOutput()`](calcOutput.md),
+[`downloadSource()`](downloadSource.md),
+[`readSource()`](readSource.md), [`retrieveData()`](retrieveData.md)
+
 ## Examples
 
 ``` r

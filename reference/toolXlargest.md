@@ -32,6 +32,14 @@ toolXlargest(x, range = 1:20, years = NULL, elements = NULL)
 
 vector with ISO country codes
 
+## See also
+
+Other data manipulation:
+[`toolConditionalReplace()`](toolConditionalReplace.md),
+[`toolFixWeight()`](toolFixWeight.md),
+[`toolNAreplace()`](toolNAreplace.md),
+[`toolOrderCells()`](toolOrderCells.md)
+
 ## Author
 
 Benjamin Leon Bodirsky, Jan Philipp Dietrich

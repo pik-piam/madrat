@@ -80,6 +80,10 @@ with additional, named entries.
 
 [`setConfig`](setConfig.md), [`readSource`](readSource.md)
 
+Other core workflow: [`calcOutput()`](calcOutput.md),
+[`readSource()`](readSource.md), [`retrieveData()`](retrieveData.md),
+[`returnCalcOutput()`](returnCalcOutput.md)
+
 ## Author
 
 Jan Philipp Dietrich, David Klein, Pascal Sauer

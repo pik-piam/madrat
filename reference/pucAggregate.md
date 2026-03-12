@@ -57,6 +57,8 @@ pucAggregate(
 
 [`retrieveData`](retrieveData.md),[`localConfig`](setConfig.md)
 
+Other aggregation: [`toolAggregate()`](toolAggregate.md)
+
 ## Author
 
 Jan Philipp Dietrich

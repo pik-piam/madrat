@@ -31,6 +31,14 @@ toolOrderCells(x, dim = 1.2, na.rm = FALSE)
 
 ordered data in magclass format
 
+## See also
+
+Other data manipulation:
+[`toolConditionalReplace()`](toolConditionalReplace.md),
+[`toolFixWeight()`](toolFixWeight.md),
+[`toolNAreplace()`](toolNAreplace.md),
+[`toolXlargest()`](toolXlargest.md)
+
 ## Author
 
 Kristine Karstens, Jan Philipp Dietrich

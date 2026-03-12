@@ -33,6 +33,8 @@ was available).
 
 [`regionscode`](regionscode.md)
 
+Other code labeling: [`regionscode()`](regionscode.md)
+
 ## Author
 
 Jan Philipp Dietrich

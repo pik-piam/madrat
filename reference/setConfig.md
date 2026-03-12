@@ -215,6 +215,9 @@ converted into an error message in one of the next package updates!
 
 [`getConfig`](getConfig.md), [`getISOlist`](getISOlist.md)
 
+Other madrat configuration: [`getConfig()`](getConfig.md),
+[`madratAttach()`](madratAttach.md)
+
 ## Author
 
 Jan Philipp Dietrich

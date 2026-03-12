@@ -37,6 +37,10 @@ using the source), to_package (package of the using function)
 
 [`getCalculations`](getCalculations.md), [`getConfig`](getConfig.md)
 
+Other dependency graph: [`getDependencies()`](getDependencies.md),
+[`getMadratInfo()`](getMadratInfo.md),
+[`visualizeDependencies()`](visualizeDependencies.md)
+
 ## Author
 
 Jan Philipp Dietrich

@@ -49,6 +49,11 @@ the ISO 3166-1 alpha 3 country code
 
 [`readSource`](readSource.md),[`getSources`](getSources.md)
 
+Other country tools: [`getISOlist()`](getISOlist.md),
+[`toolCountryFill()`](toolCountryFill.md),
+[`toolFillWithRegionAvg()`](toolFillWithRegionAvg.md),
+[`toolISOhistorical()`](toolISOhistorical.md)
+
 ## Author
 
 Jan Philipp Dietrich, Anastasis Giannousakis

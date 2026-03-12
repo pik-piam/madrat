@@ -30,6 +30,9 @@ addMapping(filename, mapping = NULL)
 
 [`setConfig`](setConfig.md)
 
+Other mapping: [`toolConvertMapping()`](toolConvertMapping.md),
+[`toolGetMapping()`](toolGetMapping.md)
+
 ## Author
 
 Jan Philipp Dietrich

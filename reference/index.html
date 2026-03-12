@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.35.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.35.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,9 +37,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="core-workflow">Core Workflow<a class="anchor" aria-label="anchor" href="#core-workflow"></a></h2>
 
-
+      <div class="section-desc"><p>Main functions to call other pipeline steps</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -48,19 +48,116 @@
 
       <dl><dt>
 
-          <code><a href="addMapping.html">addMapping()</a></code>
+          <code><a href="calcOutput.html">calcOutput()</a></code>
 
         </dt>
-        <dd>addMapping</dd>
+        <dd>calcOutput</dd>
 
         <dt>
 
-          <code><a href="cacheArgumentsHash.html">cacheArgumentsHash()</a></code>
+          <code><a href="downloadSource.html">downloadSource()</a></code>
 
         </dt>
-        <dd>Tool: cacheArgumentsHash</dd>
+        <dd>downloadSource</dd>
 
         <dt>
+
+          <code><a href="readSource.html">readSource()</a></code>
+
+        </dt>
+        <dd>readSource</dd>
+
+        <dt>
+
+          <code><a href="retrieveData.html">retrieveData()</a></code>
+
+        </dt>
+        <dd>retrieveData</dd>
+
+        <dt>
+
+          <code><a href="returnCalcOutput.html">returnCalcOutput()</a></code>
+
+        </dt>
+        <dd>Construct a list with the information required for calc-functions to return</dd>
+      </dl></div><div class="section level2">
+      <h2 id="available-functions">Available Functions<a class="anchor" aria-label="anchor" href="#available-functions"></a></h2>
+
+      <div class="section-desc"><p>Discover available calc, read, and tool functions</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getCalculations.html">getCalculations()</a></code>
+
+        </dt>
+        <dd>getCalculations</dd>
+
+        <dt>
+
+          <code><a href="getLocation.html">getLocation()</a></code>
+
+        </dt>
+        <dd>getLocation</dd>
+
+        <dt>
+
+          <code><a href="getSources.html">getSources()</a></code>
+
+        </dt>
+        <dd>getSources</dd>
+
+        <dt>
+
+          <code><a href="installedMadratUniverse.html">installedMadratUniverse()</a></code>
+
+        </dt>
+        <dd>installedMadratUniverse</dd>
+      </dl></div><div class="section level2">
+      <h2 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a></h2>
+
+      <div class="section-desc"><p>Configuration management for the madrat framework</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getConfig.html">getConfig()</a></code>
+
+        </dt>
+        <dd>getConfig</dd>
+
+        <dt>
+
+          <code><a href="madratAttach.html">madratAttach()</a></code> <code><a href="madratAttach.html">madratDetach()</a></code>
+
+        </dt>
+        <dd>madratAttach / madratDetach</dd>
+
+        <dt>
+
+          <code><a href="setConfig.html">setConfig()</a></code> <code><a href="setConfig.html">localConfig()</a></code>
+
+        </dt>
+        <dd>setConfig</dd>
+      </dl></div><div class="section level2">
+      <h2 id="cache-management">Cache Management<a class="anchor" aria-label="anchor" href="#cache-management"></a></h2>
+
+      <div class="section-desc"><p>Functions for handling cached data</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="cacheCleanup.html">cacheCleanup()</a></code>
 
@@ -73,174 +170,22 @@
 
         </dt>
         <dd>cacheCopy</dd>
+      </dl></div><div class="section level2">
+      <h2 id="dependency-graph">Dependency Graph<a class="anchor" aria-label="anchor" href="#dependency-graph"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Analyze function dependencies in the madrat universe</p></div>
 
-          <code><a href="cacheGet.html">cacheGet()</a></code>
+      <dl></dl></div><div class="section level2">
 
-        </dt>
-        <dd>Tool: cacheGet</dd>
 
-        <dt>
 
-          <code><a href="cacheName.html">cacheName()</a></code>
 
-        </dt>
-        <dd>cacheName</dd>
-
-        <dt>
-
-          <code><a href="cachePut.html">cachePut()</a></code>
-
-        </dt>
-        <dd>cachePut</dd>
-
-        <dt>
-
-          <code><a href="calcOutput.html">calcOutput()</a></code>
-
-        </dt>
-        <dd>calcOutput</dd>
-
-        <dt>
-
-          <code><a href="calcTauTotal.html">calcTauTotal()</a></code>
-
-        </dt>
-        <dd>Calculate total tau</dd>
-
-        <dt>
-
-          <code><a href="cleanComment.html">cleanComment()</a></code>
-
-        </dt>
-        <dd>cleanComment</dd>
-
-        <dt>
-
-          <code><a href="compareData.html">compareData()</a></code>
-
-        </dt>
-        <dd>compareData</dd>
-
-        <dt>
-
-          <code><a href="compareMadratOutputs.html">compareMadratOutputs()</a></code>
-
-        </dt>
-        <dd>Compare a madrat function's output with and without your changes</dd>
-
-        <dt>
-
-          <code><a href="convertTau.html">convertTau()</a></code>
-
-        </dt>
-        <dd>Convert Tau</dd>
-
-        <dt>
-
-          <code><a href="dot-renderDiff.html">.renderDiff()</a></code>
-
-        </dt>
-        <dd>Renders a list of differences based on the relevance. The reasoning is that changed entries should come first, as they can point out subtle problems. Added or removed calls or entries are less important, as they require explicit edits to the pipeline to occur. 1. Changed entries 2. Changed calls 2.1. Added entries 2.2. Removed entries 3. Added calls 4. Removed calls</dd>
-
-        <dt>
-
-          <code><a href="downloadSource.html">downloadSource()</a></code>
-
-        </dt>
-        <dd>downloadSource</dd>
-
-        <dt>
-
-          <code><a href="findBottlenecks.html">findBottlenecks()</a></code>
-
-        </dt>
-        <dd>findBottlenecks</dd>
-
-        <dt>
-
-          <code><a href="fingerprint.html">fingerprint()</a></code>
-
-        </dt>
-        <dd>fingerprint</dd>
-
-        <dt>
-
-          <code><a href="fullEXAMPLE.html">fullEXAMPLE()</a></code>
-
-        </dt>
-        <dd>fullExample</dd>
-
-        <dt>
-
-          <code><a href="functionCallString.html">functionCallString()</a></code>
-
-        </dt>
-        <dd>functionCallString</dd>
-
-        <dt>
-
-          <code><a href="getCalculations.html">getCalculations()</a></code>
-
-        </dt>
-        <dd>getCalculations</dd>
-
-        <dt>
-
-          <code><a href="getCode.html">getCode()</a></code>
-
-        </dt>
-        <dd>getCode</dd>
-
-        <dt>
-
-          <code><a href="getConfig.html">getConfig()</a></code>
-
-        </dt>
-        <dd>getConfig</dd>
-
-        <dt>
+      <dl><dt>
 
           <code><a href="getDependencies.html">getDependencies()</a></code>
 
         </dt>
         <dd>getDependencies</dd>
-
-        <dt>
-
-          <code><a href="getFlags.html">getFlags()</a></code>
-
-        </dt>
-        <dd>getFlags</dd>
-
-        <dt>
-
-          <code><a href="getFromComment.html">getFromComment()</a></code>
-
-        </dt>
-        <dd>getFromComment</dd>
-
-        <dt>
-
-          <code><a href="getISOlist.html">getISOlist()</a></code>
-
-        </dt>
-        <dd>get official ISO list</dd>
-
-        <dt>
-
-          <code><a href="getLinkFunction.html">getLinkFunction()</a></code>
-
-        </dt>
-        <dd>getLinkFunction</dd>
-
-        <dt>
-
-          <code><a href="getLocation.html">getLocation()</a></code>
-
-        </dt>
-        <dd>getLocation</dd>
 
         <dt>
 
@@ -258,124 +203,51 @@
 
         <dt>
 
-          <code><a href="getMadratMessage.html">getMadratMessage()</a></code>
+          <code><a href="visualizeDependencies.html">visualizeDependencies()</a></code>
 
         </dt>
-        <dd>getMadratMessage</dd>
+        <dd>visualizeDependencies</dd>
+      </dl></div><div class="section level2">
+      <h2 id="mapping">Mapping<a class="anchor" aria-label="anchor" href="#mapping"></a></h2>
+
+      <div class="section-desc"><p>Tools for working with mappings</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="addMapping.html">addMapping()</a></code>
+
+        </dt>
+        <dd>addMapping</dd>
 
         <dt>
 
-          <code><a href="getMainfolder.html">getMainfolder()</a></code>
+          <code><a href="toolConvertMapping.html">toolConvertMapping()</a></code>
 
         </dt>
-        <dd>getMainfolder</dd>
+        <dd>Tool: ConvertMapping</dd>
 
         <dt>
 
-          <code><a href="getNonDefaultArguments.html">getNonDefaultArguments()</a></code>
+          <code><a href="toolGetMapping.html">toolGetMapping()</a></code>
 
         </dt>
-        <dd>getNonDefaultArguments</dd>
+        <dd>Tool: GetMapping</dd>
+      </dl></div><div class="section level2">
+      <h2 id="aggregation">Aggregation<a class="anchor" aria-label="anchor" href="#aggregation"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Spatial aggregation and disaggregation</p></div>
 
-          <code><a href="getSourceFolder.html">getSourceFolder()</a></code>
+      <dl></dl></div><div class="section level2">
 
-        </dt>
-        <dd>getSourceFolder</dd>
 
-        <dt>
 
-          <code><a href="getSources.html">getSources()</a></code>
 
-        </dt>
-        <dd>getSources</dd>
-
-        <dt>
-
-          <code><a href="initializeConfig.html">initializeConfig()</a></code>
-
-        </dt>
-        <dd>initializeConfig</dd>
-
-        <dt>
-
-          <code><a href="installedMadratUniverse.html">installedMadratUniverse()</a></code>
-
-        </dt>
-        <dd>installedMadratUniverse</dd>
-
-        <dt>
-
-          <code><a href="isWrapperActive.html">isWrapperActive()</a></code> <code><a href="isWrapperActive.html">setWrapperActive()</a></code> <code><a href="isWrapperActive.html">setWrapperInactive()</a></code>
-
-        </dt>
-        <dd>isWrapperActive</dd>
-
-        <dt>
-
-          <code><a href="madTempDir.html">madTempDir()</a></code>
-
-        </dt>
-        <dd>madTempDir</dd>
-
-        <dt>
-
-          <code><a href="madapply.html">madapply()</a></code>
-
-        </dt>
-        <dd>madapply</dd>
-
-        <dt>
-
-          <code><a href="madlapply.html">madlapply()</a></code>
-
-        </dt>
-        <dd>madlapply</dd>
-
-        <dt>
-
-          <code><a href="madrat-package.html">madrat-package</a></code> <code><a href="madrat-package.html">madrat</a></code>
-
-        </dt>
-        <dd>May All Data be Reproducible And Transparent (madrat) *</dd>
-
-        <dt>
-
-          <code><a href="madratAttach.html">madratAttach()</a></code> <code><a href="madratAttach.html">madratDetach()</a></code>
-
-        </dt>
-        <dd>madratAttach / madratDetach</dd>
-
-        <dt>
-
-          <code><a href="metadataGFZ.html">metadataGFZ()</a></code>
-
-        </dt>
-        <dd>metadataGFZ</dd>
-
-        <dt>
-
-          <code><a href="prepComment.html">prepComment()</a></code>
-
-        </dt>
-        <dd>prepComment</dd>
-
-        <dt>
-
-          <code><a href="prepExtendedComment.html">prepExtendedComment()</a></code>
-
-        </dt>
-        <dd>prepExtendedComment</dd>
-
-        <dt>
-
-          <code><a href="prepFunctionName.html">prepFunctionName()</a></code>
-
-        </dt>
-        <dd>prepFunctionName</dd>
-
-        <dt>
+      <dl><dt>
 
           <code><a href="pucAggregate.html">pucAggregate()</a></code>
 
@@ -384,122 +256,26 @@
 
         <dt>
 
-          <code><a href="putMadratMessage.html">putMadratMessage()</a></code>
-
-        </dt>
-        <dd>putMadratMessage</dd>
-
-        <dt>
-
-          <code><a href="readSource.html">readSource()</a></code>
-
-        </dt>
-        <dd>readSource</dd>
-
-        <dt>
-
-          <code><a href="readTau.html">readTau()</a></code>
-
-        </dt>
-        <dd>Read Tau</dd>
-
-        <dt>
-
-          <code><a href="redirect.html">redirect()</a></code>
-
-        </dt>
-        <dd>redirect</dd>
-
-        <dt>
-
-          <code><a href="redirectSource.html">redirectSource()</a></code>
-
-        </dt>
-        <dd>redirectSource</dd>
-
-        <dt>
-
-          <code><a href="redirectTau.html">redirectTau()</a></code>
-
-        </dt>
-        <dd>redirectTau</dd>
-
-        <dt>
-
-          <code><a href="regionscode.html">regionscode()</a></code>
-
-        </dt>
-        <dd>Tool: regionscode</dd>
-
-        <dt>
-
-          <code><a href="resetMadratMessages.html">resetMadratMessages()</a></code>
-
-        </dt>
-        <dd>resetMadratMessages</dd>
-
-        <dt>
-
-          <code><a href="retrieveData.html">retrieveData()</a></code>
-
-        </dt>
-        <dd>retrieveData</dd>
-
-        <dt>
-
-          <code><a href="returnCalcOutput.html">returnCalcOutput()</a></code>
-
-        </dt>
-        <dd>Construct a list with the information required for calc-functions to return</dd>
-
-        <dt>
-
-          <code><a href="robustOrder.html">robustOrder()</a></code>
-
-        </dt>
-        <dd>robustOrder, robustSort</dd>
-
-        <dt>
-
-          <code><a href="setConfig.html">setConfig()</a></code> <code><a href="setConfig.html">localConfig()</a></code>
-
-        </dt>
-        <dd>setConfig</dd>
-
-        <dt>
-
           <code><a href="toolAggregate.html">toolAggregate()</a></code>
 
         </dt>
         <dd>toolAggregate</dd>
+      </dl></div><div class="section level2">
+      <h2 id="tools-countries">Tools: Countries<a class="anchor" aria-label="anchor" href="#tools-countries"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Country and ISO code handling</p></div>
 
-          <code><a href="toolCodeLabels.html">toolCodeLabels()</a></code>
+      <dl></dl></div><div class="section level2">
 
-        </dt>
-        <dd>Tool: CodeLabels</dd>
 
-        <dt>
 
-          <code><a href="toolCompareStatusLogs.html">toolCompareStatusLogs()</a></code>
 
-        </dt>
-        <dd>toolCompareStatusLogs</dd>
+      <dl><dt>
 
-        <dt>
-
-          <code><a href="toolConditionalReplace.html">toolConditionalReplace()</a></code>
+          <code><a href="getISOlist.html">getISOlist()</a></code>
 
         </dt>
-        <dd>toolConditionalReplace</dd>
-
-        <dt>
-
-          <code><a href="toolConvertMapping.html">toolConvertMapping()</a></code>
-
-        </dt>
-        <dd>Tool: ConvertMapping</dd>
+        <dd>get official ISO list</dd>
 
         <dt>
 
@@ -524,6 +300,22 @@
 
         <dt>
 
+          <code><a href="toolISOhistorical.html">toolISOhistorical()</a></code>
+
+        </dt>
+        <dd>Tool: ISOhistorical</dd>
+      </dl></div><div class="section level2">
+      <h2 id="tools-temporal-processing">Tools: Temporal Processing<a class="anchor" aria-label="anchor" href="#tools-temporal-processing"></a></h2>
+
+      <div class="section-desc"><p>Time series manipulation and interpolation</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
           <code><a href="toolFillYears.html">toolFillYears()</a></code>
 
         </dt>
@@ -531,31 +323,40 @@
 
         <dt>
 
+          <code><a href="toolTimeAverage.html">toolTimeAverage()</a></code>
+
+        </dt>
+        <dd>toolTimeAverage</dd>
+
+        <dt>
+
+          <code><a href="toolTimeSpline.html">toolTimeSpline()</a></code>
+
+        </dt>
+        <dd>Smooth a magclass time series with optional anchor years</dd>
+      </dl></div><div class="section level2">
+      <h2 id="tools-data-manipulation">Tools: Data Manipulation<a class="anchor" aria-label="anchor" href="#tools-data-manipulation"></a></h2>
+
+      <div class="section-desc"><p>General data transformation tools</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="toolConditionalReplace.html">toolConditionalReplace()</a></code>
+
+        </dt>
+        <dd>toolConditionalReplace</dd>
+
+        <dt>
+
           <code><a href="toolFixWeight.html">toolFixWeight()</a></code>
 
         </dt>
         <dd>toolFixWeight</dd>
-
-        <dt>
-
-          <code><a href="toolGetMapping.html">toolGetMapping()</a></code>
-
-        </dt>
-        <dd>Tool: GetMapping</dd>
-
-        <dt>
-
-          <code><a href="toolISOhistorical.html">toolISOhistorical()</a></code>
-
-        </dt>
-        <dd>Tool: ISOhistorical</dd>
-
-        <dt>
-
-          <code><a href="toolManualDownload.html">toolManualDownload()</a></code>
-
-        </dt>
-        <dd>Tool: ManualDownload</dd>
 
         <dt>
 
@@ -573,6 +374,45 @@
 
         <dt>
 
+          <code><a href="toolXlargest.html">toolXlargest()</a></code>
+
+        </dt>
+        <dd>toolXlargest</dd>
+      </dl></div><div class="section level2">
+      <h2 id="tools-source-downloading">Tools: Source Downloading<a class="anchor" aria-label="anchor" href="#tools-source-downloading"></a></h2>
+
+      <div class="section-desc"><p>Helpers for downloading source data</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="metadataGFZ.html">metadataGFZ()</a></code>
+
+        </dt>
+        <dd>metadataGFZ</dd>
+
+        <dt>
+
+          <code><a href="toolManualDownload.html">toolManualDownload()</a></code>
+
+        </dt>
+        <dd>Tool: ManualDownload</dd>
+      </dl></div><div class="section level2">
+      <h2 id="tools-subtype-handling">Tools: Subtype Handling<a class="anchor" aria-label="anchor" href="#tools-subtype-handling"></a></h2>
+
+      <div class="section-desc"><p>Tools for handling subtypes in read functions</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
           <code><a href="toolSplitSubtype.html">toolSplitSubtype()</a></code>
 
         </dt>
@@ -584,41 +424,36 @@
 
         </dt>
         <dd>Tool: SubtypeSelect</dd>
+      </dl></div><div class="section level2">
+      <h2 id="madrat-messages">Madrat Messages<a class="anchor" aria-label="anchor" href="#madrat-messages"></a></h2>
+
+      <div class="section-desc"><p>Madrat-specific messaging system stored in cache</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getMadratMessage.html">getMadratMessage()</a></code>
+
+        </dt>
+        <dd>getMadratMessage</dd>
 
         <dt>
 
-          <code><a href="toolTimeAverage.html">toolTimeAverage()</a></code>
+          <code><a href="putMadratMessage.html">putMadratMessage()</a></code>
 
         </dt>
-        <dd>toolTimeAverage</dd>
+        <dd>putMadratMessage</dd>
 
         <dt>
 
-          <code><a href="toolTimeSpline.html">toolTimeSpline()</a></code>
+          <code><a href="resetMadratMessages.html">resetMadratMessages()</a></code>
 
         </dt>
-        <dd>Smooth a magclass time series with optional anchor years</dd>
-
-        <dt>
-
-          <code><a href="toolXlargest.html">toolXlargest()</a></code>
-
-        </dt>
-        <dd>toolXlargest</dd>
-
-        <dt>
-
-          <code><a href="toolendmessage.html">toolendmessage()</a></code>
-
-        </dt>
-        <dd>Tool: End message</dd>
-
-        <dt>
-
-          <code><a href="toolstartmessage.html">toolstartmessage()</a></code>
-
-        </dt>
-        <dd>Tool: Start message</dd>
+        <dd>resetMadratMessages</dd>
 
         <dt>
 
@@ -626,22 +461,177 @@
 
         </dt>
         <dd>Tool: Verbosity Cat</dd>
+      </dl></div><div class="section level2">
+      <h2 id="metadata-comments">Metadata Comments<a class="anchor" aria-label="anchor" href="#metadata-comments"></a></h2>
+
+      <div class="section-desc"><p>Handling metadata comments on magclass objects</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getFromComment.html">getFromComment()</a></code>
+
+        </dt>
+        <dd>getFromComment</dd>
+      </dl></div><div class="section level2">
+      <h2 id="source-redirection">Source Redirection<a class="anchor" aria-label="anchor" href="#source-redirection"></a></h2>
+
+      <div class="section-desc"><p>Redirect source data to alternative locations</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="getLinkFunction.html">getLinkFunction()</a></code>
+
+        </dt>
+        <dd>getLinkFunction</dd>
 
         <dt>
 
-          <code><a href="visualizeDependencies.html">visualizeDependencies()</a></code>
+          <code><a href="redirectSource.html">redirectSource()</a></code>
 
         </dt>
-        <dd>visualizeDependencies</dd>
+        <dd>redirectSource</dd>
+      </dl></div><div class="section level2">
+      <h2 id="code-labeling">Code Labeling<a class="anchor" aria-label="anchor" href="#code-labeling"></a></h2>
+
+      <div class="section-desc"><p>Region code labeling utilities</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="regionscode.html">regionscode()</a></code>
+
+        </dt>
+        <dd>Tool: regionscode</dd>
 
         <dt>
 
-          <code><a href="withMadratLogging.html">withMadratLogging()</a></code>
+          <code><a href="toolCodeLabels.html">toolCodeLabels()</a></code>
 
         </dt>
-        <dd>Tool: withMadratLogging</dd>
+        <dd>Tool: CodeLabels</dd>
+      </dl></div><div class="section level2">
+      <h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a></h2>
+
+      <div class="section-desc"><p>Data validation and comparison tools</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="compareData.html">compareData()</a></code>
+
+        </dt>
+        <dd>compareData</dd>
+
+        <dt>
+
+          <code><a href="compareMadratOutputs.html">compareMadratOutputs()</a></code>
+
+        </dt>
+        <dd>Compare a madrat function's output with and without your changes</dd>
+
+        <dt>
+
+          <code><a href="toolCompareStatusLogs.html">toolCompareStatusLogs()</a></code>
+
+        </dt>
+        <dd>toolCompareStatusLogs</dd>
+      </dl></div><div class="section level2">
+      <h2 id="analysis">Analysis<a class="anchor" aria-label="anchor" href="#analysis"></a></h2>
+
+      <div class="section-desc"><p>Performance analysis tools</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="findBottlenecks.html">findBottlenecks()</a></code>
+
+        </dt>
+        <dd>findBottlenecks</dd>
+      </dl></div><div class="section level2">
+      <h2 id="example-functions">Example Functions<a class="anchor" aria-label="anchor" href="#example-functions"></a></h2>
+
+      <div class="section-desc"><p>Example implementations for reference</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="fullEXAMPLE.html">fullEXAMPLE()</a></code>
+
+        </dt>
+        <dd>fullExample</dd>
+
+        <dt>
+
+          <code><a href="readTau.html">readTau()</a></code>
+
+        </dt>
+        <dd>Read Tau</dd>
+
+        <dt>
+
+          <code><a href="convertTau.html">convertTau()</a></code>
+
+        </dt>
+        <dd>Convert Tau</dd>
+
+        <dt>
+
+          <code><a href="calcTauTotal.html">calcTauTotal()</a></code>
+
+        </dt>
+        <dd>Calculate total tau</dd>
+
+        <dt>
+
+          <code><a href="redirectTau.html">redirectTau()</a></code>
+
+        </dt>
+        <dd>redirectTau</dd>
+      </dl></div><div class="section level2">
+      <h2 id="internal">Internal<a class="anchor" aria-label="anchor" href="#internal"></a></h2>
+
+      <div class="section-desc"><p>Internal functions</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="madrat-package.html">madrat-package</a></code> <code><a href="madrat-package.html">madrat</a></code>
+
+        </dt>
+        <dd>May All Data be Reproducible And Transparent (madrat) *</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
    </div>

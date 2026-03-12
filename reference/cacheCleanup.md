@@ -51,3 +51,7 @@ also system dependent, so please be careful and check that the correct
 files are deleted. This function will return a data.frame containing all
 files that would be deleted if the user answers 'n' to the question. If
 deleting files fails a warning is created.
+
+## See also
+
+Other cache management: [`cacheCopy()`](cacheCopy.md)

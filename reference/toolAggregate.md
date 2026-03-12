@@ -139,6 +139,8 @@ mixed_aggregation to TRUE.
 
 [`calcOutput`](calcOutput.md)
 
+Other aggregation: [`pucAggregate()`](pucAggregate.md)
+
 ## Author
 
 Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer

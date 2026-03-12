@@ -66,6 +66,9 @@ logic and thereby can lead to erroneous results.
 
 [`setConfig`](setConfig.md), [`initializeConfig`](initializeConfig.md)
 
+Other madrat configuration: [`madratAttach()`](madratAttach.md),
+[`setConfig()`](setConfig.md)
+
 ## Author
 
 Jan Philipp Dietrich

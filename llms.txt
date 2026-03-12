@@ -1,6 +1,6 @@
 # May All Data be Reproducible and Transparent (MADRaT) \*
 
-R package **madrat**, version **3.35.0**
+R package **madrat**, version **3.35.1**
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/madrat)](https://cran.r-project.org/package=madrat)
@@ -72,7 +72,7 @@ Dietrich J, Sauer P, Baumstark L, Wirth S, Giannousakis A, Rodrigues R,
 Bodirsky B, Leip D, Crawford M, Kreidenweis U, Klein D, Rein P (2026).
 “madrat: May All Data be Reproducible and Transparent (MADRaT) \*.”
 <doi:10.5281/zenodo.1115490> <https://doi.org/10.5281/zenodo.1115490>,
-Version: 3.35.0, <https://github.com/pik-piam/madrat>.
+Version: 3.35.1, <https://github.com/pik-piam/madrat>.
 
 A BibTeX entry for LaTeX users is
 
@@ -81,126 +81,186 @@ A BibTeX entry for LaTeX users is
  title = {madrat: May All Data be Reproducible and Transparent (MADRaT) *},
  author = {Jan Philipp Dietrich and Pascal Sauer and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Debbora Leip and Michael Crawford and Ulrich Kreidenweis and David Klein and Patrick Rein},
  doi = {10.5281/zenodo.1115490},
- date = {2026-03-09},
+ date = {2026-03-11},
  year = {2026},
  url = {https://github.com/pik-piam/madrat},
- note = {Version: 3.35.0},
+ note = {Version: 3.35.1},
 }
 ```
 
 # Package index
 
-## All functions
+## Core Workflow
 
-- [`addMapping()`](addMapping.md) : addMapping
-- [`cacheArgumentsHash()`](cacheArgumentsHash.md) : Tool:
-  cacheArgumentsHash
-- [`cacheCleanup()`](cacheCleanup.md) : cacheCleanup
-- [`cacheCopy()`](cacheCopy.md) : cacheCopy
-- [`cacheGet()`](cacheGet.md) : Tool: cacheGet
-- [`cacheName()`](cacheName.md) : cacheName
-- [`cachePut()`](cachePut.md) : cachePut
+Main functions to call other pipeline steps
+
 - [`calcOutput()`](calcOutput.md) : calcOutput
-- [`calcTauTotal()`](calcTauTotal.md) : Calculate total tau
-- [`cleanComment()`](cleanComment.md) : cleanComment
-- [`compareData()`](compareData.md) : compareData
-- [`compareMadratOutputs()`](compareMadratOutputs.md) : Compare a madrat
-  function's output with and without your changes
-- [`convertTau()`](convertTau.md) : Convert Tau
-- [`.renderDiff()`](dot-renderDiff.md) : Renders a list of differences
-  based on the relevance. The reasoning is that changed entries should
-  come first, as they can point out subtle problems. Added or removed
-  calls or entries are less important, as they require explicit edits to
-  the pipeline to occur. 1. Changed entries 2. Changed calls 2.1. Added
-  entries 2.2. Removed entries 3. Added calls 4. Removed calls
 - [`downloadSource()`](downloadSource.md) : downloadSource
-- [`findBottlenecks()`](findBottlenecks.md) : findBottlenecks
-- [`fingerprint()`](fingerprint.md) : fingerprint
-- [`fullEXAMPLE()`](fullEXAMPLE.md) : fullExample
-- [`functionCallString()`](functionCallString.md) : functionCallString
-- [`getCalculations()`](getCalculations.md) : getCalculations
-- [`getCode()`](getCode.md) : getCode
-- [`getConfig()`](getConfig.md) : getConfig
-- [`getDependencies()`](getDependencies.md) : getDependencies
-- [`getFlags()`](getFlags.md) : getFlags
-- [`getFromComment()`](getFromComment.md) : getFromComment
-- [`getISOlist()`](getISOlist.md) : get official ISO list
-- [`getLinkFunction()`](getLinkFunction.md) : getLinkFunction
-- [`getLocation()`](getLocation.md) : getLocation
-- [`getMadratGraph()`](getMadratGraph.md) : getMadratGraph
-- [`getMadratInfo()`](getMadratInfo.md) : getMadratInfo
-- [`getMadratMessage()`](getMadratMessage.md) : getMadratMessage
-- [`getMainfolder()`](getMainfolder.md) : getMainfolder
-- [`getNonDefaultArguments()`](getNonDefaultArguments.md) :
-  getNonDefaultArguments
-- [`getSourceFolder()`](getSourceFolder.md) : getSourceFolder
-- [`getSources()`](getSources.md) : getSources
-- [`initializeConfig()`](initializeConfig.md) : initializeConfig
-- [`installedMadratUniverse()`](installedMadratUniverse.md) :
-  installedMadratUniverse
-- [`isWrapperActive()`](isWrapperActive.md)
-  [`setWrapperActive()`](isWrapperActive.md)
-  [`setWrapperInactive()`](isWrapperActive.md) : isWrapperActive
-- [`madTempDir()`](madTempDir.md) : madTempDir
-- [`madapply()`](madapply.md) : madapply
-- [`madlapply()`](madlapply.md) : madlapply
-- [`madrat-package`](madrat-package.md) [`madrat`](madrat-package.md) :
-  May All Data be Reproducible And Transparent (madrat) \*
-- [`madratAttach()`](madratAttach.md)
-  [`madratDetach()`](madratAttach.md) : madratAttach / madratDetach
-- [`metadataGFZ()`](metadataGFZ.md) : metadataGFZ
-- [`prepComment()`](prepComment.md) : prepComment
-- [`prepExtendedComment()`](prepExtendedComment.md) :
-  prepExtendedComment
-- [`prepFunctionName()`](prepFunctionName.md) : prepFunctionName
-- [`pucAggregate()`](pucAggregate.md) : pucAggregate
-- [`putMadratMessage()`](putMadratMessage.md) : putMadratMessage
 - [`readSource()`](readSource.md) : readSource
-- [`readTau()`](readTau.md) : Read Tau
-- [`redirect()`](redirect.md) : redirect
-- [`redirectSource()`](redirectSource.md) : redirectSource
-- [`redirectTau()`](redirectTau.md) : redirectTau
-- [`regionscode()`](regionscode.md) : Tool: regionscode
-- [`resetMadratMessages()`](resetMadratMessages.md) :
-  resetMadratMessages
 - [`retrieveData()`](retrieveData.md) : retrieveData
 - [`returnCalcOutput()`](returnCalcOutput.md) : Construct a list with
   the information required for calc-functions to return
-- [`robustOrder()`](robustOrder.md) : robustOrder, robustSort
+
+## Available Functions
+
+Discover available calc, read, and tool functions
+
+- [`getCalculations()`](getCalculations.md) : getCalculations
+- [`getLocation()`](getLocation.md) : getLocation
+- [`getSources()`](getSources.md) : getSources
+- [`installedMadratUniverse()`](installedMadratUniverse.md) :
+  installedMadratUniverse
+
+## Configuration
+
+Configuration management for the madrat framework
+
+- [`getConfig()`](getConfig.md) : getConfig
+- [`madratAttach()`](madratAttach.md)
+  [`madratDetach()`](madratAttach.md) : madratAttach / madratDetach
 - [`setConfig()`](setConfig.md) [`localConfig()`](setConfig.md) :
   setConfig
-- [`toolAggregate()`](toolAggregate.md) : toolAggregate
-- [`toolCodeLabels()`](toolCodeLabels.md) : Tool: CodeLabels
-- [`toolCompareStatusLogs()`](toolCompareStatusLogs.md) :
-  toolCompareStatusLogs
-- [`toolConditionalReplace()`](toolConditionalReplace.md) :
-  toolConditionalReplace
+
+## Cache Management
+
+Functions for handling cached data
+
+- [`cacheCleanup()`](cacheCleanup.md) : cacheCleanup
+- [`cacheCopy()`](cacheCopy.md) : cacheCopy
+
+## Dependency Graph
+
+Analyze function dependencies in the madrat universe
+
+- [`getDependencies()`](getDependencies.md) : getDependencies
+- [`getMadratGraph()`](getMadratGraph.md) : getMadratGraph
+- [`getMadratInfo()`](getMadratInfo.md) : getMadratInfo
+- [`visualizeDependencies()`](visualizeDependencies.md) :
+  visualizeDependencies
+
+## Mapping
+
+Tools for working with mappings
+
+- [`addMapping()`](addMapping.md) : addMapping
 - [`toolConvertMapping()`](toolConvertMapping.md) : Tool: ConvertMapping
+- [`toolGetMapping()`](toolGetMapping.md) : Tool: GetMapping
+
+## Aggregation
+
+Spatial aggregation and disaggregation
+
+- [`pucAggregate()`](pucAggregate.md) : pucAggregate
+- [`toolAggregate()`](toolAggregate.md) : toolAggregate
+
+## Tools: Countries
+
+Country and ISO code handling
+
+- [`getISOlist()`](getISOlist.md) : get official ISO list
 - [`toolCountry2isocode()`](toolCountry2isocode.md) :
   toolCountry2isocode
 - [`toolCountryFill()`](toolCountryFill.md) : Tool: CountryFill
 - [`toolFillWithRegionAvg()`](toolFillWithRegionAvg.md) : Tool:
   FillWithRegionAvg
-- [`toolFillYears()`](toolFillYears.md) : toolFillYears
-- [`toolFixWeight()`](toolFixWeight.md) : toolFixWeight
-- [`toolGetMapping()`](toolGetMapping.md) : Tool: GetMapping
 - [`toolISOhistorical()`](toolISOhistorical.md) : Tool: ISOhistorical
-- [`toolManualDownload()`](toolManualDownload.md) : Tool: ManualDownload
-- [`toolNAreplace()`](toolNAreplace.md) : Tool: NA replace
-- [`toolOrderCells()`](toolOrderCells.md) : toolOrderCells
-- [`toolSplitSubtype()`](toolSplitSubtype.md) : Tool: SplitSubtype
-- [`toolSubtypeSelect()`](toolSubtypeSelect.md) : Tool: SubtypeSelect
+
+## Tools: Temporal Processing
+
+Time series manipulation and interpolation
+
+- [`toolFillYears()`](toolFillYears.md) : toolFillYears
 - [`toolTimeAverage()`](toolTimeAverage.md) : toolTimeAverage
 - [`toolTimeSpline()`](toolTimeSpline.md) : Smooth a magclass time
   series with optional anchor years
+
+## Tools: Data Manipulation
+
+General data transformation tools
+
+- [`toolConditionalReplace()`](toolConditionalReplace.md) :
+  toolConditionalReplace
+- [`toolFixWeight()`](toolFixWeight.md) : toolFixWeight
+- [`toolNAreplace()`](toolNAreplace.md) : Tool: NA replace
+- [`toolOrderCells()`](toolOrderCells.md) : toolOrderCells
 - [`toolXlargest()`](toolXlargest.md) : toolXlargest
-- [`toolendmessage()`](toolendmessage.md) : Tool: End message
-- [`toolstartmessage()`](toolstartmessage.md) : Tool: Start message
+
+## Tools: Source Downloading
+
+Helpers for downloading source data
+
+- [`metadataGFZ()`](metadataGFZ.md) : metadataGFZ
+- [`toolManualDownload()`](toolManualDownload.md) : Tool: ManualDownload
+
+## Tools: Subtype Handling
+
+Tools for handling subtypes in read functions
+
+- [`toolSplitSubtype()`](toolSplitSubtype.md) : Tool: SplitSubtype
+- [`toolSubtypeSelect()`](toolSubtypeSelect.md) : Tool: SubtypeSelect
+
+## Madrat Messages
+
+Madrat-specific messaging system stored in cache
+
+- [`getMadratMessage()`](getMadratMessage.md) : getMadratMessage
+- [`putMadratMessage()`](putMadratMessage.md) : putMadratMessage
+- [`resetMadratMessages()`](resetMadratMessages.md) :
+  resetMadratMessages
 - [`vcat()`](vcat.md) : Tool: Verbosity Cat
-- [`visualizeDependencies()`](visualizeDependencies.md) :
-  visualizeDependencies
-- [`withMadratLogging()`](withMadratLogging.md) : Tool:
-  withMadratLogging
+
+## Metadata Comments
+
+Handling metadata comments on magclass objects
+
+- [`getFromComment()`](getFromComment.md) : getFromComment
+
+## Source Redirection
+
+Redirect source data to alternative locations
+
+- [`getLinkFunction()`](getLinkFunction.md) : getLinkFunction
+- [`redirectSource()`](redirectSource.md) : redirectSource
+
+## Code Labeling
+
+Region code labeling utilities
+
+- [`regionscode()`](regionscode.md) : Tool: regionscode
+- [`toolCodeLabels()`](toolCodeLabels.md) : Tool: CodeLabels
+
+## Validation
+
+Data validation and comparison tools
+
+- [`compareData()`](compareData.md) : compareData
+- [`compareMadratOutputs()`](compareMadratOutputs.md) : Compare a madrat
+  function's output with and without your changes
+- [`toolCompareStatusLogs()`](toolCompareStatusLogs.md) :
+  toolCompareStatusLogs
+
+## Analysis
+
+Performance analysis tools
+
+- [`findBottlenecks()`](findBottlenecks.md) : findBottlenecks
+
+## Example Functions
+
+Example implementations for reference
+
+- [`fullEXAMPLE()`](fullEXAMPLE.md) : fullExample
+- [`readTau()`](readTau.md) : Read Tau
+- [`convertTau()`](convertTau.md) : Convert Tau
+- [`calcTauTotal()`](calcTauTotal.md) : Calculate total tau
+- [`redirectTau()`](redirectTau.md) : redirectTau
+
+## Internal
+
+Internal functions
+
+- [`madrat-package`](madrat-package.md) [`madrat`](madrat-package.md) :
+  May All Data be Reproducible And Transparent (madrat) \*
 
 # Articles
 

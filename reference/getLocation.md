@@ -36,6 +36,10 @@ found
 [`getCalculations`](getCalculations.md),
 [`getDependencies`](getDependencies.md)
 
+Other available functions: [`getCalculations()`](getCalculations.md),
+[`getSources()`](getSources.md),
+[`installedMadratUniverse()`](installedMadratUniverse.md)
+
 ## Author
 
 Jan Philipp Dietrich

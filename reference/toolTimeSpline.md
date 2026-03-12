@@ -37,6 +37,11 @@ toolTimeSpline(x, dof = 5, peggedYears = NULL, anchorFactor = 10)
 A magclass object of the same shape, with each time series
 spline-smoothed.
 
+## See also
+
+Other temporal processing: [`toolFillYears()`](toolFillYears.md),
+[`toolTimeAverage()`](toolTimeAverage.md)
+
 ## Author
 
 Kristine Karstens, Felicitas Beier, Michael Crawford

@@ -62,6 +62,10 @@ getDependencies(
 [`getMadratGraph`](getMadratGraph.md),
 [`getMadratInfo`](getMadratInfo.md)
 
+Other dependency graph: [`getMadratGraph()`](getMadratGraph.md),
+[`getMadratInfo()`](getMadratInfo.md),
+[`visualizeDependencies()`](visualizeDependencies.md)
+
 ## Author
 
 Jan Philipp Dietrich

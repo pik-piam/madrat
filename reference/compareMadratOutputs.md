@@ -48,6 +48,11 @@ If there are differences a \`\<functionName\>-new.rds\` containing the
 new output is saved for closer inspection. All files are created in the
 current working directory.
 
+## See also
+
+Other validation: [`compareData()`](compareData.md),
+[`toolCompareStatusLogs()`](toolCompareStatusLogs.md)
+
 ## Author
 
 Pascal Sauer

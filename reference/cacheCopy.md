@@ -27,6 +27,10 @@ cacheCopy(file, target = NULL, filter = NULL)
 A vector of cache files which match the given log information and
 filter.
 
+## See also
+
+Other cache management: [`cacheCleanup()`](cacheCleanup.md)
+
 ## Author
 
 Jan Philipp Dietrich

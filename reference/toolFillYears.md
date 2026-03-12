@@ -22,6 +22,11 @@ toolFillYears(x, years)
 
 MAgPIE object with completed time dimensionality.
 
+## See also
+
+Other temporal processing: [`toolTimeAverage()`](toolTimeAverage.md),
+[`toolTimeSpline()`](toolTimeSpline.md)
+
 ## Author
 
 Kristine Karstens

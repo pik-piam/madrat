@@ -29,6 +29,11 @@ toolTimeAverage(x, averaging_range = NULL, cut = TRUE)
 
 the averaged data in magclass format
 
+## See also
+
+Other temporal processing: [`toolFillYears()`](toolFillYears.md),
+[`toolTimeSpline()`](toolTimeSpline.md)
+
 ## Author
 
 Kristine Karstens, Jan Philipp Dietrich
