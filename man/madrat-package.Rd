@@ -6,8 +6,8 @@
 \alias{madrat}
 \title{May All Data be Reproducible And Transparent (madrat) *}
 \description{
-Package provides a basic framework which should improve reproducibility and transparency in data processing. 
-It provides functionality such as automatic meta data creation and management, rudimentary quality management, 
+Package provides a basic framework which should improve reproducibility and transparency in data processing.
+It provides functionality such as automatic meta data creation and management, rudimentary quality management,
 data caching, work-flow management an data aggregation.
 }
 \details{
