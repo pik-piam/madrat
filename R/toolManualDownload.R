@@ -18,7 +18,8 @@
 #' }
 #' @importFrom withr local_connection
 #' @export
-toolManualDownload <- function(instructions, intro = "Data must be downloaded manually",
+toolManualDownload <- function(instructions,
+                               intro = "Data must be downloaded manually",
                                request = "Enter full path to the downloaded data:") {
   .getLine <- function() {
     if (interactive()) {
@@ -28,13 +29,17 @@ toolManualDownload <- function(instructions, intro = "Data must be downloaded ma
     return(readLines(withr::local_connection(file("stdin")), n = 1))
   }
   msg <- function(...) vcat(1, ..., show_prefix = FALSE)
-  if (!is.null(intro)) msg(intro)
-  for(m in paste0(seq_along(instructions), ". ", instructions)) {
+  if (!is.null(intro)) {
+    msg(intro)
+  }
+  for (m in paste0(seq_along(instructions), ". ", instructions)) {
     msg(m)
   }
   msg(request)
   filePath <- .getLine()
-  if (!file.exists(filePath)) stop("Data could not be found!")
+  if (!file.exists(filePath)) {
+    stop("Data could not be found!")
+  }
   file.copy(filePath, ".")
   msg("Data has been succesfully copied. You can now delete ", normalizePath(filePath))
 }

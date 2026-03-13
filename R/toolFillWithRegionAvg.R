@@ -125,7 +125,7 @@ toolFillWithRegionAvg <- function(x, valueToReplace = NA, weight = NULL, callToo
             paste(names(aboveThreshold$warning), collapse = ", "))
   } else if (length(aboveThreshold$note) > 0) {
     message("More than ", 100 * noteThreshold, "% missing values for: ",
-         paste(names(aboveThreshold$note), collapse = ", "))
+            paste(names(aboveThreshold$note), collapse = ", "))
   }
 
   return(xNew)
