@@ -9,7 +9,7 @@
 #' @author Jan Philipp Dietrich
 #' @family cache management
 #' @export
-cacheCopy <- function(file, target=NULL, filter=NULL) {
+cacheCopy <- function(file, target = NULL, filter = NULL) {
   if (length(file) > 1 || any(grepl("\n", file))) {
     f <- unlist(strsplit(file, "\n"))
   } else {
