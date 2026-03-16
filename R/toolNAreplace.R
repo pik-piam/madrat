@@ -17,7 +17,8 @@
 #' @export
 #'
 
-toolNAreplace <- function(x, weight = NULL, replaceby = 0, val.rm = NULL) { # nolint: object_name_linter
+toolNAreplace <- function(x, weight = NULL, replaceby = 0,
+                          val.rm = NULL) { # nolint: object_name_linter
   if (is.magpie(replaceby)) {
     replaceby <- magpie_expand(replaceby, x)
     if (!all(dim(replaceby) == dim(x))) {
