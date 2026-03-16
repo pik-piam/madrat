@@ -43,8 +43,8 @@ Jan Philipp Dietrich
 ## Examples
 
 ``` r
-toolSplitSubtype("mymodel:myversion:myworld", list(model=c("mymodel","notmymodel"), 
-                                                   version=c("myversion","42"), 
+toolSplitSubtype("mymodel:myversion:myworld", list(model=c("mymodel","notmymodel"),
+                                                   version=c("myversion","42"),
                                                    world="myworld"))
 #> $model
 #> [1] "mymodel"

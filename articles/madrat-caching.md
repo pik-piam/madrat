@@ -19,7 +19,7 @@ library(madrat, quietly = TRUE)
 #> 
 #>     pmax, pmin
 getConfig("cachefolder", verbose = FALSE)
-#> [1] "/tmp/RtmpthYtqk/madrat/cache/default"
+#> [1] "/tmp/RtmpldNhaF/madrat/cache/default"
 ```
 
 When running data processing via `retrieveData` it currently offers two
@@ -66,7 +66,7 @@ getDependencies("calcTauTotal", packages = "madrat")
 #> 12           toolMapFromRel tool  madrat
 #>                                 call     hash
 #> 1                   madrat:::readTau 51d42a7b
-#> 2         madrat:::toolSubtypeSelect 86ae28b2
+#> 2         madrat:::toolSubtypeSelect 19a011f1
 #> 3             madrat:::toolAggregate d87bab1e
 #> 4           madrat:::toolCountryFill f02cc82a
 #> 5  madrat:::toolGetAggregationMatrix d29738b5
@@ -92,7 +92,7 @@ setConfig(verbosity = 3)
 #> Global configuration update:
 #>   verbosity: 1 -> 3
 fp <- madrat:::fingerprint("calcTauTotal")
-#> hash components (8cdfa51c):
+#> hash components (5da65665):
 #>   49fe8440 | madrat:::calcTauTotal | madrat:::calcTauTotal
 #>   51d42a7b | madrat:::readTau | madrat:::readTau
 #>   c095ab28 | madrat:::sysdata$iso_cell | madrat:::sysdata$iso_cell
@@ -108,7 +108,7 @@ fp <- madrat:::fingerprint("calcTauTotal")
 #> madrat:::toolGetAggregationMatrix
 #>   b688b718 | madrat:::toolGetMapping | madrat:::toolGetMapping
 #>   37c2d9ee | madrat:::toolMapFromRel | madrat:::toolMapFromRel
-#>   86ae28b2 | madrat:::toolSubtypeSelect | madrat:::toolSubtypeSelect
+#>   19a011f1 | madrat:::toolSubtypeSelect | madrat:::toolSubtypeSelect
 #>   fd922370 | madrat:::toolZeroWeight | madrat:::toolZeroWeight
 #>   3dd304aa | magclass:::ncells | magclass:::ncells
 ```

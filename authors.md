@@ -45,11 +45,11 @@ Source:
 Dietrich J, Sauer P, Baumstark L, Wirth S, Giannousakis A, Rodrigues R,
 Bodirsky B, Leip D, Crawford M, Kreidenweis U, Klein D, Rein P (2026).
 *madrat: May All Data be Reproducible and Transparent (MADRaT)*. R
-package version 3.35.1.
+package version 3.35.2.
 
     @Manual{,
       title = {madrat: May All Data be Reproducible and Transparent (MADRaT)},
       author = {Jan Philipp Dietrich and Pascal Sauer and Lavinia Baumstark and Stephen Wirth and Anastasis Giannousakis and Renato Rodrigues and Benjamin Leon Bodirsky and Debbora Leip and Michael Crawford and Ulrich Kreidenweis and David Klein and Patrick Rein},
       year = {2026},
-      note = {R package version 3.35.1},
+      note = {R package version 3.35.2},
     }

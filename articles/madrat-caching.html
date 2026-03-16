@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.35.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.35.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
                         <h4 data-toc-skip class="author">Jan Philipp
 Dietrich</h4>
             
-            <h4 data-toc-skip class="date">2026-03-12</h4>
+            <h4 data-toc-skip class="date">2026-03-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/pik-piam/madrat/blob/master/vignettes/madrat-caching.Rmd" class="external-link"><code>vignettes/madrat-caching.Rmd</code></a></small>
       <div class="d-none name"><code>madrat-caching.Rmd</code></div>
@@ -89,7 +89,7 @@ located can be checked via</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     pmax, pmin</span></span>
 <span><span class="fu"><a href="../reference/getConfig.html">getConfig</a></span><span class="op">(</span><span class="st">"cachefolder"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/tmp/RtmpthYtqk/madrat/cache/default"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "/tmp/RtmpldNhaF/madrat/cache/default"</span></span></code></pre></div>
 <p>When running data processing via <code>retrieveData</code> it
 currently offers two types of cache folders:
 <code>cachetype = "def"</code> will use a shared cachefolder in which
@@ -136,7 +136,7 @@ function which can be retrieved via <code>getDependencies</code>:</p>
 <span><span class="co">#&gt; 12           toolMapFromRel tool  madrat</span></span>
 <span><span class="co">#&gt;                                 call     hash</span></span>
 <span><span class="co">#&gt; 1                   madrat:::readTau 51d42a7b</span></span>
-<span><span class="co">#&gt; 2         madrat:::toolSubtypeSelect 86ae28b2</span></span>
+<span><span class="co">#&gt; 2         madrat:::toolSubtypeSelect 19a011f1</span></span>
 <span><span class="co">#&gt; 3             madrat:::toolAggregate d87bab1e</span></span>
 <span><span class="co">#&gt; 4           madrat:::toolCountryFill f02cc82a</span></span>
 <span><span class="co">#&gt; 5  madrat:::toolGetAggregationMatrix d29738b5</span></span>
@@ -159,7 +159,7 @@ the fingerprint of that specific function:</p>
 <span><span class="co">#&gt; Global configuration update:</span></span>
 <span><span class="co">#&gt;   verbosity: 1 -&gt; 3</span></span>
 <span><span class="va">fp</span> <span class="op">&lt;-</span> <span class="fu">madrat</span><span class="fu">:::</span><span class="fu"><a href="../reference/fingerprint.html">fingerprint</a></span><span class="op">(</span><span class="st">"calcTauTotal"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; hash components (8cdfa51c):</span></span>
+<span><span class="co">#&gt; hash components (5da65665):</span></span>
 <span><span class="co">#&gt;   49fe8440 | madrat:::calcTauTotal | madrat:::calcTauTotal</span></span>
 <span><span class="co">#&gt;   51d42a7b | madrat:::readTau | madrat:::readTau</span></span>
 <span><span class="co">#&gt;   c095ab28 | madrat:::sysdata$iso_cell | madrat:::sysdata$iso_cell</span></span>
@@ -175,7 +175,7 @@ the fingerprint of that specific function:</p>
 <span><span class="co">#&gt; madrat:::toolGetAggregationMatrix</span></span>
 <span><span class="co">#&gt;   b688b718 | madrat:::toolGetMapping | madrat:::toolGetMapping</span></span>
 <span><span class="co">#&gt;   37c2d9ee | madrat:::toolMapFromRel | madrat:::toolMapFromRel</span></span>
-<span><span class="co">#&gt;   86ae28b2 | madrat:::toolSubtypeSelect | madrat:::toolSubtypeSelect</span></span>
+<span><span class="co">#&gt;   19a011f1 | madrat:::toolSubtypeSelect | madrat:::toolSubtypeSelect</span></span>
 <span><span class="co">#&gt;   fd922370 | madrat:::toolZeroWeight | madrat:::toolZeroWeight</span></span>
 <span><span class="co">#&gt;   3dd304aa | magclass:::ncells | magclass:::ncells</span></span></code></pre></div>
 <p>As a hash has the characteristic to change when its input changes, an
