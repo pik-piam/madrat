@@ -27,3 +27,4 @@ original data, and to-items that only contain sub-items that also occur in
 the from-items, so an aggregated item should only contain sub-items that
 were also present in all from-items it was aggregated from.
 }
+\keyword{internal}
