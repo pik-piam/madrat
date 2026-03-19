@@ -452,6 +452,7 @@ toolGetAggregationMatrix <- function(rel, from = NULL, to = NULL, items = NULL, 
 #' @param x The data to be aggregated already sub-set in case of a partial relation
 #' @param dim The (sub-)dim to be aggregated
 #' @return An expanded aggregation matrix
+#' @keywords internal
 toolExpandRel <- function(rel, x, dim) {
   names <- getItems(x, round(floor(dim)))
 
