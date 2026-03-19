@@ -54,7 +54,7 @@ print(madrat:::prepFunctionName("Tau", "read"))
 #> attr(,"package")
 #> [1] "madrat"
 #> attr(,"pkgcomment")
-#> [1] "madrat 3.35.2"
+#> [1] "madrat 3.36.1"
 print(madrat:::prepFunctionName("TauTotal", "calc"))
 #> [1] "madrat:::calcTauTotal(...)"
 #> attr(,"formals")
@@ -62,7 +62,7 @@ print(madrat:::prepFunctionName("TauTotal", "calc"))
 #> attr(,"package")
 #> [1] "madrat"
 #> attr(,"pkgcomment")
-#> [1] "madrat 3.35.2"
+#> [1] "madrat 3.36.1"
 print(madrat:::prepFunctionName("EXAMPLE", "full"))
 #> [1] "madrat:::fullEXAMPLE(rev=rev, dev=dev, ...)"
 #> attr(,"formals")
@@ -70,5 +70,5 @@ print(madrat:::prepFunctionName("EXAMPLE", "full"))
 #> attr(,"package")
 #> [1] "madrat"
 #> attr(,"pkgcomment")
-#> [1] "madrat 3.35.2"
+#> [1] "madrat 3.36.1"
 ```
