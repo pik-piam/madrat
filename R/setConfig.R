@@ -116,8 +116,13 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
                       .verbose = TRUE,
                       .local = FALSE) {
 
-  if (...length() > 0) {
-    stop("setConfig does not accept positional arguments. Please use the form setConfig(configField = configValue).")
+  dots <- list(...)
+  if (length(dots) > 0) {
+    if (is.null(names(dots)) || "" %in% names(dots)) {
+      stop("setConfig does not accept positional arguments. Please use the form setConfig(configField = configValue).")
+    } else {
+      stop(names(dots), " are not valid config fields (see documentation of setConfig for list of valid parameters).")
+    }
   }
 
   if (isWrapperActive("wrapperChecks")) {

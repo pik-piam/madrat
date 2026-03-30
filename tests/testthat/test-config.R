@@ -64,4 +64,7 @@ test_that("setting via positional arguments is prevented", {
   # of config fields
   expect_error(setConfig("mainfolder", "data"), "setConfig does not accept positional arguments")
   expect_error(localConfig("mainfolder", "data"), "setConfig does not accept positional arguments")
+
+  expect_error(setConfig(somefolder="mainfolder"), "somefolder are not valid config fields")
+  expect_error(localConfig(somefolder="mainfolder"), "somefolder are not valid config fields")
 })
