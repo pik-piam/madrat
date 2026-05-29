@@ -25,11 +25,11 @@ will return the unmodified object, if the given subdimension does not exist
 or does not contain cell information.
 }
 \seealso{
-Other data manipulation: 
-\code{\link{toolConditionalReplace}()},
-\code{\link{toolFixWeight}()},
-\code{\link{toolNAreplace}()},
-\code{\link{toolXlargest}()}
+Other data manipulation:
+\code{\link[=toolConditionalReplace]{toolConditionalReplace()}},
+\code{\link[=toolFixWeight]{toolFixWeight()}},
+\code{\link[=toolNAreplace]{toolNAreplace()}},
+\code{\link[=toolXlargest]{toolXlargest()}}
 }
 \author{
 Kristine Karstens, Jan Philipp Dietrich

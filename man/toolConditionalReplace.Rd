@@ -20,11 +20,11 @@ return changed input data
 Sets values (NA, negative, ..) to value \code{replaceby}
 }
 \seealso{
-Other data manipulation: 
-\code{\link{toolFixWeight}()},
-\code{\link{toolNAreplace}()},
-\code{\link{toolOrderCells}()},
-\code{\link{toolXlargest}()}
+Other data manipulation:
+\code{\link[=toolFixWeight]{toolFixWeight()}},
+\code{\link[=toolNAreplace]{toolNAreplace()}},
+\code{\link[=toolOrderCells]{toolOrderCells()}},
+\code{\link[=toolXlargest]{toolXlargest()}}
 }
 \author{
 Kristine Karstens

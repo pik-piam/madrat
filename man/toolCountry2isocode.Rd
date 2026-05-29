@@ -43,11 +43,11 @@ toolCountry2isocode(c("Germany","Fantasyland"),mapping=c("Fantasyland"="BLA"))
 \seealso{
 \code{\link{readSource}},\code{\link{getSources}}
 
-Other country tools: 
-\code{\link{getISOlist}()},
-\code{\link{toolCountryFill}()},
-\code{\link{toolFillWithRegionAvg}()},
-\code{\link{toolISOhistorical}()}
+Other country tools:
+\code{\link[=getISOlist]{getISOlist()}},
+\code{\link[=toolCountryFill]{toolCountryFill()}},
+\code{\link[=toolFillWithRegionAvg]{toolFillWithRegionAvg()}},
+\code{\link[=toolISOhistorical]{toolISOhistorical()}}
 }
 \author{
 Jan Philipp Dietrich, Anastasis Giannousakis

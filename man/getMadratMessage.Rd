@@ -27,10 +27,10 @@ getMadratMessage("test", fname = "calcTauTotal")
 \seealso{
 \code{\link{getMadratMessage}}
 
-Other madrat messages: 
-\code{\link{putMadratMessage}()},
-\code{\link{resetMadratMessages}()},
-\code{\link{vcat}()}
+Other madrat messages:
+\code{\link[=putMadratMessage]{putMadratMessage()}},
+\code{\link[=resetMadratMessages]{resetMadratMessages()}},
+\code{\link[=vcat]{vcat()}}
 }
 \author{
 Jan Philipp Dietrich

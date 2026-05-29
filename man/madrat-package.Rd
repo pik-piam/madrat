@@ -24,21 +24,22 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Jan Philipp Dietrich \email{dietrich@pik-potsdam.de} (\href{https://orcid.org/0000-0002-4309-6431}{ORCID}) (Potsdam Institute for Climate Impact Research)
+\strong{Maintainer}: Jan Philipp Dietrich \email{dietrich@pik-potsdam.de} (\href{https://orcid.org/0000-0002-4309-6431}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
 
 Authors:
 \itemize{
-  \item Pascal Sauer \email{pascal.sauer@pik-potsdam.de} (\href{https://orcid.org/0000-0002-6856-8239}{ORCID}) (Potsdam Institute for Climate Impact Research)
-  \item Lavinia Baumstark \email{lavinia@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
-  \item Stephen Wirth \email{wirth@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Jan Philipp Dietrich \email{dietrich@pik-potsdam.de} (\href{https://orcid.org/0000-0002-4309-6431}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Pascal Sauer \email{pascal.sauer@pik-potsdam.de} (\href{https://orcid.org/0000-0002-6856-8239}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Lavinia Baumstark \email{lavinia@pik-potsdam.de} (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Stephen Wirth \email{wirth@pik-potsdam.de} (affiliation: Potsdam Institute for Climate Impact Research)
   \item Anastasis Giannousakis \email{giannou@pik-potsdam.de}
-  \item Renato Rodrigues \email{Renato.Rodrigues@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
-  \item Benjamin Leon Bodirsky \email{bodirsky@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
-  \item Debbora Leip \email{leip@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
-  \item Michael Crawford \email{crawford@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
+  \item Renato Rodrigues \email{Renato.Rodrigues@pik-potsdam.de} (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Benjamin Leon Bodirsky \email{bodirsky@pik-potsdam.de} (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Debbora Leip \email{leip@pik-potsdam.de} (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Michael Crawford \email{crawford@pik-potsdam.de} (affiliation: Potsdam Institute for Climate Impact Research)
   \item Ulrich Kreidenweis \email{kreidenweis@pik-potsdam.de}
-  \item David Klein \email{dklein@pik-potsdam.de} (Potsdam Institute for Climate Impact Research)
-  \item Patrick Rein \email{patrick.rein@pik-potsdam.de} (\href{https://orcid.org/0000-0001-9454-8381}{ORCID}) (Potsdam Institute for Climate Impact Research)
+  \item David Klein \email{dklein@pik-potsdam.de} (affiliation: Potsdam Institute for Climate Impact Research)
+  \item Patrick Rein \email{patrick.rein@pik-potsdam.de} (\href{https://orcid.org/0000-0001-9454-8381}{ORCID}) (affiliation: Potsdam Institute for Climate Impact Research)
 }
 
 }

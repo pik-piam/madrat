@@ -38,10 +38,10 @@ print(getCalculations("read"))
 \seealso{
 \code{\link{readSource}}, \code{\link{setConfig}}
 
-Other available functions: 
-\code{\link{getLocation}()},
-\code{\link{getSources}()},
-\code{\link{installedMadratUniverse}()}
+Other available functions:
+\code{\link[=getLocation]{getLocation()}},
+\code{\link[=getSources]{getSources()}},
+\code{\link[=installedMadratUniverse]{installedMadratUniverse()}}
 }
 \author{
 Jan Philipp Dietrich

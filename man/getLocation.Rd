@@ -27,10 +27,10 @@ are found
 \seealso{
 \code{\link{getCalculations}}, \code{\link{getDependencies}}
 
-Other available functions: 
-\code{\link{getCalculations}()},
-\code{\link{getSources}()},
-\code{\link{installedMadratUniverse}()}
+Other available functions:
+\code{\link[=getCalculations]{getCalculations()}},
+\code{\link[=getSources]{getSources()}},
+\code{\link[=installedMadratUniverse]{installedMadratUniverse()}}
 }
 \author{
 Jan Philipp Dietrich

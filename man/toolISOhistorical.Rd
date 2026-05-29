@@ -47,11 +47,11 @@ supplementary data in the madrat package. If you want to use a different
 mapping please specify it in the argument mapping
 }
 \seealso{
-Other country tools: 
-\code{\link{getISOlist}()},
-\code{\link{toolCountry2isocode}()},
-\code{\link{toolCountryFill}()},
-\code{\link{toolFillWithRegionAvg}()}
+Other country tools:
+\code{\link[=getISOlist]{getISOlist()}},
+\code{\link[=toolCountry2isocode]{toolCountry2isocode()}},
+\code{\link[=toolCountryFill]{toolCountryFill()}},
+\code{\link[=toolFillWithRegionAvg]{toolFillWithRegionAvg()}}
 }
 \author{
 Lavinia Baumstark

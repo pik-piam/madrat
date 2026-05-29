@@ -47,8 +47,8 @@ readSource("Tau")
 }
 }
 \seealso{
-Other source redirection: 
-\code{\link{getLinkFunction}()}
+Other source redirection:
+\code{\link[=getLinkFunction]{getLinkFunction()}}
 }
 \author{
 Pascal Sauer

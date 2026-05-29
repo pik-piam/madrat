@@ -38,10 +38,10 @@ Creates a graphical visualization of dependencies between functions in the mr-un
 \seealso{
 \code{\link{getDependencies}}, \code{\link{getMadratGraph}}, \code{\link{getMadratInfo}}
 
-Other dependency graph: 
-\code{\link{getDependencies}()},
-\code{\link{getMadratGraph}()},
-\code{\link{getMadratInfo}()}
+Other dependency graph:
+\code{\link[=getDependencies]{getDependencies()}},
+\code{\link[=getMadratGraph]{getMadratGraph()}},
+\code{\link[=getMadratInfo]{getMadratInfo()}}
 }
 \author{
 Debbora Leip, Jan Philipp Dietrich

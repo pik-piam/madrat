@@ -52,9 +52,9 @@ violating the overall madrat logic and thereby can lead to erroneous results.
 \seealso{
 \code{\link{setConfig}}, \code{\link{initializeConfig}}
 
-Other madrat configuration: 
-\code{\link{madratAttach}()},
-\code{\link{setConfig}()}
+Other madrat configuration:
+\code{\link[=madratAttach]{madratAttach()}},
+\code{\link[=setConfig]{setConfig()}}
 }
 \author{
 Jan Philipp Dietrich

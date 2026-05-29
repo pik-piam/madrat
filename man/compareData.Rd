@@ -23,9 +23,9 @@ Compares the content of two data archives and looks for similarities and differe
 \seealso{
 \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 
-Other validation: 
-\code{\link{compareMadratOutputs}()},
-\code{\link{toolCompareStatusLogs}()}
+Other validation:
+\code{\link[=compareMadratOutputs]{compareMadratOutputs()}},
+\code{\link[=toolCompareStatusLogs]{toolCompareStatusLogs()}}
 }
 \author{
 Jan Philipp Dietrich, Florian Humpenoeder

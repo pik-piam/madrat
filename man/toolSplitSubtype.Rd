@@ -28,8 +28,8 @@ toolSplitSubtype("mymodel:myversion:myworld", list(model=c("mymodel","notmymodel
                                                    world="myworld"))
 }
 \seealso{
-Other subtype handling: 
-\code{\link{toolSubtypeSelect}()}
+Other subtype handling:
+\code{\link[=toolSubtypeSelect]{toolSubtypeSelect()}}
 }
 \author{
 Jan Philipp Dietrich

@@ -24,9 +24,9 @@ Function which converts mapping files between formats
 \seealso{
 \code{\link{calcOutput}}, \code{\link{toolConvertMapping}}
 
-Other mapping: 
-\code{\link{addMapping}()},
-\code{\link{toolGetMapping}()}
+Other mapping:
+\code{\link[=addMapping]{addMapping()}},
+\code{\link[=toolGetMapping]{toolGetMapping()}}
 }
 \author{
 Jan Philipp Dietrich

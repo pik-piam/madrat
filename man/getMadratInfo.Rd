@@ -26,10 +26,10 @@ network of madrat functions.
 \seealso{
 \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
 
-Other dependency graph: 
-\code{\link{getDependencies}()},
-\code{\link{getMadratGraph}()},
-\code{\link{visualizeDependencies}()}
+Other dependency graph:
+\code{\link[=getDependencies]{getDependencies()}},
+\code{\link[=getMadratGraph]{getMadratGraph()}},
+\code{\link[=visualizeDependencies]{visualizeDependencies()}}
 }
 \author{
 Jan Philipp Dietrich
