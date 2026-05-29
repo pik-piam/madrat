@@ -18,6 +18,38 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
   } else {
     f <- readLines(file)
   }
+
+  # Rejoin split log entries (long messages exceed maxLengthLogMessage and wrap to next line)
+  # This is done by looking for Exit lines that have no "in ... seconds".
+  # In that case, the loop starts accumulating content until it hits a line with "in ... seconds"
+  acc <- NULL
+  accPrefix <- NULL
+  allLines <- character(0)
+  for (line in f) {
+    prefix <- regmatches(line, regexpr("^~*", line))
+    if (!is.null(acc) && accPrefix == prefix) {
+      rest <- trimws(sub("^~*\\s*", "", line))
+      acc <- paste(trimws(acc), rest)
+      if (grepl("in [0-9.]* seconds", acc)) {
+        # We have hit the end of an exit line, stop accumulation
+        allLines <- c(allLines, acc)
+        acc <- NULL
+        accPrefix <- NULL
+      }
+    } else {
+      if (!is.null(acc)) allLines <- c(allLines, acc)
+      if (grepl("Exit", line) && !grepl("in [0-9.]* seconds", line)) {
+        acc <- line
+        accPrefix <- prefix
+      } else {
+        allLines <- c(allLines, line)
+        acc <- NULL
+        accPrefix <- NULL
+      }
+    }
+  }
+  if (!is.null(acc)) allLines <- c(allLines, acc)
+  f <- allLines
   f <- grep("in [0-9.]* seconds", f, value = TRUE)
 
   x <- data.frame(level = nchar(gsub("^(~*).*$", "\\1", f)))
