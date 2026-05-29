@@ -1,3 +1,5 @@
+# Single quotes to not have to escape the double quotes in the test string.
+# nolint start: quotes_linter
 log <- c('~ Run ',
          '~ calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")',
          '~~ Run readSource("Tau", source)',
@@ -24,3 +26,4 @@ test_that("bottleneck detection worksy", {
     x <- findBottlenecks(file, unit = "h")
   }, "could not be properly detected")
 })
+# nolint end
