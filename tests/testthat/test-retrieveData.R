@@ -129,9 +129,9 @@ test_that("mapping file permissions are not copied", {
   file.copy(toolGetMapping("regionmappingH12.csv", where = "madrat", returnPathOnly = TRUE),
             map)
   Sys.chmod(map, mode = "0444", use_umask = FALSE)
-  expect_identical(unname(file.access(map, 2)), -1L) # no write permission
+  expect_identical(as.character(file.mode(map)), "444") # no write permission
 
   retrieveData("TEST", regionmapping = "testmapping.csv", puc = FALSE)
   untar("./output/rev0_h12_test.tgz")
-  expect_identical(unname(file.access("testmapping.csv", 2)), 0L) # has write permission
+  expect_identical(as.character(file.mode("testmapping.csv")), "664") # has write permission
 })
