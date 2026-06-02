@@ -24,40 +24,44 @@ Useful links:
 ## Author
 
 **Maintainer**: Jan Philipp Dietrich <dietrich@pik-potsdam.de>
-([ORCID](https://orcid.org/0000-0002-4309-6431)) (Potsdam Institute for
-Climate Impact Research)
+([ORCID](https://orcid.org/0000-0002-4309-6431)) (affiliation: Potsdam
+Institute for Climate Impact Research)
 
 Authors:
 
+- Jan Philipp Dietrich <dietrich@pik-potsdam.de>
+  ([ORCID](https://orcid.org/0000-0002-4309-6431)) (affiliation: Potsdam
+  Institute for Climate Impact Research)
+
 - Pascal Sauer <pascal.sauer@pik-potsdam.de>
-  ([ORCID](https://orcid.org/0000-0002-6856-8239)) (Potsdam Institute
+  ([ORCID](https://orcid.org/0000-0002-6856-8239)) (affiliation: Potsdam
+  Institute for Climate Impact Research)
+
+- Lavinia Baumstark <lavinia@pik-potsdam.de> (affiliation: Potsdam
+  Institute for Climate Impact Research)
+
+- Stephen Wirth <wirth@pik-potsdam.de> (affiliation: Potsdam Institute
   for Climate Impact Research)
-
-- Lavinia Baumstark <lavinia@pik-potsdam.de> (Potsdam Institute for
-  Climate Impact Research)
-
-- Stephen Wirth <wirth@pik-potsdam.de> (Potsdam Institute for Climate
-  Impact Research)
 
 - Anastasis Giannousakis <giannou@pik-potsdam.de>
 
-- Renato Rodrigues <Renato.Rodrigues@pik-potsdam.de> (Potsdam Institute
-  for Climate Impact Research)
+- Renato Rodrigues <Renato.Rodrigues@pik-potsdam.de> (affiliation:
+  Potsdam Institute for Climate Impact Research)
 
-- Benjamin Leon Bodirsky <bodirsky@pik-potsdam.de> (Potsdam Institute
-  for Climate Impact Research)
+- Benjamin Leon Bodirsky <bodirsky@pik-potsdam.de> (affiliation: Potsdam
+  Institute for Climate Impact Research)
 
-- Debbora Leip <leip@pik-potsdam.de> (Potsdam Institute for Climate
-  Impact Research)
-
-- Michael Crawford <crawford@pik-potsdam.de> (Potsdam Institute for
+- Debbora Leip <leip@pik-potsdam.de> (affiliation: Potsdam Institute for
   Climate Impact Research)
+
+- Michael Crawford <crawford@pik-potsdam.de> (affiliation: Potsdam
+  Institute for Climate Impact Research)
 
 - Ulrich Kreidenweis <kreidenweis@pik-potsdam.de>
 
-- David Klein <dklein@pik-potsdam.de> (Potsdam Institute for Climate
-  Impact Research)
+- David Klein <dklein@pik-potsdam.de> (affiliation: Potsdam Institute
+  for Climate Impact Research)
 
 - Patrick Rein <patrick.rein@pik-potsdam.de>
-  ([ORCID](https://orcid.org/0000-0001-9454-8381)) (Potsdam Institute
-  for Climate Impact Research)
+  ([ORCID](https://orcid.org/0000-0001-9454-8381)) (affiliation: Potsdam
+  Institute for Climate Impact Research)

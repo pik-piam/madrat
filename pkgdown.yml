@@ -1,8 +1,8 @@
-pandoc: 3.1.11
+pandoc: 3.1.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   madrat-caching: madrat-caching.html
   madrat-puc: madrat-puc.html
   madrat: madrat.html
-last_built: 2026-03-31T08:14Z
+last_built: 2026-06-02T13:08Z
