@@ -52,10 +52,10 @@ vcat(2, "Hello world!")
 \seealso{
 \code{\link{readSource}}
 
-Other madrat messages: 
-\code{\link{getMadratMessage}()},
-\code{\link{putMadratMessage}()},
-\code{\link{resetMadratMessages}()}
+Other madrat messages:
+\code{\link[=getMadratMessage]{getMadratMessage()}},
+\code{\link[=putMadratMessage]{putMadratMessage()}},
+\code{\link[=resetMadratMessages]{resetMadratMessages()}}
 }
 \author{
 Jan Philipp Dietrich

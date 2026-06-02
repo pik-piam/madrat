@@ -76,11 +76,11 @@ retrieveData("example", rev = "2.1.1", dev = "test", regionmapping = "regionmapp
 \seealso{
 \code{\link{calcOutput}},\code{\link{setConfig}}
 
-Other core workflow: 
-\code{\link{calcOutput}()},
-\code{\link{downloadSource}()},
-\code{\link{readSource}()},
-\code{\link{returnCalcOutput}()}
+Other core workflow:
+\code{\link[=calcOutput]{calcOutput()}},
+\code{\link[=downloadSource]{downloadSource()}},
+\code{\link[=readSource]{readSource()}},
+\code{\link[=returnCalcOutput]{returnCalcOutput()}}
 }
 \author{
 Jan Philipp Dietrich, Lavinia Baumstark

@@ -20,8 +20,8 @@ A vector of cache files which match the given log information and filter.
 Copy cache files which were used for a given preprocessing.
 }
 \seealso{
-Other cache management: 
-\code{\link{cacheCleanup}()}
+Other cache management:
+\code{\link[=cacheCleanup]{cacheCleanup()}}
 }
 \author{
 Jan Philipp Dietrich

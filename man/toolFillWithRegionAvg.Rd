@@ -65,11 +65,11 @@ rel <- data.frame(CountryCode = c("A", "B", "C", "D"), RegionCode = c("R1", "R1"
 xfilled <- toolFillWithRegionAvg(x, regionmapping = rel)
 }
 \seealso{
-Other country tools: 
-\code{\link{getISOlist}()},
-\code{\link{toolCountry2isocode}()},
-\code{\link{toolCountryFill}()},
-\code{\link{toolISOhistorical}()}
+Other country tools:
+\code{\link[=getISOlist]{getISOlist()}},
+\code{\link[=toolCountry2isocode]{toolCountry2isocode()}},
+\code{\link[=toolCountryFill]{toolCountryFill()}},
+\code{\link[=toolISOhistorical]{toolISOhistorical()}}
 }
 \author{
 Bjoern Soergel, Lavinia Baumstark, Jan Philipp Dietrich

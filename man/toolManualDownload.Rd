@@ -32,8 +32,8 @@ toolManualDownload(c("Log into website ABC",
 \seealso{
 \code{\link{downloadSource}}
 
-Other source downloading: 
-\code{\link{metadataGFZ}()}
+Other source downloading:
+\code{\link[=metadataGFZ]{metadataGFZ()}}
 }
 \author{
 Jan Philipp Dietrich

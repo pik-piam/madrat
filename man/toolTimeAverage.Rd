@@ -22,9 +22,9 @@ average over time given an averaging range. Only works for data with
 equidistant time steps!
 }
 \seealso{
-Other temporal processing: 
-\code{\link{toolFillYears}()},
-\code{\link{toolTimeSpline}()}
+Other temporal processing:
+\code{\link[=toolFillYears]{toolFillYears()}},
+\code{\link[=toolTimeSpline]{toolTimeSpline()}}
 }
 \author{
 Kristine Karstens, Jan Philipp Dietrich

@@ -16,8 +16,8 @@ files and directories, depending on OS capabilities (usually symlinks are
 not supported on Windows).
 }
 \seealso{
-Other source redirection: 
-\code{\link{redirectSource}()}
+Other source redirection:
+\code{\link[=redirectSource]{redirectSource()}}
 }
 \author{
 Pascal Sauer

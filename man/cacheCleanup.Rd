@@ -38,7 +38,7 @@ careful and check that the correct files are deleted. This function will return 
 files that would be deleted if the user answers 'n' to the question. If deleting files fails a warning is created.
 }
 \seealso{
-Other cache management: 
-\code{\link{cacheCopy}()}
+Other cache management:
+\code{\link[=cacheCopy]{cacheCopy()}}
 }
 \concept{cache management}

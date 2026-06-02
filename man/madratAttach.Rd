@@ -30,9 +30,9 @@ madratAttach("madrat")
 \seealso{
 \code{\link{getConfig}}, \code{\link{setConfig}}
 
-Other madrat configuration: 
-\code{\link{getConfig}()},
-\code{\link{setConfig}()}
+Other madrat configuration:
+\code{\link[=getConfig]{getConfig()}},
+\code{\link[=setConfig]{setConfig()}}
 }
 \author{
 Jan Philipp Dietrich

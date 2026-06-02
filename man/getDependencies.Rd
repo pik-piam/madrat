@@ -44,10 +44,10 @@ madrat-based calc- read- or full-function.
 \seealso{
 \code{\link{getCalculations}}, \code{\link{getMadratGraph}},  \code{\link{getMadratInfo}}
 
-Other dependency graph: 
-\code{\link{getMadratGraph}()},
-\code{\link{getMadratInfo}()},
-\code{\link{visualizeDependencies}()}
+Other dependency graph:
+\code{\link[=getMadratGraph]{getMadratGraph()}},
+\code{\link[=getMadratInfo]{getMadratInfo()}},
+\code{\link[=visualizeDependencies]{visualizeDependencies()}}
 }
 \author{
 Jan Philipp Dietrich

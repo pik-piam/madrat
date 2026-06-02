@@ -32,8 +32,8 @@ toolSubtypeSelect("extent",files)
 \seealso{
 \code{\link{readSource}}
 
-Other subtype handling: 
-\code{\link{toolSplitSubtype}()}
+Other subtype handling:
+\code{\link[=toolSplitSubtype]{toolSplitSubtype()}}
 }
 \author{
 Jan Philipp Dietrich

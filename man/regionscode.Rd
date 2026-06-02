@@ -40,8 +40,8 @@ regionscode(file)
 \seealso{
 \code{\link{toolCodeLabels}}, \code{\link{fingerprint}}, \code{\link[digest]{digest}}
 
-Other code labeling: 
-\code{\link{toolCodeLabels}()}
+Other code labeling:
+\code{\link[=toolCodeLabels]{toolCodeLabels()}}
 }
 \author{
 Jan Philipp Dietrich

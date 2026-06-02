@@ -35,9 +35,9 @@ the old and the new log.
 Compares status logs and returns a textual rendering of the diff between the two.
 }
 \seealso{
-Other validation: 
-\code{\link{compareData}()},
-\code{\link{compareMadratOutputs}()}
+Other validation:
+\code{\link[=compareData]{compareData()}},
+\code{\link[=compareMadratOutputs]{compareMadratOutputs()}}
 }
 \author{
 Patrick Rein

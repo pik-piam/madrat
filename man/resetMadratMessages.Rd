@@ -28,10 +28,10 @@ resetMadratMessages("test")
 \seealso{
 \code{\link{putMadratMessage}}, \code{\link{getMadratMessage}}
 
-Other madrat messages: 
-\code{\link{getMadratMessage}()},
-\code{\link{putMadratMessage}()},
-\code{\link{vcat}()}
+Other madrat messages:
+\code{\link[=getMadratMessage]{getMadratMessage()}},
+\code{\link[=putMadratMessage]{putMadratMessage()}},
+\code{\link[=vcat]{vcat()}}
 }
 \author{
 Jan Philipp Dietrich

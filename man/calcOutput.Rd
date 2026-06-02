@@ -148,11 +148,11 @@ a <- calcOutput(type = "TauTotal")
 \seealso{
 \code{\link{setConfig}}, \code{\link{calcTauTotal}},
 
-Other core workflow: 
-\code{\link{downloadSource}()},
-\code{\link{readSource}()},
-\code{\link{retrieveData}()},
-\code{\link{returnCalcOutput}()}
+Other core workflow:
+\code{\link[=downloadSource]{downloadSource()}},
+\code{\link[=readSource]{readSource()}},
+\code{\link[=retrieveData]{retrieveData()}},
+\code{\link[=returnCalcOutput]{returnCalcOutput()}}
 }
 \author{
 Jan Philipp Dietrich, Patrick Rein

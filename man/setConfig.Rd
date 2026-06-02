@@ -159,9 +159,9 @@ setConfig(forcecache = c("readSSPall", "convertSSPall"))
 \seealso{
 \code{\link{getConfig}}, \code{\link{getISOlist}}
 
-Other madrat configuration: 
-\code{\link{getConfig}()},
-\code{\link{madratAttach}()}
+Other madrat configuration:
+\code{\link[=getConfig]{getConfig()}},
+\code{\link[=madratAttach]{madratAttach()}}
 }
 \author{
 Jan Philipp Dietrich

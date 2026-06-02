@@ -52,11 +52,11 @@ stopifnot(as.vector(y["B2", , ]) == 0) # and this is also still 0
 \seealso{
 \code{\link{toolAggregate}}
 
-Other data manipulation: 
-\code{\link{toolConditionalReplace}()},
-\code{\link{toolNAreplace}()},
-\code{\link{toolOrderCells}()},
-\code{\link{toolXlargest}()}
+Other data manipulation:
+\code{\link[=toolConditionalReplace]{toolConditionalReplace()}},
+\code{\link[=toolNAreplace]{toolNAreplace()}},
+\code{\link[=toolOrderCells]{toolOrderCells()}},
+\code{\link[=toolXlargest]{toolXlargest()}}
 }
 \author{
 Pascal Sauer

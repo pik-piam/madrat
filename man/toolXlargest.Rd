@@ -25,11 +25,11 @@ Selects the countries with the highest values in a magpie object
 toolXlargest(magclass::maxample("pop"), range = 1:3)
 }
 \seealso{
-Other data manipulation: 
-\code{\link{toolConditionalReplace}()},
-\code{\link{toolFixWeight}()},
-\code{\link{toolNAreplace}()},
-\code{\link{toolOrderCells}()}
+Other data manipulation:
+\code{\link[=toolConditionalReplace]{toolConditionalReplace()}},
+\code{\link[=toolFixWeight]{toolFixWeight()}},
+\code{\link[=toolNAreplace]{toolNAreplace()}},
+\code{\link[=toolOrderCells]{toolOrderCells()}}
 }
 \author{
 Benjamin Leon Bodirsky, Jan Philipp Dietrich

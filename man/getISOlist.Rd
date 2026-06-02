@@ -36,11 +36,11 @@ head(getISOlist("dispensable"))
 \seealso{
 \code{\link{getSources}}, \code{\link{getCalculations}}
 
-Other country tools: 
-\code{\link{toolCountry2isocode}()},
-\code{\link{toolCountryFill}()},
-\code{\link{toolFillWithRegionAvg}()},
-\code{\link{toolISOhistorical}()}
+Other country tools:
+\code{\link[=toolCountry2isocode]{toolCountry2isocode()}},
+\code{\link[=toolCountryFill]{toolCountryFill()}},
+\code{\link[=toolFillWithRegionAvg]{toolFillWithRegionAvg()}},
+\code{\link[=toolISOhistorical]{toolISOhistorical()}}
 }
 \author{
 Jan Philipp Dietrich

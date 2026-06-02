@@ -26,10 +26,10 @@ are not listed separately, but collectively referred to through the correspondin
 \seealso{
 \code{\link{getCalculations}}, \code{\link{getConfig}}
 
-Other dependency graph: 
-\code{\link{getDependencies}()},
-\code{\link{getMadratInfo}()},
-\code{\link{visualizeDependencies}()}
+Other dependency graph:
+\code{\link[=getDependencies]{getDependencies()}},
+\code{\link[=getMadratInfo]{getMadratInfo()}},
+\code{\link[=visualizeDependencies]{visualizeDependencies()}}
 }
 \author{
 Jan Philipp Dietrich

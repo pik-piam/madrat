@@ -118,10 +118,10 @@ calcSomething <- function() {
 \seealso{
 calcOutput
 
-Other core workflow: 
-\code{\link{calcOutput}()},
-\code{\link{downloadSource}()},
-\code{\link{readSource}()},
-\code{\link{retrieveData}()}
+Other core workflow:
+\code{\link[=calcOutput]{calcOutput()}},
+\code{\link[=downloadSource]{downloadSource()}},
+\code{\link[=readSource]{readSource()}},
+\code{\link[=retrieveData]{retrieveData()}}
 }
 \concept{core workflow}

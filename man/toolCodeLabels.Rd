@@ -30,8 +30,8 @@ toolCodeLabels("62eff8f7")
 \seealso{
 \code{\link{regionscode}}
 
-Other code labeling: 
-\code{\link{regionscode}()}
+Other code labeling:
+\code{\link[=regionscode]{regionscode()}}
 }
 \author{
 Jan Philipp Dietrich
