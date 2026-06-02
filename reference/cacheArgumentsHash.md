@@ -56,7 +56,7 @@ madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historica
 #>     packages = madrat
 #>     globalenv = FALSE
 #>     verbosity = 1
-#>     mainfolder = /tmp/RtmpEs3lJk/madrat
+#>     mainfolder = /tmp/RtmpQOUtCU/madrat
 #>     sourcefolder = NA
 #>     cachefolder = NA
 #>     mappingfolder = NA

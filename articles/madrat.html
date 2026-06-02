@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.36.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.36.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -167,7 +167,7 @@ function is <code>madrat:::downloadTau</code>.</p>
 <span><span class="co">#&gt;             volume = "232", pages = "109-118", url = "https://doi.org/10.1016/j.ecolmodel.2012.03.002", </span></span>
 <span><span class="co">#&gt;             doi = "10.1016/j.ecolmodel.2012.03.002")))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55ef289e5c98&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5625dbf9abb8&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>The name of the user function always has to be a combination of the
 function type (in this case “download”) and the source or calculation
@@ -204,7 +204,7 @@ the downloaded data.</p>
 <span><span class="co">#&gt;     x[x == -999] &lt;- NA</span></span>
 <span><span class="co">#&gt;     return(x)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55ef2589ed68&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5625d8e53d68&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>If one wishes to only read in data (without conversion), this can be
 done by running <code>readSource</code> with the argument
@@ -264,7 +264,7 @@ information:</p>
 <span><span class="co">#&gt;     xref &lt;- toolCountryFill(xref, fill = 0, verbosity = 2)</span></span>
 <span><span class="co">#&gt;     return(mbind(tau, xref))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55ef24e87390&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5625d843c390&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>Read and convert can be run together by running
 <code>readSource</code>:</p>
@@ -320,7 +320,7 @@ data output called “TauTotal”.</p>
 <span><span class="co">#&gt;             pages = "109-118", url = "https://doi.org/10.1016/j.ecolmodel.2012.03.002", </span></span>
 <span><span class="co">#&gt;             doi = "10.1016/j.ecolmodel.2012.03.002")))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55ef263ab7e0&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5625d9960170&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>calc-Functions always have to return a list of objects with some list
 entries mandatory and others optional. Mandatory entries are the
@@ -367,7 +367,7 @@ packaging. The user defined functions matching to the wrapper
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     return(list(tag = "customizable_tag", pucTag = "tag"))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x55ef27e1bec0&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5625db3d0de0&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:madrat&gt;</span></span></code></pre></div>
 <p>Each function must have the argument <code>rev</code> which contains
 a revision number. This can be used to package the data differently
