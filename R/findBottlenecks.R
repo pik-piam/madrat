@@ -6,9 +6,10 @@
 #' @param file path to a log file or content of a log as character vector
 #' @param cumulative boolean deciding whether calls to the same function should be aggregated or not
 #' @param unit unit for runtime information, either "s" (seconds), "min" (minutes) or "h" (hours)
-#' @return A data.frame sorted by net runtime showing for the different data processing functions their
-#' total runtime "time" (including the execution of all sub-functions) and net runtime "net" (excluding
-#' the runtime of sub-functions) and their share of total runtime.
+#' @return A named list with one entry per retrieveData call found in the log. The names are the
+#' retrieveData types and each entry is a data.frame sorted by net runtime showing for the different
+#' data processing functions their total runtime "time" (including the execution of all sub-functions)
+#' and net runtime "net" (excluding the runtime of sub-functions) and their share of total runtime.
 #' @author Jan Philipp Dietrich
 #' @family analysis
 #' @export
@@ -20,6 +21,7 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
   }
 
   f <- .mergeSplitLogLines(f)
+  # Only use the ends of blocks, nesting information is included in the prefix of each line.
   f <- grep("in [0-9.]* seconds", f, value = TRUE)
 
   x <- data.frame(level = nchar(gsub("^(~*).*$", "\\1", f)))
@@ -35,6 +37,30 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
   x$level[x$class == "retrieve"] <- -1
   x$type <- gsub("([\"= ]|type)", "", gsub("^[^(]*\\(([^,)]*)[),].*$", "\\1", f))
   x$"time[s]" <- as.numeric(gsub("^.* in ([0-9.]*) seconds.*$", "\\1", f)) # nolint
+
+  # Each retrieveData line marks the end of one retrieveData block. Split the log into one
+  # segment per retrieveData call and analyze each independently.
+  retrieveIdx <- which(x$class == "retrieve")
+  if (length(retrieveIdx) == 0) {
+    warning("No retrieveData call could be detected in the log!")
+    return(stats::setNames(list(), character(0)))
+  }
+  if (max(retrieveIdx) < nrow(x)) {
+    warning("Log lines after the last retrieveData call were ignored (incomplete block).")
+  }
+
+  starts <- c(1, utils::head(retrieveIdx, -1) + 1)
+  out <- list()
+  for (k in seq_along(retrieveIdx)) {
+    segment <- x[starts[k]:retrieveIdx[k], , drop = FALSE]
+    type <- x$type[retrieveIdx[k]]
+    out[[type]] <- .analyzeBottlenecks(segment, type, unit, cumulative)
+  }
+  return(out)
+}
+
+.analyzeBottlenecks <- function(x, type, unit, cumulative) {
+  rownames(x) <- NULL
   x$"net[s]" <- NA # nolint
   runtime <- rep(0, max(x$level) + 3)
   for (i in seq_len(nrow(x))) {
@@ -70,7 +96,7 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
   th   <- floor(totalruntime / 3600)
   tmin <- floor((totalruntime - th * 3600) / 60)
   ts   <- floor(totalruntime - th * 3600 - tmin * 60)
-  message("Total runtime: ", th, " hours ", tmin, " minutes ", ts, " seconds")
+  message("Total runtime (", type, "): ", th, " hours ", tmin, " minutes ", ts, " seconds")
   x$"time[%]" <- round(x$"time[s]" / totalruntime * 100, 2) # nolint
   x$"net[%]" <- round(x$"net[s]" / totalruntime * 100, 2) # nolint
   x <- x[robustOrder(x$"net[s]", decreasing = TRUE), ]

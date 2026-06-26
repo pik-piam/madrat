@@ -14,9 +14,10 @@ findBottlenecks(file, unit = "min", cumulative = TRUE)
 \item{cumulative}{boolean deciding whether calls to the same function should be aggregated or not}
 }
 \value{
-A data.frame sorted by net runtime showing for the different data processing functions their
-total runtime "time" (including the execution of all sub-functions) and net runtime "net" (excluding
-the runtime of sub-functions) and their share of total runtime.
+A named list with one entry per retrieveData call found in the log. The names are the
+retrieveData types and each entry is a data.frame sorted by net runtime showing for the different
+data processing functions their total runtime "time" (including the execution of all sub-functions)
+and net runtime "net" (excluding the runtime of sub-functions) and their share of total runtime.
 }
 \description{
 Analyzes a log from a retrieveData run, extracts runtime information for all called functions

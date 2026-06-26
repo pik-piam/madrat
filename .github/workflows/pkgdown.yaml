@@ -21,14 +21,14 @@ jobs:
     container:
       image: ghcr.io/pik-piam/ci-image:latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install
         shell: Rscript {0}
         run: |
           options(repos = c(pikpiam = 'https://pik-piam.r-universe.dev',
                             CRAN = Sys.getenv('RSPM')))
-          pak::pak(".")
+          pak::pak(".", dependencies = 'all')
           pak::pkg_install("tidyverse/tidytemplate")
 
       - name: Build site
@@ -37,7 +37,7 @@ jobs:
 
       - name: Deploy to GitHub pages 🚀
         if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           clean: false
           branch: gh-pages
