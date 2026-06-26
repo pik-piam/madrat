@@ -9,7 +9,7 @@ and identifies most critical bottlenecks."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.36.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.37.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,9 +68,10 @@ and identifies most critical bottlenecks.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data.frame sorted by net runtime showing for the different data processing functions their
-total runtime "time" (including the execution of all sub-functions) and net runtime "net" (excluding
-the runtime of sub-functions) and their share of total runtime.</p>
+    <p>A named list with one entry per retrieveData call found in the log. The names are the
+retrieveData types and each entry is a data.frame sorted by net runtime showing for the different
+data processing functions their total runtime "time" (including the execution of all sub-functions)
+and net runtime "net" (excluding the runtime of sub-functions) and their share of total runtime.</p>
     </div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
