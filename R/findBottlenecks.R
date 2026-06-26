@@ -21,6 +21,7 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
   }
 
   f <- .mergeSplitLogLines(f)
+  # Only use the ends of blocks, nesting information is included in the prefix of each line.
   f <- grep("in [0-9.]* seconds", f, value = TRUE)
 
   x <- data.frame(level = nchar(gsub("^(~*).*$", "\\1", f)))
