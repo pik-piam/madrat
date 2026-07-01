@@ -87,11 +87,12 @@ returnCalcOutput <- function(x, weight, unit, description,
 
   mandatoryArgs <- c("x", "weight", "unit", "description")
 
-  missing <- \(x) (is.symbol(x) && "" == format(x))
+  isMissing <- function(x) { (is.symbol(x) && "" == format(x)) }
 
-  if (length(missingMandatoryArgs <- Filter(missing, env[mandatoryArgs])))
+  if (length(missingMandatoryArgs <- Filter(isMissing, env[mandatoryArgs]))) {
     stop("argument \"", names(missingMandatoryArgs[1]),
          "\" is missing with no default")
+  }
 
-  Filter(Negate(missing), env)
+  Filter(Negate(isMissing), env)
 }
