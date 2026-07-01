@@ -1,15 +1,23 @@
-## NOTES
+## CHANGES:
 
-The R precheck complains that "Author field differs from that derived from Authors@R". We checked
-it and the behavior is ok. It is just that the naming of affiliation and ORCID leads to slightly
-different formatting when returned, but the information stays the same.
-
-## CHANGES
-* fixed CRAN precheck error related to an error detection on a german system
-
-* fixed recently popped up testthat errors caused by stricter behavior of recent testthat versions
-* pushed version to most recent release
+- This brings the CRAN version up-to-date with recent developments in the package.
 
 ## Test environments
-* local R installation, R 4.1.2
-* rhub checks
+* local R installation, R 4.5.1
+* rhub linux using R devel
+* win-builder
+
+## R CMD check results
+
+### Local
+
+── R CMD check results 
+Duration: 3m 10.6s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+
+## revdep check results
+
+All CRAN reverse dependency checks were successful (using revdepcheck).
+
+Reviewed reverse dependencies for other repositories manually. All are covered by regular builds on r-universe / GH Action, which are successful.
