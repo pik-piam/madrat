@@ -31,8 +31,7 @@ test_that("calcOutput will stop if unused arguments are provided", {
 })
 
 test_that("Malformed inputs are properly detected", {
-  skip_on_cran()
-  skip_if_offline("zenodo.org")
+  localMockedTauDownload()
   expect_error(localConfig(packages = "nonexistentpackage"),
                'Setting "packages" can only be set to installed packages')
   expect_error(calcOutput("TauTotal", aggregate = "wtf"),
@@ -122,20 +121,21 @@ test_that("Malformed calc outputs are properly detected", {
 })
 
 test_that("Calculation for tau example data set works", {
-  skip_on_cran()
-  skip_if_offline("zenodo.org")
+  # network request is mocked with synthetic data, so we cannot assert exact Tau values here,
+  # only the structure/years of the result (see setup.R localMockedTauDownload)
+  localMockedTauDownload()
   sink(tempfile())
   require(magclass)
   localConfig(ignorecache = FALSE, forcecache = FALSE, verbosity = 2)
-  expectedResult <- new("magpie",
-                        .Data = structure(c(0.99, 0.83, 0.68, 1.47, 0.9, 0.64, 0.8, 0.97, 1.17, 0.89, 1.27, 1.25),
-                                          .Dim = c(12L, 1L, 1L),
-                                          .Dimnames = list(region = c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA",
-                                                                      "REF", "CAZ", "CHA", "IND", "JPN", "USA"),
-                                                           year = NULL, data = NULL)))
   x <- calcOutput("TauTotal", source = "historical", years = 1995, round = 2, supplementary = TRUE)
   expect_true(is.list(x))
-  expect_equivalent(x$x, expectedResult)
+  expect_s4_class(x$x, "magpie")
+  expect_equal(nyears(x$x), 1)
+  # the mocked tau is 1 everywhere, so aggregating with the (constant) xref weight yields 1 in every
+  # H12 region - assert both the aggregation happened (12 regions) and the resulting values
+  expect_setequal(getItems(x$x, 1), c("LAM", "OAS", "SSA", "EUR", "NEU", "MEA",
+                                      "REF", "CAZ", "CHA", "IND", "JPN", "USA"))
+  expect_true(all(x$x == 1))
   expect_message(x <- readSource("Tau", "historical"), "loading cache")
   expect_error(x <- readSource("Tau", "wtf"), "Unknown subtype")
   expect_warning(calcOutput("TauTotal", source = "historical", years = 1800), "Some years are missing")
@@ -375,7 +375,7 @@ test_that("1on1 country mappings do not alter the data", {
     x <- x1 * x2
     # fill with random numbers and mix order to test whether this
     # affects the country-country mapping
-    x[, , ] <- unlist(randu)[seq_len(length(x))]
+    x[, , ] <- unlist(randu)[seq_along(x)]
     x <- x[order(x), , ]
     return(list(x = x,
                 weight = NULL,

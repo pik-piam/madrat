@@ -57,15 +57,13 @@ test_that("readSource detects common problems", {
   convertTest <- function(x) return(as.magpie(1))
   globalassign("convertTest")
 
-  skip_on_cran()
-  skip_if_offline("zenodo.org")
+  localMockedTauDownload()
   expect_error(readSource("Tau", subtype = "paper", convert = "WTF"),
                "'convert' argument must be set to one of: TRUE, 'onlycorrect', FALSE")
 })
 
 test_that("default readSource example works", {
-  skip_on_cran()
-  skip_if_offline("zenodo.org")
+  localMockedTauDownload()
   expect_silent(suppressMessages({
     a <- readSource("Tau", "paper")
   }))
@@ -73,8 +71,7 @@ test_that("default readSource example works", {
 })
 
 test_that("downloadSource works", {
-  skip_on_cran()
-  skip_if_offline("zenodo.org")
+  localMockedTauDownload()
   localConfig(verbosity = 2, .verbose = FALSE)
   expect_error(downloadSource("Tau", "paper"),
                paste('Source folder for source "Tau/paper" does already exist. Delete that folder or call',
