@@ -1,5 +1,6 @@
 test_that("puc creation works", {
   skip_on_cran()
+  localMockedTauDownload() # avoid the real Tau download triggered via calcOutput("TauTotal")
   retrieveData("example", rev = 42, extra = "test1")
   expect_true(dir.exists(getConfig("pucfolder")))
   withr::local_dir(getConfig("pucfolder"))
@@ -25,6 +26,12 @@ test_that("puc creation works", {
 test_that("puc creation is thread-safe", {
   skip_on_cran()
   skip_on_covr() # Does not work in combination with covr
+
+  # The sub-processes below cannot use the mocked download binding, so pre-populate the shared
+  # source folder with the synthetic Tau data here. readSource in the sub-processes then finds the
+  # existing source and does not hit the network.
+  localMockedTauDownload()
+  suppressMessages(readSource("Tau", "paper"))
 
   # Tip for debugging this test:
   # If something breaks in one of the sub-processes, use p1$get_result()
