@@ -221,7 +221,6 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
   weightAndWeightSum <- toolZeroWeight(weight, rel, from, to, dim, wdim, partrel, zeroWeight)
   weight <- weightAndWeightSum$weight # fine resolution
   weight2 <- 1 / (weightAndWeightSum$weightSum + 10^-100) # coarse resolution
-  stopifnot(length(weight) >= length(weight2))
 
   if (mixedAggregation) {
     weight2[is.na(weight2)] <- 1
