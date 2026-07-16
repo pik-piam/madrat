@@ -21,9 +21,9 @@ toolFixWeight(weight, map, dim)
 
 - map:
 
-  a data frame where the first column contains coarse resolution items
-  and the second column contains fine resolution items; fine resolution
-  items must match items in weight
+  a 2-column data frame where one column contains coarse resolution
+  items and the other column contains fine resolution items; fine
+  resolution items must match items in weight
 
 - dim:
 
@@ -58,7 +58,7 @@ weight <- new.magpie(c("A1", "A2", "B1", "B2"), fill = 0)
 weight["B1", , ] <- 1
 
 y <- toolAggregate(x, rel, weight) # warning "Weight sum is 0"
-#> Warning: Weight sum is 0, so cannot normalize and will return 0 for some aggregation targets. This changes the total sum of the magpie object! If this is really intended set zeroWeight = "allow", or "setNA" to return NA.
+#> Warning: Weight sum is 0, so cannot normalize and will return 0 for some aggregation targets. If this is really intended set zeroWeight = "allow", or "setNA" to return NA.
 stopifnot(sum(x) - sum(y) == 100) # total sum no longer equal, hence the warning
 stopifnot(as.vector(y["B2", , ]) == 0)
 

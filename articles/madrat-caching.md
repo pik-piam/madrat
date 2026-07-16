@@ -19,7 +19,7 @@ library(madrat, quietly = TRUE)
 #> 
 #>     pmax, pmin
 getConfig("cachefolder", verbose = FALSE)
-#> [1] "/tmp/RtmpDTKMu7/madrat/cache/default"
+#> [1] "/tmp/RtmpLsjjJO/madrat/cache/default"
 ```
 
 When running data processing via `retrieveData` it currently offers two
@@ -68,14 +68,14 @@ getDependencies("calcTauTotal", packages = "madrat")
 #> 1                   madrat:::readTau 51d42a7b
 #> 2         madrat:::toolSubtypeSelect 19a011f1
 #> 3             madrat:::toolAggregate d87bab1e
-#> 4           madrat:::toolCountryFill f02cc82a
+#> 4           madrat:::toolCountryFill a1152c65
 #> 5  madrat:::toolGetAggregationMatrix d29738b5
-#> 6     madrat:::toolAggregateWeighted bb30f581
+#> 6     madrat:::toolAggregateWeighted 460116a8
 #> 7   madrat:::toolAggregateUnweighted 255c73b9
 #> 8            madrat:::toolGetMapping b688b718
-#> 9            madrat:::toolZeroWeight fd922370
+#> 9            madrat:::toolZeroWeight 17e8a260
 #> 10            madrat:::toolExpandRel 86691784
-#> 11            madrat:::toolFixWeight 0deba207
+#> 11            madrat:::toolFixWeight 00a4c833
 #> 12           madrat:::toolMapFromRel 37c2d9ee
 ```
 
@@ -92,24 +92,24 @@ setConfig(verbosity = 3)
 #> Global configuration update:
 #>   verbosity: 1 -> 3
 fp <- madrat:::fingerprint("calcTauTotal")
-#> hash components (f3399049):
+#> hash components (f87eb727):
 #>   49fe8440 | madrat:::calcTauTotal | madrat:::calcTauTotal
 #>   51d42a7b | madrat:::readTau | madrat:::readTau
 #>   c095ab28 | madrat:::sysdata$iso_cell | madrat:::sysdata$iso_cell
 #>   d87bab1e | madrat:::toolAggregate | madrat:::toolAggregate
 #>   255c73b9 | madrat:::toolAggregateUnweighted | 
 #> madrat:::toolAggregateUnweighted
-#>   bb30f581 | madrat:::toolAggregateWeighted | 
+#>   460116a8 | madrat:::toolAggregateWeighted | 
 #> madrat:::toolAggregateWeighted
-#>   f02cc82a | madrat:::toolCountryFill | madrat:::toolCountryFill
+#>   a1152c65 | madrat:::toolCountryFill | madrat:::toolCountryFill
 #>   86691784 | madrat:::toolExpandRel | madrat:::toolExpandRel
-#>   0deba207 | madrat:::toolFixWeight | madrat:::toolFixWeight
+#>   00a4c833 | madrat:::toolFixWeight | madrat:::toolFixWeight
 #>   d29738b5 | madrat:::toolGetAggregationMatrix | 
 #> madrat:::toolGetAggregationMatrix
 #>   b688b718 | madrat:::toolGetMapping | madrat:::toolGetMapping
 #>   37c2d9ee | madrat:::toolMapFromRel | madrat:::toolMapFromRel
 #>   19a011f1 | madrat:::toolSubtypeSelect | madrat:::toolSubtypeSelect
-#>   fd922370 | madrat:::toolZeroWeight | madrat:::toolZeroWeight
+#>   17e8a260 | madrat:::toolZeroWeight | madrat:::toolZeroWeight
 #>   3dd304aa | magclass:::ncells | magclass:::ncells
 ```
 
