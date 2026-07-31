@@ -227,3 +227,23 @@ test_that("terra objects can be cached", {
                terra::as.data.frame(b, geom = "WKT"))
   expect_identical(names(a), names(b))
 })
+
+test_that("cache files are written when SLURM_JOB_ID is set", {
+  # the job id becomes part of the tempfile cachePut writes before renaming it to the actual
+  # cache file. A malformed tempfile name makes that write fail silently, as cachePut reports
+  # write errors without raising them, and only shows on a cluster where SLURM_JOB_ID is set.
+  withr::local_envvar(SLURM_JOB_ID = "12345")
+  cacheFolder <- withr::local_tempdir()
+  localConfig(cachefolder = cacheFolder, .verbose = FALSE)
+
+  # distinct body, as the cached madrat graph does not distinguish identically defined functions
+  calcSlurmExample <- function() return(list(x = as.magpie(42), description = "-", unit = "-"))
+  globalassign("calcSlurmExample")
+
+  expect_message(calcOutput("SlurmExample", aggregate = FALSE), "writing cache")
+  # all.files, so that a leftover tempfile is noticed as well
+  cacheFiles <- list.files(getConfig("cachefolder"), all.files = TRUE, no.. = TRUE)
+  expect_length(cacheFiles, 1)
+  expect_match(cacheFiles, paste0("^calcSlurmExample-F.*\\.", cacheExt(), "$"))
+  expect_message(calcOutput("SlurmExample", aggregate = FALSE), "loading cache")
+})
