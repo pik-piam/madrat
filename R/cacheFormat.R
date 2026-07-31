@@ -64,8 +64,8 @@ cacheFormats <- function() {
 }
 
 # formats shipped with madrat. These are defined here rather than registered in an
-# .onLoad hook so that they are available in every R session without setup, in
-# particular in the callr subprocesses used by pucAggregate and retrieveData.
+# .onLoad hook so that they are available in every R session without setup, which
+# in particular makes setting the format via MADRAT_CACHEFORMAT work out of the box.
 .builtinCacheFormats <- function() {
   rds <- list(extension = "rds",
               write = function(x, file) saveRDS(x, file = file, compress = getConfig("cachecompression")),
