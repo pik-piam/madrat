@@ -4,16 +4,16 @@
 # which is not part of the cached graph.
 
 # register a format which is distinguishable from rds, so tests can prove which reader ran
-localTestFormat <- function(name = "testformat", extension = "tf", .local_envir = parent.frame(), ...) {
-  args <- list(name = name, extension = extension,
-               write = function(x, file) saveRDS(list(testformat = TRUE, payload = x), file),
-               read = function(file) {
-                 content <- readRDS(file)
-                 stopifnot(isTRUE(content$testformat))
-                 return(content$payload)
-               })
-  do.call(registerCacheFormat, utils::modifyList(args, list(...)))
-  withr::defer(options(madrat_cacheformats = NULL), envir = .local_envir) # nolint
+localTestFormat <- function(name = "testformat", extension = "tf", toRds = NULL,
+                            .localEnvir = parent.frame()) {
+  registerCacheFormat(name, extension = extension, toRds = toRds,
+                      write = function(x, file) saveRDS(list(testformat = TRUE, payload = x), file),
+                      read = function(file) {
+                        content <- readRDS(file)
+                        stopifnot(isTRUE(content$testformat))
+                        return(content$payload)
+                      })
+  withr::defer(options(madrat_cacheformats = NULL), envir = .localEnvir) # nolint
 }
 
 test_that("built-in cache formats are available", {
@@ -56,19 +56,46 @@ test_that("registerCacheFormat validates its input", {
   expect_true("a" %in% cacheFormats())
 })
 
-test_that("setConfig validates cacheformat", {
+test_that("setConfig rejects a cacheformat which is not registered", {
   before <- getConfig("cacheformat")
   expect_error(setConfig(cacheformat = "doesnotexist", .verbose = FALSE), "Unknown cache format")
-  expect_error(setConfig(cacheformat = 42, .verbose = FALSE), "single character string")
-  expect_error(setConfig(cacheformat = c("rds", "rds"), .verbose = FALSE), "single character string")
-  # a format whose package is missing must fail loudly rather than at the first cache write
-  local({
-    localTestFormat(name = "needsmissingpkg", extension = "nmp", package = "thisPackageDoesNotExist")
-    expect_error(setConfig(cacheformat = "needsmissingpkg", .verbose = FALSE),
-                 "is required for cache format")
-  })
+  expect_error(setConfig(cacheformat = 42, .verbose = FALSE), "Unknown cache format")
+  expect_error(setConfig(cacheformat = c("rds", "rds"), .verbose = FALSE), "Unknown cache format")
   # unchanged after all those failures
   expect_identical(getConfig("cacheformat"), before)
+})
+
+test_that("a cache format which cannot be used fails softly", {
+  withr::defer(options(madrat_cacheformats = NULL)) # nolint
+  registerCacheFormat("brokenformat", extension = "bf",
+                      write = function(x, file) thisPackageIsNotInstalled::save(x, file),
+                      read = function(file) thisPackageIsNotInstalled::load(file))
+  # configuring a format is allowed even if it cannot be used, caching is optional
+  localConfig(cachefolder = withr::local_tempdir(), cacheformat = "brokenformat", .verbose = FALSE)
+  calcBrokenFormatExample <- function() return(list(x = as.magpie(11), description = "-", unit = "-"))
+  globalassign("calcBrokenFormatExample")
+
+  # the calculation still returns its result, only the caching fails, stating the reason
+  expect_warning(x <- calcOutput("BrokenFormatExample", aggregate = FALSE),
+                 "could not write cache file.*thisPackageIsNotInstalled")
+  expect_identical(as.vector(x), 11)
+  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "*")), 0)
+})
+
+test_that("an unreadable cache file is reported with its reason", {
+  # pinned to rds so that the reason reported by the reader is deterministic
+  localConfig(cachefolder = withr::local_tempdir(), cacheformat = "rds", .verbose = FALSE)
+  calcUnreadableExample <- function() return(list(x = as.magpie(12), description = "-", unit = "-"))
+  globalassign("calcUnreadableExample")
+
+  expect_message(calcOutput("UnreadableExample", aggregate = FALSE), "writing cache")
+  cacheFile <- Sys.glob(file.path(getConfig("cachefolder"), "calcUnreadableExample*"))
+  expect_length(cacheFile, 1)
+  writeLines("this is not a cache file", cacheFile)
+
+  expect_warning(x <- calcOutput("UnreadableExample", aggregate = FALSE),
+                 "could not read cache file.*unknown input format")
+  expect_identical(as.vector(x), 12)
 })
 
 test_that("cache files are written in the configured format", {
@@ -171,32 +198,33 @@ test_that("cacheToRds converts via the format specific and the generic path", {
   payload <- list(x = as.magpie(1), class = "magpie")
 
   # rds -> rds is a plain copy
-  source <- file.path(withr::local_tempdir(), "in.rds")
-  saveRDS(payload, source)
-  expect_true(cacheToRds(source, target))
+  cacheFile <- file.path(withr::local_tempdir(), "in.rds")
+  saveRDS(payload, cacheFile)
+  expect_true(cacheToRds(cacheFile, target))
   expect_identical(readRDS(target), payload)
 
   # a format specific toRds is used if given
   local({
-    called <- FALSE
+    calls <- new.env(parent = emptyenv())
+    calls$toRds <- 0
     localTestFormat(name = "withtords", extension = "wtr",
                     toRds = function(input, output) {
-                      called <<- TRUE
+                      calls$toRds <- calls$toRds + 1
                       saveRDS(readRDS(input)$payload, output)
                     })
-    source <- file.path(withr::local_tempdir(), "in.wtr")
-    cacheWrite(payload, source)
-    expect_true(cacheToRds(source, target))
-    expect_true(called)
+    cacheFile <- file.path(withr::local_tempdir(), "in.wtr")
+    cacheWrite(payload, cacheFile)
+    expect_true(cacheToRds(cacheFile, target))
+    expect_identical(calls$toRds, 1)
     expect_identical(readRDS(target), payload)
   })
 
   # without toRds the generic read-then-saveRDS path is used
   local({
     localTestFormat(name = "withouttords", extension = "wor", toRds = NULL)
-    source <- file.path(withr::local_tempdir(), "in.wor")
-    cacheWrite(payload, source)
-    expect_true(cacheToRds(source, target))
+    cacheFile <- file.path(withr::local_tempdir(), "in.wor")
+    cacheWrite(payload, cacheFile)
+    expect_true(cacheToRds(cacheFile, target))
     expect_identical(readRDS(target), payload)
   })
 })

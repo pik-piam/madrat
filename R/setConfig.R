@@ -60,6 +60,9 @@
 #' are written in the configured format, but an already existing rds file is still read if no
 #' file in the configured format exists. Hence, switching the format does not invalidate an
 #' existing cache. Can also be set via the environment variable \code{MADRAT_CACHEFORMAT}.
+#' Whether a format can actually be used is not checked here. If it cannot (e.g. because the
+#' package it needs is missing) writing cache files will fail, which is reported but does not
+#' stop a calculation.
 #' @param hash specifies the used hashing algorithm. Default is "xxhash32" and
 #' all algorithms supported by \code{\link[digest]{digest}} can be used.
 #' @param diagnostics Either FALSE (default) to avoid the creation of additional
@@ -180,11 +183,7 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
   }
 
   if (!is.null(cacheformat) && .cfgchecks) {
-    if (!is.character(cacheformat) || length(cacheformat) != 1 || is.na(cacheformat)) {
-      stop("Setting \"cacheformat\" must be a single character string")
-    }
-    # fails if the format is unknown or its package is not installed
-    cacheFormat(cacheformat)
+    cacheFormat(cacheformat) # fails if the format is not registered
   }
 
   args <- names(formals(setConfig))

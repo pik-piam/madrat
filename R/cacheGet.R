@@ -51,8 +51,9 @@ cacheGet <- function(prefix, type, args = NULL) {
     # only set if reading actually succeeded, callers rely on this to detect a cache hit
     attr(x, "readFile") <- readFile
   }, error = function(e) {
-    vcat(0, " - corrupt cache file ", basename(readFile),
-         ". Will recalculate and write ", basename(fname), ".")
+    # the cache file may be corrupt, but the format may also just not be usable here
+    vcat(0, " - could not read cache file ", basename(readFile), " (", conditionMessage(e),
+         "). Will recalculate and write ", basename(fname), ".")
   })
 
   if (is.list(x) && isTRUE(x$class %in% c("SpatRaster", "SpatVector"))) {

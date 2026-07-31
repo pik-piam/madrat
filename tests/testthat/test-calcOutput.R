@@ -110,7 +110,7 @@ test_that("Malformed calc outputs are properly detected", {
 
   a <- calcOutput("Bla5", aggregate = FALSE)
   writeLines("CorruptCache", cacheName("calc", "Bla5"))
-  expect_warning(b <- calcOutput("Bla5", aggregate = FALSE), "corrupt cache")
+  expect_warning(b <- calcOutput("Bla5", aggregate = FALSE), "could not read cache file")
   expect_identical(nc(a), nc(b))
   expect_identical(nc(b), nc(calcOutput("Bla5", aggregate = FALSE)))
 

@@ -9,6 +9,10 @@
 #' distinct one. As the extension becomes part of the cache file name it is
 #' restricted to alphanumeric characters.
 #'
+#' Whether a format works is not verified upon registration. If \code{read} or
+#' \code{write} fail, e.g. because a required package is missing, this is reported
+#' as a failure to read/write that cache file, but does not stop a calculation.
+#'
 #' @param name Name of the format, e.g. "qs2".
 #' @param write A function(x, file) writing object \code{x} to \code{file}.
 #' @param read A function(file) returning the object stored in \code{file}.
@@ -18,24 +22,21 @@
 #' format to a rds file. This is used when bundling puc files, which always
 #' contain rds files so that they can be read without additional packages. If
 #' NULL, the file is read and written back via \code{saveRDS}.
-#' @param package Optional name of a package required for this format. It will be
-#' checked for availability before the format is used.
 #' @return Invisibly, the registered format definition.
 #' @author Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{cacheFormats}}
 #' @family cache management
 #' @examples
 #' \dontrun{
-#' registerCacheFormat("qs", write = qs::qsave, read = qs::qread, package = "qs")
+#' registerCacheFormat("qs", write = qs::qsave, read = qs::qread)
 #' setConfig(cacheformat = "qs")
 #' }
 #' @export
-registerCacheFormat <- function(name, write, read, extension = name, toRds = NULL, package = NULL) {
+registerCacheFormat <- function(name, write, read, extension = name, toRds = NULL) {
   stopifnot(is.character(name), length(name) == 1, nzchar(name),
             is.character(extension), length(extension) == 1, nzchar(extension),
             is.function(write), is.function(read),
-            is.null(toRds) || is.function(toRds),
-            is.null(package) || (is.character(package) && length(package) == 1))
+            is.null(toRds) || is.function(toRds))
 
   # a "-" would confuse the cache file name parsing in cacheName, a "." the stem
   # handling when converting to rds for puc files
@@ -51,8 +52,7 @@ registerCacheFormat <- function(name, write, read, extension = name, toRds = NUL
 
   formats <- getOption("madrat_cacheformats")
   if (is.null(formats)) formats <- list()
-  formats[[name]] <- list(extension = extension, write = write, read = read,
-                          toRds = toRds, package = package)
+  formats[[name]] <- list(extension = extension, write = write, read = read, toRds = toRds)
   options(madrat_cacheformats = formats) # nolint
   return(invisible(formats[[name]]))
 }
@@ -70,14 +70,12 @@ cacheFormats <- function() {
   rds <- list(extension = "rds",
               write = function(x, file) saveRDS(x, file = file, compress = getConfig("cachecompression")),
               read = function(file) readRDS(file),
-              toRds = function(input, output) file.copy(input, output),
-              package = NULL)
+              toRds = function(input, output) file.copy(input, output))
   qs2 <- list(extension = "qs2",
               write = function(x, file) qs2::qs_save(x, file = file),
               read = function(file) qs2::qs_read(file),
               # stream level conversion, does not materialize the object in memory
-              toRds = function(input, output) qs2::qs_to_rds(input, output),
-              package = "qs2")
+              toRds = function(input, output) qs2::qs_to_rds(input, output))
   return(list(rds = rds, qs2 = qs2))
 }
 
@@ -91,7 +89,7 @@ cacheFormats <- function() {
 
 #' cacheFormat
 #'
-#' Look up a registered cache format definition and make sure it can be used.
+#' Look up a registered cache format definition.
 #'
 #' @param name Name of the format, defaults to the currently configured one.
 #' @return The format definition, with the format name added as element "name".
@@ -99,16 +97,12 @@ cacheFormats <- function() {
 #' @keywords internal
 cacheFormat <- function(name = getConfig("cacheformat")) {
   formats <- .cacheFormatRegistry()
-  # be robust against a config created by a madrat version which did not know cacheformat
-  if (is.null(name) || (length(name) == 1 && is.na(name))) name <- "rds"
-  if (!is.character(name) || length(name) != 1 || !(name %in% names(formats))) {
+  # isTRUE also rejects NULL, NA and values which are not a single string
+  if (!isTRUE(name %in% names(formats))) {
     stop("Unknown cache format \"", paste(name, collapse = ", "), "\". Available formats: ",
          paste0("\"", names(formats), "\"", collapse = ", "))
   }
   format <- formats[[name]]
-  if (!is.null(format$package) && !requireNamespace(format$package, quietly = TRUE)) {
-    stop("Package \"", format$package, "\" is required for cache format \"", name, "\", but it is not installed.")
-  }
   format$name <- name
   return(format)
 }

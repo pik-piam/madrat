@@ -50,7 +50,8 @@ test_that("cacheCopy detects cache files of any format", {
 test_that("cacheCopy ignores cache files which were discarded as corrupt", {
   # a corrupt cache file is recalculated, so it must not be copied
   corrupt <- c(log[1:8],
-               ">>  - corrupt cache file readTau-Fe6e25820-f079dd0d.rds. Will recalculate.",
+               paste(">>  - could not read cache file readTau-Fe6e25820-f079dd0d.rds",
+                     "(unknown input format). Will recalculate and write readTau-Fe6e25820-f079dd0d.rds."),
                log[12:14])
   expect_identical(cacheCopy(corrupt), "/my/cache/folder/calcTauTotal-F933da7d1.rds") # nolint
 })

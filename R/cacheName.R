@@ -59,9 +59,10 @@ cacheName <- function(prefix, type, args = NULL) {
   # The file to read may be in any registered format, preferring the configured one.
   readName <- NULL
   fittingFiles <- .fname(paste0("-F", fp), argsHash, extensions)
-  if (any(file.exists(fittingFiles))) {
+  existingFiles <- fittingFiles[file.exists(fittingFiles)]
+  if (length(existingFiles) > 0) {
     # identical fingerprint means identical content, so prefer the format we read fastest
-    readName <- fittingFiles[file.exists(fittingFiles)][1]
+    readName <- existingFiles[1]
   } else if (!forcecache) {
     vcat(2, " - Cache file ", basename(fittingFiles[1]), " does not exist", show_prefix = FALSE)
   } else if (isConfigSet(prefix, type, "ignorecache")) {
