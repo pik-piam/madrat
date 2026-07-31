@@ -67,9 +67,12 @@ test_that("setConfig rejects a cacheformat which is not registered", {
 
 test_that("a cache format which cannot be used fails softly", {
   withr::defer(options(madrat_cacheformats = NULL)) # nolint
+  # simulates a format depending on an uninstalled package, without actually writing a
+  # `pkg::fun` reference, which the deps-in-desc pre-commit hook would flag as a missing
+  # dependency
+  missingPackageError <- function(...) stop("there is no package called 'thisPackageIsNotInstalled'")
   registerCacheFormat("brokenformat", extension = "bf",
-                      write = function(x, file) thisPackageIsNotInstalled::save(x, file),
-                      read = function(file) thisPackageIsNotInstalled::load(file))
+                      write = missingPackageError, read = missingPackageError)
   # configuring a format is allowed even if it cannot be used, caching is optional
   localConfig(cachefolder = withr::local_tempdir(), cacheformat = "brokenformat", .verbose = FALSE)
   calcBrokenFormatExample <- function() return(list(x = as.magpie(11), description = "-", unit = "-"))
