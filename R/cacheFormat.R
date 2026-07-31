@@ -31,7 +31,7 @@ registerCacheFormat <- function(name, write, read, extension = name, toRds = NUL
             is.function(write), is.function(read),
             is.null(toRds) || is.function(toRds))
 
-  # a "-" would confuse the cache file name parsing in cacheName, a "." the stem
+  # a "-" would confuse the cache file name parsing in cacheNames, a "." the stem
   # handling when converting to rds for puc files
   if (grepl("[^A-Za-z0-9]", extension)) {
     stop("Cache file extensions must only contain alphanumeric characters (got \"", extension, "\")")
@@ -99,7 +99,7 @@ cacheFormat <- function(name = getConfig("cacheformat")) {
 }
 
 # file extensions to look for when searching a cache file, in order of preference:
-# the configured format first, rds last as it is always readable (see cacheName)
+# the configured format first, rds last as it is always readable (see cacheNames)
 cacheExtensions <- function() {
   return(unique(c(cacheFormat()$extension, "rds")))
 }
@@ -119,7 +119,7 @@ cacheExtensions <- function() {
 #' Read, write and convert cache files using the format belonging to their file
 #' extension. Dispatching on the extension rather than on the configured format
 #' is what allows madrat to still read rds cache files while writing a different
-#' format (see \code{\link{cacheName}}).
+#' format (see \code{\link{cacheNames}}).
 #'
 #' @param x Object to be written.
 #' @param file Path of the cache file to be read/written, including file extension.

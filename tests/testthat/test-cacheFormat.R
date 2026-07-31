@@ -128,10 +128,10 @@ test_that("an existing rds cache file is used as read-only fallback", {
   expect_length(rdsFile, 1)
 
   localConfig(cacheformat = "testformat", .verbose = FALSE)
-  cf <- cacheName("calc", "FallbackExample")
+  cf <- cacheNames("calc", "FallbackExample")
   # the write target uses the configured format, the file to read is the existing rds
-  expect_match(basename(cf), "\\.tf$")
-  expect_identical(attr(cf, "readFile"), rdsFile)
+  expect_match(basename(cf$write), "\\.tf$")
+  expect_identical(cf$read, rdsFile)
 
   # the rds file is read and NOT rewritten in the new format
   expect_message(x <- calcOutput("FallbackExample", aggregate = FALSE), "loading cache.*\\.rds")
@@ -156,14 +156,14 @@ test_that("the configured format wins over rds for an identical fingerprint", {
   rdsFile <- sub("\\.tf$", ".rds", tfFile)
   Sys.sleep(1)
   saveRDS(list(x = as.magpie(99), class = "magpie"), rdsFile)
-  expect_identical(attr(cacheName("calc", "PrecedenceExample"), "readFile"), tfFile)
+  expect_identical(cacheNames("calc", "PrecedenceExample")$read, tfFile)
 
   # with forcecache and differing fingerprints the newest file wins, across formats
   calcPrecedenceExample <- function() return(list(x = as.magpie(33), description = "-", unit = "-"))
   globalassign("calcPrecedenceExample")
   localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_message(cf <- cacheName("calc", "PrecedenceExample"), "does not match fingerprint")
-  expect_identical(attr(cf, "readFile"), rdsFile)
+  expect_message(cf <- cacheNames("calc", "PrecedenceExample"), "does not match fingerprint")
+  expect_identical(cf$read, rdsFile)
 })
 
 test_that("cache files with an args hash are not mistaken for ones without", {
@@ -175,11 +175,11 @@ test_that("cache files with an args hash are not mistaken for ones without", {
 
   # a file carrying an args hash must not be picked up when no args hash is requested
   file.create(file.path(getConfig("cachefolder"), "calcArgsHashExample-Fabcdef01-12345678.tf"))
-  expect_null(attr(cacheName("calc", "ArgsHashExample"), "readFile"))
+  expect_null(cacheNames("calc", "ArgsHashExample")$read)
 
   withoutArgs <- file.path(getConfig("cachefolder"), "calcArgsHashExample-Fabcdef01.tf")
   file.create(withoutArgs)
-  expect_identical(attr(cacheName("calc", "ArgsHashExample"), "readFile"), withoutArgs)
+  expect_identical(cacheNames("calc", "ArgsHashExample")$read, withoutArgs)
 })
 
 test_that("cache files are written even if forcecache is set for another function", {

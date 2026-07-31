@@ -23,12 +23,12 @@ Save data to cache
 }
 \examples{
 \dontrun{
-fname <- madrat:::cacheName("calc", "Example")
+fname <- madrat:::cacheNames("calc", "Example")$write
 madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 }
 }
 \seealso{
-\code{\link{cachePut}}, \code{\link{cacheName}}
+\code{\link{cachePut}}, \code{\link{cacheNames}}
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer

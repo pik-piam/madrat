@@ -13,7 +13,7 @@
 #' read from an rds file while another cache format is configured.
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
-#' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
+#' @seealso \code{\link{cachePut}}, \code{\link{cacheNames}}
 #' @keywords internal
 #' @examples
 #' madrat:::cacheGet("calc", "TauTotal")
@@ -34,9 +34,9 @@ cacheGet <- function(prefix, type, args = NULL) {
   }
 
   x <- NA
-  fname <- cacheName(prefix = prefix, type = type, args = args)
-  readFile <- attr(fname, "readFile")
-  attr(fname, "readFile") <- NULL # keep attr(x, "id") a plain file name
+  cacheFiles <- cacheNames(prefix = prefix, type = type, args = args)
+  fname <- cacheFiles$write
+  readFile <- cacheFiles$read
 
   if (isConfigSet(prefix, type, "ignorecache") || is.null(readFile)) {
     attr(x, "id") <- fname

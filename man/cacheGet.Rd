@@ -28,7 +28,7 @@ Load fitting cache data (if available)
 madrat:::cacheGet("calc", "TauTotal")
 }
 \seealso{
-\code{\link{cachePut}}, \code{\link{cacheName}}
+\code{\link{cachePut}}, \code{\link{cacheNames}}
 }
 \author{
 Jan Philipp Dietrich, Pascal Sauer

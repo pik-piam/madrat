@@ -109,7 +109,7 @@ test_that("Malformed calc outputs are properly detected", {
   expect_error(calcOutput("Bla14"), "Aggregation can only be used in combination with x\\$class=\"magpie\"")
 
   a <- calcOutput("Bla5", aggregate = FALSE)
-  writeLines("CorruptCache", cacheName("calc", "Bla5"))
+  writeLines("CorruptCache", cacheNames("calc", "Bla5")$write)
   expect_warning(b <- calcOutput("Bla5", aggregate = FALSE), "could not read cache file")
   expect_identical(nc(a), nc(b))
   expect_identical(nc(b), nc(calcOutput("Bla5", aggregate = FALSE)))
@@ -571,7 +571,7 @@ test_that("Data check works as expected", {
   expect_warning(calcOutput("MalformedStruct"), "Invalid names")
   expect_warning(calcOutput("MalformedStruct2"), "Missing names")
   expect_silent(suppressMessages(calcOutput("MatchingStruct")))
-  cache <- cacheName("calc", "MatchingStruct")
+  cache <- cacheNames("calc", "MatchingStruct")$write
   a <- cacheRead(cache)
   getCells(a$x)[1] <- "BLA"
   cacheWrite(a, cache)

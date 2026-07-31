@@ -19,10 +19,9 @@ cacheFormats()
 \item{extension}{File extension used for cache files of this format (without
 leading dot). Defaults to \code{name}.}
 
-\item{toRds}{Optional function(input, output) converting a cache file of this
-format to a rds file. This is used when bundling puc files, which always
-contain rds files so that they can be read without additional packages. If
-NULL, the file is read and written back via \code{saveRDS}.}
+\item{toRds}{Optional fast path conversion function(input, output) converting
+a cache file of this format to a rds file. This is used when bundling puc files,
+which always contain rds files.}
 }
 \value{
 Invisibly, the registered format definition.
@@ -30,17 +29,11 @@ Invisibly, the registered format definition.
 \description{
 Register a serialization format which can be used for madrat cache files via
 \code{setConfig(cacheformat = ...)}. The formats "rds" (the default) and
-"qs2" are always available, "qs2" requires the \code{qs2} package. Registering
-a format under an already existing name replaces it.
+"qs2" are always available, "qs2" requires the \code{qs2} package.
 }
 \details{
 Cache files are identified by their file extension, so each format must use a
-distinct one. As the extension becomes part of the cache file name it is
-restricted to alphanumeric characters.
-
-Whether a format works is not verified upon registration. If \code{read} or
-\code{write} fail, e.g. because a required package is missing, this is reported
-as a failure to read/write that cache file, but does not stop a calculation.
+distinct one. Extensions are restricted to alphanumeric characters.
 }
 \section{Functions}{
 \itemize{

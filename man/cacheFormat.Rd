@@ -15,7 +15,4 @@ The format definition, with the format name added as element "name".
 \description{
 Look up a registered cache format definition.
 }
-\author{
-Patrick Rein
-}
 \keyword{internal}

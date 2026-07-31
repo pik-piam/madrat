@@ -8,18 +8,14 @@
 \usage{
 cacheRead(file)
 
-cacheWrite(x, file, extension = file_ext(file))
+cacheWrite(x, file)
 
 cacheToRds(input, output)
 }
 \arguments{
-\item{file}{Path of the cache file to be read/written.}
+\item{file}{Path of the cache file to be read/written, including file extension.}
 
 \item{x}{Object to be written.}
-
-\item{extension}{Format extension to use. Defaults to the extension of
-\code{file}, but has to be given explicitly if \code{file} does not end on it
-(e.g. when writing to a temporary file name).}
 
 \item{input}{Path of the cache file to be converted.}
 
@@ -29,7 +25,7 @@ cacheToRds(input, output)
 Read, write and convert cache files using the format belonging to their file
 extension. Dispatching on the extension rather than on the configured format
 is what allows madrat to still read rds cache files while writing a different
-format (see \code{\link{cacheName}}).
+format (see \code{\link{cacheNames}}).
 }
 \section{Functions}{
 \itemize{

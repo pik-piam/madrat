@@ -10,11 +10,11 @@
 #' to the cache file being written. Will be attached as an attribute.
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
-#' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}
+#' @seealso \code{\link{cachePut}}, \code{\link{cacheNames}}
 #' @keywords internal
 #' @examples
 #' \dontrun{
-#' fname <- madrat:::cacheName("calc", "Example")
+#' fname <- madrat:::cacheNames("calc", "Example")$write
 #' madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 #' }
 cachePut <- function(x, prefix, type, fname, callString) {
@@ -42,7 +42,7 @@ cachePut <- function(x, prefix, type, fname, callString) {
     attr(x, "callString") <- callString
 
     # write to tempfile to avoid corrupt cache files in parallel running preprocessings. The
-    # leading "." keeps the tempfile out of the Sys.glob cache file search in cacheName.
+    # leading "." keeps the tempfile out of the Sys.glob cache file search in cacheNames.
     tempfileName <- file.path(dirname(fname),
                               paste0(".", Sys.getenv("SLURM_JOB_ID", unset = ""), basename(fname)))
     cacheWrite(x, file = tempfileName)

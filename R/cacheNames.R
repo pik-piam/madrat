@@ -1,8 +1,8 @@
-#' cacheName
+#' cacheNames
 #'
-#' Get the name of a cache file corresponding to the given args
+#' Get the names of the cache files corresponding to the given args
 #'
-#' @note With \code{setConfig(forcecache=TRUE)} cacheName will also look for
+#' @note With \code{setConfig(forcecache=TRUE)} cacheNames will also look for
 #' cache files with deviating fingerprint if no fitting cache file is found
 #' (if there are multiple it will just use the newest one).
 #'
@@ -15,18 +15,18 @@
 #' @param prefix function prefix (e.g. "calc" or "read")
 #' @param type output type (e.g. "TauTotal")
 #' @param args a list of named arguments used to call the given function
-#' @return absolute path to the cache file that should be written for the given
-#' arguments (in the configured cache format). This file does not necessarily
-#' exist. \code{attr(, "readFile")} contains the path of an already existing,
-#' fitting cache file which should be read (possibly in another format), or NULL
-#' if there is none.
+#' @return a list with two elements: \code{write}, the absolute path to the cache
+#' file that should be written for the given arguments (in the configured cache
+#' format), which does not necessarily exist, and \code{read}, the absolute path
+#' of an already existing, fitting cache file which should be read (possibly in
+#' another format), or NULL if there is none.
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}
 #' @keywords internal
 #' @examples
-#' madrat:::cacheName("calc", "TauTotal")
-cacheName <- function(prefix, type, args = NULL) {
+#' madrat:::cacheNames("calc", "TauTotal")
+cacheNames <- function(prefix, type, args = NULL) {
   fpprefix <- prefix
   if (prefix %in% c("convert", "correct")) {
     fpprefix <- "read"
@@ -50,7 +50,7 @@ cacheName <- function(prefix, type, args = NULL) {
     return(paste0(getConfig("cachefolder"), "/", prefix, type, fp, argsHash, ".", extension))
   }
 
-  extensions <- cacheExtensions()
+  extensions <- cacheExtensions() # Contains configured extension as well as rds
   forcecache <- isConfigSet(prefix, type, "forcecache")
 
   # The file to write depends only on forcecache and always uses the configured format.
@@ -61,13 +61,13 @@ cacheName <- function(prefix, type, args = NULL) {
   fittingFiles <- .fname(paste0("-F", fp), argsHash, extensions)
   existingFiles <- fittingFiles[file.exists(fittingFiles)]
   if (length(existingFiles) > 0) {
-    # identical fingerprint means identical content, so prefer the format we read fastest
+    # identical fingerprint means identical content, so prefer the configured format
     readName <- existingFiles[1]
   } else if (!forcecache) {
     vcat(2, " - Cache file ", basename(fittingFiles[1]), " does not exist", show_prefix = FALSE)
   } else if (isConfigSet(prefix, type, "ignorecache")) {
     vcat(2, " - forcecache and ignorecache are both active", show_prefix = FALSE)
-  } else {
+  } else { # forceCache is TRUE
     # no perfectly fitting file exists, try to find a similar one for forcecache
     # (either with no fingerprint hash or with differing fingerprint)
     files <- Sys.glob(c(.fname("-F*", argsHash, extensions),
@@ -92,6 +92,5 @@ cacheName <- function(prefix, type, args = NULL) {
     }
   }
 
-  attr(writeName, "readFile") <- readName
-  return(writeName)
+  return(list(write = writeName, read = readName))
 }

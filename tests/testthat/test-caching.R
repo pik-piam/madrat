@@ -19,40 +19,42 @@ test_that("Caching works", {
 
   local({
     localConfig(ignorecache = TRUE, .verbose = FALSE)
-    expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
+    expect_identical(as.logical(cacheNames("calc", "CacheExample")$write), NA)
   })
 
-  expect_identical(basename(cacheName("calc", "CacheExample")), paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
+  expect_identical(basename(cacheNames("calc", "CacheExample")$write),
+                   paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
+  expect_identical(as.logical(cacheNames("calc", "CacheExample")$write), NA)
   local({
     localConfig(forcecache = TRUE, .verbose = FALSE)
 
     local({
       localConfig(ignorecache = TRUE, .verbose = FALSE)
-      cf <- cacheName("calc", "CacheExample")
-      expect_identical(basename(cf), paste0("calcCacheExample.", cacheExt()))
-      expect_null(attr(cf, "readFile"))
+      cf <- cacheNames("calc", "CacheExample")
+      expect_identical(basename(cf$write), paste0("calcCacheExample.", cacheExt()))
+      expect_null(cf$read)
     })
 
-    # with forcecache active cacheName returns the file to write (without fingerprint),
-    # while the deviating cache file it found is reported via attr(, "readFile")
-    expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
-    expect_identical(basename(cf), paste0("calcCacheExample.", cacheExt()))
-    expect_identical(basename(attr(cf, "readFile")), paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
+    # with forcecache active the file to write carries no fingerprint, while the
+    # deviating cache file which was found is reported separately as $read
+    expect_message(cf <- cacheNames("calc", "CacheExample"), "does not match fingerprint")
+    expect_identical(basename(cf$write), paste0("calcCacheExample.", cacheExt()))
+    expect_identical(basename(cf$read), paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
   })
   Sys.sleep(1) # wait a second to ensure this second cache file has newer mtime, so forcecache reproducibly takes it
   expect_message(a <- calcOutput("CacheExample", aggregate = FALSE), "writing cache")
-  expect_identical(basename(cacheName("calc", "CacheExample")), paste0("calcCacheExample-Fad6287a7.", cacheExt()))
+  expect_identical(basename(cacheNames("calc", "CacheExample")$write),
+                   paste0("calcCacheExample-Fad6287a7.", cacheExt()))
 
   calcCacheExample <- function() return(list(x = as.magpie(3), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
-  expect_identical(basename(cf), paste0("calcCacheExample.", cacheExt()))
-  expect_identical(basename(attr(cf, "readFile")), paste0("calcCacheExample-Fad6287a7.", cacheExt()))
+  expect_message(cf <- cacheNames("calc", "CacheExample"), "does not match fingerprint")
+  expect_identical(basename(cf$write), paste0("calcCacheExample.", cacheExt()))
+  expect_identical(basename(cf$read), paste0("calcCacheExample-Fad6287a7.", cacheExt()))
 })
 
 test_that("Argument hashing works", {
