@@ -277,7 +277,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   x <- cacheGet(prefix = "calc", type = type, args = args)
   cacheFileName <- attr(x, "id")
   # the cache file which actually exists. Can differ from cacheFileName if the data was read
-  # from an rds file while another cache format is configured. NULL if nothing was read.
+  # from an rds file while another cache format is configured, and is NULL if nothing was
+  # read and nothing could be written.
   existingCacheFile <- attr(x, "readFile")
   attr(x, "readFile") <- NULL
 
@@ -305,8 +306,8 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname, callString)
-    cachePut(x, prefix = "calc", type = type, fname = cacheFileName, callString = callString)
-    existingCacheFile <- cacheFileName
+    existingCacheFile <- cachePut(x, prefix = "calc", type = type,
+                                  fname = cacheFileName, callString = callString)
   }
 
   if (is.logical(x$putInPUC)) {

@@ -249,3 +249,18 @@ test_that("cache files are written when SLURM_JOB_ID is set", {
   expect_match(cacheFiles, paste0("^calcSlurmExample-F.*\\.", cacheExt(), "$"))
   expect_message(calcOutput("SlurmExample", aggregate = FALSE), "loading cache")
 })
+
+test_that("cachePut reports which cache file it wrote", {
+  localConfig(cachefolder = withr::local_tempdir(), .verbose = FALSE)
+  fname <- file.path(getConfig("cachefolder"), paste0("calcPutReturn-Fabcdef01.", cacheExt()))
+
+  expect_message(written <- cachePut(1, "calc", "PutReturn", fname, "callString"), "writing cache")
+  expect_identical(written, fname)
+  expect_true(file.exists(fname))
+
+  # writing is optional and allowed to fail, which must be visible in the return value
+  inMissingFolder <- file.path(getConfig("cachefolder"), "noSuchFolder", basename(fname))
+  expect_warning(failed <- cachePut(1, "calc", "PutReturn", inMissingFolder, "callString"),
+                 "could not write cache file")
+  expect_null(failed)
+})

@@ -74,15 +74,19 @@ test_that("a cache format which cannot be used fails softly", {
   registerCacheFormat("brokenformat", extension = "bf",
                       write = missingPackageError, read = missingPackageError)
   # configuring a format is allowed even if it cannot be used, caching is optional
-  localConfig(cachefolder = withr::local_tempdir(), cacheformat = "brokenformat", .verbose = FALSE)
+  localConfig(cachefolder = withr::local_tempdir(), outputfolder = withr::local_tempdir(),
+              cacheformat = "brokenformat", .verbose = FALSE)
   calcBrokenFormatExample <- function() return(list(x = as.magpie(11), description = "-", unit = "-"))
   globalassign("calcBrokenFormatExample")
 
   # the calculation still returns its result, only the caching fails, stating the reason
+  setWrapperActive("saveCache")
   expect_warning(x <- calcOutput("BrokenFormatExample", aggregate = FALSE),
                  "could not write cache file.*thisPackageIsNotInstalled")
   expect_identical(as.vector(x), 11)
   expect_length(Sys.glob(file.path(getConfig("cachefolder"), "*")), 0)
+  # and the cache file which was never written must not be listed for the puc
+  expect_false(file.exists(file.path(getConfig("outputfolder"), "pucFiles")))
 })
 
 test_that("an unreadable cache file is reported with its reason", {

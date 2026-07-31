@@ -8,6 +8,10 @@
 #' @param fname The name of the cache file to be written.
 #' @param callString A string representation of the function call that leads
 #' to the cache file being written. Will be attached as an attribute.
+#' @return \code{fname} if the cache file was written, otherwise NULL. Writing a
+#' cache file is optional and allowed to fail, so callers which need to know
+#' whether the file exists (e.g. to list it in a puc file) must use this return
+#' value rather than assume \code{fname} was created.
 #'
 #' @author Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}, \code{\link{cacheNames}}
@@ -21,7 +25,7 @@ cachePut <- function(x, prefix, type, fname, callString) {
   tryCatch({
     if (is.list(x) && isFALSE(x$cache)) {
       vcat(1, " - cache disabled for ", prefix, type, fill = 300, show_prefix = FALSE)
-      return()
+      return(NULL)
     }
 
     # ensure fname includes a fingerprint if and only if forcecache is inactive for this
@@ -46,11 +50,17 @@ cachePut <- function(x, prefix, type, fname, callString) {
     tempfileName <- file.path(dirname(fname),
                               paste0(".", Sys.getenv("SLURM_JOB_ID", unset = ""), basename(fname)))
     cacheWrite(x, file = tempfileName)
-    file.rename(tempfileName, fname)
+    # file.rename reports failure via its return value instead of raising, which would
+    # make this function claim a cache file it never created
+    if (!file.rename(tempfileName, fname)) {
+      stop("could not rename ", tempfileName, " to ", fname)
+    }
     Sys.chmod(fname, mode = "0666", use_umask = FALSE)
     vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
+    return(fname)
   }, error = function(e) {
     vcat(0, " - could not write cache file: ", e$message, fill = 300, show_prefix = FALSE)
+    return(NULL)
   })
 }
 
