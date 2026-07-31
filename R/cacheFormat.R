@@ -2,26 +2,19 @@
 #'
 #' Register a serialization format which can be used for madrat cache files via
 #' \code{setConfig(cacheformat = ...)}. The formats "rds" (the default) and
-#' "qs2" are always available, "qs2" requires the \code{qs2} package. Registering
-#' a format under an already existing name replaces it.
+#' "qs2" are always available, "qs2" requires the \code{qs2} package.
 #'
 #' Cache files are identified by their file extension, so each format must use a
-#' distinct one. As the extension becomes part of the cache file name it is
-#' restricted to alphanumeric characters.
-#'
-#' Whether a format works is not verified upon registration. If \code{read} or
-#' \code{write} fail, e.g. because a required package is missing, this is reported
-#' as a failure to read/write that cache file, but does not stop a calculation.
+#' distinct one. Extensions are restricted to alphanumeric characters.
 #'
 #' @param name Name of the format, e.g. "qs2".
 #' @param write A function(x, file) writing object \code{x} to \code{file}.
 #' @param read A function(file) returning the object stored in \code{file}.
 #' @param extension File extension used for cache files of this format (without
 #' leading dot). Defaults to \code{name}.
-#' @param toRds Optional function(input, output) converting a cache file of this
-#' format to a rds file. This is used when bundling puc files, which always
-#' contain rds files so that they can be read without additional packages. If
-#' NULL, the file is read and written back via \code{saveRDS}.
+#' @param toRds Optional fast path conversion function(input, output) converting
+#' a cache file of this format to a rds file. This is used when bundling puc files,
+#' which always contain rds files.
 #' @return Invisibly, the registered format definition.
 #' @author Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{cacheFormats}}
@@ -64,8 +57,7 @@ cacheFormats <- function() {
 }
 
 # formats shipped with madrat. These are defined here rather than registered in an
-# .onLoad hook so that they are available in every R session without setup, which
-# in particular makes setting the format via MADRAT_CACHEFORMAT work out of the box.
+# .onLoad hook so that they are available without setup.
 .builtinCacheFormats <- function() {
   rds <- list(extension = "rds",
               write = function(x, file) saveRDS(x, file = file, compress = getConfig("cachecompression")),
@@ -79,7 +71,7 @@ cacheFormats <- function() {
   return(list(rds = rds, qs2 = qs2))
 }
 
-# built-in formats, overwritten by / extended with formats registered via registerCacheFormat
+# built-in formats, overwritten by and extended with formats registered via registerCacheFormat
 .cacheFormatRegistry <- function() {
   formats <- .builtinCacheFormats()
   registered <- getOption("madrat_cacheformats")
@@ -93,7 +85,6 @@ cacheFormats <- function() {
 #'
 #' @param name Name of the format, defaults to the currently configured one.
 #' @return The format definition, with the format name added as element "name".
-#' @author Patrick Rein
 #' @keywords internal
 cacheFormat <- function(name = getConfig("cacheformat")) {
   formats <- .cacheFormatRegistry()
@@ -131,10 +122,7 @@ cacheExtensions <- function() {
 #' format (see \code{\link{cacheName}}).
 #'
 #' @param x Object to be written.
-#' @param file Path of the cache file to be read/written.
-#' @param extension Format extension to use. Defaults to the extension of
-#' \code{file}, but has to be given explicitly if \code{file} does not end on it
-#' (e.g. when writing to a temporary file name).
+#' @param file Path of the cache file to be read/written, including file extension.
 #' @param input Path of the cache file to be converted.
 #' @param output Path of the rds file to be created.
 #' @author Patrick Rein
@@ -145,8 +133,8 @@ cacheRead <- function(file) {
 
 #' @describeIn cacheRead write a cache file
 #' @keywords internal
-cacheWrite <- function(x, file, extension = file_ext(file)) {
-  return(.cacheFormatByExtension(extension)$write(x, file))
+cacheWrite <- function(x, file) {
+  return(.cacheFormatByExtension(file_ext(file))$write(x, file))
 }
 
 #' @describeIn cacheRead convert a cache file to rds
