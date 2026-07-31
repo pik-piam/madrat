@@ -129,6 +129,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   .getFromCache <- function(prefix, type, args, subtype, subset) {
     xList <- cacheGet(prefix = prefix, type = type, args = args)
     cacheFileName <- attr(xList, "id")
+    attr(xList, "readFile") <- NULL # only of interest for puc creation, see calcOutput
     if (!isTRUE(is.na(xList))) {
       if (!is.list(xList)) {
         xList <- list(x = xList, class = "magpie")

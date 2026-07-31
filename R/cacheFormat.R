@@ -1,0 +1,169 @@
+#' registerCacheFormat
+#'
+#' Register a serialization format which can be used for madrat cache files via
+#' \code{setConfig(cacheformat = ...)}. The formats "rds" (the default) and
+#' "qs2" are always available, "qs2" requires the \code{qs2} package. Registering
+#' a format under an already existing name replaces it.
+#'
+#' Cache files are identified by their file extension, so each format must use a
+#' distinct one. As the extension becomes part of the cache file name it is
+#' restricted to alphanumeric characters.
+#'
+#' @param name Name of the format, e.g. "qs2".
+#' @param write A function(x, file) writing object \code{x} to \code{file}.
+#' @param read A function(file) returning the object stored in \code{file}.
+#' @param extension File extension used for cache files of this format (without
+#' leading dot). Defaults to \code{name}.
+#' @param toRds Optional function(input, output) converting a cache file of this
+#' format to a rds file. This is used when bundling puc files, which always
+#' contain rds files so that they can be read without additional packages. If
+#' NULL, the file is read and written back via \code{saveRDS}.
+#' @param package Optional name of a package required for this format. It will be
+#' checked for availability before the format is used.
+#' @return Invisibly, the registered format definition.
+#' @author Patrick Rein
+#' @seealso \code{\link{setConfig}}, \code{\link{cacheFormats}}
+#' @family cache management
+#' @examples
+#' \dontrun{
+#' registerCacheFormat("qs", write = qs::qsave, read = qs::qread, package = "qs")
+#' setConfig(cacheformat = "qs")
+#' }
+#' @export
+registerCacheFormat <- function(name, write, read, extension = name, toRds = NULL, package = NULL) {
+  stopifnot(is.character(name), length(name) == 1, nzchar(name),
+            is.character(extension), length(extension) == 1, nzchar(extension),
+            is.function(write), is.function(read),
+            is.null(toRds) || is.function(toRds),
+            is.null(package) || (is.character(package) && length(package) == 1))
+
+  # a "-" would confuse the cache file name parsing in cacheName, a "." the stem
+  # handling when converting to rds for puc files
+  if (grepl("[^A-Za-z0-9]", extension)) {
+    stop("Cache file extensions must only contain alphanumeric characters (got \"", extension, "\")")
+  }
+
+  claimed <- .cacheFormatRegistry()
+  claimed <- names(claimed)[vapply(claimed, function(f) identical(f$extension, extension), logical(1))]
+  if (length(setdiff(claimed, name)) > 0) {
+    stop("Extension \".", extension, "\" is already used by cache format \"", claimed[1], "\"")
+  }
+
+  formats <- getOption("madrat_cacheformats")
+  if (is.null(formats)) formats <- list()
+  formats[[name]] <- list(extension = extension, write = write, read = read,
+                          toRds = toRds, package = package)
+  options(madrat_cacheformats = formats) # nolint
+  return(invisible(formats[[name]]))
+}
+
+#' @describeIn registerCacheFormat names of all currently registered cache formats
+#' @export
+cacheFormats <- function() {
+  return(names(.cacheFormatRegistry()))
+}
+
+# formats shipped with madrat. These are defined here rather than registered in an
+# .onLoad hook so that they are available in every R session without setup, in
+# particular in the callr subprocesses used by pucAggregate and retrieveData.
+.builtinCacheFormats <- function() {
+  rds <- list(extension = "rds",
+              write = function(x, file) saveRDS(x, file = file, compress = getConfig("cachecompression")),
+              read = function(file) readRDS(file),
+              toRds = function(input, output) file.copy(input, output),
+              package = NULL)
+  qs2 <- list(extension = "qs2",
+              write = function(x, file) qs2::qs_save(x, file = file),
+              read = function(file) qs2::qs_read(file),
+              # stream level conversion, does not materialize the object in memory
+              toRds = function(input, output) qs2::qs_to_rds(input, output),
+              package = "qs2")
+  return(list(rds = rds, qs2 = qs2))
+}
+
+# built-in formats, overwritten by / extended with formats registered via registerCacheFormat
+.cacheFormatRegistry <- function() {
+  formats <- .builtinCacheFormats()
+  registered <- getOption("madrat_cacheformats")
+  if (length(registered) > 0) formats[names(registered)] <- registered
+  return(formats)
+}
+
+#' cacheFormat
+#'
+#' Look up a registered cache format definition and make sure it can be used.
+#'
+#' @param name Name of the format, defaults to the currently configured one.
+#' @return The format definition, with the format name added as element "name".
+#' @author Patrick Rein
+#' @keywords internal
+cacheFormat <- function(name = getConfig("cacheformat")) {
+  formats <- .cacheFormatRegistry()
+  # be robust against a config created by a madrat version which did not know cacheformat
+  if (is.null(name) || (length(name) == 1 && is.na(name))) name <- "rds"
+  if (!is.character(name) || length(name) != 1 || !(name %in% names(formats))) {
+    stop("Unknown cache format \"", paste(name, collapse = ", "), "\". Available formats: ",
+         paste0("\"", names(formats), "\"", collapse = ", "))
+  }
+  format <- formats[[name]]
+  if (!is.null(format$package) && !requireNamespace(format$package, quietly = TRUE)) {
+    stop("Package \"", format$package, "\" is required for cache format \"", name, "\", but it is not installed.")
+  }
+  format$name <- name
+  return(format)
+}
+
+# file extensions to look for when searching a cache file, in order of preference:
+# the configured format first, rds last as it is always readable (see cacheName)
+cacheExtensions <- function() {
+  return(unique(c(cacheFormat()$extension, "rds")))
+}
+
+#' @importFrom tools file_ext
+.cacheFormatByExtension <- function(extension) {
+  formats <- .cacheFormatRegistry()
+  fitting <- names(formats)[vapply(formats, function(f) identical(f$extension, extension), logical(1))]
+  if (length(fitting) == 0) {
+    stop("No cache format registered for file extension \".", extension, "\"")
+  }
+  return(cacheFormat(fitting[1]))
+}
+
+#' cacheRead / cacheWrite / cacheToRds
+#'
+#' Read, write and convert cache files using the format belonging to their file
+#' extension. Dispatching on the extension rather than on the configured format
+#' is what allows madrat to still read rds cache files while writing a different
+#' format (see \code{\link{cacheName}}).
+#'
+#' @param x Object to be written.
+#' @param file Path of the cache file to be read/written.
+#' @param extension Format extension to use. Defaults to the extension of
+#' \code{file}, but has to be given explicitly if \code{file} does not end on it
+#' (e.g. when writing to a temporary file name).
+#' @param input Path of the cache file to be converted.
+#' @param output Path of the rds file to be created.
+#' @author Patrick Rein
+#' @keywords internal
+cacheRead <- function(file) {
+  return(.cacheFormatByExtension(file_ext(file))$read(file))
+}
+
+#' @describeIn cacheRead write a cache file
+#' @keywords internal
+cacheWrite <- function(x, file, extension = file_ext(file)) {
+  return(.cacheFormatByExtension(extension)$write(x, file))
+}
+
+#' @describeIn cacheRead convert a cache file to rds
+#' @keywords internal
+cacheToRds <- function(input, output) {
+  format <- .cacheFormatByExtension(file_ext(input))
+  if (is.null(format$toRds)) {
+    saveRDS(cacheRead(input), file = output)
+  } else {
+    format$toRds(input, output)
+  }
+  # return values of toRds functions are not standardized, so check the result instead
+  return(file.exists(output))
+}

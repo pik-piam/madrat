@@ -8,7 +8,7 @@ test_that("Caching works", {
   globalassign("calcCacheExample", "calcNoCacheExample", "readNoCacheExample", "downloadNoCacheExample")
 
   a <- cacheGet("calc", "CacheExample")
-  expect_match(attr(a, "id"), "\\.rds$")
+  expect_match(attr(a, "id"), paste0("\\.", cacheExt(), "$"))
   expected <- NA
   attr(expected, "id") <- attr(a, "id")
   expect_identical(a, expected)
@@ -22,7 +22,7 @@ test_that("Caching works", {
     expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
   })
 
-  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Ff5d41fca.rds")
+  expect_identical(basename(cacheName("calc", "CacheExample")), paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
@@ -32,21 +32,27 @@ test_that("Caching works", {
 
     local({
       localConfig(ignorecache = TRUE, .verbose = FALSE)
-      expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample.rds")
+      cf <- cacheName("calc", "CacheExample")
+      expect_identical(basename(cf), paste0("calcCacheExample.", cacheExt()))
+      expect_null(attr(cf, "readFile"))
     })
 
+    # with forcecache active cacheName returns the file to write (without fingerprint),
+    # while the deviating cache file it found is reported via attr(, "readFile")
     expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
-    expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
+    expect_identical(basename(cf), paste0("calcCacheExample.", cacheExt()))
+    expect_identical(basename(attr(cf, "readFile")), paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
   })
   Sys.sleep(1) # wait a second to ensure this second cache file has newer mtime, so forcecache reproducibly takes it
   expect_message(a <- calcOutput("CacheExample", aggregate = FALSE), "writing cache")
-  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Fad6287a7.rds")
+  expect_identical(basename(cacheName("calc", "CacheExample")), paste0("calcCacheExample-Fad6287a7.", cacheExt()))
 
   calcCacheExample <- function() return(list(x = as.magpie(3), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   localConfig(forcecache = TRUE, .verbose = FALSE)
   expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
-  expect_identical(basename(cf), "calcCacheExample-Fad6287a7.rds")
+  expect_identical(basename(cf), paste0("calcCacheExample.", cacheExt()))
+  expect_identical(basename(attr(cf, "readFile")), paste0("calcCacheExample-Fad6287a7.", cacheExt()))
 })
 
 test_that("Argument hashing works", {
@@ -86,13 +92,13 @@ test_that("Cache naming and identification works correctly", {
   }
   globalassign("downloadCacheExample", "readCacheExample", "correctCacheExample")
   expect_message(readSource("CacheExample", subtype = "blub", convert = "onlycorrect"),
-                 "writing cache correctCacheExample-F[^-]*.rds")
+                 paste0("writing cache correctCacheExample-F[^-]*.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect"),
-                 "loading cache correctCacheExample-F[^-]*.rds")
+                 paste0("loading cache correctCacheExample-F[^-]*.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"),
-                 "correctCacheExample-F[^-]*-d0d19d80.rds")
+                 paste0("correctCacheExample-F[^-]*-d0d19d80.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),
-                 "correctCacheExample-F[^-]*.rds")
+                 paste0("correctCacheExample-F[^-]*.", cacheExt()))
 
   readCacheExample <- function(subtype = "blub") {
     if (subtype == "blub") return(as.magpie(1))
@@ -101,11 +107,11 @@ test_that("Cache naming and identification works correctly", {
   correctCacheExample <- function(x) return(x)
 
   globalassign("downloadCacheExample", "readCacheExample", "correctCacheExample")
-  expect_message(readSource("CacheExample", convert = "onlycorrect"), "correctCacheExample-F[^-]*.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect"), paste0("correctCacheExample-F[^-]*.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"),
-                 "correctCacheExample-F[^-]*-d0d19d80.rds")
+                 paste0("correctCacheExample-F[^-]*-d0d19d80.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),
-                 "correctCacheExample-F[^-]*.rds")
+                 paste0("correctCacheExample-F[^-]*.", cacheExt()))
 })
 
 test_that("non-list cache files are supported for forcecache", {

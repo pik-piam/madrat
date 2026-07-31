@@ -34,3 +34,23 @@ test_that("cacheCopy properly detects cache files", {
   }, "More than one cache folder found")
   expect_true(file.exists(file.path(tempfolder, "cachetarget", "calcTauTotal-F933da7d1.rds")))
 })
+
+test_that("cacheCopy detects cache files of any format", {
+  # logs may come from a machine using a cache format which is not registered here, so the
+  # extension must not be restricted
+  otherFormats <- c(log[1:8],
+                    ">>  - loading cache readTau-Fe6e25820-f079dd0d.qs2",
+                    ">  - done writing cache calcTauTotal-F933da7d1.somethingelse",
+                    log[13:14])
+  expect_identical(cacheCopy(otherFormats),
+                   c("/my/cache/folder/readTau-Fe6e25820-f079dd0d.qs2", # nolint
+                     "/my/cache/folder/calcTauTotal-F933da7d1.somethingelse")) # nolint
+})
+
+test_that("cacheCopy ignores cache files which were discarded as corrupt", {
+  # a corrupt cache file is recalculated, so it must not be copied
+  corrupt <- c(log[1:8],
+               ">>  - corrupt cache file readTau-Fe6e25820-f079dd0d.rds. Will recalculate.",
+               log[12:14])
+  expect_identical(cacheCopy(corrupt), "/my/cache/folder/calcTauTotal-F933da7d1.rds") # nolint
+})

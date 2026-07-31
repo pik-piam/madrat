@@ -35,6 +35,7 @@ initializeConfig <- function(verbose = TRUE) {
                 forcecache           = FALSE,
                 ignorecache          = NULL,
                 cachecompression     = "gzip",
+                cacheformat          = Sys.getenv("MADRAT_CACHEFORMAT", unset = "rds"),
                 hash                 = "xxhash32",
                 diagnostics          = FALSE,
                 debug                = FALSE,

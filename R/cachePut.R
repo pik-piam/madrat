@@ -24,9 +24,10 @@ cachePut <- function(x, prefix, type, fname, callString) {
       return()
     }
 
-    # ensure fname includes a fingerprint if and only if forcecache is FALSE
-    stopifnot(identical(isFALSE(getConfig("forcecache")),
-                        grepl("-F", fname)))
+    # ensure fname includes a fingerprint if and only if forcecache is inactive for this
+    # function (checking the basename, as the cachefolder path may contain "-F" as well)
+    stopifnot(identical(!isConfigSet(prefix, type, "forcecache"),
+                        grepl("-F", basename(fname), fixed = TRUE)))
 
     attr(x, "cachefile") <- basename(fname)
     if (is.list(x)) {
@@ -40,9 +41,10 @@ cachePut <- function(x, prefix, type, fname, callString) {
     attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
     attr(x, "callString") <- callString
 
-    # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+    # write to tempfile to avoid corrupt cache files in parallel running preprocessings.
+    # The extension has to be taken from fname, as the tempfile name does not end on it.
     tempfileName <- paste0(fname, Sys.getenv("SLURM_JOB_ID", unset = ""))
-    saveRDS(x, file = tempfileName, compress = getConfig("cachecompression"))
+    cacheWrite(x, file = tempfileName, extension = file_ext(fname))
     file.rename(tempfileName, fname)
     Sys.chmod(fname, mode = "0666", use_umask = FALSE)
     vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
