@@ -14,15 +14,25 @@ cacheName(prefix, type, args = NULL)
 \item{args}{a list of named arguments used to call the given function}
 }
 \value{
-absolute path to a cache file that does not necessarily exist
+absolute path to the cache file that should be written for the given
+arguments (in the configured cache format). This file does not necessarily
+exist. \code{attr(, "readFile")} contains the path of an already existing,
+fitting cache file which should be read (possibly in another format), or NULL
+if there is none.
 }
 \description{
 Get the name of a cache file corresponding to the given args
 }
 \note{
-With \code{setConfig(forcecache=TRUE)} cacheName will also return
-cache file names with deviating fingerprint if no fitting cache file is found
-(if there are multiple it will just return the newest one).
+With \code{setConfig(forcecache=TRUE)} cacheName will also look for
+cache files with deviating fingerprint if no fitting cache file is found
+(if there are multiple it will just use the newest one).
+
+Cache files are searched for in the configured cache format (see
+\code{\link{setConfig}}) first and in "rds" second. This way an existing rds
+cache stays usable after switching to another cache format. Files found via
+this fallback are only read, never rewritten, so the returned write target
+always uses the configured format.
 }
 \examples{
 madrat:::cacheName("calc", "TauTotal")

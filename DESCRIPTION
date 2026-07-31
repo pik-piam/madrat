@@ -62,6 +62,7 @@ Suggests:
     graphics,
     grDevices,
     knitr,
+    qs2,
     rmarkdown,
     terra,
     testthat,

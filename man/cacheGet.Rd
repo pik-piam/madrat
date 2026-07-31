@@ -15,7 +15,11 @@ cacheGet(prefix, type, args = NULL)
 }
 \value{
 cached data if available, otherwise NA
-attr(, "id") will be set to the cache file name that was (tried to be) loaded
+attr(, "id") will be set to the cache file name that should be written if the
+data has to be recalculated.
+attr(, "readFile") will be set to the cache file that was successfully read,
+and is absent otherwise. This can differ from attr(, "id") if the data was
+read from an rds file while another cache format is configured.
 }
 \description{
 Load fitting cache data (if available)
