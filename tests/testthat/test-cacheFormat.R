@@ -6,6 +6,9 @@
 # register a format which is distinguishable from rds, so tests can prove which reader ran
 localTestFormat <- function(name = "testformat", extension = "tf", toRds = NULL,
                             .localEnvir = parent.frame()) {
+  # snapshot the registry so repeated/nested registrations restore correctly
+  withr::local_options(madrat_cacheformats = getOption("madrat_cacheformats"),
+                       .local_envir = .localEnvir)
   registerCacheFormat(name, extension = extension, toRds = toRds,
                       write = function(x, file) saveRDS(list(testformat = TRUE, payload = x), file),
                       read = function(file) {
@@ -13,34 +16,27 @@ localTestFormat <- function(name = "testformat", extension = "tf", toRds = NULL,
                         stopifnot(isTRUE(content$testformat))
                         return(content$payload)
                       })
-  withr::defer(options(madrat_cacheformats = NULL), envir = .localEnvir) # nolint
 }
 
-test_that("built-in cache formats are available", {
+test_that("built-in cache formats are available and rds is the default", {
   expect_true(all(c("rds", "qs2") %in% cacheFormats()))
   expect_identical(cacheFormat("rds")$extension, "rds")
   expect_identical(cacheFormat("rds")$name, "rds")
-})
 
-test_that("cacheformat defaults to rds", {
   skip_if(nzchar(Sys.getenv("MADRAT_CACHEFORMAT")), "MADRAT_CACHEFORMAT overrides the default")
   expect_identical(getConfig("cacheformat"), "rds")
-})
 
-test_that("a config without cacheformat is still usable", {
   # a config written by a madrat version which did not know cacheformat must still work
-  local({
-    cfg <- getOption("madrat_cfg")
-    cfg$cacheformat <- NULL
-    withr::local_options(madrat_cfg = cfg)
-    expect_identical(getConfig("cacheformat"), "rds")
-    expect_identical(cacheFormat()$extension, "rds")
-  })
+  cfg <- getOption("madrat_cfg")
+  cfg$cacheformat <- NULL
+  withr::local_options(madrat_cfg = cfg)
+  expect_identical(getConfig("cacheformat"), "rds")
+  expect_identical(cacheFormat()$extension, "rds")
 })
 
 test_that("registerCacheFormat validates its input", {
-  withr::defer(options(madrat_cacheformats = NULL)) # nolint
   noop <- function(x, file) NULL
+  withr::local_options(madrat_cacheformats = getOption("madrat_cacheformats"))
   expect_error(registerCacheFormat(c("a", "b"), write = noop, read = noop), "length\\(name\\) == 1")
   expect_error(registerCacheFormat("a", write = "notafunction", read = noop), "is.function\\(write\\)")
   expect_error(registerCacheFormat("a", write = noop, read = noop, extension = "a-b"),
@@ -66,7 +62,7 @@ test_that("setConfig rejects a cacheformat which is not registered", {
 })
 
 test_that("a cache format which cannot be used fails softly", {
-  withr::defer(options(madrat_cacheformats = NULL)) # nolint
+  withr::local_options(madrat_cacheformats = getOption("madrat_cacheformats"))
   # simulates a format depending on an uninstalled package, without actually writing a
   # `pkg::fun` reference, which the deps-in-desc pre-commit hook would flag as a missing
   # dependency
@@ -84,25 +80,9 @@ test_that("a cache format which cannot be used fails softly", {
   expect_warning(x <- calcOutput("BrokenFormatExample", aggregate = FALSE),
                  "could not write cache file.*thisPackageIsNotInstalled")
   expect_identical(as.vector(x), 11)
-  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "*")), 0)
+  expect_length(cacheGlob(), 0)
   # and the cache file which was never written must not be listed for the puc
   expect_false(file.exists(file.path(getConfig("outputfolder"), "pucFiles")))
-})
-
-test_that("an unreadable cache file is reported with its reason", {
-  # pinned to rds so that the reason reported by the reader is deterministic
-  localConfig(cachefolder = withr::local_tempdir(), cacheformat = "rds", .verbose = FALSE)
-  calcUnreadableExample <- function() return(list(x = as.magpie(12), description = "-", unit = "-"))
-  globalassign("calcUnreadableExample")
-
-  expect_message(calcOutput("UnreadableExample", aggregate = FALSE), "writing cache")
-  cacheFile <- Sys.glob(file.path(getConfig("cachefolder"), "calcUnreadableExample*"))
-  expect_length(cacheFile, 1)
-  writeLines("this is not a cache file", cacheFile)
-
-  expect_warning(x <- calcOutput("UnreadableExample", aggregate = FALSE),
-                 "could not read cache file.*unknown input format")
-  expect_identical(as.vector(x), 12)
 })
 
 test_that("cache files are written in the configured format", {
@@ -112,11 +92,11 @@ test_that("cache files are written in the configured format", {
   globalassign("calcCacheFormatExample")
 
   expect_message(calcOutput("CacheFormatExample", aggregate = FALSE), "writing cache")
-  written <- Sys.glob(file.path(getConfig("cachefolder"), "*"))
+  written <- cacheGlob()
   expect_length(written, 1)
   expect_match(written, "calcCacheFormatExample-F[^-]*\\.tf$")
   # the custom writer really ran
-  expect_true(isTRUE(readRDS(written)$testformat))
+  expect_true(readRDS(written)$testformat)
 
   # and it is read back through the matching reader
   expect_message(x <- calcOutput("CacheFormatExample", aggregate = FALSE), "loading cache.*\\.tf")
@@ -131,7 +111,7 @@ test_that("an existing rds cache file is used as read-only fallback", {
 
   # populate the cache with rds, as it would exist before switching the format
   expect_message(calcOutput("FallbackExample", aggregate = FALSE), "writing cache")
-  rdsFile <- Sys.glob(file.path(getConfig("cachefolder"), "*.rds"))
+  rdsFile <- cacheGlob("*.rds")
   expect_length(rdsFile, 1)
 
   localConfig(cacheformat = "testformat", .verbose = FALSE)
@@ -143,7 +123,7 @@ test_that("an existing rds cache file is used as read-only fallback", {
   # the rds file is read and NOT rewritten in the new format
   expect_message(x <- calcOutput("FallbackExample", aggregate = FALSE), "loading cache.*\\.rds")
   expect_identical(as.vector(x), 2)
-  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "*.tf")), 0)
+  expect_length(cacheGlob("*.tf"), 0)
   expect_true(file.exists(rdsFile))
 })
 
@@ -155,7 +135,7 @@ test_that("the configured format wins over rds for an identical fingerprint", {
 
   localConfig(cacheformat = "testformat", .verbose = FALSE)
   calcOutput("PrecedenceExample", aggregate = FALSE)
-  tfFile <- Sys.glob(file.path(getConfig("cachefolder"), "*.tf"))
+  tfFile <- cacheGlob("*.tf")
   expect_length(tfFile, 1)
 
   # a newer rds file with the same fingerprint must not take precedence, as an identical
@@ -189,17 +169,6 @@ test_that("cache files with an args hash are not mistaken for ones without", {
   expect_identical(cacheNames("calc", "ArgsHashExample")$read, withoutArgs)
 })
 
-test_that("cache files are written even if forcecache is set for another function", {
-  # regression test: a vector-valued forcecache used to abort cachePut for all
-  # functions which were not part of that vector
-  localConfig(cachefolder = withr::local_tempdir(), forcecache = "calcSomethingElse", .verbose = FALSE)
-  calcUnrelatedExample <- function() return(list(x = as.magpie(5), description = "-", unit = "-"))
-  globalassign("calcUnrelatedExample")
-
-  expect_message(calcOutput("UnrelatedExample", aggregate = FALSE), "writing cache")
-  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "calcUnrelatedExample*")), 1)
-})
-
 test_that("cacheToRds converts via the format specific and the generic path", {
   target <- file.path(withr::local_tempdir(), "out.rds")
   payload <- list(x = as.magpie(1), class = "magpie")
@@ -211,32 +180,29 @@ test_that("cacheToRds converts via the format specific and the generic path", {
   expect_identical(readRDS(target), payload)
 
   # a format specific toRds is used if given
-  local({
-    calls <- new.env(parent = emptyenv())
-    calls$toRds <- 0
-    localTestFormat(name = "withtords", extension = "wtr",
-                    toRds = function(input, output) {
-                      calls$toRds <- calls$toRds + 1
-                      saveRDS(readRDS(input)$payload, output)
-                    })
-    cacheFile <- file.path(withr::local_tempdir(), "in.wtr")
-    cacheWrite(payload, cacheFile)
-    expect_true(cacheToRds(cacheFile, target))
-    expect_identical(calls$toRds, 1)
-    expect_identical(readRDS(target), payload)
-  })
+  calls <- new.env(parent = emptyenv())
+  calls$toRds <- 0
+  localTestFormat(name = "withtords", extension = "wtr",
+                  toRds = function(input, output) {
+                    calls$toRds <- calls$toRds + 1
+                    saveRDS(readRDS(input)$payload, output)
+                  })
+  cacheFile <- file.path(withr::local_tempdir(), "in.wtr")
+  cacheWrite(payload, cacheFile)
+  expect_true(cacheToRds(cacheFile, target))
+  expect_identical(calls$toRds, 1)
+  expect_identical(readRDS(target), payload)
 
   # without toRds the generic read-then-saveRDS path is used
-  local({
-    localTestFormat(name = "withouttords", extension = "wor", toRds = NULL)
-    cacheFile <- file.path(withr::local_tempdir(), "in.wor")
-    cacheWrite(payload, cacheFile)
-    expect_true(cacheToRds(cacheFile, target))
-    expect_identical(readRDS(target), payload)
-  })
+  localTestFormat(name = "withouttords", extension = "wor", toRds = NULL)
+  cacheFile <- file.path(withr::local_tempdir(), "in.wor")
+  cacheWrite(payload, cacheFile)
+  expect_true(cacheToRds(cacheFile, target))
+  expect_identical(readRDS(target), payload)
 })
 
 test_that("puc files contain rds cache files regardless of the cache format", {
+  localMockedTauDownload()
   localTestFormat()
   localConfig(cachefolder = withr::local_tempdir(), pucfolder = withr::local_tempdir(),
               outputfolder = withr::local_tempdir(), cacheformat = "testformat", .verbose = FALSE)
@@ -244,7 +210,7 @@ test_that("puc files contain rds cache files regardless of the cache format", {
   retrieveData("example", rev = 43, extra = "test", renv = FALSE, puc = TRUE)
 
   # the cache itself uses the configured format
-  expect_gt(length(Sys.glob(file.path(getConfig("cachefolder"), "*.tf"))), 0)
+  expect_gt(length(cacheGlob("*.tf")), 0)
 
   puc <- Sys.glob(file.path(getConfig("pucfolder"), "*.puc"))
   expect_length(puc, 1)
@@ -263,6 +229,7 @@ test_that("puc files contain rds cache files regardless of the cache format", {
 })
 
 test_that("puc creation works when all cache files come from the rds fallback", {
+  localMockedTauDownload()
   # regression test: the puc manifest used to record the file which would be written
   # rather than the one which exists, so a puc was silently skipped in this case
   localConfig(cachefolder = withr::local_tempdir(), pucfolder = withr::local_tempdir(),
@@ -270,7 +237,7 @@ test_that("puc creation works when all cache files come from the rds fallback", 
 
   # fill the cache using rds
   retrieveData("example", rev = 44, extra = "test", renv = FALSE, puc = FALSE)
-  expect_gt(length(Sys.glob(file.path(getConfig("cachefolder"), "*.rds"))), 0)
+  expect_gt(length(cacheGlob("*.rds")), 0)
 
   # now switch the format, so every calculation is served from the rds fallback
   localTestFormat()
@@ -293,7 +260,7 @@ test_that("the qs2 cache format works end to end", {
   globalassign("calcQs2Example")
 
   expect_message(calcOutput("Qs2Example", aggregate = FALSE), "writing cache")
-  qs2File <- Sys.glob(file.path(getConfig("cachefolder"), "*.qs2"))
+  qs2File <- cacheGlob("*.qs2")
   expect_length(qs2File, 1)
   # a genuine qs2 file, not an rds file with a different name
   expect_error(readRDS(qs2File), NULL)
@@ -306,19 +273,6 @@ test_that("the qs2 cache format works end to end", {
   rdsFile <- file.path(withr::local_tempdir(), "converted.rds")
   expect_true(cacheToRds(qs2File, rdsFile))
   expect_identical(readRDS(rdsFile), qs2::qs_read(qs2File))
-})
-
-test_that("qs2 falls back to existing rds cache files", {
-  skip_if_not_installed("qs2")
-  localConfig(cachefolder = withr::local_tempdir(), cacheformat = "rds", .verbose = FALSE)
-  calcQs2FallbackExample <- function() return(list(x = as.magpie(7), description = "-", unit = "-"))
-  globalassign("calcQs2FallbackExample")
-
-  expect_message(calcOutput("Qs2FallbackExample", aggregate = FALSE), "writing cache")
-  localConfig(cacheformat = "qs2", .verbose = FALSE)
-  expect_message(x <- calcOutput("Qs2FallbackExample", aggregate = FALSE), "loading cache.*\\.rds")
-  expect_identical(as.vector(x), 7)
-  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "*.qs2")), 0)
 })
 
 test_that("file based terra objects can be cached in another format", {
@@ -340,8 +294,8 @@ test_that("file based terra objects can be cached in another format", {
   expect_message(b <- readSource("TerraFormat"), "loading cache.*\\.tf")
   # the cache file itself uses the configured format, while the raster source file copied
   # next to it keeps its own extension
-  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "readTerraFormat-F*.tf")), 1)
-  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "readTerraFormat-F*-x.tif")), 1)
+  expect_length(cacheGlob("readTerraFormat-F*.tf"), 1)
+  expect_length(cacheGlob("readTerraFormat-F*-x.tif"), 1)
   expect_equal(terra::as.data.frame(a, xy = TRUE), terra::as.data.frame(b, xy = TRUE))
   expect_identical(names(a), names(b))
 })

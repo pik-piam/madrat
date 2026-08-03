@@ -113,3 +113,8 @@ localMockedTauDownload <- function(env = parent.frame()) {
 cacheExt <- function() {
   return(cacheFormat()$extension)
 }
+
+# files in the currently configured cachefolder, for tests which assert on what was written
+cacheGlob <- function(pattern = "*") {
+  return(Sys.glob(file.path(getConfig("cachefolder"), pattern)))
+}

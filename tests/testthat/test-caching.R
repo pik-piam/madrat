@@ -264,3 +264,14 @@ test_that("cachePut reports which cache file it wrote", {
                  "could not write cache file")
   expect_null(failed)
 })
+
+test_that("cache files are written even if forcecache is set for another function", {
+  # regression test: a vector-valued forcecache used to abort cachePut for all
+  # functions which were not part of that vector
+  localConfig(cachefolder = withr::local_tempdir(), forcecache = "calcSomethingElse", .verbose = FALSE)
+  calcUnrelatedExample <- function() return(list(x = as.magpie(5), description = "-", unit = "-"))
+  globalassign("calcUnrelatedExample")
+
+  expect_message(calcOutput("UnrelatedExample", aggregate = FALSE), "writing cache")
+  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "calcUnrelatedExample*")), 1)
+})
