@@ -27,9 +27,7 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
 
   f <- .mergeSplitLogLines(f)
 
-  # Determine which lines belong to which retrieveData call. This has to happen before the
-  # log is reduced to timing lines only, as the "Run retrieveData(...)" marker that opens a
-  # block carries no runtime information of its own.
+  # Determine which lines belong to which retrieveData call.
   block <- .retrieveDataBlocks(f)
 
   # Only use the ends of blocks, nesting information is included in the prefix of each line.
@@ -128,11 +126,9 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
 
 .retrieveDataBlocks <- function(f) {
   # Assigns each line to the retrieveData block it belongs to (an integer id, in order of
-  # appearance), or NA outside any block. A block runs from "Run retrieveData(...)" to the
-  # matching "Exit retrieveData(...) in X seconds" line. retrieveData is never called from
-  # within another madrat call, so blocks cannot be nested. If an Exit has no matching Run
-  # (e.g. a truncated or pre-marker log), the block is assumed to start right after the
-  # previous one (or at line 1) -- the historic Exit-only behavior.
+  # appearance), or NA outside any block. retrieveData is never called from within another
+  # madrat call, so blocks cannot be nested. If an Exit has no matching Run (e.g. a truncated
+  # or pre-marker log), the block is assumed to start right after the previous one (or at line 1).
   isOpen  <- grepl("^~*\\s*Run\\s+retrieveData\\(", f)
   isClose <- grepl("^~*\\s*Exit\\s+retrieveData\\(.*in [0-9.]* seconds", f)
 
