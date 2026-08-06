@@ -18,10 +18,10 @@ A named list with one entry per retrieveData call found in the log, plus a "stan
 entry collecting all calls that do not belong to any retrieveData call (e.g. calcOutput/readSource
 calls made directly from a script). The names are the retrieveData types (or "standalone") and
 each entry is a data.frame sorted by net runtime showing for the different data processing
-functions their total runtime "time" (including the execution of all sub-functions) and net
-runtime "net" (excluding the runtime of sub-functions) and their share of total runtime. For the
-"standalone" entry the total runtime is the sum of its top-level call runtimes, not wall clock
-time, as it excludes any non-madrat time between those calls.
+functions their total runtime "time" (including all sub-functions) and net runtime "net"
+(excluding sub-functions) and their share of total runtime. For the "standalone" entry the total
+runtime is the sum of its top-level call runtimes, not wall clock time, as it excludes any
+non-madrat time between those calls.
 }
 \description{
 Analyzes a log from a retrieveData run or from a script calling calcOutput()/readSource()
