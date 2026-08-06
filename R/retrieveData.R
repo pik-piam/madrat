@@ -400,19 +400,24 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   return(returnCode)
 }
 
+.pucLockPath <- function(pucName) {
+  # Ensure .locks folder exists
+  lockFileFolder <- file.path(getConfig("pucfolder"), ".locks")
+  if (!dir.exists(lockFileFolder)) {
+    # showWarnings = FALSE as a concurrent process may have created the folder in the meantime
+    dir.create(lockFileFolder, showWarnings = FALSE)
+  }
+
+  return(file.path(lockFileFolder, paste0(pucName, ".lock")))
+}
+
 .withLockedPuc <- function(pucName, fn) {
   # This could be improved by using separate locks for read and
   # write access to not block simultaneous reads. This would
   # however significantly increase the complexity of this mechanism.
 
-  # Ensure .locks folder exists
-  lockFileFolder <- file.path(getConfig("pucfolder"), ".locks")
-  if (!dir.exists(lockFileFolder)) {
-    dir.create(lockFileFolder)
-  }
-
   # Get the lock
-  lockFilePath <- file.path(getConfig("pucfolder"), ".locks", paste0(pucName, ".lock"))
+  lockFilePath <- .pucLockPath(pucName)
   lock <- filelock::lock(lockFilePath, timeout = 6 * 60 * 60 * 1000) # Wait for 6h
   if (is.null(lock)) {
     # This should really not happen, as the Inf timeout should

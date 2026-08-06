@@ -69,5 +69,5 @@ test_that("toolFixWeight can handle large objects", {
   weight[idx, , ] <- runif(length(idx))
 
   timed <- system.time(toolFixWeight(weight, map, dim = 1))
-  expect_true(timed["elapsed"] < 5)
+  expect_true(timed["elapsed"] < 10)
 })

@@ -36,6 +36,42 @@ globalassign <- function(...) {
   }
 }
 
+# Accumulating stdout reader for a callr background process. read_output_lines() is destructive, so
+# the lines have to be collected. waitFor fails if the process dies instead of waiting forever.
+processLog <- function(process, timeout = 60) { # timeout in seconds
+  log <- character(0)
+  update <- function() {
+    log <<- c(log, process$read_output_lines())
+    log
+  }
+  list(
+    waitFor = function(message) {
+      deadline <- Sys.time() + timeout
+      repeat {
+        if (message %in% update()) {
+          return(invisible(log))
+        }
+        if (!process$is_alive()) {
+          # read once more, the process may have printed the message right before exiting
+          if (message %in% update()) {
+            return(invisible(log))
+          }
+          stop("sub-process exited before printing '", message, "'\nstdout:\n",
+               paste(log, collapse = "\n"), "\nstderr:\n",
+               paste(process$read_all_error_lines(), collapse = "\n"))
+        }
+        if (Sys.time() > deadline) {
+          stop("timed out after ", timeout, "s waiting for '", message, "'\nstdout:\n",
+               paste(log, collapse = "\n"))
+        }
+        Sys.sleep(0.05)
+      }
+    },
+    contains = function(message) message %in% update(),
+    get = function() log
+  )
+}
+
 # Build small synthetic replacements for the Tau downloads once, so tests do not have to hit the
 # network (zenodo.org). Each zip mimics what downloadTau/readTau expect for a subtype: the "paper"
 # subtype reads tau_data_1995-2000.mz, the "historical" subtype reads tau_xref_history_country.mz.
