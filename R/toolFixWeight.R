@@ -43,7 +43,7 @@
 toolFixWeight <- function(weight, map, dim) {
   dim <- dimCode(dim, weight)
   stopifnot(length(dim) == 1,
-            !any(weight < 0),
+            all(weight >= 0),
             ncol(map) == 2)
   if (!setequal(map[[2]], getItems(weight, dim))) {
     map <- map[, 2:1]
