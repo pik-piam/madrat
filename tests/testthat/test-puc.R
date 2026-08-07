@@ -45,6 +45,10 @@ test_that("puc creation works", {
 
 test_that(".withLockedPuc grants exclusive access across processes", {
   skip_on_cran()
+  # "../.." (above) only locates the package source when this session has madrat loaded via
+  # pkgload::load_all() from that path. Under covr::package_coverage() tests run against a
+  # library()-installed copy in an unrelated temp dir, so the sub-process fails to load madrat.
+  skip_on_covr()
 
   pucName <- "testlock_example.puc"
   releaseFile <- file.path(withr::local_tempdir(), "release")
@@ -86,6 +90,7 @@ test_that(".withLockedPuc grants exclusive access across processes", {
 
 test_that("a second .withLockedPuc caller waits until the lock is released", {
   skip_on_cran()
+  skip_on_covr() # see the comment on the previous test
 
   pucName <- "testlock_waiting_example.puc"
   releaseFile <- file.path(withr::local_tempdir(), "release")
