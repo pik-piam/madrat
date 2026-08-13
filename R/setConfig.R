@@ -58,8 +58,8 @@
 #' "rds", madrat also ships "qs2" (which is considerably faster, but requires the \code{qs2}
 #' package). Further formats can be added via \code{\link{registerCacheFormat}}. Cache files
 #' are written in the configured format, but an already existing rds file is still read if no
-#' file in the configured format exists. Hence, switching the format does not invalidate an
-#' existing cache. Can also be set via the environment variable \code{MADRAT_CACHEFORMAT}.
+#' file in the configured format exists.
+#' Can also be set via the environment variable \code{MADRAT_CACHEFORMAT}.
 #' @param hash specifies the used hashing algorithm. Default is "xxhash32" and
 #' all algorithms supported by \code{\link[digest]{digest}} can be used.
 #' @param diagnostics Either FALSE (default) to avoid the creation of additional
@@ -180,7 +180,7 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
   }
 
   if (!is.null(cacheformat) && .cfgchecks) {
-    cacheFormat(cacheformat) # fails if the format is not registered
+    cacheFormat(cacheformat)
   }
 
   args <- names(formals(setConfig))

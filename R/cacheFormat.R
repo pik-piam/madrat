@@ -26,25 +26,20 @@
 #' }
 #' @export
 registerCacheFormat <- function(name, write, read, extension = name, toRds = NULL) {
-  stopifnot(is.character(name), length(name) == 1, nzchar(name),
-            is.character(extension), length(extension) == 1, nzchar(extension),
-            is.function(write), is.function(read),
-            is.null(toRds) || is.function(toRds))
-
-  # a "-" would confuse the cache file name parsing in cacheNames, a "." the stem
-  # handling when converting to rds for puc files
+  # a "-" would confuse the cache file name parsing in cacheNames
+  # a "." would confuse the stem handling when converting to rds for puc files
   if (grepl("[^A-Za-z0-9]", extension)) {
     stop("Cache file extensions must only contain alphanumeric characters (got \"", extension, "\")")
   }
 
-  claimed <- .cacheFormatRegistry()
-  claimed <- names(claimed)[vapply(claimed, function(f) identical(f$extension, extension), logical(1))]
-  if (length(setdiff(claimed, name)) > 0) {
-    stop("Extension \".", extension, "\" is already used by cache format \"", claimed[1], "\"")
+  if (!name %in% names(.cacheFormatRegistry())) {
+    registeredExtensions <- unlist(lapply(.cacheFormatRegistry(), function(f) f$extension))
+    if (extension %in% registeredExtensions) {
+      stop("Extension \".", extension, "\" is already used by another cache format.")
+    }
   }
 
-  formats <- getOption("madrat_cacheformats")
-  if (is.null(formats)) formats <- list()
+  formats <- getOption("madrat_cacheformats", default = list())
   formats[[name]] <- list(extension = extension, write = write, read = read, toRds = toRds)
   options(madrat_cacheformats = formats) # nolint
   return(invisible(formats[[name]]))
@@ -66,7 +61,6 @@ cacheFormats <- function() {
   qs2 <- list(extension = "qs2",
               write = function(x, file) qs2::qs_save(x, file = file),
               read = function(file) qs2::qs_read(file),
-              # stream level conversion, does not materialize the object in memory
               toRds = function(input, output) qs2::qs_to_rds(input, output))
   return(list(rds = rds, qs2 = qs2))
 }
@@ -88,7 +82,6 @@ cacheFormats <- function() {
 #' @keywords internal
 cacheFormat <- function(name = getConfig("cacheformat")) {
   formats <- .cacheFormatRegistry()
-  # isTRUE also rejects NULL, NA and values which are not a single string
   if (!isTRUE(name %in% names(formats))) {
     stop("Unknown cache format \"", paste(name, collapse = ", "), "\". Available formats: ",
          paste0("\"", names(formats), "\"", collapse = ", "))

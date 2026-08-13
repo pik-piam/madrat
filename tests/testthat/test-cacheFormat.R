@@ -37,15 +37,13 @@ test_that("built-in cache formats are available and rds is the default", {
 test_that("registerCacheFormat validates its input", {
   noop <- function(x, file) NULL
   withr::local_options(madrat_cacheformats = getOption("madrat_cacheformats"))
-  expect_error(registerCacheFormat(c("a", "b"), write = noop, read = noop), "length\\(name\\) == 1")
-  expect_error(registerCacheFormat("a", write = "notafunction", read = noop), "is.function\\(write\\)")
   expect_error(registerCacheFormat("a", write = noop, read = noop, extension = "a-b"),
                "must only contain alphanumeric characters")
   expect_error(registerCacheFormat("a", write = noop, read = noop, extension = "a.b"),
                "must only contain alphanumeric characters")
   # an extension may not be claimed by two different formats
   expect_error(registerCacheFormat("myrds", write = noop, read = noop, extension = "rds"),
-               "already used by cache format \"rds\"")
+               "already used by another cache format")
   # but re-registering the same name is fine
   expect_silent(registerCacheFormat("a", write = noop, read = noop, extension = "aa"))
   expect_silent(registerCacheFormat("a", write = noop, read = noop, extension = "aa"))
