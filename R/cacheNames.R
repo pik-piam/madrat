@@ -21,7 +21,7 @@
 #' of an already existing, fitting cache file which should be read (possibly in
 #' another format), or NULL if there is none.
 #'
-#' @author Jan Philipp Dietrich, Pascal Sauer
+#' @author Patrick Rein, Jan Philipp Dietrich, Pascal Sauer
 #' @seealso \code{\link{cachePut}}
 #' @keywords internal
 #' @examples

@@ -1,4 +1,5 @@
-log <- c("Current madrat configuration:",
+log <- c(
+  "Current madrat configuration:",
   '   cachefolder      -> "/my/cache/folder"',
   "   debug            -> FALSE",
   "",
