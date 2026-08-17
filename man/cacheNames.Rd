@@ -41,6 +41,6 @@ madrat:::cacheNames("calc", "TauTotal")
 \code{\link{cachePut}}
 }
 \author{
-Jan Philipp Dietrich, Pascal Sauer
+Patrick Rein, Jan Philipp Dietrich, Pascal Sauer
 }
 \keyword{internal}
