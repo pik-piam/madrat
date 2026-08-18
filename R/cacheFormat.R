@@ -127,7 +127,14 @@ cacheRead <- function(file) {
 #' @describeIn cacheRead write a cache file
 #' @keywords internal
 cacheWrite <- function(x, file) {
-  return(.cacheFormatByExtension(file_ext(file))$write(x, file))
+  # write to tempfile to avoid corrupt cache files in parallel running preprocessings
+  tempfileName <- paste0(file, Sys.getenv("SLURM_JOB_ID", unset = ""))
+  .cacheFormatByExtension(file_ext(file))$write(x, tempfileName)
+  # file.rename reports failure via its return value instead of raising
+  if (!file.rename(tempfileName, file)) {
+    stop("could not rename ", tempfileName, " to ", file)
+  }
+  Sys.chmod(file, mode = "0666", use_umask = FALSE)
 }
 
 #' @describeIn cacheRead convert a cache file to rds

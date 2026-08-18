@@ -45,17 +45,7 @@ cachePut <- function(x, prefix, type, fname, callString) {
     attr(x, "madratMessage") <- getMadratMessage(fname = paste0(prefix, type))
     attr(x, "callString") <- callString
 
-    # write to tempfile to avoid corrupt cache files in parallel running preprocessings. The
-    # leading "." keeps the tempfile out of the Sys.glob cache file search in cacheNames.
-    tempfileName <- file.path(dirname(fname),
-                              paste0(".", Sys.getenv("SLURM_JOB_ID", unset = ""), basename(fname)))
-    cacheWrite(x, file = tempfileName)
-    # file.rename reports failure via its return value instead of raising, which would
-    # make this function claim a cache file it never created
-    if (!file.rename(tempfileName, fname)) {
-      stop("could not rename ", tempfileName, " to ", fname)
-    }
-    Sys.chmod(fname, mode = "0666", use_umask = FALSE)
+    cacheWrite(x, file = fname)
     vcat(1, " - done writing cache ", basename(fname), fill = 300, show_prefix = FALSE)
     return(fname)
   }, error = function(e) {
