@@ -388,7 +388,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 #' that a lengthy data processing is never aborted by a problem with the puc file.
 #' @param cacheFiles Paths of the cache files to be put into a puc file.
 #' @return The file names as they should now exist in the current working directory.
-#' @importFrom tools file_path_sans_ext file_ext
+#' @importFrom tools file_path_sans_ext 
 #' @noRd
 .cacheFilesToRds <- function(cacheFiles) {
   return(vapply(cacheFiles, FUN.VALUE = character(1), USE.NAMES = FALSE, FUN = function(cacheFile) {
