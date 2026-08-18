@@ -51,7 +51,7 @@ toolTimeSpline <- function(x,
   ## 3) Build weight vector
   if (is.null(peggedYears)) {
     # no anchors
-    wts <- rep(1, nyr)
+    weights <- rep(1, nyr)
     peggedYearsAll <- NULL
   } else {
     # parse user‐supplied anchors (allow "yYYYY" or numeric)
@@ -62,8 +62,8 @@ toolTimeSpline <- function(x,
       stop("One or more user-supplied anchors not in data years.")
     }
 
-    wts <- rep(1, nyr)
-    wts[years %in% peggedYearsAll] <- nyr * anchorFactor
+    weights <- rep(1, nyr)
+    weights[years %in% peggedYearsAll] <- nyr * anchorFactor
   }
 
   ## 4) Per-series spline (uses fit$y so no predict() call)
@@ -71,7 +71,7 @@ toolTimeSpline <- function(x,
     fit <- stats::smooth.spline(
       x            = years,
       y            = ts,
-      w            = wts,
+      w            = weights,
       df           = df,
       control.spar = list(high = 2)
     )
