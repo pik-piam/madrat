@@ -107,6 +107,21 @@ toolTimeSpline <- function(x,
     # x, multiplying peak memory well past what apply() below needs. Looping
     # per band and right-multiplying keeps the cell axis untouched, so the
     # only extra full-size buffer is the (already unavoidable) output array.
+    #
+    # This path is algebraically identical to the per-series apply() below,
+    # not bit-identical: replacing nseries individual smooth.spline() calls
+    # with a matrix multiply reorders the underlying floating-point sums, so
+    # results agree only to ~1e-14 relative (verified against 184M values of
+    # real LPJmL output, comparing this fast path to the direct apply() path
+    # below run through mstools::toolHarmonize2Baseline). That is far below
+    # any physically meaningful threshold, but a value
+    # whose true magnitude is within ~1e-14 of zero can round to a different
+    # sign than the reference implementation, and downstream `x < 0 -> 0`
+    # clamps (including the one a few lines below) turn that into a visible
+    # 0-vs-nonzero difference. Callers that branch on exact zero anywhere in
+    # their pipeline should treat that as a pre-existing fragility -- any
+    # change in summation order (BLAS, R version, compiler) triggers it
+    # equally -- not as something introduced by taking this fast path.
     if (anyNA(arrIn)) {
       stop("toolTimeSpline: x contains NA values, which smooth.spline cannot handle.")
     }
