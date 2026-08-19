@@ -19,6 +19,12 @@ test_that("puc creation works", {
                               renv = FALSE), "already available")
   expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_7a5441e5_example_customizable_tag.tgz")))
 
+  # pucAggregate must return the path of the archive it wrote, both when it aggregates it fresh
+  # and (via retrieveData's early return) when a matching archive already exists
+  expect_identical(basename(pucAggregate("rev42_extra_example_tag.puc", extra = "blub",
+                                         regionmapping = "regionmappingH12.csv", renv = FALSE)),
+                   "rev42_h12_7a5441e5_example_customizable_tag.tgz")
+
   expect_message(retrieveData("example", rev = 42, extra = "test2", renv = FALSE), "Run pucAggregate")
   expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_5f3d77a0_example_customizable_tag.tgz")))
 })
