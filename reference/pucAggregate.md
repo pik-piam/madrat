@@ -53,6 +53,10 @@ pucAggregate(
   prevent `retrieveData` from creating a puc file. If set to NULL the
   setting will be read from the puc file.
 
+## Value
+
+Invisibly, the path to the resulting tgz archive.
+
 ## See also
 
 [`retrieveData`](retrieveData.md),[`localConfig`](setConfig.md)
