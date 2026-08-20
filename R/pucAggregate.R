@@ -20,6 +20,7 @@
 #' warnings will be taken more seriously and will cause 1. to have the number of
 #' warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
 #' from creating a puc file. If set to NULL the setting will be read from the puc file.
+#' @return Invisibly, the path to the resulting tgz archive.
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{retrieveData}},\code{\link{localConfig}}
@@ -58,7 +59,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     do.call(madrat::retrieveData, c(cfg$args, list(renv = FALSE)))
   }
 
-  with_tempdir({
+  tgzPath <- with_tempdir({
     untar(puc, exdir = "puc")
     cfg <- readRDS("puc/config.rds")
     if (!all(names(extraArgs) %in% cfg$pucArguments)) {
@@ -71,12 +72,13 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     cfg$args$puc <- FALSE
     if (!is.null(strict)) cfg$args$strict <- strict
     if (isTRUE(renv)) {
-      out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
-                                                  madratCfg = getOption("madrat_cfg"),
-                                                  madratCodelabels = getOption("madrat_codelabels"),
-                                                  nestinglevel = getOption("gdt_nestinglevel")),
-                              spinner = FALSE, show = TRUE))
+      out <- capture.output(tgzPath <- r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
+                                                             madratCfg = getOption("madrat_cfg"),
+                                                             madratCodelabels = getOption("madrat_codelabels"),
+                                                             nestinglevel = getOption("gdt_nestinglevel")),
+                                         spinner = FALSE, show = TRUE))
       message(paste(out, "\n"))
+      tgzPath
     } else {
       # only attach and detach if package is not already attached, might crash otherwise
       if (!is.null(cfg$package) && !cfg$package %in% .packages()) {
@@ -87,4 +89,5 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     }
   }, tmpdir = madTempDir())
   toolendmessage(startinfo)
+  return(invisible(tgzPath))
 }
