@@ -32,6 +32,9 @@ warnings will be taken more seriously and will cause 1. to have the number of
 warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
 from creating a puc file. If set to NULL the setting will be read from the puc file.}
 }
+\value{
+Invisibly, the path to the resulting tgz archive.
+}
 \description{
 Function which takes a puc-file ("portable unaggregated collection") as created
 via \code{\link{retrieveData}} and computes the corresponding aggregated

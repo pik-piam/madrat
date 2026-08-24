@@ -43,7 +43,7 @@
 toolFixWeight <- function(weight, map, dim) {
   dim <- dimCode(dim, weight)
   stopifnot(length(dim) == 1,
-            weight >= 0,
+            all(weight >= 0),
             ncol(map) == 2)
   if (!setequal(map[[2]], getItems(weight, dim))) {
     map <- map[, 2:1]
@@ -52,10 +52,11 @@ toolFixWeight <- function(weight, map, dim) {
   originalDimnames <- dimnames(weight)
 
   extramap <- NULL
-  map <- unique(map[, 1:2])
+  map <- map[!duplicated(map[[2]]), 1:2]
   if (dim %in% 1:3) {
     if (ndim(weight, dim) == 1) {
-      stopifnot(!grepl(".", map, fixed = TRUE))
+      stopifnot(!grepl(".", map[[1]], fixed = TRUE),
+                !grepl(".", map[[2]], fixed = TRUE))
     } else {
       # merge all subdims into one dim, and replace back at the end using extramap
       originalMap2 <- map[[2]]
