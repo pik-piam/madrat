@@ -15,7 +15,7 @@ you can achieve a reset by setting the value to "".'></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.38.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.39.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,6 +75,7 @@ you can achieve a reset by setting the value to "".</p>
 <span>  forcecache <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ignorecache <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cachecompression <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cacheformat <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  hash <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  diagnostics <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  debug <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -191,7 +192,16 @@ The top level function must always be part of this list.</p></dd>
 <dt id="arg-cachecompression">cachecompression<a class="anchor" aria-label="anchor" href="#arg-cachecompression"></a></dt>
 <dd><p>logical or character string specifying whether cache files
 use compression. TRUE corresponds to gzip compression, and character strings "gzip",
-"bzip2" or "xz" specify the type of compression.</p></dd>
+"bzip2" or "xz" specify the type of compression. Only applies to the cache format "rds".</p></dd>
+
+
+<dt id="arg-cacheformat">cacheformat<a class="anchor" aria-label="anchor" href="#arg-cacheformat"></a></dt>
+<dd><p>name of the serialization format used for cache files. Default is
+"rds", madrat also ships "qs2" (which is considerably faster, but requires the <code>qs2</code>
+package). Further formats can be added via <code><a href="registerCacheFormat.html">registerCacheFormat</a></code>. Cache files
+are written in the configured format, but an already existing rds file is still read if no
+file in the configured format exists.
+Can also be set via the environment variable <code>MADRAT_CACHEFORMAT</code>.</p></dd>
 
 
 <dt id="arg-hash">hash<a class="anchor" aria-label="anchor" href="#arg-hash"></a></dt>

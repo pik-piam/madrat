@@ -156,6 +156,13 @@ will most likely result in a puc-file which is created but unusable
 which would render the resulting puc-file unusable). So proper
 configuration is key to functioning puc-files.
 
+Independent of the cache format configured on the creating machine (see
+[`vignette("madrat-caching")`](../articles/madrat-caching.md)), the
+cache files inside a puc-file are always stored as `rds` files,
+converted while the puc-file is being created. This keeps puc-files
+portable: they can be used without knowing which cache format was used
+to compute them and without installing any additional packages.
+
 On the user side, be aware that puc-files contain an `renv.lock` file,
 which lists the version of all dependencies that were used to generate
 the puc-file. This is necessary to ensure that any subsequent operations

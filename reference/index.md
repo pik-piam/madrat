@@ -37,6 +37,8 @@ Functions for handling cached data
 
 - [`cacheCleanup()`](cacheCleanup.md) : cacheCleanup
 - [`cacheCopy()`](cacheCopy.md) : cacheCopy
+- [`registerCacheFormat()`](registerCacheFormat.md)
+  [`cacheFormats()`](registerCacheFormat.md) : registerCacheFormat
 
 ## Dependency Graph
 

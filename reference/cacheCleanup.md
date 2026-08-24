@@ -54,4 +54,5 @@ deleting files fails a warning is created.
 
 ## See also
 
-Other cache management: [`cacheCopy()`](cacheCopy.md)
+Other cache management: [`cacheCopy()`](cacheCopy.md),
+[`registerCacheFormat()`](registerCacheFormat.md)

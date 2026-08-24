@@ -29,7 +29,8 @@ filter.
 
 ## See also
 
-Other cache management: [`cacheCleanup()`](cacheCleanup.md)
+Other cache management: [`cacheCleanup()`](cacheCleanup.md),
+[`registerCacheFormat()`](registerCacheFormat.md)
 
 ## Author
 

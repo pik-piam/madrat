@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.38.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.39.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
                         <h4 data-toc-skip class="author">Jan Philipp
 Dietrich, Lavinia Baumstark</h4>
             
-            <h4 data-toc-skip class="date">2026-08-20</h4>
+            <h4 data-toc-skip class="date">2026-08-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/pik-piam/madrat/blob/master/vignettes/madrat-puc.Rmd" class="external-link"><code>vignettes/madrat-puc.Rmd</code></a></small>
       <div class="d-none name"><code>madrat-puc.Rmd</code></div>
@@ -218,6 +218,12 @@ unusable (e.g. one could set <code>putInPUC</code> to <code>FALSE</code>
 for the calculation <code>TauTotal</code> which would render the
 resulting puc-file unusable). So proper configuration is key to
 functioning puc-files.</p>
+<p>Independent of the cache format configured on the creating machine
+(see <code><a href="../articles/madrat-caching.html">vignette("madrat-caching")</a></code>), the cache files inside a
+puc-file are always stored as <code>rds</code> files, converted while
+the puc-file is being created. This keeps puc-files portable: they can
+be used without knowing which cache format was used to compute them and
+without installing any additional packages.</p>
 <p>On the user side, be aware that puc-files contain an
 <code>renv.lock</code> file, which lists the version of all dependencies
 that were used to generate the puc-file. This is necessary to ensure

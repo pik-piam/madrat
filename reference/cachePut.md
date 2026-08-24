@@ -31,9 +31,16 @@ cachePut(x, prefix, type, fname, callString)
   A string representation of the function call that leads to the cache
   file being written. Will be attached as an attribute.
 
+## Value
+
+`fname` if the cache file was written, otherwise NULL. Writing a cache
+file is optional and allowed to fail, so callers which need to know
+whether the file exists (e.g. to list it in a puc file) must use this
+return value rather than assume `fname` was created.
+
 ## See also
 
-`cachePut`, [`cacheName`](cacheName.md)
+`cachePut`, [`cacheNames`](cacheNames.md)
 
 ## Author
 
@@ -43,7 +50,7 @@ Jan Philipp Dietrich, Pascal Sauer
 
 ``` r
 if (FALSE) { # \dontrun{
-fname <- madrat:::cacheName("calc", "Example")
+fname <- madrat:::cacheNames("calc", "Example")$write
 madrat:::cachePut(1, "calc", "Example", fname, 'calcOutput("Example")')
 } # }
 ```

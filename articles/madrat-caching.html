@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.38.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.39.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
                         <h4 data-toc-skip class="author">Jan Philipp
 Dietrich</h4>
             
-            <h4 data-toc-skip class="date">2026-08-20</h4>
+            <h4 data-toc-skip class="date">2026-08-24</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/pik-piam/madrat/blob/master/vignettes/madrat-caching.Rmd" class="external-link"><code>vignettes/madrat-caching.Rmd</code></a></small>
       <div class="d-none name"><code>madrat-caching.Rmd</code></div>
@@ -89,7 +89,7 @@ located can be checked via</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     pmax, pmin</span></span>
 <span><span class="fu"><a href="../reference/getConfig.html">getConfig</a></span><span class="op">(</span><span class="st">"cachefolder"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "/tmp/RtmpdKm91d/madrat/cache/default"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "/tmp/RtmpQPRtvq/madrat/cache/default"</span></span></code></pre></div>
 <p>When running data processing via <code>retrieveData</code> it
 currently offers two types of cache folders:
 <code>cachetype = "def"</code> will use a shared cachefolder in which
@@ -107,6 +107,70 @@ fits the function call is read in, independent of whether the content of
 the cache file might be outdated or not.</p>
 </div>
 <div class="section level2">
+<h2 id="cache-format">Cache format<a class="anchor" aria-label="anchor" href="#cache-format"></a>
+</h2>
+<p>By default cache files are written as gzip-compressed
+<code>rds</code> files. Since serializing and compressing the data can
+make up a significant share of the runtime of a data processing, the
+format can be changed via <code>setConfig(cacheformat = ...)</code>.
+Besides <code>"rds"</code> madrat ships support for <code>"qs2"</code>,
+which is considerably faster but requires the <code>qs2</code>
+package:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/setConfig.html">setConfig</a></span><span class="op">(</span>cacheformat <span class="op">=</span> <span class="st">"qs2"</span><span class="op">)</span></span></code></pre></div>
+<p>Alternatively the format can be set via the environment variable
+<code>MADRAT_CACHEFORMAT</code>, which is the more convenient option if
+a whole compute cluster should use the same setting.</p>
+<p>Settings of the format itself are not managed by madrat, but by the
+corresponding package. For <code>qs2</code> the number of threads and
+the compression level are set via its own options, e.g. in your
+<code>.Rprofile</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qopt.html" class="external-link">qopt</a></span><span class="op">(</span><span class="st">"nthreads"</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu">qs2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/qs2/man/qopt.html" class="external-link">qopt</a></span><span class="op">(</span><span class="st">"compress_level"</span>, <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<p>The <code>cachecompression</code> setting only applies to the format
+<code>"rds"</code>.</p>
+<div class="section level3">
+<h3 id="switching-the-format">Switching the format<a class="anchor" aria-label="anchor" href="#switching-the-format"></a>
+</h3>
+<p>Changing the cache format does not invalidate an existing cache:
+madrat looks for a cache file in the configured format first, and falls
+back to an already existing <code>rds</code> file if there is none. Such
+a file is only read, never rewritten, so no cache regeneration is
+triggered and nothing is written behind your back.</p>
+<p>Please note what this implies: parts of your processing which do not
+change keep reading their existing <code>rds</code> cache files. Writing
+becomes faster immediately, but reading only becomes faster for those
+cache files which have been written anew, e.g. because the fingerprint
+of the corresponding function changed.</p>
+<p>It is safe to run processings with different cache formats on the
+same cache folder, as the file extension is part of the cache file name.
+Be aware though that a processing using <code>"rds"</code> cannot read
+cache files in another format, so such a setup will over time store the
+same data twice.</p>
+</div>
+<div class="section level3">
+<h3 id="other-formats">Other formats<a class="anchor" aria-label="anchor" href="#other-formats"></a>
+</h3>
+<p>Further formats can be added from other packages via
+<code>registerCacheFormat</code>, which expects functions to read and
+write a file:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/registerCacheFormat.html">registerCacheFormat</a></span><span class="op">(</span><span class="st">"qs"</span>, write <span class="op">=</span> <span class="fu">qs</span><span class="fu">::</span><span class="va">qsave</span>, read <span class="op">=</span> <span class="fu">qs</span><span class="fu">::</span><span class="va">qread</span><span class="op">)</span></span></code></pre></div>
+<p>The registration should happen in the <code>.onLoad</code> function
+of the providing package, so that the format is also available in the
+separate R sessions which madrat starts for some operations (e.g. in
+<code>pucAggregate</code>).</p>
+<p>Whether a format actually works is not checked when it is registered
+or configured. If reading or writing a cache file fails, e.g. because a
+required package is not installed, this is reported in the log together
+with the reason, but it does not stop a calculation. Be aware that this
+also means that a broken format leads to no cache files being written at
+all, so watch out for such messages if a processing is unexpectedly
+slow.</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="fingerprint">Fingerprint<a class="anchor" aria-label="anchor" href="#fingerprint"></a>
 </h2>
 <p>In order to estimate whether a calculation should be rerun or whether
@@ -119,7 +183,7 @@ be potentially outdated and ignored (except for
 anyways).</p>
 <p>The fingerprint is created by looking at the dependency graph of a
 function which can be retrieved via <code>getDependencies</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/getDependencies.html">getDependencies</a></span><span class="op">(</span><span class="st">"calcTauTotal"</span>, packages <span class="op">=</span> <span class="st">"madrat"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                        func type package</span></span>
 <span><span class="co">#&gt; 1                   readTau read  madrat</span></span>
@@ -154,7 +218,7 @@ which have been called in order to run the function). The fingerprinting
 function creates hashes of all these functions and all source folders
 involved in this process and combines them to one single hash which is
 the fingerprint of that specific function:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setConfig.html">setConfig</a></span><span class="op">(</span>verbosity <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Global configuration update:</span></span>
 <span><span class="co">#&gt;   verbosity: 1 -&gt; 3</span></span>
@@ -225,7 +289,7 @@ cases.</p></li>
 the fingerprinting. Control flags are comments in the functions which
 are put in quotes and start with <code>!#</code>. They can look
 like:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="st">"!# @monitor madrat:::sysdata magclass:::ncells"</span></span>
 <span><span class="st">"!# @ignore  madrat:::toolAggregate"</span></span></code></pre></div>
 <p>Each line contains a control flag starting with the flag name (here
@@ -252,7 +316,7 @@ exactly what you are doing.</p>
 <div class="section level2">
 <h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/setConfig.html">setConfig</a></span><span class="op">(</span>globalenv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Global configuration update:</span></span>
 <span><span class="co">#&gt;   globalenv: FALSE -&gt; TRUE</span></span>
@@ -271,7 +335,7 @@ exactly what you are doing.</p>
 functions. <code>calcExample</code> only depends on
 <code>readData</code> while <code>calcExample2</code> depends on both
 data sources.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fp</span> <span class="op">&lt;-</span> <span class="fu">madrat</span><span class="fu">:::</span><span class="fu"><a href="../reference/fingerprint.html">fingerprint</a></span><span class="op">(</span><span class="st">"calcExample"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; hash components (d927f460):</span></span>
 <span><span class="co">#&gt;   741a3677 | calcExample | calcExample</span></span>
@@ -288,7 +352,7 @@ up here as well as hash components). One can see, that the hash for
 <code>readData</code> is the same in both fingerprints but as the other
 hashes differ also the resulting fingerprint for both calculations is
 different.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readData</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span></span>
 <span><span class="va">fp</span> <span class="op">&lt;-</span> <span class="fu">madrat</span><span class="fu">:::</span><span class="fu"><a href="../reference/fingerprint.html">fingerprint</a></span><span class="op">(</span><span class="st">"calcExample"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; hash components (1fd8c70c):</span></span>
@@ -302,7 +366,7 @@ different.</p>
 <p>Changing the <code>readData</code> function changes the hash of this
 function and thereby also the fingerprints of both calc functions even
 so the hash of the calc functions itself did not change.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">readData2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="st">"!# @monitor madrat:::toolAggregate"</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fl">99</span><span class="op">)</span></span>
@@ -319,7 +383,7 @@ so the hash of the calc functions itself did not change.</p>
 <span><span class="co">#&gt;   13c681da | readData2 | readData2</span></span></code></pre></div>
 <p>Adding a monitor control flag in <code>readData</code> also add this
 hash component to all subsequent fingerprint calculations.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">calcExample2</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="st">"!# @ignore readData2"</span></span>

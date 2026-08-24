@@ -19,7 +19,7 @@ library(madrat, quietly = TRUE)
 #> 
 #>     pmax, pmin
 getConfig("cachefolder", verbose = FALSE)
-#> [1] "/tmp/RtmpdKm91d/madrat/cache/default"
+#> [1] "/tmp/RtmpQPRtvq/madrat/cache/default"
 ```
 
 When running data processing via `retrieveData` it currently offers two
@@ -35,6 +35,75 @@ files will be read if a calculation is repeated. The forcecache option
 will in this case make sure that any available cache file which fits the
 function call is read in, independent of whether the content of the
 cache file might be outdated or not.
+
+## Cache format
+
+By default cache files are written as gzip-compressed `rds` files. Since
+serializing and compressing the data can make up a significant share of
+the runtime of a data processing, the format can be changed via
+`setConfig(cacheformat = ...)`. Besides `"rds"` madrat ships support for
+`"qs2"`, which is considerably faster but requires the `qs2` package:
+
+``` r
+setConfig(cacheformat = "qs2")
+```
+
+Alternatively the format can be set via the environment variable
+`MADRAT_CACHEFORMAT`, which is the more convenient option if a whole
+compute cluster should use the same setting.
+
+Settings of the format itself are not managed by madrat, but by the
+corresponding package. For `qs2` the number of threads and the
+compression level are set via its own options, e.g. in your `.Rprofile`:
+
+``` r
+qs2::qopt("nthreads", 4)
+qs2::qopt("compress_level", 3)
+```
+
+The `cachecompression` setting only applies to the format `"rds"`.
+
+### Switching the format
+
+Changing the cache format does not invalidate an existing cache: madrat
+looks for a cache file in the configured format first, and falls back to
+an already existing `rds` file if there is none. Such a file is only
+read, never rewritten, so no cache regeneration is triggered and nothing
+is written behind your back.
+
+Please note what this implies: parts of your processing which do not
+change keep reading their existing `rds` cache files. Writing becomes
+faster immediately, but reading only becomes faster for those cache
+files which have been written anew, e.g. because the fingerprint of the
+corresponding function changed.
+
+It is safe to run processings with different cache formats on the same
+cache folder, as the file extension is part of the cache file name. Be
+aware though that a processing using `"rds"` cannot read cache files in
+another format, so such a setup will over time store the same data
+twice.
+
+### Other formats
+
+Further formats can be added from other packages via
+`registerCacheFormat`, which expects functions to read and write a file:
+
+``` r
+registerCacheFormat("qs", write = qs::qsave, read = qs::qread)
+```
+
+The registration should happen in the `.onLoad` function of the
+providing package, so that the format is also available in the separate
+R sessions which madrat starts for some operations (e.g. in
+`pucAggregate`).
+
+Whether a format actually works is not checked when it is registered or
+configured. If reading or writing a cache file fails, e.g. because a
+required package is not installed, this is reported in the log together
+with the reason, but it does not stop a calculation. Be aware that this
+also means that a broken format leads to no cache files being written at
+all, so watch out for such messages if a processing is unexpectedly
+slow.
 
 ## Fingerprint
 

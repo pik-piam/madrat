@@ -11,9 +11,11 @@
 <url><loc>/reference/cacheArgumentsHash.html</loc></url>
 <url><loc>/reference/cacheCleanup.html</loc></url>
 <url><loc>/reference/cacheCopy.html</loc></url>
+<url><loc>/reference/cacheFormat.html</loc></url>
 <url><loc>/reference/cacheGet.html</loc></url>
-<url><loc>/reference/cacheName.html</loc></url>
+<url><loc>/reference/cacheNames.html</loc></url>
 <url><loc>/reference/cachePut.html</loc></url>
+<url><loc>/reference/cacheRead.html</loc></url>
 <url><loc>/reference/calcOutput.html</loc></url>
 <url><loc>/reference/calcTauTotal.html</loc></url>
 <url><loc>/reference/cleanComment.html</loc></url>
@@ -61,6 +63,7 @@
 <url><loc>/reference/redirectSource.html</loc></url>
 <url><loc>/reference/redirectTau.html</loc></url>
 <url><loc>/reference/regionscode.html</loc></url>
+<url><loc>/reference/registerCacheFormat.html</loc></url>
 <url><loc>/reference/resetMadratMessages.html</loc></url>
 <url><loc>/reference/retrieveData.html</loc></url>
 <url><loc>/reference/returnCalcOutput.html</loc></url>

@@ -25,11 +25,15 @@ cacheGet(prefix, type, args = NULL)
 ## Value
 
 cached data if available, otherwise NA attr(, "id") will be set to the
-cache file name that was (tried to be) loaded
+cache file name that should be written if the data has to be
+recalculated. attr(, "readFile") will be set to the cache file that was
+successfully read, and is absent otherwise. This can differ from attr(,
+"id") if the data was read from an rds file while another cache format
+is configured.
 
 ## See also
 
-[`cachePut`](cachePut.md), [`cacheName`](cacheName.md)
+[`cachePut`](cachePut.md), [`cacheNames`](cacheNames.md)
 
 ## Author
 
@@ -41,5 +45,5 @@ Jan Philipp Dietrich, Pascal Sauer
 madrat:::cacheGet("calc", "TauTotal")
 #> [1] NA
 #> attr(,"id")
-#> [1] "/tmp/Rtmp57wAwF/madrat/cache/default/calcTauTotal-F201f3fe1.rds"
+#> [1] "/tmp/RtmpCrlm26/madrat/cache/default/calcTauTotal-F201f3fe1.rds"
 ```
