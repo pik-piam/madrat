@@ -185,13 +185,15 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
           if (all(file.exists(cacheFiles))) {
             vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
             with_tempdir({
-              file.copy(cacheFiles, ".")
+              # puc files always contain rds cache files so that they can be used on any
+              # machine, independent of its cacheformat setting and installed packages
+              pucCacheFiles <- .cacheFilesToRds(cacheFiles)
               otherFiles <- c("config.rds", "diagnostics.log")
               file.copy(file.path(outputfolder, otherFiles), ".")
 
               .fillRenvCache(requiredPackages = attr(cfg$functionName, "package"))
 
-              missingFiles <- basename(cacheFiles)[!file.exists(basename(cacheFiles))]
+              missingFiles <- pucCacheFiles[!file.exists(pucCacheFiles)]
               if (length(missingFiles) == 0) {
                 # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
                 # required madrat cache files
@@ -378,6 +380,28 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     # in the created renv.lock might not match the version used to run the full functions
   }), collapse = "\n"))
   return(invisible(NULL))
+}
+
+#' .cacheFilesToRds
+#' Copies the given cache files into the current working directory, converting everything
+#' which is not already rds. Conversion failures are reported but do not raise an error, so
+#' that a lengthy data processing is never aborted by a problem with the puc file.
+#' @param cacheFiles Paths of the cache files to be put into a puc file.
+#' @return The file names as they should now exist in the current working directory.
+#' @importFrom tools file_path_sans_ext
+#' @noRd
+.cacheFilesToRds <- function(cacheFiles) {
+  return(vapply(cacheFiles, FUN.VALUE = character(1), USE.NAMES = FALSE, FUN = function(cacheFile) {
+    # cache file names never contain a dot besides the extension
+    target <- paste0(file_path_sans_ext(basename(cacheFile)), ".rds")
+    tryCatch({
+      cacheToRds(cacheFile, target)
+    }, error = function(e) {
+      vcat(0, " - could not convert cache file ", basename(cacheFile), " to rds: ", e$message,
+           fill = 300, show_prefix = FALSE)
+    })
+    return(target)
+  }))
 }
 
 #' .tarAndVerify

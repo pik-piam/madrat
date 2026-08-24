@@ -44,7 +44,8 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
-  .aggregatePuc <- function(regionmapping, cfg, madratCfg, madratCodelabels, nestinglevel) {
+  .aggregatePuc <- function(regionmapping, cfg, madratCfg, madratCodelabels, nestinglevel,
+                            madratCacheFormats) {
     # need to use `::` because this is run in another R session
     if (file.exists("puc/renv.lock")) {
       renv::init()
@@ -52,6 +53,8 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     }
     withr::local_options(madrat_cfg = madratCfg,
                          madrat_codelabels = madratCodelabels,
+                         # custom cache formats are not registered in this new session
+                         madrat_cacheformats = madratCacheFormats,
                          gdt_nestinglevel = nestinglevel)
     madrat::localConfig(packages = "madrat", regionmapping = regionmapping,
                         forcecache = TRUE, .verbose = FALSE)
@@ -75,7 +78,8 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
       out <- capture.output(tgzPath <- r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
                                                              madratCfg = getOption("madrat_cfg"),
                                                              madratCodelabels = getOption("madrat_codelabels"),
-                                                             nestinglevel = getOption("gdt_nestinglevel")),
+                                                             nestinglevel = getOption("gdt_nestinglevel"),
+                                                             madratCacheFormats = getOption("madrat_cacheformats")),
                                          spinner = FALSE, show = TRUE))
       message(paste(out, "\n"))
       tgzPath

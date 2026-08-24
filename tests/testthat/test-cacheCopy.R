@@ -1,17 +1,19 @@
-log <- c("Current madrat configuration:",
-'   cachefolder      -> "/my/cache/folder"',
-"   debug            -> FALSE",
-"",
-'Run retrieveData("Example", rev = 98.5, cachetype = "def")',
-"",
-'Run calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")',
-'> Run readSource("Tau", source)',
-">>  - writing cache readTau-Fe6e25820-f079dd0d.rds",
-">>  - writing cache convertTau-Fe6e25820-f079dd0d.rds",
-'> Exit readSource("Tau", source) in 2.99 seconds',
-">  - writing cache calcTauTotal-F933da7d1.rds",
-'Exit calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4") in 3.25 seconds',
-'Exit retrieveData("Example", rev = 98.5, cachetype = "def") in 3.25 seconds')
+log <- c(
+  "Current madrat configuration:",
+  '   cachefolder      -> "/my/cache/folder"',
+  "   debug            -> FALSE",
+  "",
+  'Run retrieveData("Example", rev = 98.5, cachetype = "def")',
+  "",
+  'Run calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4")',
+  '> Run readSource("Tau", source)',
+  ">>  - writing cache readTau-Fe6e25820-f079dd0d.rds",
+  ">>  - writing cache convertTau-Fe6e25820-f079dd0d.rds",
+  '> Exit readSource("Tau", source) in 2.99 seconds',
+  ">  - writing cache calcTauTotal-F933da7d1.rds",
+  'Exit calcOutput("TauTotal", years = 1995, round = 2, file = "fm_tau1995.cs4") in 3.25 seconds',
+  'Exit retrieveData("Example", rev = 98.5, cachetype = "def") in 3.25 seconds'
+)
 
 test_that("cacheCopy properly detects cache files", {
   files <- c("/my/cache/folder/readTau-Fe6e25820-f079dd0d.rds", # nolint
@@ -33,4 +35,25 @@ test_that("cacheCopy properly detects cache files", {
     x <- cacheCopy(logfile, target = file.path(tempfolder, "cachetarget"))
   }, "More than one cache folder found")
   expect_true(file.exists(file.path(tempfolder, "cachetarget", "calcTauTotal-F933da7d1.rds")))
+})
+
+test_that("cacheCopy detects cache files of any format", {
+  # logs may come from a machine using a cache format which is not registered here, so the
+  # extension must not be restricted
+  otherFormats <- c(log[1:8],
+                    ">>  - loading cache readTau-Fe6e25820-f079dd0d.qs2",
+                    ">  - done writing cache calcTauTotal-F933da7d1.somethingelse",
+                    log[13:14])
+  expect_identical(cacheCopy(otherFormats),
+                   c("/my/cache/folder/readTau-Fe6e25820-f079dd0d.qs2", # nolint
+                     "/my/cache/folder/calcTauTotal-F933da7d1.somethingelse")) # nolint
+})
+
+test_that("cacheCopy ignores cache files which were discarded as corrupt", {
+  # a corrupt cache file is recalculated, so it must not be copied
+  corrupt <- c(log[1:8],
+               paste(">>  - could not read cache file readTau-Fe6e25820-f079dd0d.rds",
+                     "(unknown input format). Will recalculate and write readTau-Fe6e25820-f079dd0d.rds."),
+               log[12:14])
+  expect_identical(cacheCopy(corrupt), "/my/cache/folder/calcTauTotal-F933da7d1.rds") # nolint
 })

@@ -107,3 +107,14 @@ localMockedTauDownload <- function(env = parent.frame()) {
     .env = env
   )
 }
+
+# extension of the currently configured cache format, so that tests which check cache file
+# names also work when the suite is run with e.g. MADRAT_CACHEFORMAT=qs2
+cacheExt <- function() {
+  return(cacheFormat()$extension)
+}
+
+# files in the currently configured cachefolder, for tests which assert on what was written
+cacheGlob <- function(pattern = "*") {
+  return(Sys.glob(file.path(getConfig("cachefolder"), pattern)))
+}

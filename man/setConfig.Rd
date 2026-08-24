@@ -24,6 +24,7 @@ setConfig(
   forcecache = NULL,
   ignorecache = NULL,
   cachecompression = NULL,
+  cacheformat = NULL,
   hash = NULL,
   diagnostics = NULL,
   debug = NULL,
@@ -101,7 +102,14 @@ The top level function must always be part of this list.}
 
 \item{cachecompression}{logical or character string specifying whether cache files
 use compression. TRUE corresponds to gzip compression, and character strings "gzip",
-"bzip2" or "xz" specify the type of compression.}
+"bzip2" or "xz" specify the type of compression. Only applies to the cache format "rds".}
+
+\item{cacheformat}{name of the serialization format used for cache files. Default is
+"rds", madrat also ships "qs2" (which is considerably faster, but requires the \code{qs2}
+package). Further formats can be added via \code{\link{registerCacheFormat}}. Cache files
+are written in the configured format, but an already existing rds file is still read if no
+file in the configured format exists.
+Can also be set via the environment variable \code{MADRAT_CACHEFORMAT}.}
 
 \item{hash}{specifies the used hashing algorithm. Default is "xxhash32" and
 all algorithms supported by \code{\link[digest]{digest}} can be used.}

@@ -93,4 +93,10 @@ While this procedure simplifies some processes it is by no means error proof and
 
 On the creation every faulty configuration of the shown settings above will most likely result in a puc-file which is created but unusable (e.g. one could set `putInPUC` to `FALSE` for the calculation `TauTotal` which would render the resulting puc-file unusable). So proper configuration is key to functioning puc-files.
 
+Independent of the cache format configured on the creating machine (see
+`vignette("madrat-caching")`), the cache files inside a puc-file are always stored as `rds`
+files, converted while the puc-file is being created. This keeps puc-files portable: they can
+be used without knowing which cache format was used to compute them and without installing
+any additional packages.
+
 On the user side, be aware that puc-files contain an `renv.lock` file, which lists the version of all dependencies that were used to generate the puc-file. This is necessary to ensure that any subsequent operations on the data in the puc-file use the same dependency versions so that operations are consistent. This entails that when new data is derived from the data in a puc-file via madrat, the old versions of dependencies will be restored, overwriting any existing versions of dependencies in the renv library.

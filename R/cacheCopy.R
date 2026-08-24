@@ -24,8 +24,11 @@ cacheCopy <- function(file, target = NULL, filter = NULL) {
     folder <- tail(folder, 1)
   }
   if (substring(folder, nchar(folder)) != "/") folder <- paste0(folder, "/")
-  f <- grep("cache.*\\.rds", f, value = TRUE, perl = TRUE)
-  files <- unique(sub("^.* ([^ ]*\\.rds).*$", "\\1", f))
+  # match the "loading cache <file>" / "done writing cache <file>" messages written by
+  # cacheGet/cachePut. The file extension is deliberately not restricted to the locally
+  # registered cache formats, as logs of other machines should be understood as well.
+  f <- grep("(loading|writing) cache ", f, value = TRUE, perl = TRUE)
+  files <- unique(sub("^.*(?:loading|writing) cache ([^ ]+).*$", "\\1", f, perl = TRUE))
   if (!is.null(filter)) files <- grep(filter, files, perl = TRUE, value = TRUE)
   files <- paste0(folder, files)
   if (!is.null(target)) {

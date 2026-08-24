@@ -8,7 +8,7 @@ test_that("Caching works", {
   globalassign("calcCacheExample", "calcNoCacheExample", "readNoCacheExample", "downloadNoCacheExample")
 
   a <- cacheGet("calc", "CacheExample")
-  expect_match(attr(a, "id"), "\\.rds$")
+  expect_match(attr(a, "id"), paste0("\\.", cacheExt(), "$"))
   expected <- NA
   attr(expected, "id") <- attr(a, "id")
   expect_identical(a, expected)
@@ -19,34 +19,42 @@ test_that("Caching works", {
 
   local({
     localConfig(ignorecache = TRUE, .verbose = FALSE)
-    expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
+    expect_identical(as.logical(cacheNames("calc", "CacheExample")$write), NA)
   })
 
-  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Ff5d41fca.rds")
+  expect_identical(basename(cacheNames("calc", "CacheExample")$write),
+                   paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
 
   calcCacheExample <- function() return(list(x = as.magpie(2), description = "-", unit = "-"))
   globalassign("calcCacheExample")
-  expect_identical(as.logical(cacheName("calc", "CacheExample")), NA)
+  expect_identical(as.logical(cacheNames("calc", "CacheExample")$write), NA)
   local({
     localConfig(forcecache = TRUE, .verbose = FALSE)
 
     local({
       localConfig(ignorecache = TRUE, .verbose = FALSE)
-      expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample.rds")
+      cf <- cacheNames("calc", "CacheExample")
+      expect_identical(basename(cf$write), paste0("calcCacheExample.", cacheExt()))
+      expect_null(cf$read)
     })
 
-    expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
-    expect_identical(basename(cf), "calcCacheExample-Ff5d41fca.rds")
+    # with forcecache active the file to write carries no fingerprint, while the
+    # deviating cache file which was found is reported separately as $read
+    expect_message(cf <- cacheNames("calc", "CacheExample"), "does not match fingerprint")
+    expect_identical(basename(cf$write), paste0("calcCacheExample.", cacheExt()))
+    expect_identical(basename(cf$read), paste0("calcCacheExample-Ff5d41fca.", cacheExt()))
   })
   Sys.sleep(1) # wait a second to ensure this second cache file has newer mtime, so forcecache reproducibly takes it
   expect_message(a <- calcOutput("CacheExample", aggregate = FALSE), "writing cache")
-  expect_identical(basename(cacheName("calc", "CacheExample")), "calcCacheExample-Fad6287a7.rds")
+  expect_identical(basename(cacheNames("calc", "CacheExample")$write),
+                   paste0("calcCacheExample-Fad6287a7.", cacheExt()))
 
   calcCacheExample <- function() return(list(x = as.magpie(3), description = "-", unit = "-"))
   globalassign("calcCacheExample")
   localConfig(forcecache = TRUE, .verbose = FALSE)
-  expect_message(cf <- cacheName("calc", "CacheExample"), "does not match fingerprint")
-  expect_identical(basename(cf), "calcCacheExample-Fad6287a7.rds")
+  expect_message(cf <- cacheNames("calc", "CacheExample"), "does not match fingerprint")
+  expect_identical(basename(cf$write), paste0("calcCacheExample.", cacheExt()))
+  expect_identical(basename(cf$read), paste0("calcCacheExample-Fad6287a7.", cacheExt()))
 })
 
 test_that("Argument hashing works", {
@@ -86,13 +94,13 @@ test_that("Cache naming and identification works correctly", {
   }
   globalassign("downloadCacheExample", "readCacheExample", "correctCacheExample")
   expect_message(readSource("CacheExample", subtype = "blub", convert = "onlycorrect"),
-                 "writing cache correctCacheExample-F[^-]*.rds")
+                 paste0("writing cache correctCacheExample-F[^-]*.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect"),
-                 "loading cache correctCacheExample-F[^-]*.rds")
+                 paste0("loading cache correctCacheExample-F[^-]*.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"),
-                 "correctCacheExample-F[^-]*-d0d19d80.rds")
+                 paste0("correctCacheExample-F[^-]*-d0d19d80.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),
-                 "correctCacheExample-F[^-]*.rds")
+                 paste0("correctCacheExample-F[^-]*.", cacheExt()))
 
   readCacheExample <- function(subtype = "blub") {
     if (subtype == "blub") return(as.magpie(1))
@@ -101,11 +109,11 @@ test_that("Cache naming and identification works correctly", {
   correctCacheExample <- function(x) return(x)
 
   globalassign("downloadCacheExample", "readCacheExample", "correctCacheExample")
-  expect_message(readSource("CacheExample", convert = "onlycorrect"), "correctCacheExample-F[^-]*.rds")
+  expect_message(readSource("CacheExample", convert = "onlycorrect"), paste0("correctCacheExample-F[^-]*.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "bla"),
-                 "correctCacheExample-F[^-]*-d0d19d80.rds")
+                 paste0("correctCacheExample-F[^-]*-d0d19d80.", cacheExt()))
   expect_message(readSource("CacheExample", convert = "onlycorrect", subtype = "blub"),
-                 "correctCacheExample-F[^-]*.rds")
+                 paste0("correctCacheExample-F[^-]*.", cacheExt()))
 })
 
 test_that("non-list cache files are supported for forcecache", {
@@ -220,4 +228,50 @@ test_that("terra objects can be cached", {
   expect_equal(terra::as.data.frame(a, geom = "WKT"),
                terra::as.data.frame(b, geom = "WKT"))
   expect_identical(names(a), names(b))
+})
+
+test_that("cache files are written when SLURM_JOB_ID is set", {
+  # the job id becomes part of the tempfile cachePut writes before renaming it to the actual
+  # cache file. A malformed tempfile name makes that write fail silently, as cachePut reports
+  # write errors without raising them, and only shows on a cluster where SLURM_JOB_ID is set.
+  withr::local_envvar(SLURM_JOB_ID = "12345")
+  cacheFolder <- withr::local_tempdir()
+  localConfig(cachefolder = cacheFolder, .verbose = FALSE)
+
+  # distinct body, as the cached madrat graph does not distinguish identically defined functions
+  calcSlurmExample <- function() return(list(x = as.magpie(42), description = "-", unit = "-"))
+  globalassign("calcSlurmExample")
+
+  expect_message(calcOutput("SlurmExample", aggregate = FALSE), "writing cache")
+  # all.files, so that a leftover tempfile is noticed as well
+  cacheFiles <- list.files(getConfig("cachefolder"), all.files = TRUE, no.. = TRUE)
+  expect_length(cacheFiles, 1)
+  expect_match(cacheFiles, paste0("^calcSlurmExample-F.*\\.", cacheExt(), "$"))
+  expect_message(calcOutput("SlurmExample", aggregate = FALSE), "loading cache")
+})
+
+test_that("cachePut reports which cache file it wrote", {
+  localConfig(cachefolder = withr::local_tempdir(), .verbose = FALSE)
+  fname <- file.path(getConfig("cachefolder"), paste0("calcPutReturn-Fabcdef01.", cacheExt()))
+
+  expect_message(written <- cachePut(1, "calc", "PutReturn", fname, "callString"), "writing cache")
+  expect_identical(written, fname)
+  expect_true(file.exists(fname))
+
+  # writing is optional and allowed to fail, which must be visible in the return value
+  inMissingFolder <- file.path(getConfig("cachefolder"), "noSuchFolder", basename(fname))
+  expect_warning(failed <- cachePut(1, "calc", "PutReturn", inMissingFolder, "callString"),
+                 "could not write cache file")
+  expect_null(failed)
+})
+
+test_that("cache files are written even if forcecache is set for another function", {
+  # regression test: a vector-valued forcecache used to abort cachePut for all
+  # functions which were not part of that vector
+  localConfig(cachefolder = withr::local_tempdir(), forcecache = "calcSomethingElse", .verbose = FALSE)
+  calcUnrelatedExample <- function() return(list(x = as.magpie(5), description = "-", unit = "-"))
+  globalassign("calcUnrelatedExample")
+
+  expect_message(calcOutput("UnrelatedExample", aggregate = FALSE), "writing cache")
+  expect_length(Sys.glob(file.path(getConfig("cachefolder"), "calcUnrelatedExample*")), 1)
 })

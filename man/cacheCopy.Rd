@@ -21,7 +21,8 @@ Copy cache files which were used for a given preprocessing.
 }
 \seealso{
 Other cache management:
-\code{\link[=cacheCleanup]{cacheCleanup()}}
+\code{\link[=cacheCleanup]{cacheCleanup()}},
+\code{\link[=registerCacheFormat]{registerCacheFormat()}}
 }
 \author{
 Jan Philipp Dietrich
