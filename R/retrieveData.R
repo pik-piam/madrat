@@ -1,3 +1,10 @@
+# names of the files retrieveData writes into the output folder (and therefore into the tgz
+# archive) that are needed to create a puc file: the file listing which cache files to bundle,
+# and additional metadata files bundled alongside them. Shared with pucCreate(), which looks for
+# these files inside an already-built archive.
+.pucFilesFileName <- "pucFiles"
+.pucExtraFiles <- c("config.rds", "diagnostics.log")
+
 #' retrieveData
 #'
 #' Function to retrieve a predefined collection of calculations for a specific
@@ -110,15 +117,13 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   .copyMappings(cfg$regionscode, outputfolder)
 
-  tryCatch({
-    saveRDS(list(package = attr(cfg$functionName, "package"),
-                 args = argumentValues[!(names(argumentValues) %in% c(names(cfg$setConfig), "renv"))],
-                 pucArguments = cfg$pucArguments, sessionInfo = sessionInfo()),
-            file.path(outputfolder, "config.rds"), version = 2)
-  },
-  error = function(error) {
-    warning("Creation of config.rds failed: ", error)
-  })
+  configArgs <- argumentValues[!(names(argumentValues) %in% c(names(cfg$setConfig), "renv"))]
+  persistConfigRds <- function() {
+    .writeConfigRds(outputfolder, package = attr(cfg$functionName, "package"), args = configArgs,
+                    pucArguments = cfg$pucArguments, pucName = cfg$pucName, sessionInfo = sessionInfo())
+  }
+  persistConfigRds()
+
   localConfig(regionmapping = paste0(cfg$regionscode[1], ".csv"),
               outputfolder = outputfolder,
               diagnostics = TRUE)
@@ -158,6 +163,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     cfg$collectionName <- paste0(cfg$collectionName, "_", returnedValue$tag)
   }
 
+  if ("pucTag" %in% names(returnedValue)) {
+    cfg$pucName <- paste0(cfg$pucName, "_", returnedValue$pucTag)
+    # cfg$pucName was already persisted to config.rds above, refresh it now that it is final
+    persistConfigRds()
+  }
+
   nWarn <- getOption("madratWarningsCounter")
   if (strict && nWarn > 0) {
     cfg$collectionName <- paste0("WARNINGS", nWarn, "_", cfg$collectionName)
@@ -171,43 +182,13 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   if (puc) {
     vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
-    pucFiles <- file.path(outputfolder, "pucFiles")
+    pucFiles <- file.path(outputfolder, .pucFilesFileName)
     if (file.exists(pucFiles)) {
       vcat(2, " - list of files for puc identified", fill = 300, show_prefix = FALSE)
-      if ("pucTag" %in% names(returnedValue)) {
-        cfg$pucName <- paste0(cfg$pucName, "_", returnedValue$pucTag)
-      }
-      pucName <- paste0(cfg$pucName, ".puc")
-      pucPath <- file.path(getConfig("pucfolder"), pucName)
-      .withLockedPuc(pucName, function() {
-        if (!file.exists(pucPath)) {
-          cacheFiles <- readLines(pucFiles)
-          if (all(file.exists(cacheFiles))) {
-            vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
-            with_tempdir({
-              # puc files always contain rds cache files so that they can be used on any
-              # machine, independent of its cacheformat setting and installed packages
-              pucCacheFiles <- .cacheFilesToRds(cacheFiles)
-              otherFiles <- c("config.rds", "diagnostics.log")
-              file.copy(file.path(outputfolder, otherFiles), ".")
-
-              .fillRenvCache(requiredPackages = attr(cfg$functionName, "package"))
-
-              missingFiles <- pucCacheFiles[!file.exists(pucCacheFiles)]
-              if (length(missingFiles) == 0) {
-                # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
-                # required madrat cache files
-                .tarAndVerify(pucPath)
-              } else {
-                vcat(1, "puc file not created, some cache files are missing:\n",
-                     paste(missingFiles, collapse = "\n"))
-              }
-            }, tmpdir = madTempDir())
-          } else {
-            vcat(1, "puc file not created: could not find all relevant files.")
-          }
-        }
-      })
+      .createPuc(pucName = paste0(cfg$pucName, ".puc"),
+                 cacheFiles = readLines(pucFiles),
+                 extraFiles = file.path(outputfolder, .pucExtraFiles),
+                 requiredPackages = attr(cfg$functionName, "package"))
     } else {
       vcat(1, "puc file not created: could not find list of files to be added.")
     }
@@ -342,6 +323,60 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
       warning("Copying regionmapping to output folder failed: ", error)
     })
   }
+}
+
+.writeConfigRds <- function(outputfolder, package, args, pucArguments, pucName, sessionInfo) {
+  tryCatch({
+    saveRDS(list(package = package, args = args, pucArguments = pucArguments,
+                 pucName = pucName, sessionInfo = sessionInfo),
+            file.path(outputfolder, "config.rds"), version = 2)
+  },
+  error = function(error) {
+    warning("Creation of config.rds failed: ", error)
+  })
+}
+
+#' .createPuc
+#' Creates a puc file ("portable unaggregated collection") in the configured puc folder from a
+#' set of cache files, given that they still exist on disk, and additional metadata files.
+#' @param pucName File name (including the .puc extension) of the puc file to create.
+#' @param cacheFiles Absolute paths to the cache files that should be bundled into the puc.
+#' @param extraFiles Absolute paths to additional files (config.rds, diagnostics.log) to bundle.
+#' @param requiredPackages Packages required to reproduce the cache files, used to fill the renv
+#' cache so that the puc's renv.lock can be restored later.
+#' @return Invisibly, the path to the created (or already existing) puc file, or NULL if no puc
+#' could be created.
+#' @noRd
+.createPuc <- function(pucName, cacheFiles, extraFiles, requiredPackages) {
+  pucPath <- file.path(getConfig("pucfolder"), pucName)
+  .withLockedPuc(pucName, function() {
+    if (!file.exists(pucPath)) {
+      if (all(file.exists(cacheFiles))) {
+        vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
+        with_tempdir({
+          # puc files always contain rds cache files so that they can be used on any
+          # machine, independent of its cacheformat setting and installed packages
+          pucCacheFiles <- .cacheFilesToRds(cacheFiles)
+          file.copy(extraFiles, ".")
+
+          .fillRenvCache(requiredPackages = requiredPackages)
+
+          missingFiles <- pucCacheFiles[!file.exists(pucCacheFiles)]
+          if (length(missingFiles) == 0) {
+            # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
+            # required madrat cache files
+            .tarAndVerify(pucPath)
+          } else {
+            vcat(1, "puc file not created, some cache files are missing:\n",
+                 paste(missingFiles, collapse = "\n"))
+          }
+        }, tmpdir = madTempDir())
+      } else {
+        vcat(1, "puc file not created: could not find all relevant files.")
+      }
+    }
+  })
+  return(invisible(if (file.exists(pucPath)) pucPath else NULL))
 }
 
 .fillRenvCache <- function(requiredPackages) {

@@ -29,6 +29,62 @@ test_that("puc creation works", {
   expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_5f3d77a0_example_customizable_tag.tgz")))
 })
 
+.pucFilesOfArchive <- function(archive) {
+  withr::with_tempdir({
+    untar(archive, files = "./pucFiles", exdir = ".")
+    readLines("pucFiles")
+  })
+}
+
+test_that("pucCreate creates a puc for an existing archive", {
+  skip_on_cran()
+  localMockedTauDownload()
+
+  tgz <- retrieveData("example", rev = 43, puc = FALSE, renv = FALSE)
+  pucPath <- file.path(getConfig("pucfolder"), "rev43_extra_example_tag.puc")
+  expect_false(file.exists(pucPath))
+
+  result <- pucCreate(tgz)
+  expect_identical(basename(result), "rev43_extra_example_tag.puc")
+  expect_true(file.exists(pucPath))
+
+  withr::with_tempdir({
+    untar(pucPath)
+    expect_true(length(Sys.glob("calcTauTotal*.rds")) == 1)
+    cfg <- readRDS("config.rds")
+    expect_identical(cfg$package, "madrat")
+    expect_identical(cfg$pucArguments, "extra")
+  })
+
+  expect_message(pucAggregate(pucPath, extra = "blub", regionmapping = "regionmappingH12.csv",
+                              renv = FALSE), "Run calcOutput")
+  expect_message(retrieveData("example", rev = 43, extra = "x", renv = FALSE), "Run pucAggregate")
+})
+
+test_that("pucCreate fails when cache files are missing", {
+  skip_on_cran()
+  localMockedTauDownload()
+
+  tgz <- retrieveData("example", rev = 44, puc = FALSE, renv = FALSE)
+  cacheFiles <- .pucFilesOfArchive(tgz)
+  expect_true(length(cacheFiles) > 0)
+  unlink(cacheFiles)
+
+  expect_error(pucCreate(tgz), "no longer exist")
+})
+
+test_that("pucCreate fails on an archive without pucFiles", {
+  skip_on_cran()
+
+  emptyArchive <- withr::local_tempfile(fileext = ".tgz")
+  withr::with_tempdir({
+    writeLines("nothing to see here", "readme.txt")
+    utils::tar(emptyArchive, "readme.txt", compression = "gzip")
+  })
+
+  expect_error(pucCreate(emptyArchive), "does not look like it was")
+})
+
 # Starts a sub-process which acquires the lock for the given puc via .withLockedPuc and holds it
 # until releaseFile shows up. It prints "acquired" once it is inside the critical section and
 # "released" once it has left it again.
