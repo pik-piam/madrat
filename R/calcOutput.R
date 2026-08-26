@@ -112,6 +112,10 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
                        ..., outputStatistics = NULL) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
+  # a top-level call is one which is not nested in another calcOutput call, so this
+  # has to be read before the wrapper is activated for the current call
+  isTopLevelCall <- !isWrapperActive("calcOutput")
+
   setWrapperActive("calcOutput")
   setWrapperInactive("wrapperChecks")
 
@@ -261,6 +265,13 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   if (is.null(getOption("gdt_nestinglevel"))) {
     vcat(-2, "")
+  }
+
+  # deferred handlers run in reverse order of registration, so registering this before
+  # toolendmessage makes the memory report show up after the corresponding exit message
+  if (isTopLevelCall && isTRUE(getConfig("memoryProfiling", raw = TRUE))) {
+    memoryStart <- startMemoryProfiling()
+    defer(reportMemoryProfiling(memoryStart, callString))
   }
 
   startinfo <- toolstartmessage(callString, "+")

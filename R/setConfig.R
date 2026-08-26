@@ -71,6 +71,16 @@
 #' debug=TRUE will add the suffix "debug" to the files created to avoid there use in productive runs.
 #' Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file
 #' already exists.
+#' @param memoryProfiling Boolean which activates memory profiling. If active, every top-level
+#' \code{\link{calcOutput}} call (a call which is not nested in another \code{\link{calcOutput}} call,
+#' i.e. a call made directly by a full-function) reports the memory usage of that processing stage
+#' to the log: the peak memory usage during the stage as well as the usage before and after it.
+#' The reported numbers are the resident set size of the whole R process as recorded by the kernel,
+#' so any other data held in the same session is counted as well. A stage which is served from cache
+#' reports the cost of loading the cache file rather than the cost of the original calculation.
+#' This feature requires the Linux /proc interface; on other systems setting it warns and no memory is reported.
+#' Note that madrat resets the kernel's peak counter at the beginning of each stage, so the peak
+#' usage of the full run is the maximum of the reported per-stage peaks.
 #' @param maxLengthLogMessage in log messages evaluated arguments are printed if the resulting message
 #' is shorter than this value, otherwise arguments are shown as passed, potentially with unevaluated variable names
 #' @param redirections A list of source folder redirections, intended to be set
@@ -117,6 +127,7 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
                       hash = NULL,
                       diagnostics = NULL,
                       debug = NULL,
+                      memoryProfiling = NULL,
                       maxLengthLogMessage = NULL,
                       redirections = NULL,
                       .cfgchecks = TRUE,
@@ -181,6 +192,10 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
 
   if (!is.null(cacheformat) && .cfgchecks) {
     cacheFormat(cacheformat)
+  }
+
+  if (isTRUE(memoryProfiling) && .cfgchecks && !memoryProfilingSupported()) {
+    warning("Memory profiling requires the Linux /proc interface and will be skipped on this system.")
   }
 
   args <- names(formals(setConfig))
