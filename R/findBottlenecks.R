@@ -19,51 +19,18 @@
 #' @family analysis
 #' @export
 findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
-  if (length(file) > 1 || any(grepl("\n", file))) {
-    f <- unlist(strsplit(file, "\n"))
-  } else {
-    f <- readLines(file)
-  }
-
-  f <- .mergeSplitLogLines(f)
-
-  # Determine which lines belong to which retrieveData call.
-  block <- .retrieveDataBlocks(f)
-
-  # Only use the ends of blocks, nesting information is included in the prefix of each line.
-  keep <- grepl("in [0-9.]* seconds", f)
-  block <- block[keep]
-  f <- f[keep]
-
-  if (length(f) == 0) {
+  x <- .parseMadratLog(file)
+  # Only Exit records carry a runtime; Run and [memory] records are not needed here.
+  x <- x[!is.na(x$"time[s]"), , drop = FALSE]
+  if (nrow(x) == 0) {
     warning("No function calls with runtime information could be detected in the log!")
     return(stats::setNames(list(), character(0)))
   }
 
-  x <- data.frame(level = nchar(gsub("^(~*).*$", "\\1", f)))
-  x$class <- NA
-  x$class[grepl("readSource", f)] <- "read"
-  x$class[grepl("downloadSource", f)] <- "download"
-  x$class[grepl("calcOutput", f)] <- "calc"
-  x$class[grepl("retrieveData", f)] <- "retrieve"
-  if (anyNA(x$class)) {
-    warning("Some classes could not be properly detected!")
-    x$class[is.na(x$class)] <- "unknown"
-  }
-  x$level[x$class == "retrieve"] <- -1
-  x$type <- gsub("([\"= ]|type)", "", gsub("^[^(]*\\(([^,)]*)[),].*$", "\\1", f))
-  x$"time[s]" <- as.numeric(gsub("^.* in ([0-9.]*) seconds.*$", "\\1", f)) # nolint
-
-  out <- list()
-  for (id in sort(unique(block[!is.na(block)]))) {
-    rows <- which(block == id)
-    type <- x$type[rows][x$class[rows] == "retrieve"]
-    out[[type]] <- .analyzeBottlenecks(x[rows, , drop = FALSE], type, unit, cumulative)
-  }
-
-  standaloneRows <- which(is.na(block))
-  if (length(standaloneRows) > 0) {
-    out[["standalone"]] <- .analyzeBottlenecks(x[standaloneRows, , drop = FALSE], "standalone", unit, cumulative)
+  segments <- .splitLogByRetrieve(x)
+  out <- stats::setNames(list(), character(0))
+  for (type in names(segments)) {
+    out[[type]] <- .analyzeBottlenecks(segments[[type]], type, unit, cumulative)
   }
   return(out)
 }
@@ -120,73 +87,6 @@ findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
     x$"net[s]" <- NULL # nolint
   }
 
-  x <- x[c(1:3, grep("time", names(x)), grep("net", names(x)))]
+  x <- x[c("level", "class", "type", grep("time", names(x), value = TRUE), grep("net", names(x), value = TRUE))]
   return(x)
-}
-
-.retrieveDataBlocks <- function(f) {
-  # Assigns each line to the retrieveData block it belongs to (an integer id, in order of
-  # appearance), or NA outside any block. retrieveData is never called from within another
-  # madrat call, so blocks cannot be nested. If an Exit has no matching Run (e.g. a truncated
-  # or pre-marker log), the block is assumed to start right after the previous one (or at line 1).
-  isOpen  <- grepl("^~*\\s*Run\\s+retrieveData\\(", f)
-  isClose <- grepl("^~*\\s*Exit\\s+retrieveData\\(.*in [0-9.]* seconds", f)
-
-  block <- rep(NA_integer_, length(f))
-  blockId <- 0L
-  openLine <- NA_integer_
-  lastClose <- 0L
-  for (i in seq_along(f)) {
-    if (isOpen[i]) {
-      openLine <- i
-    } else if (isClose[i]) {
-      blockId <- blockId + 1L
-      start <- if (!is.na(openLine)) openLine else lastClose + 1L
-      block[start:i] <- blockId
-      openLine <- NA_integer_
-      lastClose <- i
-    }
-  }
-  return(block)
-}
-
-.mergeSplitLogLines <- function(f) {
-  # Rejoin log entries split across lines when they exceed maxLengthLogMessage. An "Exit"
-  # record is complete once it contains "in ... seconds"; a "Run" record is complete once the
-  # called function's name and opening parenthesis appear. This is only ever called on lines
-  # (or accumulated fragments) starting with "Run" or "Exit", so exactly one of the two below
-  # branches always applies.
-  .isCompleteRecord <- function(line) {
-    if (grepl("^~*\\s*Exit\\b", line)) return(grepl("in [0-9.]* seconds", line))
-    return(grepl("^~*\\s*Run\\s+[[:alpha:]._][[:alnum:]._]*\\(", line))
-  }
-
-  acc <- NULL
-  accPrefix <- NULL
-  allLines <- character(0)
-  for (line in f) {
-    prefix <- regmatches(line, regexpr("^~*", line))
-    if (!is.null(acc) && accPrefix == prefix) {
-      rest <- trimws(sub("^~*\\s*", "", line))
-      acc <- paste(trimws(acc), rest)
-      if (.isCompleteRecord(acc)) {
-        # We have hit the end of a Run/Exit record, stop accumulation
-        allLines <- c(allLines, acc)
-        acc <- NULL
-        accPrefix <- NULL
-      }
-    } else {
-      if (!is.null(acc)) allLines <- c(allLines, acc)
-      if (grepl("^~*\\s*(Run|Exit)\\b", line) && !.isCompleteRecord(line)) {
-        acc <- line
-        accPrefix <- prefix
-      } else {
-        allLines <- c(allLines, line)
-        acc <- NULL
-        accPrefix <- NULL
-      }
-    }
-  }
-  if (!is.null(acc)) allLines <- c(allLines, acc)
-  return(allLines)
 }

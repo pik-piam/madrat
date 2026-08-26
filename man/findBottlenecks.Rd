@@ -28,6 +28,10 @@ Analyzes a log from a retrieveData run or from a script calling calcOutput()/rea
 directly, extracts runtime information for all called functions and identifies most
 critical bottlenecks.
 }
+\seealso{
+Other analysis:
+\code{\link[=findMemoryBottlenecks]{findMemoryBottlenecks()}}
+}
 \author{
 Jan Philipp Dietrich
 }
