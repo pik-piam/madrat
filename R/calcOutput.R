@@ -112,8 +112,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
                        ..., outputStatistics = NULL) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
 
-  # a top-level call is one which is not nested in another calcOutput call, so this
-  # has to be read before the wrapper is activated for the current call
+  # Needs to be read before the wrapper is activated for the current call
   isTopLevelCall <- !isWrapperActive("calcOutput")
 
   setWrapperActive("calcOutput")
@@ -271,7 +270,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   # toolendmessage makes the memory report show up after the corresponding exit message
   if (isTopLevelCall && isTRUE(getConfig("memoryProfiling", raw = TRUE))) {
     memoryStart <- startMemoryProfiling()
-    defer(reportMemoryProfiling(memoryStart, callString))
+    withr::defer({
+      reportMemoryProfiling(memoryStart, callString)
+    })
   }
 
   startinfo <- toolstartmessage(callString, "+")

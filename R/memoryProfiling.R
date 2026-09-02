@@ -41,7 +41,6 @@ getProcMemory <- function() {
 #' @seealso \code{\link{reportMemoryProfiling}}
 #' @keywords internal
 startMemoryProfiling <- function() {
-  # setConfig already warns when memory profiling is switched on without kernel support
   if (!memoryProfilingSupported()) return(NULL)
   # writing 5 to clear_refs sets the peak (VmHWM) back to the current usage (VmRSS)
   base::cat("5\n", file = "/proc/self/clear_refs") # nolint: absolute_path_linter.
@@ -64,7 +63,7 @@ reportMemoryProfiling <- function(start, callString) {
   memory <- getProcMemory()
   .mb <- function(kb) return(round(kb / 1024))
   # pasted into one string so cat's fill-wrapping (which only ever breaks between arguments,
-  # never inside one) cannot split the entry across log lines; log analysis relies on that
+  # never inside one) cannot split the entry across log lines; makes log analysis easier
   entry <- paste0("[memory] ", callString, ": ",
                   "peak ", .mb(memory[["peak"]]), " MB | ",
                   "start ", .mb(start), " MB | ",
