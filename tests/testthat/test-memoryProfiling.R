@@ -23,7 +23,7 @@ allocateBallast <- function() {
 
 localProfiling <- function(env = parent.frame()) {
   testthat::skip_if_not(memoryProfilingSupported(), "requires the Linux /proc interface")
-  setConfig(verbosity = 1, memoryProfiling = TRUE, .verbose = FALSE, .local = env)
+  setConfig(verbosity = 1, memoryprofiling = TRUE, .verbose = FALSE, .local = env)
 }
 
 test_that("getProcMemory returns plausible values", {
@@ -51,12 +51,12 @@ test_that("reportMemoryProfiling does nothing without a profile", {
 
 test_that("setConfig warns if memory profiling is unsupported", {
   local_mocked_bindings(memoryProfilingSupported = function() return(FALSE))
-  expect_warning(localConfig(memoryProfiling = TRUE, .verbose = FALSE), "Linux /proc interface")
+  expect_warning(localConfig(memoryprofiling = TRUE, .verbose = FALSE), "Linux /proc interface")
 })
 
 test_that("nothing is reported if memory profiling is unsupported", {
   local_mocked_bindings(memoryProfilingSupported = function() return(FALSE))
-  localConfig(verbosity = 1, memoryProfiling = TRUE, .verbose = FALSE, .cfgchecks = FALSE)
+  localConfig(verbosity = 1, memoryprofiling = TRUE, .verbose = FALSE, .cfgchecks = FALSE)
   calcMemUnsupported <- function() return(memoryPayload("MemUnsupported"))
   globalassign("calcMemUnsupported")
 
