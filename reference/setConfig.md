@@ -32,7 +32,7 @@ setConfig(
   hash = NULL,
   diagnostics = NULL,
   debug = NULL,
-  memoryProfiling = NULL,
+  memoryprofiling = NULL,
   maxLengthLogMessage = NULL,
   redirections = NULL,
   .cfgchecks = TRUE,
@@ -181,7 +181,7 @@ localConfig(...)
   calculations will be rerun even if a corresponding tgz file already
   exists.
 
-- memoryProfiling:
+- memoryprofiling:
 
   Boolean which activates memory profiling. If active, every top-level
   [`calcOutput`](calcOutput.md) call reports its memory usage to the

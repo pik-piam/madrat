@@ -56,7 +56,7 @@ madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historica
 #>     packages = madrat
 #>     globalenv = FALSE
 #>     verbosity = 1
-#>     mainfolder = /tmp/RtmpAE9h8d/madrat
+#>     mainfolder = /tmp/RtmpkWXi74/madrat
 #>     sourcefolder = NA
 #>     cachefolder = NA
 #>     mappingfolder = NA
@@ -71,7 +71,7 @@ madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historica
 #>     hash = xxhash32
 #>     diagnostics = FALSE
 #>     debug = FALSE
-#>     memoryProfiling = FALSE
+#>     memoryprofiling = FALSE
 #>     maxLengthLogMessage = 200
 #> ..done!
 #> [1] "-50d72f51"
