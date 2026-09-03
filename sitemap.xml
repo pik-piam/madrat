@@ -42,6 +42,7 @@
 <url><loc>/reference/getMadratMessage.html</loc></url>
 <url><loc>/reference/getMainfolder.html</loc></url>
 <url><loc>/reference/getNonDefaultArguments.html</loc></url>
+<url><loc>/reference/getProcMemory.html</loc></url>
 <url><loc>/reference/getSourceFolder.html</loc></url>
 <url><loc>/reference/getSources.html</loc></url>
 <url><loc>/reference/index.html</loc></url>
@@ -51,6 +52,7 @@
 <url><loc>/reference/madTempDir.html</loc></url>
 <url><loc>/reference/madrat-package.html</loc></url>
 <url><loc>/reference/madratAttach.html</loc></url>
+<url><loc>/reference/memoryProfilingSupported.html</loc></url>
 <url><loc>/reference/metadataGFZ.html</loc></url>
 <url><loc>/reference/prepComment.html</loc></url>
 <url><loc>/reference/prepExtendedComment.html</loc></url>
@@ -64,11 +66,13 @@
 <url><loc>/reference/redirectTau.html</loc></url>
 <url><loc>/reference/regionscode.html</loc></url>
 <url><loc>/reference/registerCacheFormat.html</loc></url>
+<url><loc>/reference/reportMemoryProfiling.html</loc></url>
 <url><loc>/reference/resetMadratMessages.html</loc></url>
 <url><loc>/reference/retrieveData.html</loc></url>
 <url><loc>/reference/returnCalcOutput.html</loc></url>
 <url><loc>/reference/robustOrder.html</loc></url>
 <url><loc>/reference/setConfig.html</loc></url>
+<url><loc>/reference/startMemoryProfiling.html</loc></url>
 <url><loc>/reference/toolAggregate.html</loc></url>
 <url><loc>/reference/toolCodeLabels.html</loc></url>
 <url><loc>/reference/toolCompareStatusLogs.html</loc></url>
