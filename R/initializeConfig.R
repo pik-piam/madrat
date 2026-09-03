@@ -39,7 +39,7 @@ initializeConfig <- function(verbose = TRUE) {
                 hash                 = "xxhash32",
                 diagnostics          = FALSE,
                 debug                = FALSE,
-                memoryProfiling      = FALSE,
+                memoryprofiling      = isTRUE(as.logical(Sys.getenv("MADRAT_MEMORYPROFILING", unset = FALSE))),
                 maxLengthLogMessage = 200)
     options(madrat_cfg = cfg) # nolint
     if (verbose) {

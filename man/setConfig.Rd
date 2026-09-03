@@ -28,7 +28,7 @@ setConfig(
   hash = NULL,
   diagnostics = NULL,
   debug = NULL,
-  memoryProfiling = NULL,
+  memoryprofiling = NULL,
   maxLengthLogMessage = NULL,
   redirections = NULL,
   .cfgchecks = TRUE,
@@ -126,7 +126,7 @@ debug=TRUE will add the suffix "debug" to the files created to avoid there use i
 Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file
 already exists.}
 
-\item{memoryProfiling}{Boolean which activates memory profiling. If active, every top-level
+\item{memoryprofiling}{Boolean which activates memory profiling. If active, every top-level
 \code{\link{calcOutput}} call reports its memory usage to the log: the peak memory usage during
 the stage as well as the usage before and after it. The reported numbers are the resident set size of
 the R process as recorded by the kernel, so any other data held in the same session is counted as well.

@@ -268,7 +268,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   # deferred handlers run in reverse order of registration, so registering this before
   # toolendmessage makes the memory report show up after the corresponding exit message
-  if (isTopLevelCall && isTRUE(getConfig("memoryProfiling", raw = TRUE))) {
+  if (isTopLevelCall && isTRUE(getConfig("memoryprofiling", raw = TRUE))) {
     memoryStart <- startMemoryProfiling()
     withr::defer({
       reportMemoryProfiling(memoryStart, callString)
