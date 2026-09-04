@@ -59,7 +59,9 @@
 #' package). Further formats can be added via \code{\link{registerCacheFormat}}. Cache files
 #' are written in the configured format, but an already existing rds file is still read if no
 #' file in the configured format exists.
-#' Can also be set via the environment variable \code{MADRAT_CACHEFORMAT}.
+#' Can also be set via the environment variable \code{MADRAT_CACHEFORMAT}. Selecting a format
+#' whose required package (see \code{\link{registerCacheFormat}}) is not installed is an error,
+#' both when set via this argument and via the environment variable.
 #' @param hash specifies the used hashing algorithm. Default is "xxhash32" and
 #' all algorithms supported by \code{\link[digest]{digest}} can be used.
 #' @param diagnostics Either FALSE (default) to avoid the creation of additional
@@ -189,7 +191,7 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
   }
 
   if (!is.null(cacheformat) && .cfgchecks) {
-    cacheFormat(cacheformat)
+    checkCacheFormatAvailable(cacheformat)
   }
 
   if (isTRUE(memoryprofiling) && .cfgchecks && !memoryProfilingSupported()) {
