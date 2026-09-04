@@ -34,7 +34,13 @@ getMadratGraph <- function(packages = installedMadratUniverse(), globalenv = get
         globalenv <- FALSE
       }
     }
-    return(paste0("GH", digest::digest(c(mtimes, robustSort(packages), globalenv), algo = getConfig("hash"))))
+    # the "mappings" attribute of the graph is resolved by .getMappingFiles() (see getCode)
+    # against the mapping configuration active at build time. Reusing a cached graph after
+    # that configuration changed yields stale mapping paths, which propagate into
+    # fingerprint() and therefore into the cache file names of all dependent calculations.
+    mappingConfig <- c(getConfig("regionmapping"), getConfig("extramappings"), getConfig("mappingfolder"))
+    return(paste0("GH", digest::digest(c(mtimes, robustSort(packages), globalenv,
+                                         robustSort(mappingConfig)), algo = getConfig("hash"))))
   }
 
   gHash <- .graphHash(packages, globalenv)
