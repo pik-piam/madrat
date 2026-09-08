@@ -15,10 +15,8 @@
 #' @param toRds Optional fast path conversion function(input, output) converting
 #' a cache file of this format to a rds file. This is used when bundling puc files,
 #' which always contain rds files.
-#' @param packages Character vector of packages which must be installed for this format
-#' to be usable, e.g. \code{"qs2"}. Checked by \code{\link{setConfig}} and at startup when
-#' the format is selected, so that a missing package is reported immediately instead of
-#' causing cache writes to silently fail later.
+#' @param packages Names of packages which must be installed for this format,
+#' e.g. \code{"qs2"}. Checked, so that a missing package is reported immediately.
 #' @return Invisibly, the registered format definition.
 #' @author Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{cacheFormats}}
@@ -98,10 +96,8 @@ cacheFormat <- function(name = getConfig("cacheformat")) {
 
 #' @describeIn cacheFormat check that a format's required packages (see
 #' \code{\link{registerCacheFormat}}) are installed. Must be called whenever a cache format is
-#' selected (setConfig, initializeConfig), not from \code{cacheFormat} itself: that one is also
-#' called from within \code{cacheWrite}, where an error would just be swallowed by
-#' \code{cachePut}'s \code{tryCatch}, leaving the silent fallback to rds this check exists to
-#' prevent.
+#' selected (setConfig, initializeConfig). Calling it in \code{\link{cacheFormat}} is not
+#' sufficient, as the error would then be masked by the surrounding cache I/O error handling.
 #' @param hint Optional text appended to the error message, e.g. to point at the
 #' environment variable which caused an unusable format to be selected.
 #' @keywords internal
