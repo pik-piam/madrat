@@ -30,10 +30,8 @@ leading dot). Defaults to \code{name}.}
 a cache file of this format to a rds file. This is used when bundling puc files,
 which always contain rds files.}
 
-\item{packages}{Character vector of packages which must be installed for this format
-to be usable, e.g. \code{"qs2"}. Checked by \code{\link{setConfig}} and at startup when
-the format is selected, so that a missing package is reported immediately instead of
-causing cache writes to silently fail later.}
+\item{packages}{Names of packages which must be installed for this format,
+e.g. \code{"qs2"}. Checked, so that a missing package is reported immediately.}
 }
 \value{
 Invisibly, the registered format definition.

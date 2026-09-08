@@ -25,10 +25,8 @@ Look up a registered cache format definition.
 \itemize{
 \item \code{checkCacheFormatAvailable()}: check that a format's required packages (see
 \code{\link{registerCacheFormat}}) are installed. Must be called whenever a cache format is
-selected (setConfig, initializeConfig), not from \code{cacheFormat} itself: that one is also
-called from within \code{cacheWrite}, where an error would just be swallowed by
-\code{cachePut}'s \code{tryCatch}, leaving the silent fallback to rds this check exists to
-prevent.
+selected (setConfig, initializeConfig). Calling it in \code{\link{cacheFormat}} is not
+sufficient, as the error would then be masked by the surrounding cache I/O error handling.
 
 }}
 \keyword{internal}
