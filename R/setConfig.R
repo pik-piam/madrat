@@ -189,7 +189,7 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
   }
 
   if (!is.null(cacheformat) && .cfgchecks) {
-    cacheFormat(cacheformat)
+    checkCacheFormatAvailable(cacheformat)
   }
 
   if (isTRUE(memoryprofiling) && .cfgchecks && !memoryProfilingSupported()) {

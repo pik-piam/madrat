@@ -41,6 +41,12 @@ initializeConfig <- function(verbose = TRUE) {
                 debug                = FALSE,
                 memoryprofiling      = isTRUE(as.logical(Sys.getenv("MADRAT_MEMORYPROFILING", unset = FALSE))),
                 maxLengthLogMessage = 200)
+
+    hint <- if (nzchar(Sys.getenv("MADRAT_CACHEFORMAT"))) {
+      " Cache format was set via the environment variable MADRAT_CACHEFORMAT."
+    }
+    checkCacheFormatAvailable(cfg$cacheformat, hint = hint)
+
     options(madrat_cfg = cfg) # nolint
     if (verbose) {
       message(paste(paste0("    ", names(cfg)), cfg, sep = " = ", collapse = "\n"))

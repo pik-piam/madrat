@@ -5,7 +5,14 @@
 \alias{cacheFormats}
 \title{registerCacheFormat}
 \usage{
-registerCacheFormat(name, write, read, extension = name, toRds = NULL)
+registerCacheFormat(
+  name,
+  write,
+  read,
+  extension = name,
+  toRds = NULL,
+  packages = NULL
+)
 
 cacheFormats()
 }
@@ -22,6 +29,9 @@ leading dot). Defaults to \code{name}.}
 \item{toRds}{Optional fast path conversion function(input, output) converting
 a cache file of this format to a rds file. This is used when bundling puc files,
 which always contain rds files.}
+
+\item{packages}{Names of packages which must be installed for this format,
+e.g. \code{"qs2"}. Checked, so that a missing package is reported immediately.}
 }
 \value{
 Invisibly, the registered format definition.
@@ -42,7 +52,7 @@ distinct one. Extensions are restricted to alphanumeric characters.
 }}
 \examples{
 \dontrun{
-registerCacheFormat("qs", write = qs::qsave, read = qs::qread)
+registerCacheFormat("qs", write = qs::qsave, read = qs::qread, packages = "qs")
 setConfig(cacheformat = "qs")
 }
 }

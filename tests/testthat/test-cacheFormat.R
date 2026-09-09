@@ -18,6 +18,17 @@ localTestFormat <- function(name = "testformat", extension = "tf", toRds = NULL,
                       })
 }
 
+# register a format whose declared package is not installed, so tests can prove
+# checkCacheFormatAvailable() catches it
+localFormatWithMissingPackage <- function(name = "needspackage", extension = "np",
+                                          .localEnvir = parent.frame()) {
+  withr::local_options(madrat_cacheformats = getOption("madrat_cacheformats"),
+                       .local_envir = .localEnvir)
+  noop <- function(x, file) NULL
+  registerCacheFormat(name, extension = extension, write = noop, read = noop,
+                      packages = "thisPackageIsNotInstalled")
+}
+
 test_that("built-in cache formats are available and rds is the default", {
   expect_true(all(c("rds", "qs2") %in% cacheFormats()))
   expect_identical(cacheFormat("rds")$extension, "rds")
@@ -57,6 +68,32 @@ test_that("setConfig rejects a cacheformat which is not registered", {
   expect_error(setConfig(cacheformat = c("rds", "rds"), .verbose = FALSE), "Unknown cache format")
   # unchanged after all those failures
   expect_identical(getConfig("cacheformat"), before)
+})
+
+test_that("setConfig rejects a cacheformat whose declared package is not installed", {
+  localFormatWithMissingPackage()
+
+  before <- getConfig("cacheformat")
+  expect_error(setConfig(cacheformat = "needspackage", .verbose = FALSE),
+               "needspackage.*thisPackageIsNotInstalled.*not installed")
+  expect_identical(getConfig("cacheformat"), before)
+
+  # .cfgchecks = FALSE bypasses the check, same as it bypasses the "unknown format" check
+  expect_silent(setConfig(cacheformat = "needspackage", .cfgchecks = FALSE, .verbose = FALSE))
+  expect_identical(getConfig("cacheformat"), "needspackage")
+
+  # a format without declared packages (like the builtin "rds") is unaffected
+  setConfig(cacheformat = before, .verbose = FALSE)
+  expect_silent(setConfig(cacheformat = "rds", .verbose = FALSE))
+})
+
+test_that("initializeConfig rejects MADRAT_CACHEFORMAT when its package is not installed", {
+  localFormatWithMissingPackage()
+
+  withr::local_options(madrat_cfg = NULL)
+  withr::local_envvar(MADRAT_CACHEFORMAT = "needspackage")
+  expect_error(initializeConfig(verbose = FALSE),
+               "needspackage.*thisPackageIsNotInstalled.*not installed.*MADRAT_CACHEFORMAT")
 })
 
 test_that("a cache format which cannot be used fails softly", {

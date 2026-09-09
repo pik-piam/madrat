@@ -2,12 +2,18 @@
 % Please edit documentation in R/cacheFormat.R
 \name{cacheFormat}
 \alias{cacheFormat}
+\alias{checkCacheFormatAvailable}
 \title{cacheFormat}
 \usage{
 cacheFormat(name = getConfig("cacheformat"))
+
+checkCacheFormatAvailable(name, hint = NULL)
 }
 \arguments{
 \item{name}{Name of the format, defaults to the currently configured one.}
+
+\item{hint}{Optional text appended to the error message, e.g. to point at the
+environment variable which caused an unusable format to be selected.}
 }
 \value{
 The format definition, with the format name added as element "name".
@@ -15,4 +21,12 @@ The format definition, with the format name added as element "name".
 \description{
 Look up a registered cache format definition.
 }
+\section{Functions}{
+\itemize{
+\item \code{checkCacheFormatAvailable()}: check that a format's required packages (see
+\code{\link{registerCacheFormat}}) are installed. Must be called whenever a cache format is
+selected (setConfig, initializeConfig). Calling it in \code{\link{cacheFormat}} is not
+sufficient, as the error would then be masked by the surrounding cache I/O error handling.
+
+}}
 \keyword{internal}

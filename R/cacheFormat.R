@@ -15,17 +15,19 @@
 #' @param toRds Optional fast path conversion function(input, output) converting
 #' a cache file of this format to a rds file. This is used when bundling puc files,
 #' which always contain rds files.
+#' @param packages Names of packages which must be installed for this format,
+#' e.g. \code{"qs2"}. Checked, so that a missing package is reported immediately.
 #' @return Invisibly, the registered format definition.
 #' @author Patrick Rein
 #' @seealso \code{\link{setConfig}}, \code{\link{cacheFormats}}
 #' @family cache management
 #' @examples
 #' \dontrun{
-#' registerCacheFormat("qs", write = qs::qsave, read = qs::qread)
+#' registerCacheFormat("qs", write = qs::qsave, read = qs::qread, packages = "qs")
 #' setConfig(cacheformat = "qs")
 #' }
 #' @export
-registerCacheFormat <- function(name, write, read, extension = name, toRds = NULL) {
+registerCacheFormat <- function(name, write, read, extension = name, toRds = NULL, packages = NULL) {
   # a "-" would confuse the cache file name parsing in cacheNames
   # a "." would confuse the stem handling when converting to rds for puc files
   if (grepl("[^A-Za-z0-9]", extension)) {
@@ -40,7 +42,7 @@ registerCacheFormat <- function(name, write, read, extension = name, toRds = NUL
   }
 
   formats <- getOption("madrat_cacheformats", default = list())
-  formats[[name]] <- list(extension = extension, write = write, read = read, toRds = toRds)
+  formats[[name]] <- list(extension = extension, write = write, read = read, toRds = toRds, packages = packages)
   options(madrat_cacheformats = formats) # nolint
   return(invisible(formats[[name]]))
 }
@@ -61,7 +63,8 @@ cacheFormats <- function() {
   qs2 <- list(extension = "qs2",
               write = function(x, file) qs2::qs_save(x, file = file),
               read = function(file) qs2::qs_read(file),
-              toRds = function(input, output) qs2::qs_to_rds(input, output))
+              toRds = function(input, output) qs2::qs_to_rds(input, output),
+              packages = "qs2")
   return(list(rds = rds, qs2 = qs2))
 }
 
@@ -89,6 +92,23 @@ cacheFormat <- function(name = getConfig("cacheformat")) {
   format <- formats[[name]]
   format$name <- name
   return(format)
+}
+
+#' @describeIn cacheFormat check that a format's required packages (see
+#' \code{\link{registerCacheFormat}}) are installed. Must be called whenever a cache format is
+#' selected (setConfig, initializeConfig). Calling it in \code{\link{cacheFormat}} is not
+#' sufficient, as the error would then be masked by the surrounding cache I/O error handling.
+#' @param hint Optional text appended to the error message, e.g. to point at the
+#' environment variable which caused an unusable format to be selected.
+#' @keywords internal
+checkCacheFormatAvailable <- function(name, hint = NULL) {
+  format <- cacheFormat(name) # errors on unknown names
+  missing <- Filter(function(p) !requireNamespace(p, quietly = TRUE), format$packages)
+  if (length(missing) > 0) {
+    stop("Cache format \"", name, "\" requires the package(s) \"",
+         paste(missing, collapse = "\", \""), "\", which are not installed.", hint)
+  }
+  return(invisible(format))
 }
 
 # file extensions to look for when searching a cache file, in order of preference:
