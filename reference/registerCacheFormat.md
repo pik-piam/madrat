@@ -7,7 +7,14 @@ via `setConfig(cacheformat = ...)`. The formats "rds" (the default) and
 ## Usage
 
 ``` r
-registerCacheFormat(name, write, read, extension = name, toRds = NULL)
+registerCacheFormat(
+  name,
+  write,
+  read,
+  extension = name,
+  toRds = NULL,
+  packages = NULL
+)
 
 cacheFormats()
 ```
@@ -36,6 +43,11 @@ cacheFormats()
   Optional fast path conversion function(input, output) converting a
   cache file of this format to a rds file. This is used when bundling
   puc files, which always contain rds files.
+
+- packages:
+
+  Names of packages which must be installed for this format, e.g.
+  `"qs2"`. Checked, so that a missing package is reported immediately.
 
 ## Value
 
@@ -66,7 +78,7 @@ Patrick Rein
 
 ``` r
 if (FALSE) { # \dontrun{
-registerCacheFormat("qs", write = qs::qsave, read = qs::qread)
+registerCacheFormat("qs", write = qs::qsave, read = qs::qread, packages = "qs")
 setConfig(cacheformat = "qs")
 } # }
 ```

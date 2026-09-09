@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.41.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.41.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,9 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">cacheFormat</span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="getConfig.html">getConfig</a></span><span class="op">(</span><span class="st">"cacheformat"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">cacheFormat</span><span class="op">(</span>name <span class="op">=</span> <span class="fu"><a href="getConfig.html">getConfig</a></span><span class="op">(</span><span class="st">"cacheformat"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">checkCacheFormatAvailable</span><span class="op">(</span><span class="va">name</span>, hint <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -54,11 +56,24 @@
 <dl><dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
 <dd><p>Name of the format, defaults to the currently configured one.</p></dd>
 
+
+<dt id="arg-hint">hint<a class="anchor" aria-label="anchor" href="#arg-hint"></a></dt>
+<dd><p>Optional text appended to the error message, e.g. to point at the
+environment variable which caused an unusable format to be selected.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The format definition, with the format name added as element "name".</p>
     </div>
+    <div class="section level2">
+    <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
+
+<ul><li><p><code>checkCacheFormatAvailable()</code>: check that a format's required packages (see
+<code><a href="registerCacheFormat.html">registerCacheFormat</a></code>) are installed. Must be called whenever a cache format is
+selected (setConfig, initializeConfig). Calling it in <code>cacheFormat</code> is not
+sufficient, as the error would then be masked by the surrounding cache I/O error handling.</p></li>
+</ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

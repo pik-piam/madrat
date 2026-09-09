@@ -11,7 +11,7 @@ setConfig(cacheformat = ...). The formats "rds" (the default) and
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.41.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.41.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,14 @@ setConfig(cacheformat = ...). The formats "rds" (the default) and
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">registerCacheFormat</span><span class="op">(</span><span class="va">name</span>, <span class="va">write</span>, <span class="va">read</span>, extension <span class="op">=</span> <span class="va">name</span>, toRds <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">registerCacheFormat</span><span class="op">(</span></span>
+<span>  <span class="va">name</span>,</span>
+<span>  <span class="va">write</span>,</span>
+<span>  <span class="va">read</span>,</span>
+<span>  extension <span class="op">=</span> <span class="va">name</span>,</span>
+<span>  toRds <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  packages <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">cacheFormats</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -80,6 +87,11 @@ leading dot). Defaults to <code>name</code>.</p></dd>
 <dd><p>Optional fast path conversion function(input, output) converting
 a cache file of this format to a rds file. This is used when bundling puc files,
 which always contain rds files.</p></dd>
+
+
+<dt id="arg-packages">packages<a class="anchor" aria-label="anchor" href="#arg-packages"></a></dt>
+<dd><p>Names of packages which must be installed for this format,
+e.g. <code>"qs2"</code>. Checked, so that a missing package is reported immediately.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -111,7 +123,7 @@ distinct one. Extensions are restricted to alphanumeric characters.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu">registerCacheFormat</span><span class="op">(</span><span class="st">"qs"</span>, write <span class="op">=</span> <span class="fu">qs</span><span class="fu">::</span><span class="va">qsave</span>, read <span class="op">=</span> <span class="fu">qs</span><span class="fu">::</span><span class="va">qread</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">registerCacheFormat</span><span class="op">(</span><span class="st">"qs"</span>, write <span class="op">=</span> <span class="fu">qs</span><span class="fu">::</span><span class="va">qsave</span>, read <span class="op">=</span> <span class="fu">qs</span><span class="fu">::</span><span class="va">qread</span>, packages <span class="op">=</span> <span class="st">"qs"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="setConfig.html">setConfig</a></span><span class="op">(</span>cacheformat <span class="op">=</span> <span class="st">"qs"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
