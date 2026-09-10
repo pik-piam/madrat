@@ -112,6 +112,20 @@ test_that("nested calcOutput calls are not profiled", {
   expect_match(lines, "calcOutput(type = \"MemOuter\"", fixed = TRUE)
 })
 
+test_that("findMemoryBottlenecks can parse a real memory profiling log line", {
+  localProfiling()
+  calcMemRoundtrip <- function() return(memoryPayload("MemRoundtrip"))
+  globalassign("calcMemRoundtrip")
+
+  messages <- capture_messages(calcOutput("MemRoundtrip", aggregate = FALSE))
+  log <- c(messages, 'Exit retrieveData(model = "Test") in 1 seconds') # nolint: quotes_linter.
+
+  bottlenecks <- suppressMessages(findMemoryBottlenecks(log))
+  expect_named(bottlenecks, "modelTest")
+  expect_equal(bottlenecks[["modelTest"]]$type, "MemRoundtrip")
+  expect_equal(bottlenecks[["modelTest"]]$"peak[MB]", memoryValues(memoryLines(messages))[["peak"]])
+})
+
 test_that("a long call string does not split the memory line across log lines", {
   localProfiling()
   setConfig(maxLengthLogMessage = 5000, .verbose = FALSE)
