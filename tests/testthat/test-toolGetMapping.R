@@ -39,6 +39,14 @@ test_that("toolGetMapping works", {
   expect_error(toolGetMapping("test.rda", where = "mappingfolder"), "did not contain an object")
   expect_error(toolGetMapping("test.xyz"), "Unsupported filetype")
 
+  # a name which already is a path to an existing file must resolve directly, without being
+  # re-resolved against "where" (e.g. getConfig("regionmapping") can be normalized to an
+  # absolute path by setConfig, see calcOutput's regionmapping argument)
+  absPath <- normalizePath(paste0(getConfig("mappingfolder"), "/test.csv"))
+  expect_identical(toolGetMapping(absPath, type = "regional", where = "mappingfolder", returnPathOnly = TRUE),
+                   absPath)
+  expect_identical(toolGetMapping(absPath, where = "madrat"), toolGetMapping("test.csv", where = "mappingfolder"))
+
   readTest <- function() {
     toolGetMapping("regionmappingH12.csv", type = "regional")
     return(as.magpie(1))

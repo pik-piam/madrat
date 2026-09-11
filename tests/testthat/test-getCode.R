@@ -23,3 +23,26 @@ test_that("getCode works", {
  rm(list = c("calcTauTotal", "calcFlagTest"), envir = .GlobalEnv)
  expect_null(attr(getCode(NULL, TRUE), "flags"))
 })
+
+test_that("getCode resolves mapping names that are already absolute paths", {
+  localConfig(verbosity = 1, .verbose = FALSE)
+  dir.create(getConfig("mappingfolder"), recursive = TRUE, showWarnings = FALSE)
+
+  # mirrors mrmagpie:::toolApplyRegionNames, which looks up getConfig("regionmapping")
+  # via where = "mappingfolder" even though setConfig may have normalized it to an
+  # absolute path already (e.g. when calcOutput's regionmapping argument points at a
+  # file outside the mappingfolder)
+  toolRegionNamesTest <- function() {
+    toolGetMapping(type = "regional", where = "mappingfolder", name = getConfig("regionmapping"))
+  }
+  globalassign("toolRegionNamesTest")
+
+  mappingPath <- file.path(getConfig("mappingfolder"), "regionmappingTest.csv")
+  writeLines("CountryCode,RegionCode\nDEU,EUR", mappingPath)
+  localConfig(regionmapping = mappingPath, .verbose = FALSE)
+
+  expect_silent(a <- getCode("madrat"))
+  expected <- toolGetMapping(type = "regional", where = "mappingfolder",
+                             name = getConfig("regionmapping"), returnPathOnly = TRUE)
+  expect_identical(attr(a, "mappings")[["toolRegionNamesTest"]], expected)
+})
