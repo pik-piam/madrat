@@ -50,13 +50,18 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
 }
 
 .searchName <- function(name, type, where, activecalc) {
+  # a name which already is an absolute path to an existing file (e.g. getConfig("regionmapping")
+  # after setConfig normalized it) must not be resolved against a folder again
+  if (.isNonLocalFilePath(name) && .isExistingFilePath(name)) {
+    return(name)
+  }
   if (is.null(where)) {
     fname <- .searchNameLocal(name, type = type)
-    if (file.exists(as.character(fname))) {
+    if (.isExistingFilePath(fname)) {
       return(fname)
     }
     fname <- .searchNameMappingFolder(name, type = type)
-    if (file.exists(as.character(fname))) {
+    if (.isExistingFilePath(fname)) {
       return(fname)
     }
 
@@ -81,6 +86,16 @@ toolGetMapping <- function(name, type = NULL, where = NULL,
   } else {
     return(.searchNamePackage(name = name, type = type, packageName = where))
   }
+}
+
+.isNonLocalFilePath <- function(name) {
+  name <- as.character(name)
+  return(length(name) == 1 && basename(name) != name)
+}
+
+.isExistingFilePath <- function(name) {
+  name <- as.character(name)
+  return(file.exists(name) && !dir.exists(name))
 }
 
 .searchNameLocal <- function(name, type) {
