@@ -19,7 +19,7 @@ library(madrat, quietly = TRUE)
 #> 
 #>     pmax, pmin
 getConfig("cachefolder", verbose = FALSE)
-#> [1] "/tmp/Rtmp23f24R/madrat/cache/default"
+#> [1] "/tmp/Rtmp9lloj7/madrat/cache/default"
 ```
 
 When running data processing via `retrieveData` it currently offers two
