@@ -4,7 +4,7 @@
 \alias{compareData}
 \title{compareData}
 \usage{
-compareData(x, y, tolerance = 10^-5, yearLim = NULL)
+compareData(x, y, tolerance = 10^-5, yearLim = NULL, detailed = FALSE)
 }
 \arguments{
 \item{x}{Either a tgz file or a folder containing data sets}
@@ -16,6 +16,18 @@ get ignored}
 
 \item{yearLim}{year until when the comparison should be performed.
 Useful to check if data is identical until a certain year.}
+
+\item{detailed}{if TRUE, files that differ are additionally broken down into
+storage/reassociation noise, zero-flips (one side exactly 0, the other dust --
+see the "zero-flip" note in the printed report), and genuine differences. This
+is purely diagnostic: it never changes the OK/DIFF verdict, which is still
+governed by \code{tolerance} alone. Both files are held in memory at once, same
+as the rest of \code{compareData}, so this is not suitable for very large files.}
+}
+\value{
+Invisibly, a list with the ok/skip/diff/miss counts, the file lists, and
+(if \code{detailed = TRUE}) a \code{details} list of per-file difference
+statistics keyed by file name.
 }
 \description{
 Compares the content of two data archives and looks for similarities and differences
