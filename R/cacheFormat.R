@@ -94,21 +94,19 @@ cacheFormat <- function(name = getConfig("cacheformat")) {
   return(format)
 }
 
-#' @describeIn cacheFormat check that a format's required packages (see
-#' \code{\link{registerCacheFormat}}) are installed. Must be called whenever a cache format is
-#' selected (setConfig, initializeConfig). Calling it in \code{\link{cacheFormat}} is not
-#' sufficient, as the error would then be masked by the surrounding cache I/O error handling.
-#' @param hint Optional text appended to the error message, e.g. to point at the
-#' environment variable which caused an unusable format to be selected.
+#' @describeIn cacheFormat explain why a format cannot be used (required packages missing),
+#' or return NULL if it can. Must be checked whenever a cache format is selected (setConfig,
+#' initializeConfig). Checking it in \code{\link{cacheFormat}} is not sufficient, as the error
+#' would then be masked by the surrounding cache I/O error handling.
 #' @keywords internal
-checkCacheFormatAvailable <- function(name, hint = NULL) {
+cacheFormatProblem <- function(name) {
   format <- cacheFormat(name) # errors on unknown names
   missing <- Filter(function(p) !requireNamespace(p, quietly = TRUE), format$packages)
-  if (length(missing) > 0) {
-    stop("Cache format \"", name, "\" requires the package(s) \"",
-         paste(missing, collapse = "\", \""), "\", which are not installed.", hint)
+  if (length(missing) == 0) {
+    return(NULL)
   }
-  return(invisible(format))
+  return(paste0("Cache format \"", name, "\" requires the package(s) \"",
+                paste(missing, collapse = "\", \""), "\", which are not installed."))
 }
 
 # file extensions to look for when searching a cache file, in order of preference:

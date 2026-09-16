@@ -19,7 +19,7 @@ localTestFormat <- function(name = "testformat", extension = "tf", toRds = NULL,
 }
 
 # register a format whose declared package is not installed, so tests can prove
-# checkCacheFormatAvailable() catches it
+# cacheFormatProblem() catches it
 localFormatWithMissingPackage <- function(name = "needspackage", extension = "np",
                                           .localEnvir = parent.frame()) {
   withr::local_options(madrat_cacheformats = getOption("madrat_cacheformats"),
@@ -87,13 +87,14 @@ test_that("setConfig rejects a cacheformat whose declared package is not install
   expect_silent(setConfig(cacheformat = "rds", .verbose = FALSE))
 })
 
-test_that("initializeConfig rejects MADRAT_CACHEFORMAT when its package is not installed", {
+test_that("initializeConfig falls back to rds when MADRAT_CACHEFORMAT is not usable", {
   localFormatWithMissingPackage()
 
   withr::local_options(madrat_cfg = NULL)
   withr::local_envvar(MADRAT_CACHEFORMAT = "needspackage")
-  expect_error(initializeConfig(verbose = FALSE),
-               "needspackage.*thisPackageIsNotInstalled.*not installed.*MADRAT_CACHEFORMAT")
+  expect_message(initializeConfig(verbose = FALSE),
+                 "needspackage.*thisPackageIsNotInstalled.*not installed.*MADRAT_CACHEFORMAT")
+  expect_identical(getConfig("cacheformat"), "rds")
 })
 
 test_that("a cache format which cannot be used fails softly", {
