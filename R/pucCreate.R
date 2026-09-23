@@ -30,9 +30,10 @@
 pucCreate <- function(archive, pucName = NULL) {
   argumentValues <- as.list(environment())
   startinfo <- toolstartmessage(functionCallString("pucCreate", argumentValues), "+")
+  withr::defer(toolendmessage(startinfo, "-"))
   archive <- normalizePath(archive, mustWork = TRUE)
 
-  with_tempdir({
+  pucPath <- with_tempdir({
     members <- untar(archive, list = TRUE)
     toExtract <- members[basename(members) %in% c(.pucFilesFileName, .pucExtraFiles)]
     if (!(.pucFilesFileName %in% basename(toExtract))) {
@@ -41,6 +42,12 @@ pucCreate <- function(archive, pucName = NULL) {
     }
     untar(archive, files = toExtract, exdir = ".")
 
+    if (!file.exists("config.rds")) {
+      stop("Archive does not contain a \"config.rds\" file, so the packages required to ",
+           "reproduce its cache files cannot be determined. Creation of config.rds may have ",
+           "failed when the archive was created (see the warning at the time), or this archive ",
+           "was created by a very old madrat version.")
+    }
     cfg <- readRDS("config.rds")
     if (is.null(pucName)) {
       pucName <- cfg$pucName
@@ -60,10 +67,17 @@ pucCreate <- function(archive, pucName = NULL) {
 
     extraFiles <- normalizePath(Filter(file.exists, .pucExtraFiles))
 
-    pucPath <- .createPuc(pucName = paste0(pucName, ".puc"), cacheFiles = cacheFiles,
-                          extraFiles = extraFiles, requiredPackages = cfg$package)
+    pucFileName <- paste0(pucName, ".puc")
+    if (file.exists(file.path(getConfig("pucfolder"), pucFileName))) {
+      vcat(1, " - puc file already exists, keeping the existing one", fill = 300, show_prefix = FALSE)
+    }
+    .createPuc(pucName = pucFileName, cacheFiles = cacheFiles,
+               extraFiles = extraFiles, requiredPackages = cfg$package)
   }, tmpdir = madTempDir())
 
-  toolendmessage(startinfo, "-")
+  if (is.null(pucPath)) {
+    stop("Could not create puc file, see the messages above for details.")
+  }
+
   return(invisible(pucPath))
 }

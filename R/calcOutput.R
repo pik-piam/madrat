@@ -327,7 +327,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
   }
 
   if (saveCache && !is.null(existingCacheFile)) {
-    write(existingCacheFile, file = "pucFiles", append = TRUE)
+    write(existingCacheFile, file = .pucFilesFileName, append = TRUE)
   }
 
   if (!is.null(outputStatistics)) {

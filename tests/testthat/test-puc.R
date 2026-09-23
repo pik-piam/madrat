@@ -31,7 +31,8 @@ test_that("puc creation works", {
 
 .pucFilesOfArchive <- function(archive) {
   withr::with_tempdir({
-    untar(archive, files = "./pucFiles", exdir = ".")
+    members <- untar(archive, list = TRUE)
+    untar(archive, files = members[basename(members) == "pucFiles"], exdir = ".")
     readLines("pucFiles")
   })
 }
@@ -64,6 +65,8 @@ test_that("pucCreate creates a puc for an existing archive", {
 test_that("pucCreate fails when cache files are missing", {
   skip_on_cran()
   localMockedTauDownload()
+  # use a scratch cachefolder so unlinking cache files below cannot affect other tests
+  localConfig(cachefolder = withr::local_tempdir(), .verbose = FALSE)
 
   tgz <- retrieveData("example", rev = 44, puc = FALSE, renv = FALSE)
   cacheFiles <- .pucFilesOfArchive(tgz)
@@ -71,6 +74,24 @@ test_that("pucCreate fails when cache files are missing", {
   unlink(cacheFiles)
 
   expect_error(pucCreate(tgz), "no longer exist")
+})
+
+test_that("pucCreate fails when a cache file cannot be converted to rds", {
+  skip_on_cran()
+  localMockedTauDownload()
+  localConfig(cachefolder = withr::local_tempdir(), .verbose = FALSE)
+
+  tgz <- retrieveData("example", rev = 45, puc = FALSE, renv = FALSE)
+  cacheFiles <- .pucFilesOfArchive(tgz)
+  expect_true(length(cacheFiles) > 0)
+  # replace a cache file with a directory of the same name: file.exists() still sees it (so
+  # pucCreate's own upfront check passes), but file.copy() cannot copy it into the puc, exercising
+  # .createPuc's "puc file not created" fallback, which pucCreate (unlike retrieveData) must turn
+  # into an error rather than a silent NULL. file.copy() warns about this, which is expected here.
+  unlink(cacheFiles[1])
+  dir.create(cacheFiles[1])
+
+  suppressWarnings(expect_error(pucCreate(tgz), "Could not create puc file"))
 })
 
 test_that("pucCreate fails on an archive without pucFiles", {
