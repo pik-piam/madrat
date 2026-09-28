@@ -1,7 +1,4 @@
-# names of the files retrieveData writes into the output folder (and therefore into the tgz
-# archive) that are needed to create a puc file: the file listing which cache files to bundle,
-# and additional metadata files bundled alongside them. Shared with pucCreate(), which looks for
-# these files inside an already-built archive.
+# files in retrieveData's output folder (and thus its tgz) needed to build a puc, see pucCreate()
 .pucFilesFileName <- "pucFiles"
 .pucExtraFiles <- c("config.rds", "diagnostics.log")
 
@@ -117,12 +114,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   .copyMappings(cfg$regionscode, outputfolder)
 
-  configArgs <- argumentValues[!(names(argumentValues) %in% c(names(cfg$setConfig), "renv"))]
-  persistConfigRds <- function() {
-    .writeConfigRds(outputfolder, package = attr(cfg$functionName, "package"), args = configArgs,
-                    pucArguments = cfg$pucArguments, pucName = cfg$pucName, sessionInfo = sessionInfo())
-  }
-  persistConfigRds()
+  .writeConfigRds(outputfolder, cfg, argumentValues)
 
   localConfig(regionmapping = paste0(cfg$regionscode[1], ".csv"),
               outputfolder = outputfolder,
@@ -165,8 +157,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   if ("pucTag" %in% names(returnedValue)) {
     cfg$pucName <- paste0(cfg$pucName, "_", returnedValue$pucTag)
-    # cfg$pucName was already persisted to config.rds above, refresh it now that it is final
-    persistConfigRds()
+    .writeConfigRds(outputfolder, cfg, argumentValues) # refresh, pucName is final only now
   }
 
   nWarn <- getOption("madratWarningsCounter")
@@ -325,10 +316,11 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   }
 }
 
-.writeConfigRds <- function(outputfolder, package, args, pucArguments, pucName, sessionInfo) {
+.writeConfigRds <- function(outputfolder, cfg, args) {
   tryCatch({
-    saveRDS(list(package = package, args = args, pucArguments = pucArguments,
-                 pucName = pucName, sessionInfo = sessionInfo),
+    saveRDS(list(package = attr(cfg$functionName, "package"),
+                 args = args[!(names(args) %in% c(names(cfg$setConfig), "renv"))],
+                 pucArguments = cfg$pucArguments, pucName = cfg$pucName, sessionInfo = sessionInfo()),
             file.path(outputfolder, "config.rds"), version = 2)
   },
   error = function(error) {
@@ -337,44 +329,44 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 }
 
 #' .createPuc
-#' Creates a puc file ("portable unaggregated collection") in the configured puc folder from a
-#' set of cache files, given that they still exist on disk, and additional metadata files.
-#' @param pucName File name (including the .puc extension) of the puc file to create.
-#' @param cacheFiles Absolute paths to the cache files that should be bundled into the puc.
-#' @param extraFiles Absolute paths to additional files (config.rds, diagnostics.log) to bundle.
-#' @param requiredPackages Packages required to reproduce the cache files, used to fill the renv
-#' cache so that the puc's renv.lock can be restored later.
-#' @return Invisibly, the path to the created (or already existing) puc file, or NULL if no puc
-#' could be created.
+#' Never raises for missing files, only logs; returns the path of the puc (new or already
+#' existing) or NULL if none exists afterwards.
+#' @param pucName File name including the .puc extension.
+#' @param extraFiles Absolute paths of additional files to bundle, missing ones are skipped.
 #' @noRd
 .createPuc <- function(pucName, cacheFiles, extraFiles, requiredPackages) {
   pucPath <- file.path(getConfig("pucfolder"), pucName)
   .withLockedPuc(pucName, function() {
-    if (!file.exists(pucPath)) {
-      if (all(file.exists(cacheFiles))) {
-        vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
-        with_tempdir({
-          # puc files always contain rds cache files so that they can be used on any
-          # machine, independent of its cacheformat setting and installed packages
-          pucCacheFiles <- .cacheFilesToRds(cacheFiles)
-          file.copy(extraFiles, ".")
-
-          .fillRenvCache(requiredPackages = requiredPackages)
-
-          missingFiles <- pucCacheFiles[!file.exists(pucCacheFiles)]
-          if (length(missingFiles) == 0) {
-            # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
-            # required madrat cache files
-            .tarAndVerify(pucPath)
-          } else {
-            vcat(1, "puc file not created, some cache files are missing:\n",
-                 paste(missingFiles, collapse = "\n"))
-          }
-        }, tmpdir = madTempDir())
-      } else {
-        vcat(1, "puc file not created: could not find all relevant files.")
-      }
+    if (file.exists(pucPath)) {
+      vcat(1, " - puc file already exists, keeping the existing one", fill = 300, show_prefix = FALSE)
+      return(invisible(NULL))
     }
+    missingCacheFiles <- cacheFiles[!file.exists(cacheFiles)]
+    if (length(missingCacheFiles) > 0) {
+      vcat(1, "puc file not created: could not find all relevant files:\n",
+           paste(missingCacheFiles, collapse = "\n"))
+      return(invisible(NULL))
+    }
+
+    vcat(1, " - create puc (", pucPath, ")", fill = 300, show_prefix = FALSE)
+    with_tempdir({
+      # puc files always contain rds cache files so that they can be used on any
+      # machine, independent of its cacheformat setting and installed packages
+      pucCacheFiles <- .cacheFilesToRds(cacheFiles)
+      file.copy(Filter(file.exists, extraFiles), ".")
+
+      .fillRenvCache(requiredPackages = requiredPackages)
+
+      missingFiles <- pucCacheFiles[!file.exists(pucCacheFiles)]
+      if (length(missingFiles) == 0) {
+        # create the actual puc file: a tar gz archive containing config, diagnostics, renv.lock, and all
+        # required madrat cache files
+        .tarAndVerify(pucPath)
+      } else {
+        vcat(1, "puc file not created, some cache files are missing:\n",
+             paste(missingFiles, collapse = "\n"))
+      }
+    }, tmpdir = madTempDir())
   })
   return(invisible(if (file.exists(pucPath)) pucPath else NULL))
 }

@@ -32,8 +32,8 @@ test_that("puc creation works", {
 .pucFilesOfArchive <- function(archive) {
   withr::with_tempdir({
     members <- untar(archive, list = TRUE)
-    untar(archive, files = members[basename(members) == "pucFiles"], exdir = ".")
-    readLines("pucFiles")
+    untar(archive, files = members[basename(members) == .pucFilesFileName], exdir = ".")
+    readLines(.pucFilesFileName)
   })
 }
 
@@ -84,10 +84,8 @@ test_that("pucCreate fails when a cache file cannot be converted to rds", {
   tgz <- retrieveData("example", rev = 45, puc = FALSE, renv = FALSE)
   cacheFiles <- .pucFilesOfArchive(tgz)
   expect_true(length(cacheFiles) > 0)
-  # replace a cache file with a directory of the same name: file.exists() still sees it (so
-  # pucCreate's own upfront check passes), but file.copy() cannot copy it into the puc, exercising
-  # .createPuc's "puc file not created" fallback, which pucCreate (unlike retrieveData) must turn
-  # into an error rather than a silent NULL. file.copy() warns about this, which is expected here.
+  # a directory passes file.exists() but cannot be copied into the puc (file.copy warns, expectedly),
+  # which .createPuc only logs while pucCreate must raise
   unlink(cacheFiles[1])
   dir.create(cacheFiles[1])
 

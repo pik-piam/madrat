@@ -35,27 +35,20 @@ pucCreate <- function(archive, pucName = NULL) {
 
   pucPath <- with_tempdir({
     members <- untar(archive, list = TRUE)
-    toExtract <- members[basename(members) %in% c(.pucFilesFileName, .pucExtraFiles)]
-    if (!(.pucFilesFileName %in% basename(toExtract))) {
+    if (!(.pucFilesFileName %in% basename(members))) {
       stop("Archive does not contain a \"", .pucFilesFileName, "\" file. It does not look like ",
            "it was created by retrieveData, or it does not contain any cacheable data.")
     }
-    untar(archive, files = toExtract, exdir = ".")
+    untar(archive, files = members[basename(members) %in% c(.pucFilesFileName, .pucExtraFiles)], exdir = ".")
 
     if (!file.exists("config.rds")) {
-      stop("Archive does not contain a \"config.rds\" file, so the packages required to ",
-           "reproduce its cache files cannot be determined. Creation of config.rds may have ",
-           "failed when the archive was created (see the warning at the time), or this archive ",
-           "was created by a very old madrat version.")
+      stop("Archive does not contain a \"config.rds\" file, so the required packages are unknown.")
     }
     cfg <- readRDS("config.rds")
+    if (is.null(pucName)) pucName <- cfg$pucName
     if (is.null(pucName)) {
-      pucName <- cfg$pucName
-      if (is.null(pucName)) {
-        stop("Could not determine the puc name from config.rds. This archive was likely ",
-             "created by a madrat version that did not yet store it there. ",
-             "Please provide the \"pucName\" argument explicitly.")
-      }
+      stop("The archive's config.rds does not contain the puc name (archive created by an older ",
+           "madrat version?). Please provide the \"pucName\" argument explicitly.")
     }
 
     cacheFiles <- readLines(.pucFilesFileName)
@@ -65,13 +58,8 @@ pucCreate <- function(archive, pucName = NULL) {
            paste(missingFiles, collapse = "\n"))
     }
 
-    extraFiles <- normalizePath(Filter(file.exists, .pucExtraFiles))
-
-    pucFileName <- paste0(pucName, ".puc")
-    if (file.exists(file.path(getConfig("pucfolder"), pucFileName))) {
-      vcat(1, " - puc file already exists, keeping the existing one", fill = 300, show_prefix = FALSE)
-    }
-    .createPuc(pucName = pucFileName, cacheFiles = cacheFiles,
+    extraFiles <- file.path(getwd(), .pucExtraFiles) # absolute, as .createPuc changes directory
+    .createPuc(pucName = paste0(pucName, ".puc"), cacheFiles = cacheFiles,
                extraFiles = extraFiles, requiredPackages = cfg$package)
   }, tmpdir = madTempDir())
 
