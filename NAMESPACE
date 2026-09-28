@@ -93,10 +93,8 @@ importFrom(magclass,
 importFrom(methods,formalArgs)
 importFrom(pkgload,is_dev_package)
 importFrom(renv,
-  activate,
   hydrate,
   init,
-  restore,
   snapshot
 )
 importFrom(stats,smooth.spline)
