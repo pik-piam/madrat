@@ -76,7 +76,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
 
       project <- getwd()
       renv::scaffold(project = project)
-      libpath <- renv::paths$library(project = project)
+      libpath <- renv::paths$library(project = project) # nolint: object_usage_linter
       renv::restore(project = project, library = libpath, lockfile = "puc/renv.lock",
                     prompt = interactive(), retry = interactive(), transactional = !interactive())
 
