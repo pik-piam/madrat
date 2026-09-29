@@ -24,8 +24,6 @@
 #' \dontrun{
 #' pucCreate("rev1_h12_example.tgz")
 #' }
-#' @importFrom withr with_tempdir
-#' @importFrom utils untar
 #' @export
 pucCreate <- function(archive, pucName = NULL) {
   argumentValues <- as.list(environment())
@@ -33,13 +31,14 @@ pucCreate <- function(archive, pucName = NULL) {
   withr::defer(toolendmessage(startinfo, "-"))
   archive <- normalizePath(archive, mustWork = TRUE)
 
-  pucPath <- with_tempdir({
-    members <- untar(archive, list = TRUE)
-    if (!(.pucFilesFileName %in% basename(members))) {
-      stop("Archive does not contain a \"", .pucFilesFileName, "\" file. It does not look like ",
+  pucPath <- withr::with_tempdir({
+    members <- utils::untar(archive, list = TRUE)
+    if (!("pucFiles" %in% basename(members))) {
+      stop("Archive does not contain a \"pucFiles\" file. It does not look like ",
            "it was created by retrieveData, or it does not contain any cacheable data.")
     }
-    untar(archive, files = members[basename(members) %in% c(.pucFilesFileName, .pucExtraFiles)], exdir = ".")
+    pucMetaDataFiles <- c("config.rds", "diagnostics.log", "pucFiles")
+    utils::untar(archive, files = members[basename(members) %in% pucMetaDataFiles], exdir = ".")
 
     if (!file.exists("config.rds")) {
       stop("Archive does not contain a \"config.rds\" file, so the required packages are unknown.")
@@ -51,14 +50,14 @@ pucCreate <- function(archive, pucName = NULL) {
            "madrat version?). Please provide the \"pucName\" argument explicitly.")
     }
 
-    cacheFiles <- readLines(.pucFilesFileName)
+    cacheFiles <- readLines("pucFiles")
     missingFiles <- cacheFiles[!file.exists(cacheFiles)]
     if (length(missingFiles) > 0) {
       stop("Cannot create puc file, the following cache files no longer exist:\n",
            paste(missingFiles, collapse = "\n"))
     }
 
-    extraFiles <- file.path(getwd(), .pucExtraFiles) # absolute, as .createPuc changes directory
+    extraFiles <- file.path(getwd(), c("config.rds", "diagnostics.log")) # absolute, as .createPuc changes directory
     .createPuc(pucName = paste0(pucName, ".puc"), cacheFiles = cacheFiles,
                extraFiles = extraFiles, requiredPackages = cfg$package)
   }, tmpdir = madTempDir())

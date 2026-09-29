@@ -1,7 +1,3 @@
-# files in retrieveData's output folder (and thus its tgz) needed to build a puc, see pucCreate()
-.pucFilesFileName <- "pucFiles"
-.pucExtraFiles <- c("config.rds", "diagnostics.log")
-
 #' retrieveData
 #'
 #' Function to retrieve a predefined collection of calculations for a specific
@@ -173,12 +169,12 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 
   if (puc) {
     vcat(2, " - bundling starts", fill = 300, show_prefix = FALSE)
-    pucFiles <- file.path(outputfolder, .pucFilesFileName)
+    pucFiles <- file.path(outputfolder, "pucFiles")
     if (file.exists(pucFiles)) {
       vcat(2, " - list of files for puc identified", fill = 300, show_prefix = FALSE)
       .createPuc(pucName = paste0(cfg$pucName, ".puc"),
                  cacheFiles = readLines(pucFiles),
-                 extraFiles = file.path(outputfolder, .pucExtraFiles),
+                 extraFiles = file.path(outputfolder, c("config.rds", "diagnostics.log")),
                  requiredPackages = attr(cfg$functionName, "package"))
     } else {
       vcat(1, "puc file not created: could not find list of files to be added.")

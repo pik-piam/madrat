@@ -32,8 +32,8 @@ test_that("puc creation works", {
 .pucFilesOfArchive <- function(archive) {
   withr::with_tempdir({
     members <- untar(archive, list = TRUE)
-    untar(archive, files = members[basename(members) == .pucFilesFileName], exdir = ".")
-    readLines(.pucFilesFileName)
+    untar(archive, files = members[basename(members) == "pucFiles"], exdir = ".")
+    readLines("pucFiles")
   })
 }
 
