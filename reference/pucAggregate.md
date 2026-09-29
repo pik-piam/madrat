@@ -61,7 +61,8 @@ Invisibly, the path to the resulting tgz archive.
 
 [`retrieveData`](retrieveData.md),[`localConfig`](setConfig.md)
 
-Other aggregation: [`toolAggregate()`](toolAggregate.md)
+Other aggregation: [`pucCreate()`](pucCreate.md),
+[`toolAggregate()`](toolAggregate.md)
 
 ## Author
 

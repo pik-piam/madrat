@@ -139,7 +139,8 @@ mixed_aggregation to TRUE.
 
 [`calcOutput`](calcOutput.md)
 
-Other aggregation: [`pucAggregate()`](pucAggregate.md)
+Other aggregation: [`pucAggregate()`](pucAggregate.md),
+[`pucCreate()`](pucCreate.md)
 
 ## Author
 

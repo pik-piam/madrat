@@ -63,6 +63,7 @@ Tools for working with mappings
 Spatial aggregation and disaggregation
 
 - [`pucAggregate()`](pucAggregate.md) : pucAggregate
+- [`pucCreate()`](pucCreate.md) : pucCreate
 - [`toolAggregate()`](toolAggregate.md) : toolAggregate
 
 ## Tools: Countries

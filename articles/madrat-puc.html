@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.42.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.42.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@
                         <h4 data-toc-skip class="author">Jan Philipp
 Dietrich, Lavinia Baumstark</h4>
             
-            <h4 data-toc-skip class="date">2026-09-28</h4>
+            <h4 data-toc-skip class="date">2026-09-29</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/pik-piam/madrat/blob/master/vignettes/madrat-puc.Rmd" class="external-link"><code>vignettes/madrat-puc.Rmd</code></a></small>
       <div class="d-none name"><code>madrat-puc.Rmd</code></div>
@@ -149,6 +149,20 @@ puc-file using the function <code>pucAggregate</code>
 outputfolder based on the given puc-file.</p>
 </div>
 <div class="section level2">
+<h2 id="creating-a-puc-file-after-the-fact">Creating a puc-file after the fact<a class="anchor" aria-label="anchor" href="#creating-a-puc-file-after-the-fact"></a>
+</h2>
+<p>Sometimes a collection is computed without a puc-file
+(e.g. <code>retrieveData(..., puc = FALSE)</code>), or a puc-file could
+not be created at the time (e.g. because strict mode suppressed it due
+to warnings). As long as the madrat cache files that were used to
+compute the collection are still available on this machine,
+<code>pucCreate</code> can create the missing puc-file from the
+already-computed tgz-archive, without having to rerun the underlying
+calculations:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/pucCreate.html">pucCreate</a></span><span class="op">(</span><span class="st">"rev42_h12_5c275ce3_example.tgz"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="making-a-madrat-preprocessing-ready-for-puc-files">Making a madrat preprocessing ready for puc-files<a class="anchor" aria-label="anchor" href="#making-a-madrat-preprocessing-ready-for-puc-files"></a>
 </h2>
 <p>While many parts of the puc-file creation happen automatically, some
@@ -162,7 +176,7 @@ should be put into the puc-file (e.g. if these calculations should be
 recomputed every time a puc-file is being aggregated). Whether a file
 should be included in a puc-file can be controlled by the return value
 of a calc-function:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">calcExample</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">data</span>,</span>
 <span>              putInPUC <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
@@ -176,7 +190,7 @@ becomes a part of the resulting puc-file.</p>
 is also important to know which arguments can be changed later when
 aggregating the puc-file. This can be controlled via control flags in
 the full-function:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fullEXAMPLE</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">rev</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">dev</span> <span class="op">=</span> <span class="st">""</span>, <span class="va">extra</span> <span class="op">=</span> <span class="st">"Example argument"</span><span class="op">)</span> <span class="op">{</span></span>
 <span></span>
 <span>  <span class="st">"!# @pucArguments extra"</span></span>
