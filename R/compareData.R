@@ -1,7 +1,15 @@
-# float32 ULP at magnitude v: the gap between adjacent float32 values in v's
-# binade. write.magpie stores 23 mantissa bits (IEEE-754 single), so an .mz
-# round-trip cannot resolve a difference smaller than this -- it is pure
-# storage rounding, not a computation difference.
+# Size of the smallest step a float32 can take near magnitude v (its "ULP",
+# unit in the last place).
+#
+# Why it matters: .mz files store values as float32, which keeps only ~7
+# significant digits. Two values that differ by no more than a step or two
+# are indistinguishable after that rounding, so such a gap is storage noise,
+# not a real difference. Larger magnitudes have coarser steps (about 1.2e-7
+# near 1, about 6e-5 near 1000), so the tolerance has to scale with the value.
+#
+# Computed as 2^(e - 23), where 2^e <= |v| < 2^(e+1): float32 places 2^23
+# evenly spaced values in each such power-of-two range (binade).
+# Returns 0 for v == 0 (no binade; zeros are handled as "zero-flips" in .classifyDiffs).
 .float32Ulp <- function(v) {
   v <- abs(v)
   out <- numeric(length(v))
