@@ -44,7 +44,9 @@ pucCreate <- function(archive, pucName = NULL) {
       stop("Archive does not contain a \"config.rds\" file, so the required packages are unknown.")
     }
     cfg <- readRDS("config.rds")
-    if (is.null(pucName)) pucName <- cfg$pucName
+    if (is.null(pucName)) {
+      pucName <- cfg$pucName
+    }
     if (is.null(pucName)) {
       stop("The archive's config.rds does not contain the puc name (archive created by an older ",
            "madrat version?). Please provide the \"pucName\" argument explicitly.")
