@@ -51,6 +51,7 @@ pucAggregate("rev1_example.puc", regionmapping = "regionmappingH12.csv")
 \code{\link{retrieveData}},\code{\link{localConfig}}
 
 Other aggregation:
+\code{\link[=pucCreate]{pucCreate()}},
 \code{\link[=toolAggregate]{toolAggregate()}}
 }
 \author{

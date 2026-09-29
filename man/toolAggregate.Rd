@@ -125,7 +125,8 @@ toolAggregate(p, mapping, to = "region+global")
 \code{\link{calcOutput}}
 
 Other aggregation:
-\code{\link[=pucAggregate]{pucAggregate()}}
+\code{\link[=pucAggregate]{pucAggregate()}},
+\code{\link[=pucCreate]{pucCreate()}}
 }
 \author{
 Jan Philipp Dietrich, Ulrich Kreidenweis, Pascal Sauer
