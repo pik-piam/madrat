@@ -1,0 +1,17 @@
+name: DashVERSE assessment
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  assess:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run resqui
+        uses: EVERSE-ResearchSoftware/resqui-github-action@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
