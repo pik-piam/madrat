@@ -6,7 +6,7 @@ differences
 ## Usage
 
 ``` r
-compareData(x, y, tolerance = 10^-5, yearLim = NULL)
+compareData(x, y, tolerance = 10^-5, yearLim = NULL, detailed = FALSE)
 ```
 
 ## Arguments
@@ -27,6 +27,20 @@ compareData(x, y, tolerance = 10^-5, yearLim = NULL)
 
   year until when the comparison should be performed. Useful to check if
   data is identical until a certain year.
+
+- detailed:
+
+  if TRUE, files that differ are additionally broken down into
+  storage/reassociation noise, zero-flips (one side exactly 0, the other
+  dust – see the "zero-flip" note in the printed report), and genuine
+  differences. This is purely diagnostic: it doesn't change the OK/DIFF
+  verdict.
+
+## Value
+
+Invisibly, a list with the ok/skip/diff/miss counts, the file lists, and
+(if `detailed = TRUE`) a `details` list of per-file difference
+statistics keyed by file name.
 
 ## See also
 
