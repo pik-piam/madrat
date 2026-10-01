@@ -3,11 +3,6 @@
 # log file/content into one row per Run/Exit/[memory] record, with retrieveData block membership
 # attached, so the two analysis functions never need to know the log's line format themselves.
 
-# Shared by .mergeSplitLogLines and .logRecordType so the record format is stated once.
-.reRunOpen <- "^~*\\s*Run\\s+[[:alpha:]._][[:alnum:]._]*\\("
-.reExit <- "^~*\\s*Exit\\b"
-.reRuntime <- "in [0-9.]* seconds"
-
 .readMadratLog <- function(file) {
   if (length(file) > 1 || any(grepl("\n", file))) {
     f <- unlist(strsplit(file, "\n"))
@@ -17,24 +12,18 @@
   return(.mergeSplitLogLines(f))
 }
 
-# Rejoin log entries split across lines when they exceed maxLengthLogMessage. An "Exit"
-# record is complete once it contains "in ... seconds"; a "Run" record is complete once the
-# called function's name and opening parenthesis appear.
-.mergeSplitLogLines <- function(f) {
-  .isCompleteRecord <- function(line) {
-    if (grepl(.reExit, line)) return(grepl(.reRuntime, line))
-    return(grepl(.reRunOpen, line))
-  }
-
+# Rejoin log entries split across lines when they exceed maxLengthLogMessage. A Run/Exit
+# record is complete once .logRecordType recognizes it.
+.mergeSplitLogLines <- function(logLines) {
   acc <- NULL
   accPrefix <- NULL
   allLines <- character(0)
-  for (line in f) {
+  for (line in logLines) {
     prefix <- regmatches(line, regexpr("^~*", line))
     if (!is.null(acc) && accPrefix == prefix) {
       rest <- trimws(sub("^~*\\s*", "", line))
       acc <- paste(trimws(acc), rest)
-      if (.isCompleteRecord(acc)) {
+      if (!is.na(.logRecordType(acc))) {
         # We have hit the end of a Run/Exit record, stop accumulation
         allLines <- c(allLines, acc)
         acc <- NULL
@@ -44,7 +33,8 @@
       if (!is.null(acc)) {
         allLines <- c(allLines, acc)
       }
-      if (grepl("^~*\\s*(Run|Exit)\\b", line) && !.isCompleteRecord(line)) {
+      notARunExitMemoryLine <- is.na(.logRecordType(line))
+      if (grepl("^~*\\s*(Run|Exit)\\b", line) && notARunExitMemoryLine) {
         acc <- line
         accPrefix <- prefix
       } else {
@@ -62,26 +52,26 @@
 
 # Classifies each (already merged) log line as "run", "exit", "memory" or NA (any other line,
 # e.g. NOTE/cache/statistics lines, which carry no call information and are dropped).
-.logRecordType <- function(f) {
-  type <- rep(NA_character_, length(f))
-  type[grepl(.reRunOpen, f)] <- "run"
-  type[grepl(.reExit, f) & grepl(.reRuntime, f)] <- "exit"
-  type[grepl("[memory]", f, fixed = TRUE)] <- "memory"
+.logRecordType <- function(logLines) {
+  type <- rep(NA_character_, length(logLines))
+  type[grepl("^~*\\s*Run\\s+[[:alpha:]._][[:alnum:]._]*\\(", logLines)] <- "run"
+  type[grepl("^~*\\s*Exit\\b", logLines) & grepl("in [0-9.]* seconds", logLines)] <- "exit"
+  type[grepl("[memory]", logLines, fixed = TRUE)] <- "memory"
   return(type)
 }
 
 # Derives nesting level, wrapper class and data type from lines documenting a call, e.g.
 # "Run calcOutput(...)" or "[memory] calcOutput(...): ...". Nesting is read from the "~"-prefix.
-.parseLogCalls <- function(f) {
-  if (length(f) == 0) {
+.parseLogCalls <- function(callLogLine) {
+  if (length(callLogLine) == 0) {
     return(data.frame(level = integer(0), class = character(0), type = character(0)))
   }
-  x <- data.frame(level = nchar(gsub("^(~*).*$", "\\1", f)))
+  x <- data.frame(level = nchar(gsub("^(~*).*$", "\\1", callLogLine)))
   x$class <- NA
-  x$class[grepl("readSource", f)] <- "read"
-  x$class[grepl("downloadSource", f)] <- "download"
-  x$class[grepl("calcOutput", f)] <- "calc"
-  x$class[grepl("retrieveData", f)] <- "retrieve"
+  x$class[grepl("readSource", callLogLine)] <- "read"
+  x$class[grepl("downloadSource", callLogLine)] <- "download"
+  x$class[grepl("calcOutput", callLogLine)] <- "calc"
+  x$class[grepl("retrieveData", callLogLine)] <- "retrieve"
   if (anyNA(x$class)) {
     warning("Some classes could not be properly detected!")
     x$class[is.na(x$class)] <- "unknown"
@@ -95,8 +85,8 @@
 }
 
 # Extracts the "in <seconds> seconds" runtime from an Exit line.
-.logRuntimeField <- function(f) {
-  matches <- regmatches(f, regexec("in ([0-9.]*) seconds", f))
+.logRuntimeField <- function(exitLogLine) {
+  matches <- regmatches(exitLogLine, regexec("in ([0-9.]*) seconds", exitLogLine))
   values <- vapply(matches, function(m) {
     if (length(m) == 0) {
       return(NA_real_)
@@ -107,10 +97,10 @@
 }
 
 # Extracts the four "<field> <number> MB" values written by reportMemoryProfiling; NA on other lines.
-.logMemoryFields <- function(f) {
+.logMemoryFields <- function(memoryLogLine) {
   pattern <- paste0("peak (-?[0-9]+) MB \\| start (-?[0-9]+) MB \\| ",
                     "end (-?[0-9]+) MB \\| growth (-?[0-9]+) MB")
-  matches <- regmatches(f, regexec(pattern, f))
+  matches <- regmatches(memoryLogLine, regexec(pattern, memoryLogLine))
   values <- t(vapply(matches, function(m) {
     if (length(m) == 0) {
       return(rep(NA_real_, 4))
@@ -123,26 +113,25 @@
 
 # Assigns each row of a parsed log to the retrieveData block it belongs to: an integer id in
 # "block" (in order of appearance, NA outside any block) and the block's retrieveData type in
-# "blockType" (NA outside). retrieveData is never called from within another madrat call, so
-# blocks cannot be nested. If an Exit has no matching Run (e.g. a truncated or pre-marker log),
+# "blockType" (NA outside). If an Exit has no matching Run (e.g. a truncated or pre-marker log),
 # the block is assumed to start right after the previous one (or at row 1).
-.retrieveDataBlocks <- function(x) {
-  isOpen  <- x$marker == "run" & x$class == "retrieve"
-  isClose <- x$marker == "exit" & x$class == "retrieve"
+.retrieveDataBlocks <- function(madratLog) {
+  isOpen  <- madratLog$marker == "run" & madratLog$class == "retrieve"
+  isClose <- madratLog$marker == "exit" & madratLog$class == "retrieve"
 
-  block <- rep(NA_integer_, nrow(x))
-  blockType <- rep(NA_character_, nrow(x))
+  block <- rep(NA_integer_, nrow(madratLog))
+  blockType <- rep(NA_character_, nrow(madratLog))
   blockId <- 0L
   openLine <- NA_integer_
   lastClose <- 0L
-  for (i in seq_len(nrow(x))) {
+  for (i in seq_len(nrow(madratLog))) {
     if (isOpen[i]) {
       openLine <- i
     } else if (isClose[i]) {
       blockId <- blockId + 1L
       start <- if (!is.na(openLine)) openLine else lastClose + 1L
       block[start:i] <- blockId
-      blockType[start:i] <- x$type[i]
+      blockType[start:i] <- madratLog$type[i]
       openLine <- NA_integer_
       lastClose <- i
     }
@@ -167,13 +156,13 @@
 }
 
 # Splits a parsed log into segments named by retrieveData type, plus "standalone" for rows outside any block.
-.splitLogByRetrieve <- function(x) {
+.splitLogByRetrieve <- function(aLog) {
   segments <- stats::setNames(list(), character(0))
-  for (id in sort(unique(x$block[!is.na(x$block)]))) {
-    rows <- x[which(x$block == id), , drop = FALSE]
+  for (id in sort(unique(aLog$block[!is.na(aLog$block)]))) {
+    rows <- aLog[which(aLog$block == id), , drop = FALSE]
     segments[[rows$blockType[1]]] <- rows
   }
-  standalone <- x[is.na(x$block), , drop = FALSE]
+  standalone <- aLog[is.na(aLog$block), , drop = FALSE]
   if (nrow(standalone) > 0) {
     segments[["standalone"]] <- standalone
   }
