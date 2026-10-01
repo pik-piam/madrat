@@ -4,12 +4,16 @@
 \alias{withMadratLogging}
 \title{Tool: withMadratLogging}
 \usage{
-withMadratLogging(expr, logOnly = TRUE)
+withMadratLogging(expr, logOnly = TRUE, warningsAsErrors = FALSE)
 }
 \arguments{
 \item{expr}{expression to be evaluated.}
 
-\item{logOnly}{passed to vcat, determines if warning/error is thrown after logging}
+\item{logOnly}{passed to vcat, determines if warning/error is thrown after logging.
+If omitted in a nested call, the enclosing logging policy is inherited.}
+
+\item{warningsAsErrors}{whether warnings should be logged and handled as errors.
+If omitted in a nested call, the enclosing logging policy is inherited.}
 }
 \description{
 Function will activate madrat logging facilities for all code provided
