@@ -3,6 +3,36 @@
 # log file/content into one row per Run/Exit/[memory] record, with retrieveData block membership
 # attached, so the two analysis functions never need to know the log's line format themselves.
 
+# Parses a madrat diagnostics log (a file path, or its content as a character vector) into one
+# row per Run/Exit/[memory] record, with columns level, class, type, marker, "time[s]", "peak[MB]",
+# "start[MB]", "end[MB]", "growth[MB]", block, blockType.
+.parseMadratLog <- function(file) {
+  f <- .readMadratLog(file)
+  marker <- .logRecordType(f)
+  f <- f[!is.na(marker)]
+  marker <- marker[!is.na(marker)]
+
+  x <- .parseLogCalls(f)
+  x$marker <- marker
+  x <- cbind(x, .logRuntimeField(f), .logMemoryFields(f))
+  x <- cbind(x, .retrieveDataBlocks(x))
+  return(x)
+}
+
+# Splits a parsed log into segments named by retrieveData type, plus "standalone" for rows outside any block.
+.splitLogByRetrieve <- function(aLog) {
+  segments <- stats::setNames(list(), character(0))
+  for (id in sort(unique(aLog$block[!is.na(aLog$block)]))) {
+    rows <- aLog[which(aLog$block == id), , drop = FALSE]
+    segments[[rows$blockType[1]]] <- rows
+  }
+  standalone <- aLog[is.na(aLog$block), , drop = FALSE]
+  if (nrow(standalone) > 0) {
+    segments[["standalone"]] <- standalone
+  }
+  return(segments)
+}
+
 .readMadratLog <- function(file) {
   if (length(file) > 1 || any(grepl("\n", file))) {
     f <- unlist(strsplit(file, "\n"))
@@ -137,34 +167,4 @@
     }
   }
   return(data.frame(block = block, blockType = blockType, stringsAsFactors = FALSE))
-}
-
-# Parses a madrat diagnostics log (a file path, or its content as a character vector) into one
-# row per Run/Exit/[memory] record, with columns level, class, type, marker, "time[s]", "peak[MB]",
-# "start[MB]", "end[MB]", "growth[MB]", block, blockType.
-.parseMadratLog <- function(file) {
-  f <- .readMadratLog(file)
-  marker <- .logRecordType(f)
-  f <- f[!is.na(marker)]
-  marker <- marker[!is.na(marker)]
-
-  x <- .parseLogCalls(f)
-  x$marker <- marker
-  x <- cbind(x, .logRuntimeField(f), .logMemoryFields(f))
-  x <- cbind(x, .retrieveDataBlocks(x))
-  return(x)
-}
-
-# Splits a parsed log into segments named by retrieveData type, plus "standalone" for rows outside any block.
-.splitLogByRetrieve <- function(aLog) {
-  segments <- stats::setNames(list(), character(0))
-  for (id in sort(unique(aLog$block[!is.na(aLog$block)]))) {
-    rows <- aLog[which(aLog$block == id), , drop = FALSE]
-    segments[[rows$blockType[1]]] <- rows
-  }
-  standalone <- aLog[is.na(aLog$block), , drop = FALSE]
-  if (nrow(standalone) > 0) {
-    segments[["standalone"]] <- standalone
-  }
-  return(segments)
 }
