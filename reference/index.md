@@ -157,6 +157,8 @@ Data validation and comparison tools
 Performance analysis tools
 
 - [`findBottlenecks()`](findBottlenecks.md) : findBottlenecks
+- [`findMemoryBottlenecks()`](findMemoryBottlenecks.md) :
+  findMemoryBottlenecks
 
 ## Example Functions
 

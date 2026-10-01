@@ -1,5 +1,7 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>/404.html</loc></url>
+<url><loc>/CODE_STYLE.html</loc></url>
+<url><loc>/CONTRIBUTING.html</loc></url>
 <url><loc>/LICENSE-text.html</loc></url>
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/articles/madrat-caching.html</loc></url>
@@ -25,6 +27,7 @@
 <url><loc>/reference/dot-renderDiff.html</loc></url>
 <url><loc>/reference/downloadSource.html</loc></url>
 <url><loc>/reference/findBottlenecks.html</loc></url>
+<url><loc>/reference/findMemoryBottlenecks.html</loc></url>
 <url><loc>/reference/fingerprint.html</loc></url>
 <url><loc>/reference/fullEXAMPLE.html</loc></url>
 <url><loc>/reference/functionCallString.html</loc></url>

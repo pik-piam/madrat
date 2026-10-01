@@ -39,6 +39,10 @@ share of total runtime. For the "standalone" entry the total runtime is
 the sum of its top-level call runtimes, not wall clock time, as it
 excludes any non-madrat time between those calls.
 
+## See also
+
+Other analysis: [`findMemoryBottlenecks()`](findMemoryBottlenecks.md)
+
 ## Author
 
 Jan Philipp Dietrich
