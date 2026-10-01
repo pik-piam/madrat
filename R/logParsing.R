@@ -106,7 +106,7 @@
     warning("Some classes could not be properly detected!")
     x$class[is.na(x$class)] <- "unknown"
   }
-  x$type <- gsub("([\"= ]|type)", "", gsub("^[^(]*\\(([^,)]*)[),].*$", "\\1", f))
+  x$type <- gsub("([\"= ]|type)", "", gsub("^[^(]*\\(([^,)]*)[),].*$", "\\1", callLogLine))
   # retrieveData is never nested inside another madrat call, but vcat's level = "-" step (see
   # toolendmessage) prints "Exit retrieveData" at the same "~"-depth as its own children; force
   # it to level -1 so it is treated as their parent, not their sibling.
