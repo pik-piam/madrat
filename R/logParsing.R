@@ -95,11 +95,12 @@
 }
 
 # Extracts the "in <seconds> seconds" runtime from an Exit line, in a single pass over f.
-# NA on lines that carry no runtime.
 .logRuntimeField <- function(f) {
   matches <- regmatches(f, regexec("in ([0-9.]*) seconds", f))
   values <- vapply(matches, function(m) {
-    if (length(m) == 0) return(NA_real_)
+    if (length(m) == 0) {
+      return(NA_real_)
+    }
     return(as.numeric(m[2]))
   }, numeric(1))
   return(data.frame("time[s]" = values, check.names = FALSE))
