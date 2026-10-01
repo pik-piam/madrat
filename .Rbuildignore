@@ -19,3 +19,5 @@ cran-comments.md
 ^CRAN-SUBMISSION$
 ^_pkgdown\.yml$
 ^\.claude$
+^CODE_STYLE\.md$
+^CONTRIBUTING\.md$

@@ -20,7 +20,7 @@
 #' @export
 findBottlenecks <- function(file, unit = "min", cumulative = TRUE) {
   x <- .parseMadratLog(file)
-  # Only Exit records carry a runtime; Run and [memory] records are not needed here.
+  # only Exit records carry a runtime
   x <- x[!is.na(x$"time[s]"), , drop = FALSE]
   if (nrow(x) == 0) {
     warning("No function calls with runtime information could be detected in the log!")

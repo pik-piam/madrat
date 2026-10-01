@@ -1,7 +1,5 @@
 # nolint start: quotes_linter
-# A log mixing standalone calls (before, between, after) with two retrieveData blocks, one of
-# which uses memory profiling, plus a NOTE/cache line and a "Run"/"Exit retrieveData" marker
-# wrapped across lines, mirroring the fixtures used in test-findBottlenecks.R.
+# Standalone calls around a retrieveData block, with a NOTE/cache line and a Run record wrapped across lines.
 mixedLog <- c('Exit calcOutput(type = "Lead", aggregate = FALSE) in 3 seconds',
               'Run ',
               'retrieveData(model = "A", rev = 1)',
@@ -57,7 +55,6 @@ test_that(".splitLogByRetrieve omits the standalone entry when there is nothing 
 })
 
 test_that(".retrieveDataBlocks starts a block right after the previous close if Run is missing", {
-  # mirrors the "log" fixture in test-findBottlenecks.R, which has no "Run retrieveData(" line
   x <- .parseMadratLog(c('Exit calcOutput(type = "X", aggregate = FALSE) in 1 seconds',
                          'Exit retrieveData(model = "A", rev = 1) in 2 seconds'))
   expect_equal(unique(x$block), 1)

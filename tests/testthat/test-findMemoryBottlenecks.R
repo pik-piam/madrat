@@ -1,7 +1,5 @@
 # nolint start: quotes_linter
-# Two consecutive retrieveData runs, mirroring the structure logMultiple uses in
-# test-findBottlenecks.R: interspersed NOTE/cache lines that must be ignored, a type ("Yields")
-# called twice to exercise cumulative aggregation, and one negative growth value.
+# Two retrieveData runs; "Yields" is called twice (cumulative aggregation) with one negative growth.
 memoryLog <- c(
   'Run retrieveData(model = "CellularMAgPIE", rev = 1)',
   'NOTE: ',
@@ -77,8 +75,6 @@ test_that("findMemoryBottlenecks warns if the log has no memory profiling inform
 })
 
 test_that("findMemoryBottlenecks reports a standalone entry for calls outside any retrieveData", {
-  # mirrors logMixed in test-findBottlenecks.R: standalone calls before, between and after a
-  # retrieveData call, all carrying memory profiling information
   mixedMemoryLog <- c(
     'Exit calcOutput(type = "Lead", aggregate = FALSE) in 3 seconds',
     '[memory] calcOutput(type = "Lead", aggregate = FALSE): peak 50 MB | start 10 MB | end 20 MB | growth 10 MB', # nolint: line_length_linter.

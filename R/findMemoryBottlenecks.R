@@ -25,12 +25,9 @@ findMemoryBottlenecks <- function(file, unit = "MB", cumulative = TRUE) {
     warning("No memory profiling information found in the log! Was setConfig(memoryProfiling = TRUE) active?")
   }
 
-  # Each retrieveData call marks the end of one block. Split the log into one segment per
-  # retrieveData call and analyze each independently.
   segments <- .splitLogByRetrieve(x)
   out <- stats::setNames(list(), character(0))
   for (type in names(segments)) {
-    # Run/Exit records carry no memory numbers and are dropped here.
     segment <- segments[[type]][segments[[type]]$marker == "memory", , drop = FALSE]
     if (nrow(segment) == 0) {
       warning("No memory profiling information found for retrieveData call \"", type, "\", skipping it.")
@@ -73,7 +70,9 @@ findMemoryBottlenecks <- function(file, unit = "MB", cumulative = TRUE) {
   }
 
   cols <- c("level", "class", "type")
-  if (cumulative) cols <- c(cols, "calls")
+  if (cumulative) {
+    cols <- c(cols, "calls")
+  }
   x <- x[c(cols, grep("\\[(MB|GB|%)\\]$", names(x), value = TRUE))]
   return(x)
 }

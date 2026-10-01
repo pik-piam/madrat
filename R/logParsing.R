@@ -3,9 +3,7 @@
 # log file/content into one row per Run/Exit/[memory] record, with retrieveData block membership
 # attached, so the two analysis functions never need to know the log's line format themselves.
 
-# Patterns identifying a complete (i.e. not split across lines) Run/Exit record. Shared between
-# .mergeSplitLogLines (deciding when an accumulated fragment is done) and .logRecordType
-# (classifying already-merged lines), so the record format is stated in one place.
+# Shared by .mergeSplitLogLines and .logRecordType so the record format is stated once.
 .reRunOpen <- "^~*\\s*Run\\s+[[:alpha:]._][[:alnum:]._]*\\("
 .reExit <- "^~*\\s*Exit\\b"
 .reRuntime <- "in [0-9.]* seconds"
@@ -21,9 +19,7 @@
 
 # Rejoin log entries split across lines when they exceed maxLengthLogMessage. An "Exit"
 # record is complete once it contains "in ... seconds"; a "Run" record is complete once the
-# called function's name and opening parenthesis appear. This is only ever called on lines
-# (or accumulated fragments) starting with "Run" or "Exit", so exactly one of the two below
-# branches always applies.
+# called function's name and opening parenthesis appear.
 .mergeSplitLogLines <- function(f) {
   .isCompleteRecord <- function(line) {
     if (grepl(.reExit, line)) return(grepl(.reRuntime, line))
@@ -45,7 +41,9 @@
         accPrefix <- NULL
       }
     } else {
-      if (!is.null(acc)) allLines <- c(allLines, acc)
+      if (!is.null(acc)) {
+        allLines <- c(allLines, acc)
+      }
       if (grepl("^~*\\s*(Run|Exit)\\b", line) && !.isCompleteRecord(line)) {
         acc <- line
         accPrefix <- prefix
@@ -56,7 +54,9 @@
       }
     }
   }
-  if (!is.null(acc)) allLines <- c(allLines, acc)
+  if (!is.null(acc)) {
+    allLines <- c(allLines, acc)
+  }
   return(allLines)
 }
 
@@ -94,7 +94,7 @@
   return(x)
 }
 
-# Extracts the "in <seconds> seconds" runtime from an Exit line, in a single pass over f.
+# Extracts the "in <seconds> seconds" runtime from an Exit line.
 .logRuntimeField <- function(f) {
   matches <- regmatches(f, regexec("in ([0-9.]*) seconds", f))
   values <- vapply(matches, function(m) {
@@ -106,14 +106,15 @@
   return(data.frame("time[s]" = values, check.names = FALSE))
 }
 
-# Extracts the four "<field> <number> MB" values written together by reportMemoryProfiling, in a
-# single pass over f. All four are NA on lines that carry no memory report.
+# Extracts the four "<field> <number> MB" values written by reportMemoryProfiling; NA on other lines.
 .logMemoryFields <- function(f) {
   pattern <- paste0("peak (-?[0-9]+) MB \\| start (-?[0-9]+) MB \\| ",
                     "end (-?[0-9]+) MB \\| growth (-?[0-9]+) MB")
   matches <- regmatches(f, regexec(pattern, f))
   values <- t(vapply(matches, function(m) {
-    if (length(m) == 0) return(rep(NA_real_, 4))
+    if (length(m) == 0) {
+      return(rep(NA_real_, 4))
+    }
     return(as.numeric(m[-1]))
   }, numeric(4)))
   colnames(values) <- c("peak[MB]", "start[MB]", "end[MB]", "growth[MB]")
@@ -150,9 +151,8 @@
 }
 
 # Parses a madrat diagnostics log (a file path, or its content as a character vector) into one
-# row per Run/Exit/[memory] record, with columns level/class/type/marker/"time[s]"/"peak[MB]"/
-# "start[MB]"/"end[MB]"/"growth[MB]"/block/blockType. This is the single entry point
-# findBottlenecks and findMemoryBottlenecks use to go from raw log text to a tidy data.frame.
+# row per Run/Exit/[memory] record, with columns level, class, type, marker, "time[s]", "peak[MB]",
+# "start[MB]", "end[MB]", "growth[MB]", block, blockType.
 .parseMadratLog <- function(file) {
   f <- .readMadratLog(file)
   marker <- .logRecordType(f)
@@ -166,10 +166,7 @@
   return(x)
 }
 
-# Splits a parsed log into one segment per retrieveData call, plus a "standalone" segment
-# collecting all rows that do not belong to any retrieveData call (e.g. calcOutput/readSource
-# calls made directly from a script). Returns a named list of data.frame segments, named by
-# retrieveData type (or "standalone").
+# Splits a parsed log into segments named by retrieveData type, plus "standalone" for rows outside any block.
 .splitLogByRetrieve <- function(x) {
   segments <- stats::setNames(list(), character(0))
   for (id in sort(unique(x$block[!is.na(x$block)]))) {
