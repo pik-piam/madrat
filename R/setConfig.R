@@ -53,7 +53,13 @@
 #'  The top level function must always be part of this list.
 #' @param cachecompression logical or character string specifying whether cache files
 #' use compression. TRUE corresponds to gzip compression, and character strings "gzip",
-#' "bzip2" or "xz" specify the type of compression.
+#' "bzip2" or "xz" specify the type of compression. Only applies to the cache format "rds".
+#' @param cacheformat name of the serialization format used for cache files. Default is
+#' "rds", madrat also ships "qs2" (which is considerably faster, but requires the \code{qs2}
+#' package). Further formats can be added via \code{\link{registerCacheFormat}}. Cache files
+#' are written in the configured format, but an already existing rds file is still read if no
+#' file in the configured format exists.
+#' Can also be set via the environment variable \code{MADRAT_CACHEFORMAT}.
 #' @param hash specifies the used hashing algorithm. Default is "xxhash32" and
 #' all algorithms supported by \code{\link[digest]{digest}} can be used.
 #' @param diagnostics Either FALSE (default) to avoid the creation of additional
@@ -65,6 +71,14 @@
 #' debug=TRUE will add the suffix "debug" to the files created to avoid there use in productive runs.
 #' Furthermore, with debug=TRUE calculations will be rerun even if a corresponding tgz file
 #' already exists.
+#' @param memoryprofiling Boolean which activates memory profiling. If active, every top-level
+#' \code{\link{calcOutput}} call reports its memory usage to the log: the peak memory usage during
+#' the stage as well as the usage before and after it. The reported numbers are the resident set size of
+#' the R process as recorded by the kernel, so any other data held in the same session is counted as well.
+#' A stage which is served from cache reports the cost of loading the cache file. This feature requires
+#' the Linux /proc interface; on other systems setting it warns and no memory is reported. Note that madrat
+#' resets the kernel's peak counter at the beginning of each stage, so the peak usage of the full run is the
+#' maximum of the reported per-stage peaks.
 #' @param maxLengthLogMessage in log messages evaluated arguments are printed if the resulting message
 #' is shorter than this value, otherwise arguments are shown as passed, potentially with unevaluated variable names
 #' @param redirections A list of source folder redirections, intended to be set
@@ -107,9 +121,11 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
                       forcecache = NULL,
                       ignorecache = NULL,
                       cachecompression = NULL,
+                      cacheformat = NULL,
                       hash = NULL,
                       diagnostics = NULL,
                       debug = NULL,
+                      memoryprofiling = NULL,
                       maxLengthLogMessage = NULL,
                       redirections = NULL,
                       .cfgchecks = TRUE,
@@ -170,6 +186,17 @@ setConfig <- function(..., # nolint: cyclocomp_linter.
              paste(missing, collapse = "\", \""), "\")")
       }
     }
+  }
+
+  if (!is.null(cacheformat) && .cfgchecks) {
+    problem <- cacheFormatProblem(cacheformat)
+    if (!is.null(problem)) {
+      stop(problem)
+    }
+  }
+
+  if (isTRUE(memoryprofiling) && .cfgchecks && !memoryProfilingSupported()) {
+    warning("Memory profiling requires the Linux /proc interface and will be skipped on this system.")
   }
 
   args <- names(formals(setConfig))

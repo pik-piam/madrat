@@ -19,152 +19,212 @@ test_that("puc creation works", {
                               renv = FALSE), "already available")
   expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_7a5441e5_example_customizable_tag.tgz")))
 
+  # pucAggregate must return the path of the archive it wrote, both when it aggregates it fresh
+  # and (via retrieveData's early return) when a matching archive already exists
+  expect_identical(basename(pucAggregate("rev42_extra_example_tag.puc", extra = "blub",
+                                         regionmapping = "regionmappingH12.csv", renv = FALSE)),
+                   "rev42_h12_7a5441e5_example_customizable_tag.tgz")
+
   expect_message(retrieveData("example", rev = 42, extra = "test2", renv = FALSE), "Run pucAggregate")
   expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_5f3d77a0_example_customizable_tag.tgz")))
 })
 
-test_that("puc creation is thread-safe", {
+.pucFilesOfArchive <- function(archive) {
+  withr::with_tempdir({
+    members <- untar(archive, list = TRUE)
+    untar(archive, files = members[basename(members) == "pucFiles"], exdir = ".")
+    readLines("pucFiles")
+  })
+}
+
+test_that("pucCreate creates a puc for an existing archive", {
   skip_on_cran()
-  skip_on_covr() # Does not work in combination with covr
-
-  # The sub-processes below cannot use the mocked download binding, so pre-populate the shared
-  # source folder with the synthetic Tau data here. readSource in the sub-processes then finds the
-  # existing source and does not hit the network.
   localMockedTauDownload()
-  suppressMessages(readSource("Tau", "paper"))
 
-  # Tip for debugging this test:
-  # If something breaks in one of the sub-processes, use p1$get_result()
-  # to check what happened.
+  tgz <- retrieveData("example", rev = 43, puc = FALSE, renv = FALSE)
+  pucPath <- file.path(getConfig("pucfolder"), "rev43_extra_example_tag.puc")
+  expect_false(file.exists(pucPath))
 
-  # Store paths
-  lockDirName <- ".locks"
-  lockDir <- file.path(getConfig("pucfolder"), lockDirName)
+  result <- pucCreate(tgz)
+  expect_identical(basename(result), "rev43_extra_example_tag.puc")
+  expect_true(file.exists(pucPath))
 
-  # Set up a log accumulator that collects all stdout lines from a process.
-  # read_output_lines() is destructive, so we must accumulate to avoid losing messages.
-  .createLog <- function() {
-    log <- character(0)
-    list(
-      waitFor = function(process, message) {
-        while (!message %in% log) {
-          Sys.sleep(0.2)
-          log <<- c(log, process$read_output_lines())
-        }
-      },
-      update = function(process) {
-        log <<- c(log, process$read_output_lines())
-      },
-      contains = function(message) {
-        message %in% log
-      },
-      get = function() log
-    )
+  withr::with_tempdir({
+    untar(pucPath)
+    expect_true(length(Sys.glob("calcTauTotal*.rds")) == 1)
+    cfg <- readRDS("config.rds")
+    expect_identical(cfg$package, "madrat")
+    expect_identical(cfg$pucArguments, "extra")
+  })
+
+  expect_message(pucAggregate(pucPath, extra = "blub", regionmapping = "regionmappingH12.csv",
+                              renv = FALSE), "Run calcOutput")
+  expect_message(retrieveData("example", rev = 43, extra = "x", renv = FALSE), "Run pucAggregate")
+})
+
+test_that("pucCreate fails when cache files are missing", {
+  skip_on_cran()
+  localMockedTauDownload()
+  # use a scratch cachefolder so unlinking cache files below cannot affect other tests
+  localConfig(cachefolder = withr::local_tempdir(), .verbose = FALSE)
+
+  tgz <- retrieveData("example", rev = 44, puc = FALSE, renv = FALSE)
+  cacheFiles <- .pucFilesOfArchive(tgz)
+  expect_true(length(cacheFiles) > 0)
+  unlink(cacheFiles)
+
+  expect_error(pucCreate(tgz), "no longer exist")
+})
+
+test_that("pucCreate fails when a cache file cannot be converted to rds", {
+  skip_on_cran()
+  localMockedTauDownload()
+  localConfig(cachefolder = withr::local_tempdir(), .verbose = FALSE)
+
+  tgz <- retrieveData("example", rev = 45, puc = FALSE, renv = FALSE)
+  cacheFiles <- .pucFilesOfArchive(tgz)
+  expect_true(length(cacheFiles) > 0)
+  # a directory passes file.exists() but cannot be copied into the puc (file.copy warns, expectedly),
+  # which .createPuc only logs while pucCreate must raise
+  unlink(cacheFiles[1])
+  dir.create(cacheFiles[1])
+
+  suppressWarnings(expect_error(pucCreate(tgz), "Could not create puc file"))
+})
+
+test_that("pucCreate fails on an archive without pucFiles", {
+  skip_on_cran()
+
+  emptyArchive <- withr::local_tempfile(fileext = ".tgz")
+  withr::with_tempdir({
+    writeLines("nothing to see here", "readme.txt")
+    utils::tar(emptyArchive, "readme.txt", compression = "gzip")
+  })
+
+  expect_error(pucCreate(emptyArchive), "does not look like it was")
+})
+
+# Starts a sub-process which acquires the lock for the given puc via .withLockedPuc and holds it
+# until releaseFile shows up. It prints "acquired" once it is inside the critical section and
+# "released" once it has left it again.
+.startLockHolder <- function(pucName, releaseFile) {
+  callr::r_bg(function(madratConfig, pucName, releaseFile) {
+    pkgload::load_all("../..")
+    do.call(madrat::setConfig, madratConfig)
+
+    madrat:::.withLockedPuc(pucName, function() {
+      cat("acquired\n")
+      flush(stdout())
+      while (!file.exists(releaseFile)) {
+        Sys.sleep(0.05)
+      }
+    })
+    cat("released\n")
+    flush(stdout())
+  }, args = list(madratConfig = getConfig(), pucName = pucName, releaseFile = releaseFile))
+}
+
+test_that(".withLockedPuc grants exclusive access across processes", {
+  skip_on_cran()
+  # "../.." (above) only locates the package source when this session has madrat loaded via
+  # pkgload::load_all() from that path. Under covr::package_coverage() tests run against a
+  # library()-installed copy in an unrelated temp dir, so the sub-process fails to load madrat.
+  skip_on_covr()
+
+  pucName <- "testlock_example.puc"
+  releaseFile <- file.path(withr::local_tempdir(), "release")
+
+  holder <- .startLockHolder(pucName, releaseFile)
+  withr::defer(holder$kill())
+  holderLog <- processLog(holder)
+
+  # From here on the sub-process provably holds the lock, so no waiting heuristics are needed below
+  holderLog$waitFor("acquired")
+
+  # filelock locks are shared within a process, so the lock has to be probed from this process, not
+  # from the one holding it. timeout = 0 turns the probe into a non-blocking try.
+  lockPath <- madrat:::.pucLockPath(pucName)
+  blockedLock <- filelock::lock(lockPath, timeout = 0)
+  if (!is.null(blockedLock)) {
+    filelock::unlock(blockedLock)
+  }
+  expect_null(blockedLock)
+
+  # locking is per puc, an unrelated puc must not be blocked
+  otherLock <- filelock::lock(madrat:::.pucLockPath("othertestlock_example.puc"), timeout = 0)
+  expect_false(is.null(otherLock))
+  if (!is.null(otherLock)) {
+    filelock::unlock(otherLock)
   }
 
-  p1Log <- .createLog()
-  p2Log <- .createLog()
+  file.create(releaseFile)
+  holderLog$waitFor("released")
+  holder$wait()
+  expect_identical(holder$get_exit_status(), 0L)
 
-  # Set up PUC-folder as working directory
-  unlink(list.files(getConfig("pucfolder"), full.names = TRUE)) # To ensure no remaining pucs are in there
-  unlink(list.files(lockDir, full.names = TRUE)) # To ensure no remaining locks
-  dir.create(lockDir, showWarnings = FALSE)
+  releasedLock <- filelock::lock(lockPath, timeout = 5000)
+  expect_false(is.null(releasedLock))
+  if (!is.null(releasedLock)) {
+    filelock::unlock(releasedLock)
+  }
+})
 
-  # Set up locks
-  firstCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint1.lock"))
-  secondCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint2.lock"))
+test_that("a second .withLockedPuc caller waits until the lock is released", {
+  skip_on_cran()
+  skip_on_covr() # see the comment on the previous test
 
-  p1 <- callr::r_bg(function(madratConfig) {
-    # Set up environment
-    pkgload::load_all("../..")
-    do.call(madrat::setConfig, madratConfig)
-    lockDir <- file.path(getConfig("pucfolder"), ".locks")
+  pucName <- "testlock_waiting_example.puc"
+  releaseFile <- file.path(withr::local_tempdir(), "release")
 
-    # Set up .withLockedPuc wrapper to inject control logic
-    # into the passed function
-    originalWithLockedPuc <- madrat:::.withLockedPuc
-    assignInNamespace(".withLockedPuc", function(pucName, fn) {
-      originalWithLockedPuc(pucName, function() {
-        if (any(grepl("pucAggregate", deparse(fn), fixed = TRUE))) {
-          # Only interested in creation, so we do a quick return for reading the puc.
-          return(fn())
-        }
+  holder <- .startLockHolder(pucName, releaseFile)
+  withr::defer(holder$kill())
+  holderLog <- processLog(holder)
+  holderLog$waitFor("acquired")
 
-        tryCatch({
-          cat("ready\n")
-          firstCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint1.lock"))
-          fn()
-          cat("fn done\n")
-          secondCheckpoint <- filelock::lock(file.path(lockDir, "checkpoint2.lock"))
-        },
-        finally = {
-          filelock::unlock(firstCheckpoint)
-          filelock::unlock(secondCheckpoint)
-        })
-      })
-    }, ns = "madrat")
-
-    # Start
-    madrat::retrieveData("example", rev = 45)
-  }, args = list(madratConfig = getConfig()))
-
-  # Wait for p1 to signal that it is ready, i.e. it has entered the critical section
-  p1Log$waitFor(p1, "ready")
-
-  # This is a copy of testFunction1 except for the call at the end
-  p2 <- callr::r_bg(function(madratConfig) {
-    # Set up environment
+  waiter <- callr::r_bg(function(madratConfig, pucName) {
     pkgload::load_all("../..")
     do.call(madrat::setConfig, madratConfig)
 
-    # Set up .withLockedPuc wrapper to inject control logic
-    # into the passed function
-    originalWithLockedPuc <- madrat:::.withLockedPuc
-    assignInNamespace(".withLockedPuc", function(pucName, fn) {
-      originalWithLockedPuc(pucName, function() {
-        if (any(grepl("pucAggregate", deparse(fn), fixed = TRUE))) {
-          # Only interested in creation, so we do a quick return for reading the puc.
-          return(fn())
-        }
-        cat("entered section\n")
-        fn()
-      })
-    }, ns = "madrat")
+    # "requesting" is printed immediately before the lock is requested, so that the only thing
+    # happening between the two markers is the blocking filelock call itself
+    cat("requesting\n")
+    flush(stdout())
+    madrat:::.withLockedPuc(pucName, function() {
+      cat("entered\n")
+      flush(stdout())
+    })
+  }, args = list(madratConfig = getConfig(), pucName = pucName))
+  withr::defer(waiter$kill())
+  waiterLog <- processLog(waiter)
 
-    # Start
-    cat("ready\n")
-    madrat::retrieveData("example", rev = 45)
-  }, args = list(madratConfig = getConfig()))
+  waiterLog$waitFor("requesting")
+  Sys.sleep(1) # settle window, the waiter is a single filelock call away from the critical section
+  expect_false(waiterLog$contains("entered"))
 
-  # Wait for p2 to signal that it is ready, i.e. it was at the point where it could execute
-  # the critical section (there is no guarantee that it tried getting in yet, if this test
-  # is flaky, this is one of the critical spots).
-  p2Log$waitFor(p2, "ready")
+  file.create(releaseFile)
+  waiterLog$waitFor("entered") # fails after the timeout if the waiter never gets the lock
+  waiter$wait()
+  holder$wait()
+  expect_identical(waiter$get_exit_status(), 0L)
+  expect_identical(holder$get_exit_status(), 0L)
+})
 
-  filelock::unlock(firstCheckpoint)
+test_that("retrieveData locks puc creation and puc reading", {
+  skip_on_cran()
+  localMockedTauDownload()
 
-  # Wait for p1 to signal that it is done, i.e. it has executed fn,
-  # but hasn't left the critical section yet
-  p1Log$waitFor(p1, "fn done")
+  lockedNames <- character(0)
+  originalWithLockedPuc <- madrat:::.withLockedPuc # has to be captured before mocking, else recursion
+  local_mocked_bindings(.withLockedPuc = function(pucName, fn) {
+    lockedNames <<- c(lockedNames, pucName)
+    originalWithLockedPuc(pucName, fn)
+  }, .package = "madrat")
 
-  Sys.sleep(1) # Give p2 some more time to reach the lock
+  # creates the puc
+  retrieveData("example", rev = 46, renv = FALSE)
+  expect_identical(lockedNames, "rev46_extra_example_tag.puc")
 
-  # Collect any new output from p2 and verify it has not entered the critical section
-  p2Log$update(p2)
-  expect_false(p2Log$contains("entered section"))
-  expect_true(file.exists(file.path(getConfig("pucfolder"), "rev45_extra_example_tag.puc")))
-  unlink("rev45_extra_example_tag.puc")
-
-  filelock::unlock(secondCheckpoint)
-  p1$wait()
-  p2$wait()
-
-  # Collect final output and verify p2 eventually entered the critical section
-  p2Log$update(p2)
-  expect_true(p2Log$contains("entered section"))
-
-  expect_true(file.exists(file.path(getConfig("pucfolder"), "rev45_extra_example_tag.puc")))
-
-  expect_false(p1$is_alive())
-  expect_false(p2$is_alive())
+  # a different value for the puc argument "extra" reuses the same puc via pucAggregate
+  expect_message(retrieveData("example", rev = 46, extra = "other", renv = FALSE), "Run pucAggregate")
+  expect_identical(lockedNames, rep("rev46_extra_example_tag.puc", 2))
 })

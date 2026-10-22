@@ -104,10 +104,6 @@
 #' a <- calcOutput(type = "TauTotal")
 #' }
 #'
-#' @importFrom magclass nyears nregions getComment<- getComment getYears clean_magpie write.report write.magpie
-#' getCells getYears<- is.magpie dimSums
-#' @importFrom utils packageDescription read.csv2 read.csv
-#' @importFrom withr defer local_dir
 #' @export
 calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # nolint
                        round = NULL, signif = NULL, supplementary = FALSE,
@@ -115,6 +111,9 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
                        regionmapping = NULL, writeArgs = NULL, temporalmapping = NULL,
                        ..., outputStatistics = NULL) {
   argumentValues <- c(as.list(environment()), list(...))  # capture arguments for logging
+
+  # Needs to be read before the wrapper is activated for the current call
+  isTopLevelCall <- !isWrapperActive("calcOutput")
 
   setWrapperActive("calcOutput")
   setWrapperInactive("wrapperChecks")
@@ -205,7 +204,7 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     if (x$isocountries) {
       .countrycheck <- function(datacountries, name) {
         datacountries <- robustSort(datacountries)
-        isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
+        isoCountry <- utils::read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
         isoCountry1 <- as.vector(isoCountry[, "x"])
         names(isoCountry1) <- isoCountry[, "X"]
         isocountries <- robustSort(isoCountry1)
@@ -267,12 +266,21 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     vcat(-2, "")
   }
 
+  # deferred handlers run in reverse order of registration, so registering this before
+  # toolendmessage makes the memory report show up after the corresponding exit message
+  if (isTopLevelCall && isTRUE(getConfig("memoryprofiling", raw = TRUE))) {
+    memoryStart <- startMemoryProfiling()
+    withr::defer({
+      reportMemoryProfiling(memoryStart, callString)
+    })
+  }
+
   startinfo <- toolstartmessage(callString, "+")
-  defer({
+  withr::defer({
     toolendmessage(startinfo, "-")
   })
 
-  local_dir(getConfig("outputfolder"))
+  withr::local_dir(getConfig("outputfolder"))
 
   functionname <- prepFunctionName(type = type, prefix = "calc", ignore = ifelse(is.null(years), "years", NA))
   extraArgs <- sapply(attr(functionname, "formals"), function(x) return(eval(parse(text = x))), simplify = FALSE) # nolint
@@ -280,6 +288,11 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
 
   x <- cacheGet(prefix = "calc", type = type, args = args)
   cacheFileName <- attr(x, "id")
+  # the cache file which actually exists. Can differ from cacheFileName if the data was read
+  # from an rds file while another cache format is configured, and is NULL if nothing was
+  # read and nothing could be written.
+  existingCacheFile <- attr(x, "readFile")
+  attr(x, "readFile") <- NULL
 
   if (!isTRUE(is.na(x))) {
     x <- tryCatch({
@@ -305,15 +318,16 @@ calcOutput <- function(type, aggregate = TRUE, file = NULL, years = NULL, # noli
     }
     setWrapperInactive("wrapperChecks")
     x <- .checkData(x, functionname, callString)
-    cachePut(x, prefix = "calc", type = type, fname = cacheFileName, callString = callString)
+    existingCacheFile <- cachePut(x, prefix = "calc", type = type,
+                                  fname = cacheFileName, callString = callString)
   }
 
   if (is.logical(x$putInPUC)) {
     saveCache <- x$putInPUC
   }
 
-  if (saveCache) {
-    write(cacheFileName, file = "pucFiles", append = TRUE)
+  if (saveCache && !is.null(existingCacheFile)) {
+    write(existingCacheFile, file = "pucFiles", append = TRUE)
   }
 
   if (!is.null(outputStatistics)) {

@@ -260,7 +260,7 @@ test_that("trivial renaming works with weight", {
   expect_silent(toolAggregate(pm, mapping, from = "a", to = "b", dim = 3, weight = weight))
 })
 
-test_that("zeroWeight = fix works", {
+test_that("zeroWeight = fix works for disaggregation", {
   x <- new.magpie(c("A", "B"), fill = 100)
   rel <- data.frame(c("A", "A", "B", "B"),
                     c("A1", "A2", "B1", "B2"))
@@ -281,6 +281,21 @@ test_that("zeroWeight = fix works", {
   expect_silent(y <- toolAggregate(x, rel, weight, zeroWeight = "fix"))
   expect_equal(sum(x), sum(y)) # total sum is equal
   expect_true(as.vector(y["B2", , ]) == 0) # and this is also still 0
+})
+
+test_that("zeroWeight = fix works for weighted mean aggregation", {
+  rel <- data.frame(c("A", "A", "B", "B"),
+                    c("A.A1", "A.A2", "B.B1", "B.B2"))
+  x <- new.magpie(rel[[2]], fill = 100)
+  weight <- new.magpie(rel[[2]], fill = 0)
+  weight["B1", , ] <- 1
+
+  expect_warning(y <- toolAggregate(x, rel, weight),
+                 "Weight sum is 0")
+  expect_true(as.vector(y["A", , ]) == 0)
+
+  expect_silent(y <- toolAggregate(x, rel, weight, zeroWeight = "fix"))
+  expect_true(as.vector(y["A", , ]) == 100)
 })
 
 test_that("empty cells in a to column do not result in aggregated data", {

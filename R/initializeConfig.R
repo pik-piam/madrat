@@ -35,11 +35,28 @@ initializeConfig <- function(verbose = TRUE) {
                 forcecache           = FALSE,
                 ignorecache          = NULL,
                 cachecompression     = "gzip",
+                cacheformat          = Sys.getenv("MADRAT_CACHEFORMAT", unset = "rds"),
                 hash                 = "xxhash32",
                 diagnostics          = FALSE,
                 debug                = FALSE,
+                memoryprofiling      = isTRUE(as.logical(Sys.getenv("MADRAT_MEMORYPROFILING", unset = FALSE))),
                 maxLengthLogMessage = 200)
+
+    problem <- cacheFormatProblem(cfg$cacheformat)
+    if (!is.null(problem)) {
+      cfg$cacheformat <- "rds"
+    }
+
     options(madrat_cfg = cfg) # nolint
+
+    # vcat reads the config, so it can only run once the config has been set
+    if (!is.null(problem)) {
+      hint <- if (nzchar(Sys.getenv("MADRAT_CACHEFORMAT"))) {
+        " Cache format was set via the environment variable MADRAT_CACHEFORMAT."
+      }
+      vcat(1, paste0(problem, hint, " Falling back to \"rds\"."))
+    }
+
     if (verbose) {
       message(paste(paste0("    ", names(cfg)), cfg, sep = " = ", collapse = "\n"))
       message("..done!\n")

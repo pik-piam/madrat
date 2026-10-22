@@ -49,7 +49,7 @@ regionscode <- function(mapping = NULL, label = FALSE, strict = TRUE) {
     if (ncol(mapping) >= 3) mapping[[1]] <- NULL
 
     # read list of ISO-countries
-    isCountry  <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
+    isCountry  <- utils::read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
     isCountry1 <- as.vector(isCountry[, "x"])
     names(isCountry1) <- isCountry[, "X"]
     isocountries <- robustSort(isCountry1)

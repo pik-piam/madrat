@@ -11,8 +11,8 @@ toolFixWeight(weight, map, dim)
 (dis)aggregation. The provided weight does not need to be normalized, any
 number >= 0 is allowed.}
 
-\item{map}{a data frame where the first column contains coarse resolution items
-and the second column contains fine resolution items; fine resolution items
+\item{map}{a 2-column data frame where one column contains coarse resolution items
+and the other column contains fine resolution items; fine resolution items
 must match items in weight}
 
 \item{dim}{which dim to fix (e.g. 1 or 3.2 or "region")}

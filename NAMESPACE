@@ -3,11 +3,13 @@
 export(addMapping)
 export(cacheCleanup)
 export(cacheCopy)
+export(cacheFormats)
 export(calcOutput)
 export(compareData)
 export(compareMadratOutputs)
 export(downloadSource)
 export(findBottlenecks)
+export(findMemoryBottlenecks)
 export(getCalculations)
 export(getConfig)
 export(getDependencies)
@@ -25,10 +27,12 @@ export(madratAttach)
 export(madratDetach)
 export(metadataGFZ)
 export(pucAggregate)
+export(pucCreate)
 export(putMadratMessage)
 export(readSource)
 export(redirectSource)
 export(regionscode)
+export(registerCacheFormat)
 export(resetMadratMessages)
 export(retrieveData)
 export(returnCalcOutput)
@@ -57,82 +61,79 @@ export(vcat)
 export(visualizeDependencies)
 import(magclass)
 importFrom(callr,r)
-importFrom(igraph,"V<-")
-importFrom(igraph,V)
-importFrom(igraph,as_undirected)
-importFrom(igraph,cluster_edge_betweenness)
-importFrom(igraph,components)
-importFrom(igraph,ego)
-importFrom(igraph,graph_from_data_frame)
-importFrom(igraph,make_ego_graph)
-importFrom(igraph,membership)
-importFrom(igraph,subcomponent)
-importFrom(igraph,union)
-importFrom(magclass,"getCells<-")
-importFrom(magclass,"getComment<-")
-importFrom(magclass,"getYears<-")
-importFrom(magclass,as.magpie)
-importFrom(magclass,clean_magpie)
-importFrom(magclass,collapseNames)
-importFrom(magclass,dimExists)
-importFrom(magclass,dimSums)
-importFrom(magclass,getCells)
-importFrom(magclass,getComment)
-importFrom(magclass,getItems)
-importFrom(magclass,getNames)
-importFrom(magclass,getYears)
-importFrom(magclass,is.magpie)
-importFrom(magclass,magpie_expand)
-importFrom(magclass,mbind)
-importFrom(magclass,ncells)
-importFrom(magclass,new.magpie)
-importFrom(magclass,nregions)
-importFrom(magclass,nyears)
-importFrom(magclass,read.magpie)
-importFrom(magclass,setCells)
-importFrom(magclass,setYears)
-importFrom(magclass,time_interpolate)
-importFrom(magclass,where)
-importFrom(magclass,write.magpie)
-importFrom(magclass,write.report)
+importFrom(igraph,
+  "V<-",
+  V,
+  ego,
+  graph_from_data_frame,
+  make_ego_graph,
+  subcomponent,
+  union
+)
+importFrom(magclass,
+  "getCells<-",
+  as.magpie,
+  collapseNames,
+  dimExists,
+  dimSums,
+  getCells,
+  getItems,
+  getNames,
+  getYears,
+  is.magpie,
+  magpie_expand,
+  mbind,
+  ncells,
+  new.magpie,
+  read.magpie,
+  setCells,
+  setYears,
+  time_interpolate,
+  where
+)
 importFrom(methods,formalArgs)
 importFrom(pkgload,is_dev_package)
-importFrom(renv,activate)
-importFrom(renv,hydrate)
-importFrom(renv,init)
-importFrom(renv,restore)
-importFrom(renv,snapshot)
+importFrom(renv,
+  hydrate,
+  init,
+  snapshot
+)
 importFrom(stats,smooth.spline)
-importFrom(stringi,stri_extract)
-importFrom(stringi,stri_extract_all)
-importFrom(stringi,stri_match_all_regex)
-importFrom(stringi,stri_split)
-importFrom(tools,file_ext)
-importFrom(tools,file_path_sans_ext)
-importFrom(utils,askYesNo)
-importFrom(utils,bibentry)
-importFrom(utils,capture.output)
-importFrom(utils,download.file)
-importFrom(utils,installed.packages)
-importFrom(utils,modifyList)
-importFrom(utils,packageDescription)
-importFrom(utils,person)
-importFrom(utils,read.csv)
-importFrom(utils,read.csv2)
-importFrom(utils,sessionInfo)
-importFrom(utils,str)
-importFrom(utils,tail)
-importFrom(utils,tar)
-importFrom(utils,untar)
-importFrom(utils,unzip)
-importFrom(utils,write.csv)
-importFrom(utils,write.table)
-importFrom(withr,defer)
-importFrom(withr,local_connection)
-importFrom(withr,local_dir)
-importFrom(withr,local_locale)
-importFrom(withr,local_package)
-importFrom(withr,local_tempdir)
-importFrom(withr,with_dir)
-importFrom(withr,with_tempdir)
+importFrom(stringi,
+  stri_extract,
+  stri_extract_all,
+  stri_match_all_regex,
+  stri_split
+)
+importFrom(tools,
+  file_ext,
+  file_path_sans_ext
+)
+importFrom(utils,
+  askYesNo,
+  bibentry,
+  capture.output,
+  download.file,
+  installed.packages,
+  modifyList,
+  person,
+  sessionInfo,
+  str,
+  tail,
+  tar,
+  untar,
+  unzip,
+  write.csv,
+  write.table
+)
+importFrom(withr,
+  defer,
+  local_connection,
+  local_dir,
+  local_locale,
+  local_package,
+  local_tempdir,
+  with_dir,
+  with_tempdir
+)
 importFrom(yaml,write_yaml)

@@ -10,7 +10,7 @@ test_that("toolGetMapping works", {
                    grep("csv", dir(as.character(getConfig("mappingfolder"))), value = TRUE))[1]
   fullPath <- paste0(system.file(package = "madrat"), "/extdata/", fname)
   # try to find that mapping as if you did not know where it is
-  expect_identical(toolGetMapping(fname), read.csv(fullPath, header = TRUE, sep = ";", colClasses = "character"))
+  expect_identical(toolGetMapping(fname), utils::read.csv(fullPath, header = TRUE, sep = ";", colClasses = "character"))
   expect_identical(toolGetMapping(fullPath, type = "csv"), toolGetMapping(fname))
   expect_identical(head(toolGetMapping("regionmappingH12.csv", where = "madrat")), expected)
   expect_identical(toolGetMapping("bla", where = "local", returnPathOnly = TRUE, error.missing = FALSE), "bla")
@@ -38,6 +38,14 @@ test_that("toolGetMapping works", {
   writeLines("abc", paste0(getConfig("mappingfolder"), "/test.xyz"))
   expect_error(toolGetMapping("test.rda", where = "mappingfolder"), "did not contain an object")
   expect_error(toolGetMapping("test.xyz"), "Unsupported filetype")
+
+  # a name which already is a path to an existing file must resolve directly, without being
+  # re-resolved against "where" (e.g. getConfig("regionmapping") can be normalized to an
+  # absolute path by setConfig, see calcOutput's regionmapping argument)
+  absPath <- normalizePath(paste0(getConfig("mappingfolder"), "/test.csv"))
+  expect_identical(toolGetMapping(absPath, type = "regional", where = "mappingfolder", returnPathOnly = TRUE),
+                   absPath)
+  expect_identical(toolGetMapping(absPath, where = "madrat"), toolGetMapping("test.csv", where = "mappingfolder"))
 
   readTest <- function() {
     toolGetMapping("regionmappingH12.csv", type = "regional")

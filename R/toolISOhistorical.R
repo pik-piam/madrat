@@ -39,9 +39,10 @@ toolISOhistorical <- function(m, mapping = NULL, additional_mapping = NULL, over
   # mapping of historical countries and regions to the standard ISO-Country-List
   #            and last year of existence of the historical countries
   if (is.null(mapping)) {
-    mapping <- read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"), stringsAsFactors = FALSE)
+    mapping <- utils::read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"),
+                                stringsAsFactors = FALSE)
   } else if (is.character(mapping)) {
-    mapping <- read.csv(mapping, sep = ";", as.is = TRUE)
+    mapping <- utils::read.csv(mapping, sep = ";", as.is = TRUE)
   }
   # add additional mapping, if provided
   if (!is.null(additional_mapping)) {

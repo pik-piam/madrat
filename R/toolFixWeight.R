@@ -8,8 +8,8 @@
 #' @param weight magclass object containing weights to be used for a weighted
 #' (dis)aggregation. The provided weight does not need to be normalized, any
 #' number >= 0 is allowed.
-#' @param map a data frame where the first column contains coarse resolution items
-#' and the second column contains fine resolution items; fine resolution items
+#' @param map a 2-column data frame where one column contains coarse resolution items
+#' and the other column contains fine resolution items; fine resolution items
 #' must match items in weight
 #' @param dim which dim to fix (e.g. 1 or 3.2 or "region")
 #' @return weight, with weights set to 10^-30 only where otherwise the total
@@ -43,29 +43,37 @@
 toolFixWeight <- function(weight, map, dim) {
   dim <- dimCode(dim, weight)
   stopifnot(length(dim) == 1,
-            weight >= 0,
-            setequal(map[[2]], getItems(weight, dim)))
+            all(weight >= 0),
+            ncol(map) == 2)
+  if (!setequal(map[[2]], getItems(weight, dim))) {
+    map <- map[, 2:1]
+  }
+  stopifnot(setequal(map[[2]], getItems(weight, dim)))
   originalDimnames <- dimnames(weight)
 
   extramap <- NULL
-  map <- unique(map[, 1:2])
+  map <- map[!duplicated(map[[2]]), 1:2]
   if (dim %in% 1:3) {
     if (ndim(weight, dim) == 1) {
-      stopifnot(!grepl(".", map, fixed = TRUE))
+      stopifnot(!grepl(".", map[[1]], fixed = TRUE),
+                !grepl(".", map[[2]], fixed = TRUE))
     } else {
       # merge all subdims into one dim, and replace back at the end using extramap
       originalMap2 <- map[[2]]
-      map[[1]] <- sub(".", "p", map[[1]], fixed = TRUE)
-      map[[2]] <- sub(".", "p", map[[2]], fixed = TRUE)
-      extramap <- stats::setNames(nm = map[[2]], originalMap2)
-      getItems(weight, dim, full = TRUE) <- sub(".", "p", getItems(weight, dim, full = TRUE), fixed = TRUE)
+      map[[1]] <- gsub(".", "p", map[[1]], fixed = TRUE)
+      map[[2]] <- gsub(".", "p", map[[2]], fixed = TRUE)
+      extramap <- originalMap2
+      names(extramap) <- map[[2]]
+      getItems(weight, dim, full = TRUE) <- gsub(".", "p", getItems(weight, dim, full = TRUE), fixed = TRUE)
     }
     dim <- dim + 0.1
     stopifnot(dim %in% c(1.1, 2.1, 3.1))
   }
   stopifnot(dim >= 1, dim < 4)
   mainDim <- floor(dim)
-  map <- stats::setNames(nm = map[[2]], object = map[[1]])
+  mapnames <- map[[2]]
+  map <- map[[1]]
+  names(map) <- mapnames
 
   # append subdim for coarse items according to map
   weight <- add_dimension(weight, dim + 0.1, "placeholder_dimname",

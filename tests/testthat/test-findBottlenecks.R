@@ -46,6 +46,36 @@ logMultiple <- c('Run retrieveData(model = "CellularMAgPIE", rev = list(c(4, 120
                  'Exit calcOutput(type = "ValidCroparea", aggregate = "cluster", file = "croparea.mz") in 6.6 seconds',
                  'Exit retrieveData(model = "Validation", rev = list(c(4, 120)), puc = FALSE) in 15.3 seconds')
 
+# A log without any retrieveData call, e.g. from a script that calls calcOutput()/readSource()
+# directly (like a MAgPIE default.cfg run).
+logStandalone <- c('Run calcOutput(type = "Parent1", aggregate = FALSE)',
+                   '~ Run readSource(type = "Src1")',
+                   '~ Exit readSource(type = "Src1") in 2 seconds',
+                   'Exit calcOutput(type = "Parent1", aggregate = FALSE) in 5 seconds',
+                   'Run calcOutput(type = "Parent2", aggregate = FALSE)',
+                   '~ Run readSource(type = "Src2")',
+                   '~ Exit readSource(type = "Src2") in 1 seconds',
+                   'Exit calcOutput(type = "Parent2", aggregate = FALSE) in 3 seconds')
+
+# Standalone calcOutput calls before, between and after two retrieveData calls.
+logMixed <- c('Exit calcOutput(type = "Lead1", aggregate = FALSE) in 3 seconds',
+              'Exit calcOutput(type = "Lead2", aggregate = FALSE) in 4 seconds',
+              'Run retrieveData(model = "A", rev = 1)',
+              '~ Run readSource(type = "Inner")',
+              '~ Exit readSource(type = "Inner") in 2 seconds',
+              'Exit retrieveData(model = "A", rev = 1) in 20 seconds',
+              'Exit calcOutput(type = "Between", aggregate = FALSE) in 1 seconds',
+              'Run retrieveData(model = "B", rev = 1)',
+              'Exit retrieveData(model = "B", rev = 1) in 6 seconds',
+              'Exit calcOutput(type = "Trail", aggregate = FALSE) in 6 seconds')
+
+# The "Run retrieveData(...)" marker itself can be wrapped across lines just like any other
+# Run/Exit record.
+logWrapped <- c('Run ',
+                'retrieveData(model = "Wrapped", rev = 1)',
+                '~ Exit calcOutput(type = "X", aggregate = FALSE) in 2 seconds',
+                'Exit retrieveData(model = "Wrapped", rev = 1) in 9 seconds')
+
 test_that("bottleneck detection works", {
   expect_message({
     x <- findBottlenecks(log)
@@ -83,5 +113,47 @@ test_that("multiple retrieveData calls are analyzed separately", {
   valid <- x[["modelValidation"]]
   expect_equal(valid$"net[s]"[valid$type == "ValidCroparea"], 6.6 - 4) # parent minus nested readSource
   expect_equal(valid$"net[s]"[valid$type == "ValidGridLand"], 7.2)     # unaffected by the other block
+
+  # percentages are still correct after moving the total runtime computation ahead of the
+  # optional cumulative aggregation: the top-level retrieveData row always accounts for 100%
+  expect_equal(x[["modelCellularMAgPIE"]]$"time[%]"[x[["modelCellularMAgPIE"]]$type == "modelCellularMAgPIE"], 100)
+  expect_equal(x[["modelValidation"]]$"time[%]"[x[["modelValidation"]]$type == "modelValidation"], 100)
+})
+
+test_that("logs without any retrieveData call are analyzed as a standalone block", {
+  expect_no_warning({
+    x <- findBottlenecks(logStandalone, unit = "s")
+  })
+  expect_named(x, "standalone")
+  d <- x[["standalone"]]
+  expect_setequal(d$type, c("Parent1", "Parent2", "Src1", "Src2"))
+  # net runtimes partition the total top-level (root level) runtime exactly
+  expect_equal(sum(d$"net[s]"), sum(d$"time[s]"[d$level == 0]))
+  expect_false(any(is.infinite(d$"time[%]")))
+  expect_false(any(is.infinite(d$"net[%]")))
+})
+
+test_that("standalone calls before, between and after retrieveData calls are kept separate", {
+  x <- findBottlenecks(logMixed, unit = "s")
+  expect_named(x, c("modelA", "modelB", "standalone"))
+  # leading, in-between and trailing standalone calls all end up in the standalone block,
+  # not attributed to the (nesting-level 0) retrieveData block that happens to follow/precede them
+  expect_setequal(x[["standalone"]]$type, c("Lead1", "Lead2", "Between", "Trail"))
+  expect_setequal(x[["modelA"]]$type, c("modelA", "Inner"))
+  expect_setequal(x[["modelB"]]$type, "modelB")
+})
+
+test_that("a wrapped 'Run retrieveData(...)' marker is still detected as a block start", {
+  x <- findBottlenecks(logWrapped, unit = "s")
+  expect_named(x, "modelWrapped")
+  expect_setequal(x[["modelWrapped"]]$type, c("modelWrapped", "X"))
+})
+
+test_that("a log without any runtime information produces an empty, named list", {
+  expect_warning({
+    x <- findBottlenecks(c("hello", "world"))
+  }, "No function calls with runtime information")
+  expect_named(x, character(0))
+  expect_length(x, 0)
 })
 # nolint end

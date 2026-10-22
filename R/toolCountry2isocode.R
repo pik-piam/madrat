@@ -25,8 +25,8 @@
 #' @export
 toolCountry2isocode <- function(country, warn = TRUE, ignoreCountries = NULL, type = NULL, mapping = NULL) {
   if (!is.null(type)) warning("\"type\" argument is deprecated and will be ignored! Don't use it!")
-  country2iso <- read.csv2(system.file("extdata", "country2iso.csv", package = "madrat"),
-                           row.names = NULL, encoding = "UTF-8")
+  country2iso <- utils::read.csv2(system.file("extdata", "country2iso.csv", package = "madrat"),
+                                  row.names = NULL, encoding = "UTF-8")
   country2iso1 <- as.vector(country2iso[, "x"])
   names(country2iso1) <- country2iso[, "X"]
   mapping <- c(country2iso1, mapping)

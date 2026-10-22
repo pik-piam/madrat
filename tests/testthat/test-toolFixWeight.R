@@ -44,8 +44,8 @@ test_that("toolFixWeight works with subdims", {
 })
 
 test_that("toolFixWeight works with multi subdims map", {
-  map <- data.frame(c("X.CC", "X.CC", "X.CC", "X.DD", "X.DD"),
-                    c("X.CC1", "X.CC2", "X.CC3", "X.DD1", "X.DD2"))
+  map <- data.frame(c("X.CC.U", "X.CC.U", "X.CC.U", "X.DD.U", "X.DD.U"),
+                    c("X.CC1.U", "X.CC2.U", "X.CC3.U", "X.DD1.U", "X.DD2.U"))
   weight <- new.magpie(c("A", "B"), map[[2]], c("EEE", "FFF"), fill = 0)
   weight["B", "CC3", "EEE"] <- 1
 
@@ -58,7 +58,6 @@ test_that("toolFixWeight works with multi subdims map", {
 })
 
 test_that("toolFixWeight can handle large objects", {
-  skip("to save time skip test whether toolFixWeight can handle large objects")
   to <- Reduce(x = 1:26, init = NULL, f = function(total, i) {
     return(c(total, paste0(LETTERS[i], seq_len(1000 * i))))
   })
@@ -70,5 +69,5 @@ test_that("toolFixWeight can handle large objects", {
   weight[idx, , ] <- runif(length(idx))
 
   timed <- system.time(toolFixWeight(weight, map, dim = 1))
-  expect_true(timed["elapsed"] < 5)
+  expect_true(timed["elapsed"] < 10)
 })

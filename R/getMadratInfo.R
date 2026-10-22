@@ -15,8 +15,6 @@
 #' @author Jan Philipp Dietrich
 #' @seealso \code{\link{getCalculations}}, \code{\link{getMadratGraph}}
 #' @family dependency graph
-#' @importFrom igraph graph_from_data_frame components V
-#' cluster_edge_betweenness as_undirected membership
 #' @export
 
 getMadratInfo <- function(graph = NULL, cutoff = 5, extended = FALSE, ...) {

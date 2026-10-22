@@ -13,7 +13,7 @@
 #' default argument settings.
 #'
 #' @author Jan Philipp Dietrich
-#' @seealso \code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
+#' @seealso \code{\link{cachePut}}, \code{\link{cacheNames}}, \code{\link{getNonDefaultArguments}}
 #' @keywords internal
 #' @examples
 #' madrat:::cacheArgumentsHash("madrat:::readTau", args = list(subtype = "historical"))

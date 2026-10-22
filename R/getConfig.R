@@ -82,6 +82,11 @@ getConfig <- function(option = NULL, raw = FALSE, verbose = TRUE, print = FALSE)
     if (is.null(cfg[["redirections"]])) {
       cfg[["redirections"]] <- list()
     }
+
+    # can be unset in a config created by a madrat version which did not know cacheformat
+    if (is.null(cfg[["cacheformat"]]) || is.na(cfg[["cacheformat"]])) {
+      cfg[["cacheformat"]] <- "rds"
+    }
   }
   if (verbose && print) {
     nmax <- max(nchar(names(cfg)))

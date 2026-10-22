@@ -219,8 +219,8 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
   }
 
   weightAndWeightSum <- toolZeroWeight(weight, rel, from, to, dim, wdim, partrel, zeroWeight)
-  weight <- weightAndWeightSum$weight
-  weight2 <- 1 / (weightAndWeightSum$weightSum + 10^-100)
+  weight <- weightAndWeightSum$weight # fine resolution
+  weight2 <- 1 / (weightAndWeightSum$weightSum + 10^-100) # coarse resolution
 
   if (mixedAggregation) {
     weight2[is.na(weight2)] <- 1
@@ -233,15 +233,17 @@ toolAggregateWeighted <- function(x, rel, weight, from, to, dim, wdim, partrel,
   }
 
   if (setequal(getItems(weight, dim = wdim), getItems(x, dim = dim))) {
+    # weighted mean aggregation
     out <- toolAggregate(x * weight, rel, from = from, to = to, dim = dim, partrel = partrel) * weight2
   } else {
+    # weighted disaggregation
     out <- toolAggregate(x * weight2, rel, from = from, to = to, dim = dim, partrel = partrel) * weight
+    if (zeroWeight == "fix" && !isTRUE(all.equal(sum(out), sum(x)))) {
+      warning("total sum is not the same after toolAggregate's weighted disaggregation ",
+              "despite zeroWeight = 'fix', please contact a madrat developer.")
+    }
   }
 
-  if (zeroWeight == "fix" && !isTRUE(all.equal(sum(out), sum(x)))) {
-    warning("total sum is not the same after toolAggregate despite zeroWeight = 'fix', ",
-            "please contact a madrat developer.")
-  }
 
   getComment(out) <- c(xComment, paste0("Data aggregated (toolAggregate): ", date()))
   return(out)
@@ -251,8 +253,7 @@ toolZeroWeight <- function(weight, rel, from, to, dim, wdim, partrel, zeroWeight
   weightSum <- toolAggregate(weight, rel, from = from, to = to, dim = wdim, partrel = partrel, verbosity = 10)
   if (zeroWeight != "allow" && any(weightSum == 0, na.rm = TRUE)) {
     if (zeroWeight == "warn") {
-      warning("Weight sum is 0, so cannot normalize and will return 0 for some ",
-              "aggregation targets. This changes the total sum of the magpie object! ",
+      warning("Weight sum is 0, so cannot normalize and will return 0 for some aggregation targets. ",
               'If this is really intended set zeroWeight = "allow", or "setNA" to return NA.')
     } else if (zeroWeight == "setNA") {
       weightSum[weightSum == 0] <- NA
@@ -263,7 +264,7 @@ toolZeroWeight <- function(weight, rel, from, to, dim, wdim, partrel, zeroWeight
         warning("Critical: toolAggregate zeroWeight = fix did not fix the weight! Please contact a madrat developer.")
       }
     } else {
-      stop("Weight sum is 0, so cannot normalize. This changes the total sum of the magpie object!")
+      stop("Weight sum is 0, so cannot normalize weights!")
     }
   }
   return(list(weight = weight, weightSum = weightSum))

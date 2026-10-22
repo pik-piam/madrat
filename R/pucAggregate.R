@@ -20,6 +20,7 @@
 #' warnings will be taken more seriously and will cause 1. to have the number of
 #' warnings as prefix of the created tgz file and 2. will prevent \code{retrieveData}
 #' from creating a puc file. If set to NULL the setting will be read from the puc file.
+#' @return Invisibly, the path to the resulting tgz archive.
 #' @author Jan Philipp Dietrich
 #' @seealso
 #' \code{\link{retrieveData}},\code{\link{localConfig}}
@@ -31,7 +32,6 @@
 #' @importFrom withr with_tempdir local_package
 #' @importFrom utils untar modifyList
 #' @importFrom callr r
-#' @importFrom renv activate restore
 #' @export
 pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., renv = TRUE, strict = FALSE) {
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
@@ -43,14 +43,13 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
   puc <- normalizePath(puc)
   if (file.exists(regionmapping)) regionmapping <- normalizePath(regionmapping)
 
-  .aggregatePuc <- function(regionmapping, cfg, madratCfg, madratCodelabels, nestinglevel) {
+  .aggregatePuc <- function(regionmapping, cfg, madratCfg, madratCodelabels, nestinglevel,
+                            madratCacheFormats) {
     # need to use `::` because this is run in another R session
-    if (file.exists("puc/renv.lock")) {
-      renv::init()
-      renv::restore(lockfile = "puc/renv.lock", prompt = FALSE)
-    }
     withr::local_options(madrat_cfg = madratCfg,
                          madrat_codelabels = madratCodelabels,
+                         # custom cache formats are not registered in this new session
+                         madrat_cacheformats = madratCacheFormats,
                          gdt_nestinglevel = nestinglevel)
     madrat::localConfig(packages = "madrat", regionmapping = regionmapping,
                         forcecache = TRUE, .verbose = FALSE)
@@ -58,7 +57,7 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     do.call(madrat::retrieveData, c(cfg$args, list(renv = FALSE)))
   }
 
-  with_tempdir({
+  tgzPath <- with_tempdir({
     untar(puc, exdir = "puc")
     cfg <- readRDS("puc/config.rds")
     if (!all(names(extraArgs) %in% cfg$pucArguments)) {
@@ -71,12 +70,23 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     cfg$args$puc <- FALSE
     if (!is.null(strict)) cfg$args$strict <- strict
     if (isTRUE(renv)) {
-      out <- capture.output(r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
-                                                  madratCfg = getOption("madrat_cfg"),
-                                                  madratCodelabels = getOption("madrat_codelabels"),
-                                                  nestinglevel = getOption("gdt_nestinglevel")),
-                              spinner = FALSE, show = TRUE))
-      message(paste(out, "\n"))
+      # set up renv in the main process so its output is shown properly; the child is started in this folder
+      # and needs the project library explicitly as callr would otherwise reset it to the parent's libpaths
+      stopifnot(file.exists("puc/renv.lock"))
+
+      project <- getwd()
+      renv::scaffold(project = project)
+      libpath <- renv::paths$library(project = project) # nolint: object_usage_linter
+      renv::restore(project = project, library = libpath, lockfile = "puc/renv.lock",
+                    prompt = interactive(), retry = interactive(), transactional = !interactive())
+
+      # merge stderr into stdout and relay each line as a message while the child is running
+      r(.aggregatePuc, list(regionmapping = regionmapping, cfg = cfg,
+                            madratCfg = getOption("madrat_cfg"),
+                            madratCodelabels = getOption("madrat_codelabels"),
+                            nestinglevel = getOption("gdt_nestinglevel"),
+                            madratCacheFormats = getOption("madrat_cacheformats")),
+        libpath = libpath, spinner = FALSE, stderr = "2>&1", callback = function(line) message(line))
     } else {
       # only attach and detach if package is not already attached, might crash otherwise
       if (!is.null(cfg$package) && !cfg$package %in% .packages()) {
@@ -87,4 +97,5 @@ pucAggregate <- function(puc, regionmapping = getConfig("regionmapping"), ..., r
     }
   }, tmpdir = madTempDir())
   toolendmessage(startinfo)
+  return(invisible(tgzPath))
 }

@@ -31,7 +31,7 @@ functionNames <- c("madrat:::readTau", "madrat:::convertTau")
 madrat:::cacheArgumentsHash(functionNames, args = list(subtype = "historical"))
 }
 \seealso{
-\code{\link{cachePut}}, \code{\link{cacheName}}, \code{\link{getNonDefaultArguments}}
+\code{\link{cachePut}}, \code{\link{cacheNames}}, \code{\link{getNonDefaultArguments}}
 }
 \author{
 Jan Philipp Dietrich

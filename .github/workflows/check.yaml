@@ -15,7 +15,7 @@ jobs:
       image: ghcr.io/pik-piam/ci-image:latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install package and dependencies
         shell: Rscript {0}

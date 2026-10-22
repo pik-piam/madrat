@@ -25,7 +25,7 @@
 #' @importFrom magclass ncells
 #' @export
 getISOlist <- function(type = "all", threshold = 1) {
-  isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
+  isoCountry <- utils::read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
   isoCountry1 <- as.vector(isoCountry[, "x"])
   names(isoCountry1) <- isoCountry[, "X"]
   ref <- robustSort(isoCountry1)

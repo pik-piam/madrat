@@ -44,7 +44,7 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
                             countrylist = NULL, ...) {
   comment <- getComment(x)
   if (is.null(countrylist)) {
-    isoCountry <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
+    isoCountry <- utils::read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
     countrylist <- as.vector(isoCountry[, "x"])
     names(countrylist) <- isoCountry[, "X"]
   }
@@ -57,8 +57,8 @@ toolCountryFill <- function(x, fill = NA, no_remove_warning = NULL, overwrite = 
     # warn only for countries which were not explicitly mentioned in argument "remove"
     countries2warn <- setdiff(additionalCountries, no_remove_warning)
     if (length(countries2warn) > 0) {
-      historicalCountries <- unique(read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"),
-                                              stringsAsFactors = FALSE)[["fromISO"]])
+      historicalCountries <- unique(utils::read.csv2(system.file("extdata", "ISOhistorical.csv", package = "madrat"),
+                                                     stringsAsFactors = FALSE)[["fromISO"]])
       removedHistoricalCountries <- intersect(countries2warn, historicalCountries)
       historicalHint <- if (length(removedHistoricalCountries) > 0) {
         paste(" - By using madrat::toolISOhistorical the data for the following countries can usually still be used:",

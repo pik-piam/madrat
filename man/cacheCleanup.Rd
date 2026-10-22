@@ -39,6 +39,7 @@ files that would be deleted if the user answers 'n' to the question. If deleting
 }
 \seealso{
 Other cache management:
-\code{\link[=cacheCopy]{cacheCopy()}}
+\code{\link[=cacheCopy]{cacheCopy()}},
+\code{\link[=registerCacheFormat]{registerCacheFormat()}}
 }
 \concept{cache management}

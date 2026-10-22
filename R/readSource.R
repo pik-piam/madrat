@@ -112,7 +112,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   }
 
   .testISO <- function(x, functionname = "function") {
-    isoCountry  <- read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
+    isoCountry  <- utils::read.csv2(system.file("extdata", "iso_country.csv", package = "madrat"), row.names = NULL)
     isoCountry1 <- as.vector(isoCountry[, "x"])
     names(isoCountry1) <- isoCountry[, "X"]
     isocountries  <- robustSort(isoCountry1)
@@ -129,6 +129,7 @@ readSource <- function(type, subtype = NULL, subset = NULL, # nolint: cyclocomp_
   .getFromCache <- function(prefix, type, args, subtype, subset) {
     xList <- cacheGet(prefix = prefix, type = type, args = args)
     cacheFileName <- attr(xList, "id")
+    attr(xList, "readFile") <- NULL # only of interest for puc creation, see calcOutput
     if (!isTRUE(is.na(xList))) {
       if (!is.list(xList)) {
         xList <- list(x = xList, class = "magpie")
