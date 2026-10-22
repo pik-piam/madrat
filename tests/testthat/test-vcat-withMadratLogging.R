@@ -22,6 +22,42 @@ test_that("withMadratLogging properly logs warnings", {
   }
 })
 
+test_that("withMadratLogging can treat warnings as errors", {
+  warningMessage <- "This warning is an error"
+  expect_error(
+    expect_message(
+      withMadratLogging(warning(warningMessage), logOnly = FALSE, warningsAsErrors = TRUE),
+      paste0("^ERROR: ", warningMessage, "\n$")
+    ),
+    warningMessage,
+    fixed = TRUE
+  )
+})
+
+test_that("nested withMadratLogging calls inherit and can override policies", {
+  inheritedWarning <- "This warning inherits the outer policy"
+  expect_error(
+    withMadratLogging(
+      withMadratLogging(warning(inheritedWarning)),
+      logOnly = FALSE,
+      warningsAsErrors = TRUE
+    ),
+    inheritedWarning,
+    fixed = TRUE
+  )
+
+  overriddenWarning <- "This warning overrides the outer policy"
+  expect_warning(
+    withMadratLogging(
+      withMadratLogging(warning(overriddenWarning), logOnly = TRUE, warningsAsErrors = FALSE),
+      logOnly = FALSE,
+      warningsAsErrors = TRUE
+    ),
+    overriddenWarning,
+    fixed = TRUE
+  )
+})
+
 test_that("withMadratLogging properly logs messages", {
   m <- "This is a message"
   mExp <- paste0("^NOTE: ", m, "\n$")
