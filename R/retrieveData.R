@@ -26,6 +26,9 @@
 #' in which versions were used to create the puc file, download, install and
 #' load these packages and run the aggregation with them. Otherwise, the packages
 #' in the currently used environment are being used.
+#' @param rebuild Boolean deciding whether the collection should be recomputed even if a
+#' matching tgz file already exists. Existing tgz and puc files are then not used as a
+#' shortcut and the existing tgz file is replaced by the newly created one.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -56,7 +59,7 @@
 #' @importFrom withr with_dir with_tempdir local_tempdir
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = identical(dev, ""),
-                         strict = FALSE, renv = TRUE, ...) {
+                         strict = FALSE, renv = TRUE, rebuild = FALSE, ...) {
 
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
@@ -78,19 +81,23 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   cfg <- .prepConfig(model, rev, dev, ...)
 
   outputfolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
+  outdatedCollections <- character(0)
 
   if (getConfig("debug") != TRUE) {
 
     matchingCollections <- .match(getConfig("outputfolder"), "tgz", cfg$collectionName)
 
-    if (length(matchingCollections) > 0) {
+    if (rebuild) {
+      # Old collections will be removed after the new archive has been created successfully
+      outdatedCollections <- normalizePath(file.path(getConfig("outputfolder"), matchingCollections))
+    } else if (length(matchingCollections) > 0) {
       startinfo <- toolstartmessage(callString, 0)
       vcat(-2, " - data is already available and not calculated again.", fill = 300)
       toolendmessage(startinfo)
       return(invisible(file.path(getConfig("outputfolder"), matchingCollections)))
     }
 
-    if (puc) {
+    if (puc && !rebuild) {
       matchingPUCs <- .match(getConfig("pucfolder"), "puc", cfg$pucName)
 
       if (length(matchingPUCs) == 1) {
@@ -191,6 +198,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     .tarAndVerify(tgzPath)
     tgzPath <- normalizePath(tgzPath, mustWork = TRUE)
   })
+  unlink(setdiff(outdatedCollections, tgzPath))
   unlink(outputfolder, recursive = TRUE)
   return(invisible(tgzPath))
 }
@@ -315,7 +323,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 .writeConfigRds <- function(outputfolder, cfg, args) {
   tryCatch({
     saveRDS(list(package = attr(cfg$functionName, "package"),
-                 args = args[!(names(args) %in% c(names(cfg$setConfig), "renv"))],
+                 args = args[!(names(args) %in% c(names(cfg$setConfig), "renv", "rebuild"))],
                  pucArguments = cfg$pucArguments, pucName = cfg$pucName, sessionInfo = sessionInfo()),
             file.path(outputfolder, "config.rds"), version = 2)
   },
