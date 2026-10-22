@@ -11,7 +11,7 @@ stop calls will also report to the madrat log output"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">madrat</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.44.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">3.44.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,7 @@ to this function. This means that <code>message</code>, <code>warning</code> and
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">withMadratLogging</span><span class="op">(</span><span class="va">expr</span>, logOnly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">withMadratLogging</span><span class="op">(</span><span class="va">expr</span>, logOnly <span class="op">=</span> <span class="cn">TRUE</span>, warningsAsErrors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -62,7 +62,13 @@ to this function. This means that <code>message</code>, <code>warning</code> and
 
 
 <dt id="arg-logonly">logOnly<a class="anchor" aria-label="anchor" href="#arg-logonly"></a></dt>
-<dd><p>passed to vcat, determines if warning/error is thrown after logging</p></dd>
+<dd><p>passed to vcat, determines if warning/error is thrown after logging.
+If omitted in a nested call, the enclosing logging policy is inherited.</p></dd>
+
+
+<dt id="arg-warningsaserrors">warningsAsErrors<a class="anchor" aria-label="anchor" href="#arg-warningsaserrors"></a></dt>
+<dd><p>whether warnings should be logged and handled as errors.
+If omitted in a nested call, the enclosing logging policy is inherited.</p></dd>
 
 </dl></div>
     <div class="section level2">

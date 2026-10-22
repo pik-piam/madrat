@@ -7,7 +7,7 @@ will also report to the madrat log output
 ## Usage
 
 ``` r
-withMadratLogging(expr, logOnly = TRUE)
+withMadratLogging(expr, logOnly = TRUE, warningsAsErrors = FALSE)
 ```
 
 ## Arguments
@@ -18,7 +18,14 @@ withMadratLogging(expr, logOnly = TRUE)
 
 - logOnly:
 
-  passed to vcat, determines if warning/error is thrown after logging
+  passed to vcat, determines if warning/error is thrown after logging.
+  If omitted in a nested call, the enclosing logging policy is
+  inherited.
+
+- warningsAsErrors:
+
+  whether warnings should be logged and handled as errors. If omitted in
+  a nested call, the enclosing logging policy is inherited.
 
 ## See also
 
