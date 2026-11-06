@@ -374,12 +374,57 @@ test_that("empty cells in a to column do not result in aggregated data", {
   expect_equal(noC(toolAggregate(x, rel)),
                new.magpie(c("AGG", "NULL"), "", fill = 100))
 
-  ## Explicitly passed subdim works
+  ## Explicitly passed subdim works, full items with an empty
+  ## aggregation target in that subdim are removed
   x <- new.magpie(c("X.A", "X.B", "X.C"), "", fill = 100)
   rel <- data.frame(c("A", "B", "C"),
                     c("AGG", "AGG", ""))
 
   expect_equal(noC(toolAggregate(x, rel, dim = 1.2, partrel = TRUE)),
-               new.magpie(c("X.AGG", "X."), "", fill = c(200, 100)))
+               new.magpie("X.AGG", "", fill = 200))
 
+})
+
+test_that("empty aggregation targets in subdimensions remove the full items", {
+  x <- new.magpie("GLO", 2000, c("a.x", "a.y", "b.x", "b.y"), fill = 1)
+  getSets(x) <- c("region", "year", "d3a", "d3b")
+
+  ## first subdim
+  rel <- data.frame(from = c("a", "b"), to = c("", "ab"))
+  expect_message(out <- toolAggregate(x, rel, dim = 3.1),
+                 "Aggregation target included \"\"")
+  expect_setequal(getItems(out, 3), c("ab.x", "ab.y"))
+  expect_equal(as.vector(out[, , "ab.x"]), 1)
+
+  ## last subdim
+  rel <- data.frame(from = c("x", "y"), to = c("", "xy"))
+  out <- toolAggregate(x, rel, dim = 3.2)
+  expect_setequal(getItems(out, 3), c("a.xy", "b.xy"))
+  expect_equal(as.vector(out[, , "a.xy"]), 1)
+
+  ## middle subdim of three
+  x3 <- new.magpie("GLO", 2000, c("a.m.x", "a.n.x", "b.m.y", "b.n.y"), fill = 1)
+  rel <- data.frame(from = c("m", "n"), to = c("", "mn"))
+  out <- toolAggregate(x3, rel, dim = 3.2)
+  expect_setequal(getItems(out, 3), c("a.mn.x", "b.mn.y"))
+
+  ## all items of a subdim have the same number of subdimensions afterwards
+  expect_length(unique(lengths(strsplit(getItems(out, 3), ".", fixed = TRUE))), 1)
+
+  ## weighted aggregation of a subdim
+  w <- new.magpie("GLO", 2000, getItems(x, 3), fill = 1)
+  rel <- data.frame(from = c("a", "b"), to = c("", "ab"))
+  out <- toolAggregate(x, rel, weight = w, dim = 3.1)
+  expect_setequal(getItems(out, 3), c("ab.x", "ab.y"))
+
+  ## pre-existing empty items in a non-aggregated subdim are kept
+  x2 <- new.magpie("GLO", 2000, c(".x", ".y"), fill = 1)
+  rel <- data.frame(from = c("x", "y"), to = c("xy", "xy"))
+  out <- toolAggregate(x2, rel, dim = 3.2)
+  expect_identical(getItems(out, 3), ".xy")
+  expect_equal(as.vector(out), 2)
+
+  ## without empty targets nothing changes
+  rel <- data.frame(from = c("a", "b"), to = c("ab", "ab"))
+  expect_setequal(getItems(toolAggregate(x, rel, dim = 3.1), 3), c("ab.x", "ab.y"))
 })
