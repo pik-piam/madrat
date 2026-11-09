@@ -541,16 +541,14 @@ toolMapFromRel <- function(rel, from, to) {
 }
 
 removeEmptyResultItems <- function(m, dim) {
-  dim <- floor(dim)
-  if (any("" %in% unlist(getItems(m, dim = dim)))) {
-    vcat(1, "Aggregation target included \"\". Those items were removed from aggregation result.")
-
-    if (any("" %in% unlist(getItems(m, dim = dim)))) {
-      m <- m["", dim = dim, invert = TRUE]
-    }
-
-    return(m)
-  } else {
+  # dim can be a subdimension (e.g. 3.1). In that case the items of that subdimension
+  # are checked, but the full items are removed, as all items of a dimension must have
+  # the same number of subdimensions (e.g. ".x" is removed instead of being renamed to "x").
+  items <- getItems(m, dim = dim, full = TRUE)
+  empty <- !is.na(items) & items == ""
+  if (!any(empty)) {
     return(m)
   }
+  vcat(1, "Aggregation target included \"\". Those items were removed from aggregation result.")
+  return(m[which(!empty), dim = floor(dim)])
 }
