@@ -28,7 +28,7 @@
 #' in the currently used environment are being used.
 #' @param rebuild Boolean deciding whether the collection should be recomputed even if a
 #' matching tgz file already exists. Existing tgz and puc files are then not used as a
-#' shortcut and the existing tgz file is replaced by the newly created one.
+#' shortcut and are replaced by the newly created ones.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -182,7 +182,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
       .createPuc(pucName = paste0(cfg$pucName, ".puc"),
                  cacheFiles = readLines(pucFiles),
                  extraFiles = file.path(outputfolder, c("config.rds", "diagnostics.log")),
-                 requiredPackages = attr(cfg$functionName, "package"))
+                 requiredPackages = attr(cfg$functionName, "package"),
+                 overwrite = rebuild)
     } else {
       vcat(1, "puc file not created: could not find list of files to be added.")
     }
@@ -337,13 +338,18 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 #' existing) or NULL if none exists afterwards.
 #' @param pucName File name including the .puc extension.
 #' @param extraFiles Absolute paths of additional files to bundle, missing ones are skipped.
+#' @param overwrite Whether an existing puc should be replaced.
 #' @noRd
-.createPuc <- function(pucName, cacheFiles, extraFiles, requiredPackages) {
+.createPuc <- function(pucName, cacheFiles, extraFiles, requiredPackages, overwrite = FALSE) {
   pucPath <- file.path(getConfig("pucfolder"), pucName)
   .withLockedPuc(pucName, function() {
     if (file.exists(pucPath)) {
-      vcat(1, " - puc file already exists, keeping the existing one", fill = 300, show_prefix = FALSE)
-      return(invisible(NULL))
+      if (!overwrite) {
+        vcat(1, " - puc file already exists, keeping the existing one", fill = 300, show_prefix = FALSE)
+        return(invisible(NULL))
+      }
+      vcat(1, " - replacing existing puc file", fill = 300, show_prefix = FALSE)
+      unlink(pucPath)
     }
     missingCacheFiles <- cacheFiles[!file.exists(cacheFiles)]
     if (length(missingCacheFiles) > 0) {
