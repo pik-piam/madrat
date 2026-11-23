@@ -1,27 +1,28 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+# Requires Settings -> Pages -> Source: "GitHub Actions"
 on:
   push:
     branches: [main, master]
 
 name: pkgdown
 
-permissions: read-all
+permissions:
+  contents: read
+
+concurrency:
+  group: pkgdown
+  cancel-in-progress: false
 
 jobs:
-  pkgdown:
+  build:
     runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
-    concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-    permissions:
-      contents: write
     container:
       image: ghcr.io/pik-piam/ci-image:latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install
         shell: Rscript {0}
@@ -35,10 +36,20 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.8.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          clean: false
-          branch: gh-pages
-          folder: docs
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
