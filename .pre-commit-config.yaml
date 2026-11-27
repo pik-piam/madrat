@@ -3,7 +3,7 @@
 exclude: '^tests/testthat/_snaps/.*$'
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: cef0300fd0fc4d2a87a85fa2093c6b283ea36f4b  # frozen: v5.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
     -   id: check-case-conflict
     -   id: check-json
@@ -15,7 +15,7 @@ repos:
     -   id: mixed-line-ending
 
 -   repo: https://github.com/lorenzwalthert/precommit
-    rev: v0.4.3.9021
+    rev: 30dfea26e4da050bf3c1dfcd044b2d72e742872c  # frozen: v0.4.3.9034
     hooks:
     -   id: parsable-R
     -   id: deps-in-desc

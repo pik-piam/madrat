@@ -21,3 +21,5 @@ cran-comments.md
 ^\.claude$
 ^CODE_STYLE\.md$
 ^CONTRIBUTING\.md$
+^CLAUDE.md$
+^AGENTS.md$
