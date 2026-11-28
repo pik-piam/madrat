@@ -29,6 +29,25 @@ test_that("puc creation works", {
   expect_true(file.exists(file.path(getConfig("outputfolder"), "rev42_h12_5f3d77a0_example_customizable_tag.tgz")))
 })
 
+test_that("rebuild does not aggregate from an existing puc but replaces it", {
+  skip_on_cran()
+  localMockedTauDownload()
+  pucPath <- file.path(getConfig("pucfolder"), "rev47_extra_example_tag.puc")
+  pucArgs <- function() {
+    withr::with_tempdir({
+      untar(pucPath)
+      readRDS("config.rds")$args
+    })
+  }
+
+  retrieveData("example", rev = 47, extra = "test1", renv = FALSE)
+  expect_identical(pucArgs()$extra, "test1")
+
+  expect_message(retrieveData("example", rev = 47, extra = "test2", renv = FALSE, rebuild = TRUE),
+                 "replacing existing puc file")
+  expect_identical(pucArgs()$extra, "test2")
+})
+
 .pucFilesOfArchive <- function(archive) {
   withr::with_tempdir({
     members <- untar(archive, list = TRUE)

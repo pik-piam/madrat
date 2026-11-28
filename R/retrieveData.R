@@ -26,6 +26,9 @@
 #' in which versions were used to create the puc file, download, install and
 #' load these packages and run the aggregation with them. Otherwise, the packages
 #' in the currently used environment are being used.
+#' @param rebuild Boolean deciding whether the collection should be recomputed even if a
+#' matching tgz file already exists. Existing tgz and puc files are then not used as a
+#' shortcut and are replaced by the newly created ones.
 #' @param ... (Optional) Settings that should be changed using \code{setConfig}
 #' (e.g. regionmapping). or arguments which should be forwarded to the corresponding
 #' fullXYZ function (Please make sure that argument names in full functions do not
@@ -56,7 +59,7 @@
 #' @importFrom withr with_dir with_tempdir local_tempdir
 #' @export
 retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = identical(dev, ""),
-                         strict = FALSE, renv = TRUE, ...) {
+                         strict = FALSE, renv = TRUE, rebuild = FALSE, ...) {
 
   argumentValues <- c(as.list(environment()), list(...)) # capture arguments for logging
 
@@ -78,19 +81,23 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
   cfg <- .prepConfig(model, rev, dev, ...)
 
   outputfolder <- file.path(getConfig("outputfolder"), cfg$collectionName)
+  outdatedCollections <- character(0)
 
   if (getConfig("debug") != TRUE) {
 
     matchingCollections <- .match(getConfig("outputfolder"), "tgz", cfg$collectionName)
 
-    if (length(matchingCollections) > 0) {
+    if (rebuild) {
+      # Old collections will be removed after the new archive has been created successfully
+      outdatedCollections <- normalizePath(file.path(getConfig("outputfolder"), matchingCollections))
+    } else if (length(matchingCollections) > 0) {
       startinfo <- toolstartmessage(callString, 0)
       vcat(-2, " - data is already available and not calculated again.", fill = 300)
       toolendmessage(startinfo)
       return(invisible(file.path(getConfig("outputfolder"), matchingCollections)))
     }
 
-    if (puc) {
+    if (puc && !rebuild) {
       matchingPUCs <- .match(getConfig("pucfolder"), "puc", cfg$pucName)
 
       if (length(matchingPUCs) == 1) {
@@ -175,7 +182,8 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
       .createPuc(pucName = paste0(cfg$pucName, ".puc"),
                  cacheFiles = readLines(pucFiles),
                  extraFiles = file.path(outputfolder, c("config.rds", "diagnostics.log")),
-                 requiredPackages = attr(cfg$functionName, "package"))
+                 requiredPackages = attr(cfg$functionName, "package"),
+                 overwrite = rebuild)
     } else {
       vcat(1, "puc file not created: could not find list of files to be added.")
     }
@@ -191,6 +199,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
     .tarAndVerify(tgzPath)
     tgzPath <- normalizePath(tgzPath, mustWork = TRUE)
   })
+  unlink(setdiff(outdatedCollections, tgzPath))
   unlink(outputfolder, recursive = TRUE)
   return(invisible(tgzPath))
 }
@@ -315,7 +324,7 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 .writeConfigRds <- function(outputfolder, cfg, args) {
   tryCatch({
     saveRDS(list(package = attr(cfg$functionName, "package"),
-                 args = args[!(names(args) %in% c(names(cfg$setConfig), "renv"))],
+                 args = args[!(names(args) %in% c(names(cfg$setConfig), "renv", "rebuild"))],
                  pucArguments = cfg$pucArguments, pucName = cfg$pucName, sessionInfo = sessionInfo()),
             file.path(outputfolder, "config.rds"), version = 2)
   },
@@ -329,13 +338,18 @@ retrieveData <- function(model, rev = 0, dev = "", cachetype = "def", puc = iden
 #' existing) or NULL if none exists afterwards.
 #' @param pucName File name including the .puc extension.
 #' @param extraFiles Absolute paths of additional files to bundle, missing ones are skipped.
+#' @param overwrite Whether an existing puc should be replaced.
 #' @noRd
-.createPuc <- function(pucName, cacheFiles, extraFiles, requiredPackages) {
+.createPuc <- function(pucName, cacheFiles, extraFiles, requiredPackages, overwrite = FALSE) {
   pucPath <- file.path(getConfig("pucfolder"), pucName)
   .withLockedPuc(pucName, function() {
     if (file.exists(pucPath)) {
-      vcat(1, " - puc file already exists, keeping the existing one", fill = 300, show_prefix = FALSE)
-      return(invisible(NULL))
+      if (!overwrite) {
+        vcat(1, " - puc file already exists, keeping the existing one", fill = 300, show_prefix = FALSE)
+        return(invisible(NULL))
+      }
+      vcat(1, " - replacing existing puc file", fill = 300, show_prefix = FALSE)
+      unlink(pucPath)
     }
     missingCacheFiles <- cacheFiles[!file.exists(cacheFiles)]
     if (length(missingCacheFiles) > 0) {

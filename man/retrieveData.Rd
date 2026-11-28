@@ -12,6 +12,7 @@ retrieveData(
   puc = identical(dev, ""),
   strict = FALSE,
   renv = TRUE,
+  rebuild = FALSE,
   ...
 )
 }
@@ -44,6 +45,10 @@ within a renv environment (recommended) or not (currently only applied in
 in which versions were used to create the puc file, download, install and
 load these packages and run the aggregation with them. Otherwise, the packages
 in the currently used environment are being used.}
+
+\item{rebuild}{Boolean deciding whether the collection should be recomputed even if a
+matching tgz file already exists. Existing tgz and puc files are then not used as a
+shortcut and are replaced by the newly created ones.}
 
 \item{...}{(Optional) Settings that should be changed using \code{setConfig}
 (e.g. regionmapping). or arguments which should be forwarded to the corresponding

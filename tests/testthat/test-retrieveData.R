@@ -5,6 +5,32 @@ test_that("retrieveData works as expected", {
   expect_message(retrieveData("example", rev = 0, dev = "test"), "data is already available")
 })
 
+test_that("rebuild recomputes and replaces an existing archive", {
+  calls <- new.env()
+  calls$n <- 0
+  fullTESTREBUILD <- function() {
+    calls$n <- calls$n + 1
+    return(list(tag = paste0("call", calls$n)))
+  }
+  globalassign("fullTESTREBUILD", "calls")
+  archive <- function(tag) file.path(getConfig("outputfolder"), paste0("rev0_h12_testrebuild_", tag, ".tgz"))
+
+  retrieveData("TestRebuild")
+  expect_message(retrieveData("TestRebuild"), "data is already available")
+  expect_identical(calls$n, 1)
+
+  tgzPath <- retrieveData("TestRebuild", rebuild = TRUE)
+  expect_identical(calls$n, 2)
+  expect_identical(tgzPath, normalizePath(archive("call2")))
+  expect_false(file.exists(archive("call1")))
+
+  config <- withr::with_tempdir({
+    untar(tgzPath, files = "./config.rds")
+    readRDS("config.rds")
+  })
+  expect_false("rebuild" %in% names(config$args))
+})
+
 test_that("retrieveData properly detects malformed inputs", {
   expect_error(retrieveData("NotThere"), "is not a valid output type")
   expect_error(retrieveData("Example", cachetype = "fantasy"), "Unknown cachetype")
